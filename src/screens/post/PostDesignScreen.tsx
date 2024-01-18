@@ -61,7 +61,7 @@ import { ICardAction, IPost, IProfile } from "@usertypes/types";
 import useClipboard from "@utils/useClipboard";
 import useDocumentPicker from "@utils/useDocumentPicker";
 import { createURL } from "expo-linking";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect, useGlobalSearchParams } from "expo-router";
 import React, { Fragment, useEffect, useState } from "react";
 import {
 	NativeScrollEvent,
@@ -77,6 +77,7 @@ const PostDesignScreen = (
 ) => {
 	const { navigation } = props;
 	const router = useRouter();
+	const { screen } = useGlobalSearchParams();
 	const insets = useSafeAreaInsets();
 	const { useImagePicker } = useDocumentPicker();
 	const { copyString } = useClipboard();
@@ -113,11 +114,6 @@ const PostDesignScreen = (
 	const featureGates = useFeatureGates();
 
 	const onClickCreatorFeed = (creator: IProfile) => {
-		// setCreators(
-		// 	creators.map((cell) =>
-		// 		cell.id === creator.id ? { ...cell, isSelected: true } : cell,
-		// 	),
-		// );
 		dispatch.setStory({
 			type: StoryActionType.updateStoryState,
 			data: {
@@ -351,6 +347,7 @@ const PostDesignScreen = (
 		const query = {
 			page: posts.page,
 			size: 10,
+			userListId: userListId !== "all" ? userListId : undefined,
 		};
 		const resp = await getPostFeedForHomepage(query);
 		setIsLoading(false);
@@ -394,7 +391,7 @@ const PostDesignScreen = (
 
 	const onPaidPostCallback = async (postId: string) => {
 		const resp = await getPostById({ id: postId });
-		if (resp.ok) {
+		if (resp.ok && resp.data.isPosted) {
 			setPosts({
 				...posts,
 				posts: posts.posts.map((post) =>
@@ -437,7 +434,7 @@ const PostDesignScreen = (
 	const postLiveModalCallback = async (postId: string) => {
 		if (tw.prefixMatch("md")) {
 			const resp = await getPostById({ id: postId });
-			if (resp.ok) {
+			if (resp.ok && resp.data.isPosted) {
 				setPosts({
 					...posts,
 					total: posts.total + 1,
@@ -493,13 +490,13 @@ const PostDesignScreen = (
 
 	useEffect(() => {
 		getPostFeeds();
-		fetchStoriesFeed();
+		// fetchStoriesFeed();
 		getUserLists();
 	}, []);
 
 	useEffect(() => {
 		getPostFeeds();
-	}, [posts.page]);
+	}, [posts.page, userListId]);
 
 	useEffect(() => {
 		setPosts({
@@ -508,6 +505,12 @@ const PostDesignScreen = (
 			total: 0,
 		});
 	}, [state.posts.modal.visible]);
+
+	useFocusEffect(() => {
+		if (screen && screen !== "Home") {
+			router.replace({ pathname: "posts", params: { screen: "Home" } });
+		}
+	});
 
 	return (
 		<AppLayout

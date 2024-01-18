@@ -225,9 +225,10 @@ const PaymentMethodModal: FC<Props> = (props) => {
 							<View style={tw.style("pb-5")}>
 								<RoundButton
 									variant={RoundButtonType.OUTLINE_RED}
-									onPress={() =>
-										onDeleteSubscription(subscription)
-									}
+									onPress={() => {
+										onDeleteSubscription(subscription);
+										handleClose();
+									}}
 								>
 									Cancel subscription
 								</RoundButton>

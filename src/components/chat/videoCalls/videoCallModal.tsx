@@ -13,9 +13,9 @@ import {
 	MicSvg,
 	PhoneSvg,
 	ChatSvg,
-	ChevronLeftSvg,
 	ChevronUp1Svg,
 } from "@assets/svgs/common";
+import UserAvatar from "@components/avatar/UserAvatar";
 import ChatItem from "@components/chat/ChatItem";
 import AvatarWithStatus from "@components/common/AvatarWithStatus";
 import {
@@ -26,19 +26,24 @@ import {
 	FypNullableView,
 } from "@components/common/base";
 import { FansView, FansIconButton, FansDivider } from "@components/controls";
+import { emptyProfileData } from "@constants/common";
 import { useAppContext } from "@context/useAppContext";
+import { cdnURL } from "@helper/Utils";
+import { getCreatorProfileByLink } from "@helper/endpoints/profile/apis";
 import tw from "@lib/tailwind";
 import { chatInboxAtom } from "@state/chat";
 import { useMessageView } from "@state/messagesView";
-import { IMessage, IUserInfo, ICardAction } from "@usertypes/types";
+import { IMessage, IProfile } from "@usertypes/types";
 import { IUploadedFile } from "@utils/useUploadFile";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { FC, useState, useRef, Fragment } from "react";
+import React, { FC, useState, useRef, useEffect } from "react";
 import {
 	Modal,
 	Image,
 	Animated as ReAnimated,
 	VirtualizedList,
+	Dimensions,
+	ViewStyle,
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import OutsidePressHandler from "react-native-outside-press";
@@ -56,6 +61,37 @@ import PurchaseRequestModal from "./purchaseRequestModal";
 import SendOfferModal from "./sendOfferModal";
 import SubmitSuccessModal from "./submitSuccessModal";
 import ThreeDotsModal from "./threeDotsModal";
+
+const { width: windowWidth } = Dimensions.get("window");
+
+interface ControlButtonProps {
+	isActive?: boolean;
+	onPress: () => void;
+	children: React.ReactNode;
+	style?: ViewStyle;
+}
+
+const ControlButton: FC<ControlButtonProps> = (props) => {
+	const { isActive, onPress, children, style } = props;
+	return (
+		<FansView
+			width={{ xs: 42, md: 74 }}
+			height={{ xs: 42, md: 74 }}
+			alignItems="center"
+			justifyContent="center"
+			borderRadius={74}
+			style={[
+				tw.style(isActive ? "bg-fans-white" : "bg-fans-black/40"),
+				style,
+			]}
+			pressableProps={{
+				onPress: onPress,
+			}}
+		>
+			{children}
+		</FansView>
+	);
+};
 
 interface DevicePopupProps {
 	onOutsidePress: () => void;
@@ -80,7 +116,7 @@ const DevicePopup: FC<DevicePopupProps> = (props) => {
 				style={[
 					tw.style(
 						"pt-6 pb-3 px-[18px] rounded-[15px]",
-						"bg-fans-black-2e",
+						"bg-fans-black/50",
 					),
 				]}
 			>
@@ -155,7 +191,270 @@ const DevicePopup: FC<DevicePopupProps> = (props) => {
 	);
 };
 
-const ControlButtons = () => {
+interface HeaderProps {
+	profile: IProfile;
+	handleClose: () => void;
+	handleBuyMoreTime: () => void;
+	handleTipUser: () => void;
+	handleSendOffer: () => void;
+	handlePressThreeDots: () => void;
+	handleWaitCallback: () => void;
+}
+
+const Header: FC<HeaderProps> = (props) => {
+	const {
+		profile,
+		handleClose,
+		handleBuyMoreTime,
+		handleTipUser,
+		handleSendOffer,
+		handlePressThreeDots,
+		handleWaitCallback,
+	} = props;
+	return (
+		<FansView
+			flexDirection="row"
+			alignItems="center"
+			justifyContent="between"
+			position="absolute"
+			width="full"
+			flexWrap="wrap"
+			style={tw.style("px-4 top-3 md:pl-9 md:pr-8 md:top-6 z-10")}
+		>
+			<FansView
+				flexDirection="row"
+				alignItems="center"
+				position="relative"
+				borderRadius={60}
+				style={tw.style("md:py-[7px] md:pl-[10px] md:bg-fans-black/40")}
+			>
+				<AvatarWithStatus
+					avatar={profile.avatar}
+					size={tw.prefixMatch("md") ? 46 : 34}
+				/>
+				<FansView style={tw.style("ml-3 md:ml-4")}>
+					<FansView flexDirection="row" alignItems="center" gap={11}>
+						<FypText
+							fontSize={{ xs: 16, md: 19 }}
+							lineHeight={26}
+							fontWeight={tw.prefixMatch("md") ? 700 : 600}
+							numberOfLines={1}
+							style={[
+								tw.style("text-fans-white"),
+								{ maxWidth: windowWidth * 0.3 },
+							]}
+						>
+							{profile.displayName}
+						</FypText>
+						<FypSvg svg={StarCheckSvg} width={16} height={15} />
+					</FansView>
+					<FypText
+						fontSize={{ xs: 14, md: 16 }}
+						lineHeight={{ xs: 19, md: 21 }}
+						style={tw.style("text-fans-white")}
+					>
+						00:15
+					</FypText>
+				</FansView>
+				<FansIconButton
+					size={tw.prefixMatch("md") ? 32 : 22}
+					backgroundColor="bg-transparent"
+					onPress={handlePressThreeDots}
+				>
+					<FypSvg
+						svg={ThreeDotsVerticalSvg}
+						width={18}
+						height={18}
+						color="fans-white"
+					/>
+				</FansIconButton>
+			</FansView>
+
+			{tw.prefixMatch("md") ? (
+				<FansView
+					width={182}
+					height={42}
+					borderRadius={42}
+					alignItems="center"
+					justifyContent="center"
+					style={tw.style("bg-fans-black/40")}
+					pressableProps={{
+						onPress: handleClose,
+					}}
+				>
+					<FypText
+						fontSize={19}
+						fontWeight={700}
+						lineHeight={26}
+						style={tw.style("text-fans-white")}
+					>
+						Exit video call
+					</FypText>
+				</FansView>
+			) : (
+				<FypText
+					fontSize={17}
+					fontWeight={600}
+					lineHeight={22}
+					style={tw.style("text-fans-white")}
+					onPress={handleClose}
+				>
+					End
+				</FypText>
+			)}
+
+			<FansView
+				flexDirection="row"
+				gap={14}
+				style={[
+					tw.style(
+						tw.prefixMatch("md")
+							? "absolute top-2 left-1/2"
+							: "w-full mt-8",
+					),
+					{
+						transform: tw.prefixMatch("md")
+							? [{ translateX: -180 }]
+							: [],
+					},
+				]}
+			>
+				<FansView
+					height={42}
+					borderRadius={42}
+					alignItems="center"
+					justifyContent="center"
+					style={tw.style(
+						"bg-fans-black/40",
+						tw.prefixMatch("md") ? "w-[172px]" : "flex-1",
+					)}
+					pressableProps={{
+						onPress: handleBuyMoreTime,
+					}}
+				>
+					<FypText
+						fontSize={19}
+						lineHeight={26}
+						fontWeight={700}
+						style={tw.style("text-fans-white")}
+					>
+						Buy more time
+					</FypText>
+				</FansView>
+				<FansView
+					height={42}
+					borderRadius={42}
+					alignItems="center"
+					justifyContent="center"
+					style={tw.style(
+						"bg-fans-black/40",
+						tw.prefixMatch("md") ? "w-[172px]" : "flex-1",
+					)}
+					gap={9}
+					flexDirection="row"
+					pressableProps={{
+						onPress: handleTipUser,
+					}}
+				>
+					<FypSvg
+						svg={RoundedTip1Svg}
+						width={15}
+						height={15}
+						color="fans-white"
+					/>
+					<FypText
+						fontSize={19}
+						lineHeight={26}
+						fontWeight={700}
+						style={tw.style("text-fans-white")}
+					>
+						Tip Jane
+					</FypText>
+				</FansView>
+				<FansView
+					height={42}
+					borderRadius={42}
+					alignItems="center"
+					justifyContent="center"
+					style={tw.style(
+						"bg-fans-black/40",
+						tw.prefixMatch("md") ? "w-[172px]" : "flex-1",
+					)}
+					gap={9}
+					flexDirection="row"
+					pressableProps={{
+						onPress: handleSendOffer,
+					}}
+				>
+					<FypSvg
+						svg={RoundedTip1Svg}
+						width={15}
+						height={15}
+						color="fans-white"
+					/>
+					<FypText
+						fontSize={19}
+						lineHeight={26}
+						fontWeight={700}
+						style={tw.style("text-fans-white")}
+					>
+						Send offer
+					</FypText>
+				</FansView>
+			</FansView>
+
+			<FansView
+				width="full"
+				margin={{ t: 17 }}
+				style={tw.style("md:hidden")}
+			>
+				<FansView
+					position="relative"
+					height={9}
+					borderRadius={9}
+					style={tw.style("bg-fans-white")}
+				>
+					<FypLinearGradientView
+						colors={["#1d21e5", "#d885ff"]}
+						height="full"
+						borderRadius={9}
+						style={tw.style("w-1/2")}
+					></FypLinearGradientView>
+				</FansView>
+				<FansView margin={{ t: 12 }}>
+					<FypText
+						fontSize={19}
+						lineHeight={26}
+						fontWeight={700}
+						textAlign="center"
+						style={tw.style("text-fans-white")}
+					>
+						Time left
+					</FypText>
+					<FypText
+						fontSize={42}
+						lineHeight={56}
+						textAlign="center"
+						fontWeight={700}
+						margin={{ t: -7 }}
+						style={tw.style("text-fans-white")}
+						onPress={handleWaitCallback}
+					>
+						00:30
+					</FypText>
+				</FansView>
+			</FansView>
+		</FansView>
+	);
+};
+
+interface ControlButtonsProps {
+	handleExpand: () => void;
+	handlePressChat: () => void;
+}
+
+const ControlButtons: FC<ControlButtonsProps> = (props) => {
+	const { handleExpand, handlePressChat } = props;
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [isStopped, setIsStopped] = useState(false);
 	const [isRecord, setIsRecord] = useState(false);
@@ -165,65 +464,48 @@ const ControlButtons = () => {
 
 	const handleCancelCall = () => {};
 
-	const handlePressMic = () => {
-		if (tw.prefixMatch("md")) {
-			setOpenDevicePopup(!openDevicePopup);
-		} else {
-			setIsStopDevice(!isStopDevice);
-		}
-	};
-
 	return (
 		<FansView
 			position="absolute"
-			height={{ xs: 68, md: 120 }}
-			borderRadius={120}
 			flexDirection="row"
-			justifyContent="between"
+			justifyContent="center"
 			alignItems="center"
+			gap={{ xs: 11, md: 20 }}
 			style={[
 				tw.style(
-					"w-full max-w-[340px] md:w-[595px] md:max-w-[595px] bottom-12 left-1/2 bg-fans-black/50 px-3 md:px-[26px]",
+					"w-full md:w-auto bottom-2 md:bottom-[70px] left-0 md:left-1/2 z-1",
 				),
 				{
 					transform: [
-						{ translateX: tw.prefixMatch("md") ? -298 : -170 },
+						{ translateX: tw.prefixMatch("md") ? -272 : 0 },
 					],
 				},
 			]}
 		>
-			<FansView
-				width={{ xs: 46, md: 74 }}
-				height={{ xs: 46, md: 74 }}
-				alignItems="center"
-				justifyContent="center"
-				borderRadius={74}
-				style={tw.style(
-					isExpanded ? "bg-fans-white" : "bg-fans-white/50",
-				)}
-				pressableProps={{
-					onPress: () => setIsExpanded(!isExpanded),
-				}}
+			<FansIconButton
+				size={42}
+				backgroundColor="bg-fans-black/40"
+				onPress={handlePressChat}
+				style={tw.style("md:hidden")}
 			>
+				<FypSvg
+					svg={ChatSvg}
+					width={19}
+					height={19}
+					color="fans-white"
+				/>
+			</FansIconButton>
+			<ControlButton isActive={isExpanded} onPress={handleExpand}>
 				<FypSvg
 					svg={Expand1Svg}
 					width={{ xs: 18, md: 30 }}
 					height={{ xs: 18, md: 30 }}
 					color={isExpanded ? "fans-red" : "fans-white"}
 				/>
-			</FansView>
-			<FansView
-				width={{ xs: 46, md: 74 }}
-				height={{ xs: 46, md: 74 }}
-				alignItems="center"
-				justifyContent="center"
-				borderRadius={74}
-				style={tw.style(
-					isStopped ? "bg-fans-white" : "bg-fans-white/50",
-				)}
-				pressableProps={{
-					onPress: () => setIsStopped(!isStopped),
-				}}
+			</ControlButton>
+			<ControlButton
+				isActive={isStopped}
+				onPress={() => setIsStopped(!isStopped)}
 			>
 				{isStopped ? (
 					<FansView
@@ -240,19 +522,10 @@ const ControlButtons = () => {
 						color="fans-white"
 					/>
 				)}
-			</FansView>
-			<FansView
-				width={{ xs: 46, md: 74 }}
-				height={{ xs: 46, md: 74 }}
-				alignItems="center"
-				justifyContent="center"
-				borderRadius={74}
-				style={tw.style(
-					isRecord ? "bg-fans-white" : "bg-fans-white/50",
-				)}
-				pressableProps={{
-					onPress: () => setIsRecord(!isRecord),
-				}}
+			</ControlButton>
+			<ControlButton
+				isActive={isRecord}
+				onPress={() => setIsRecord(!isRecord)}
 			>
 				{isRecord ? (
 					<FypSvg
@@ -269,19 +542,10 @@ const ControlButtons = () => {
 						color="fans-white"
 					/>
 				)}
-			</FansView>
-			<FansView
-				width={{ xs: 46, md: 74 }}
-				height={{ xs: 46, md: 74 }}
-				alignItems="center"
-				justifyContent="center"
-				borderRadius={74}
-				style={tw.style(
-					isStopSpeaker ? "bg-fans-white" : "bg-fans-white/50",
-				)}
-				pressableProps={{
-					onPress: () => setIsStopSpicker(!isStopSpeaker),
-				}}
+			</ControlButton>
+			<ControlButton
+				isActive={isStopSpeaker}
+				onPress={() => setIsStopSpicker(!isStopSpeaker)}
 			>
 				{isStopSpeaker ? (
 					<FypSvg
@@ -298,20 +562,10 @@ const ControlButtons = () => {
 						color="fans-white"
 					/>
 				)}
-			</FansView>
-			<FansView
-				width={{ xs: 46, md: 74 }}
-				height={{ xs: 46, md: 74 }}
-				alignItems="center"
-				position="relative"
-				justifyContent="center"
-				borderRadius={74}
-				style={tw.style(
-					isStopDevice ? "bg-fans-white" : "bg-fans-white/50",
-				)}
-				pressableProps={{
-					onPress: handlePressMic,
-				}}
+			</ControlButton>
+			<ControlButton
+				isActive={isStopDevice}
+				onPress={() => setIsStopDevice(!isStopDevice)}
 			>
 				{isStopDevice ? (
 					<FypSvg
@@ -338,8 +592,11 @@ const ControlButtons = () => {
 					alignItems="center"
 					justifyContent="center"
 					style={tw.style(
-						"border-[3px] border-fans-black-1f bg-fans-grey-52 hidden md:flex",
+						"border-[3px] bg-fans-green-1f border-fans-green-37 hidden md:flex",
 					)}
+					pressableProps={{
+						onPress: () => setOpenDevicePopup(!openDevicePopup),
+					}}
 				>
 					<FypSvg
 						svg={ChevronUp1Svg}
@@ -353,17 +610,10 @@ const ControlButtons = () => {
 						onOutsidePress={() => setOpenDevicePopup(false)}
 					/>
 				) : null}
-			</FansView>
-			<FansView
-				width={{ xs: 46, md: 74 }}
-				height={{ xs: 46, md: 74 }}
-				alignItems="center"
-				justifyContent="center"
-				borderRadius={74}
+			</ControlButton>
+			<ControlButton
+				onPress={handleCancelCall}
 				style={tw.style("bg-fans-red")}
-				pressableProps={{
-					onPress: handleCancelCall,
-				}}
 			>
 				<FypSvg
 					svg={PhoneSvg}
@@ -371,75 +621,28 @@ const ControlButtons = () => {
 					height={{ xs: 23, md: 38 }}
 					color="fans-white"
 				/>
-			</FansView>
-		</FansView>
-	);
-};
-
-interface SelectAnUserScreenProps {
-	handlePressBack: () => void;
-}
-
-const SelectAnUserScreen: FC<SelectAnUserScreenProps> = (props) => {
-	const { handlePressBack } = props;
-	return (
-		<FansView width="full" height="full" position="relative">
-			<Image
-				source={require("@assets/images/posts/post-img-2.png")}
-				style={tw.style("w-full h-full")}
-			/>
-			<FansView
-				position="absolute"
-				width={{ xs: 82, md: 337 }}
-				height={{ xs: 150, md: 184 }}
-				style={tw.style(
-					"right-4 md:right-[142px]",
-					tw.prefixMatch("md") ? "bottom-12" : "top-2",
-				)}
-			>
-				<Image
-					source={require("@assets/images/posts/post-img-2.png")}
-					style={tw.style(
-						"w-full h-full rounded-[7px] md:rounded-[15px]",
-					)}
-				/>
-			</FansView>
-			<FansIconButton
-				size={tw.prefixMatch("md") ? 74 : 46}
-				backgroundColor="bg-fans-black/50"
-				style={tw.style(
-					"absolute top-2 md:top-[58px] left-4 md:left-[140px]",
-				)}
-				onPress={handlePressBack}
-			>
-				<FypSvg
-					svg={ChevronLeftSvg}
-					width={tw.prefixMatch("md") ? 15 : 12}
-					height={tw.prefixMatch("md") ? 29 : 20}
-					color="fans-white"
-				/>
-			</FansIconButton>
+			</ControlButton>
 		</FansView>
 	);
 };
 
 interface ChatSectionProps {
-	userInfo: IUserInfo;
+	profile: IProfile;
 }
 
 const ChatSection: FC<ChatSectionProps> = (props) => {
-	const { userInfo } = props;
-	const { id: paramId } = useLocalSearchParams();
-	const id = paramId as string;
+	const { profile } = props;
+	const { id } = useLocalSearchParams();
+	const chatId = (id as string) ?? "0";
 
 	const listMessages = useRef<VirtualizedList<IMessage> | null>(null);
 	const [imageViewModalData, setImageViewModalData] = useState<
 		{ data: IMessage; index: number } | undefined
 	>();
-	const messagesView = useMessageView(id);
+	const messagesView = useMessageView(chatId);
 	const animatedValue = useRef(new ReAnimated.Value(0)).current;
 	const inbox = useRecoilValue(chatInboxAtom);
-	const conversation = inbox.data.get(id);
+	const conversation = inbox.data.get(chatId);
 
 	const handlePressImage = (data: IMessage, index: number) => {
 		console.log("handlePressImage", data, index);
@@ -481,7 +684,7 @@ const ChatSection: FC<ChatSectionProps> = (props) => {
 					keyExtractor={(item) => item.id}
 					renderItem={({ item }: { item: IMessage }) => (
 						<ChatItem
-							isSelf={item.user.id === userInfo.id}
+							isSelf={item.user.id === profile.userId}
 							message={item}
 							animatedValue={animatedValue}
 							handleActivatedDoubleTapMessage={() => {}}
@@ -514,11 +717,11 @@ const ChatSection: FC<ChatSectionProps> = (props) => {
 interface MobileChatModalProps {
 	open: boolean;
 	handleClose: () => void;
-	userInfo: IUserInfo;
+	profile: IProfile;
 }
 
 const MobileChatModal: FC<MobileChatModalProps> = (props) => {
-	const { open, handleClose, userInfo } = props;
+	const { open, handleClose, profile } = props;
 
 	const positionY = useSharedValue(0);
 
@@ -554,7 +757,7 @@ const MobileChatModal: FC<MobileChatModalProps> = (props) => {
 					left={0}
 					bottom={0}
 					touchableOpacityProps={{ activeOpacity: 1 }}
-					style={tw.style("h-9/10 bg-fans-black-1d rounded-t-[7px]")}
+					style={tw.style("h-9/10 bg-fans-black/50 rounded-t-[7px]")}
 				>
 					<FansView height={40}>
 						<GestureDetector gesture={panGesture}>
@@ -563,7 +766,7 @@ const MobileChatModal: FC<MobileChatModalProps> = (props) => {
 									width={38}
 									height={4}
 									borderRadius={4}
-									style={tw.style("bg-fans-white/40 mx-auto")}
+									style={tw.style("bg-fans-white/20 mx-auto")}
 								></FansView>
 							</FansView>
 						</GestureDetector>
@@ -579,253 +782,12 @@ const MobileChatModal: FC<MobileChatModalProps> = (props) => {
 							Chat
 						</FypText>
 						<FansView flex="1" padding={{ x: 18, b: 40 }}>
-							<ChatSection userInfo={userInfo} />
+							<ChatSection profile={profile} />
 						</FansView>
 					</FansView>
 				</FansView>
 			</FansView>
 		</Modal>
-	);
-};
-
-interface MobileScreenProps {
-	handleClose: () => void;
-	handleSelectUser: () => void;
-	handleBuyMoreTime: () => void;
-	handleTipUser: () => void;
-	handlePressChat: () => void;
-	handleSendOffer: () => void;
-	handleWaitCallback: () => void;
-	handlePressThreeDots: () => void;
-}
-
-const MobileScreen: FC<MobileScreenProps> = (props) => {
-	const {
-		handleClose,
-		handleBuyMoreTime,
-		handleTipUser,
-		handlePressChat,
-		handleSelectUser,
-		handleSendOffer,
-		handleWaitCallback,
-		handlePressThreeDots,
-	} = props;
-	const [displayNameMaxWidth, setDisplayNameMaxWidth] = useState(100);
-
-	return (
-		<FansView
-			width="screen"
-			height="screen"
-			position="relative"
-			style={tw.style("bg-fans-black")}
-		>
-			<FansView
-				height={48}
-				flexDirection="row"
-				alignItems="center"
-				justifyContent="between"
-				padding={{ x: 18 }}
-				onLayout={(e) =>
-					setDisplayNameMaxWidth(e.nativeEvent.layout.width * 0.45)
-				}
-			>
-				<FansView flexDirection="row" alignItems="center">
-					<AvatarWithStatus avatar="" size={34} />
-					<FypText
-						fontSize={16}
-						lineHeight={21}
-						fontWeight={600}
-						numberOfLines={1}
-						margin={{ l: 13, r: 14 }}
-						style={[
-							tw.style("text-fans-white"),
-							{ maxWidth: displayNameMaxWidth },
-						]}
-					>
-						Jane Love
-					</FypText>
-					<FypSvg svg={StarCheckSvg} width={14} height={13} />
-				</FansView>
-
-				<FansView flexDirection="row" alignItems="center" gap={4}>
-					<FansIconButton
-						size={25}
-						backgroundColor="bg-transparent"
-						onPress={handlePressChat}
-					>
-						<FypSvg
-							svg={ChatSvg}
-							width={19}
-							height={19}
-							color="fans-white"
-						/>
-					</FansIconButton>
-					<FansIconButton
-						size={25}
-						backgroundColor="bg-transparent"
-						onPress={handlePressThreeDots}
-					>
-						<FypSvg
-							svg={ThreeDotsVerticalSvg}
-							width={18}
-							height={18}
-							color="fans-white"
-						/>
-					</FansIconButton>
-					<FansIconButton
-						size={25}
-						backgroundColor="bg-fans-white/30"
-						onPress={handleClose}
-					>
-						<FypSvg
-							svg={CloseSvg}
-							width={10}
-							height={10}
-							color="fans-white"
-						/>
-					</FansIconButton>
-				</FansView>
-			</FansView>
-			<FansView flex="1" position="relative">
-				<FansView
-					width="full"
-					height="full"
-					pressableProps={{ onPress: handleSelectUser }}
-				>
-					<Image
-						source={require("@assets/images/posts/post-img-2.png")}
-						style={tw.style("w-full h-full")}
-					/>
-				</FansView>
-				<FansView
-					position="absolute"
-					top={20}
-					left={0}
-					padding={{ x: 18 }}
-					width="full"
-				>
-					<FansView
-						flexDirection="row"
-						justifyContent="center"
-						gap={14}
-					>
-						<FansView
-							width={172}
-							height={42}
-							borderRadius={42}
-							alignItems="center"
-							justifyContent="center"
-							style={tw.style("bg-fans-black/50")}
-							pressableProps={{
-								onPress: handleBuyMoreTime,
-							}}
-						>
-							<FypText
-								fontSize={19}
-								lineHeight={26}
-								fontWeight={700}
-								style={tw.style("text-fans-white")}
-							>
-								Buy more time
-							</FypText>
-						</FansView>
-						<FansView
-							width={172}
-							height={42}
-							borderRadius={42}
-							alignItems="center"
-							justifyContent="center"
-							style={tw.style("bg-fans-black/50")}
-							gap={9}
-							flexDirection="row"
-							pressableProps={{
-								onPress: handleTipUser,
-							}}
-						>
-							<FypSvg
-								svg={RoundedTip1Svg}
-								width={15}
-								height={15}
-								color="fans-white"
-							/>
-							<FypText
-								fontSize={19}
-								lineHeight={26}
-								fontWeight={700}
-								style={tw.style("text-fans-white")}
-							>
-								Tip Jane
-							</FypText>
-						</FansView>
-						<FansView
-							width={172}
-							height={42}
-							borderRadius={42}
-							alignItems="center"
-							justifyContent="center"
-							style={tw.style("bg-fans-black/50")}
-							gap={9}
-							flexDirection="row"
-							pressableProps={{
-								onPress: handleSendOffer,
-							}}
-						>
-							<FypSvg
-								svg={RoundedTip1Svg}
-								width={15}
-								height={15}
-								color="fans-white"
-							/>
-							<FypText
-								fontSize={19}
-								lineHeight={26}
-								fontWeight={700}
-								style={tw.style("text-fans-white")}
-							>
-								Send offer
-							</FypText>
-						</FansView>
-					</FansView>
-					<FansView
-						margin={{ t: 17 }}
-						position="relative"
-						height={9}
-						borderRadius={9}
-						style={tw.style("bg-fans-white")}
-					>
-						<FypLinearGradientView
-							colors={["#1d21e5", "#d885ff"]}
-							height="full"
-							borderRadius={9}
-							style={tw.style("w-1/2")}
-						></FypLinearGradientView>
-					</FansView>
-					<FansView margin={{ t: 12 }}>
-						<FypText
-							fontSize={19}
-							lineHeight={26}
-							fontWeight={700}
-							textAlign="center"
-							style={tw.style("text-fans-white")}
-						>
-							Time left
-						</FypText>
-						<FypText
-							fontSize={42}
-							lineHeight={56}
-							textAlign="center"
-							fontWeight={700}
-							margin={{ t: -7 }}
-							style={tw.style("text-fans-white")}
-							onPress={handleWaitCallback}
-						>
-							00:30
-						</FypText>
-					</FansView>
-				</FansView>
-			</FansView>
-			<ControlButtons />
-		</FansView>
 	);
 };
 
@@ -837,13 +799,14 @@ interface Props {
 const VideoCallModal: FC<Props> = (props) => {
 	const { visible, handleClose } = props;
 	const { id: paramId } = useLocalSearchParams();
+	const chatId = (paramId as string) ?? "0";
 	const router = useRouter();
 	const { state } = useAppContext();
-	const [isSelectedUser, setIsSelectedUser] = useState(false);
-	const [displayNameMaxWidth, setDisplayNameMaxWidth] = useState(100);
+	const { profile } = state;
+	const [receiver, setReceiver] = useState<IProfile>(emptyProfileData);
+
 	const [openThreeDots, setOpenThreeDots] = useState(false);
 	const [openEmergencyModal, setOpenEmergencyModal] = useState(false);
-	const [openChatWindow, setOpenChatWindow] = useState(false);
 	const [openChatModal, setOpenChatModal] = useState(false);
 	const [openBuyTimeModal, setOpenBuyTimeModal] = useState(false);
 	const [openPurchaseRequestModal, setOenPurchaseRequestModal] = useState<{
@@ -861,10 +824,27 @@ const VideoCallModal: FC<Props> = (props) => {
 	const [openSendOfferModal, setOpenSendOfferModal] = useState(false);
 	const [openSuccessModal, setOpenSuccessModal] = useState(false);
 	const [openJoinErrorModal, setOpenJoinErrorModal] = useState(false);
+	const [openChatWindow, setOpenChatWindow] = useState(false);
+	const [openExpandView, setOpenExpandView] = useState(false);
+	const [showNavs, setShowNavs] = useState(false);
 
-	const id = paramId as string;
 	const inbox = useRecoilValue(chatInboxAtom);
-	const conversation = inbox.data.get(id);
+	const conversation = inbox.data.get(chatId);
+
+	const handlePointerMove = () => {
+		if (!showNavs) {
+			setShowNavs(true);
+			setTimeout(() => setShowNavs(false), 5000);
+		}
+	};
+
+	const handleOpenChatForm = () => {
+		if (tw.prefixMatch("md")) {
+			setOpenChatWindow(true);
+		} else {
+			setOpenChatModal(true);
+		}
+	};
 
 	const handleBuyMoreTime = () => {
 		setOpenBuyTimeModal(true);
@@ -881,307 +861,205 @@ const VideoCallModal: FC<Props> = (props) => {
 		router.replace("/posts");
 	};
 
+	const fetchReceiverData = async () => {
+		const resp = await getCreatorProfileByLink({
+			profileLink: conversation?.name ?? "",
+		});
+		if (resp.ok) {
+			setReceiver(resp.data);
+		} else {
+			setReceiver(emptyProfileData);
+		}
+	};
+
+	useEffect(() => {
+		if (chatId !== "0" && conversation?.name) {
+			fetchReceiverData();
+		}
+	}, [chatId]);
+
 	return (
 		<Modal transparent visible={visible}>
-			{isSelectedUser ? (
-				<SelectAnUserScreen
-					handlePressBack={() => setIsSelectedUser(false)}
-				/>
-			) : (
-				<Fragment>
-					{tw.prefixMatch("md") ? (
-						<FypLinearGradientView
-							colors={["#000", "#363535"]}
-							start={[0, 1]}
-							end={[0, 0]}
-							width="screen"
-							height="screen"
-							position="relative"
-							padding={{ b: 62 }}
+			<FypLinearGradientView
+				colors={["#000", "#363535"]}
+				start={[0, 1]}
+				end={[0, 0]}
+				width="screen"
+				height="screen"
+				position="relative"
+			>
+				{!openExpandView || showNavs ? (
+					<Header
+						profile={profile}
+						handleClose={handleClose}
+						handlePressThreeDots={() => setOpenThreeDots(true)}
+						handleBuyMoreTime={handleBuyMoreTime}
+						handleTipUser={handleTipUser}
+						handleSendOffer={handleSendOffer}
+						handleWaitCallback={() => setOpenJoinErrorModal(true)}
+					/>
+				) : null}
+
+				<FansView
+					flex="1"
+					flexDirection="row"
+					onPointerMove={handlePointerMove}
+				>
+					<FansView height="full" flex="1">
+						{profile.avatar ? (
+							<Image
+								source={{ uri: cdnURL(profile.avatar) }}
+								style={tw.style("w-full h-full")}
+								resizeMode="contain"
+							/>
+						) : (
+							<FansView style={tw.style("mx-auto my-auto")}>
+								<UserAvatar
+									size={
+										tw.prefixMatch("md") ? "200px" : "100px"
+									}
+								/>
+							</FansView>
+						)}
+					</FansView>
+					{openExpandView ? (
+						<FansView
+							position="absolute"
+							width={{ xs: 95, md: 337 }}
+							height={{ xs: 174, md: 184 }}
+							style={tw.style(
+								tw.prefixMatch("md")
+									? "bottom-18 left-9"
+									: "bottom-16 right-4",
+							)}
 						>
+							{receiver.avatar ? (
+								<Image
+									source={{ uri: cdnURL(receiver.avatar) }}
+									style={tw.style(
+										"w-full h-full rounded-[15px]",
+									)}
+									resizeMode="cover"
+								/>
+							) : (
+								<FansView
+									style={tw.style(
+										"w-full h-full bg-fans-black/40 rounded-[15px]",
+									)}
+									alignItems="center"
+									justifyContent="center"
+								>
+									<UserAvatar
+										size={
+											tw.prefixMatch("md")
+												? "100px"
+												: "50px"
+										}
+									/>
+								</FansView>
+							)}
+						</FansView>
+					) : (
+						<FypNullableView
+							visible={!openChatWindow && tw.prefixMatch("md")}
+						>
+							<FansView height="full" flex="1">
+								{receiver.avatar ? (
+									<Image
+										source={{
+											uri: cdnURL(receiver.avatar),
+										}}
+										style={tw.style("w-full h-full")}
+										resizeMode="cover"
+									/>
+								) : (
+									<FansView
+										style={tw.style("w-full h-full")}
+										alignItems="center"
+										justifyContent="center"
+									>
+										<UserAvatar size="200px" />
+									</FansView>
+								)}
+							</FansView>
+						</FypNullableView>
+					)}
+
+					<FypNullableView visible={openChatWindow && !!conversation}>
+						<FansView
+							width={510}
+							position="relative"
+							padding={{ x: 32, b: 80, t: 105 }}
+							style={tw.style("bg-fans-black-1d hidden md:flex")}
+						>
+							<FansDivider style={tw.style("bg-fans-white/20")} />
 							<FansView
-								height={162}
-								margin={{ b: 10 }}
-								padding={{ x: 140 }}
 								flexDirection="row"
 								alignItems="center"
 								justifyContent="between"
-								onLayout={(e) =>
-									setDisplayNameMaxWidth(
-										e.nativeEvent.layout.width * 0.35,
-									)
-								}
+								padding={{ y: 16 }}
 							>
-								<FansView
-									flexDirection="row"
-									alignItems="center"
+								<FypText
+									fontSize={23}
+									fontWeight={700}
+									lineHeight={31}
+									style={tw.style("text-fans-white")}
 								>
-									<AvatarWithStatus avatar="" size={46} />
-									<FypText
-										fontSize={19}
-										lineHeight={26}
-										fontWeight={700}
-										numberOfLines={1}
-										margin={{ l: 17, r: 11 }}
-										style={[
-											tw.style("text-fans-white"),
-											{ maxWidth: displayNameMaxWidth },
-										]}
-									>
-										Jane Love
-									</FypText>
-									<FypSvg
-										svg={StarCheckSvg}
-										width={16}
-										height={15}
-									/>
-								</FansView>
-
-								<FansView
-									flexDirection="row"
-									alignItems="center"
-									gap={4}
-								>
-									<FansIconButton
-										size={30}
-										backgroundColor="bg-transparent"
-										onPress={() => setOpenThreeDots(true)}
-									>
-										<FypSvg
-											svg={ThreeDotsVerticalSvg}
-											width={18}
-											height={18}
-											color="fans-white"
-										/>
-									</FansIconButton>
-									<FansIconButton
-										size={30}
-										backgroundColor="bg-fans-white"
-										onPress={handleClose}
-									>
-										<FypSvg
-											svg={CloseSvg}
-											width={13}
-											height={13}
-											color="fans-black"
-										/>
-									</FansIconButton>
-								</FansView>
-								<FansView
-									flexDirection="row"
-									position="absolute"
-									gap={14}
-									style={[
-										tw.style("top-15 left-1/2"),
-										{
-											transform: [{ translateX: -180 }],
-										},
-									]}
-								>
-									<FansView
-										width={172}
-										height={42}
-										borderRadius={42}
-										alignItems="center"
-										justifyContent="center"
-										style={tw.style(
-											"border border-fans-white",
-										)}
-										pressableProps={{
-											onPress: handleBuyMoreTime,
-										}}
-									>
-										<FypText
-											fontSize={19}
-											lineHeight={26}
-											fontWeight={700}
-											style={tw.style("text-fans-white")}
-										>
-											Buy more time
-										</FypText>
-									</FansView>
-									<FansView
-										width={172}
-										height={42}
-										borderRadius={42}
-										alignItems="center"
-										justifyContent="center"
-										style={tw.style(
-											"border border-fans-white",
-										)}
-										gap={9}
-										flexDirection="row"
-										pressableProps={{
-											onPress: handleTipUser,
-										}}
-									>
-										<FypSvg
-											svg={RoundedTip1Svg}
-											width={15}
-											height={15}
-											color="fans-white"
-										/>
-										<FypText
-											fontSize={19}
-											lineHeight={26}
-											fontWeight={700}
-											style={tw.style("text-fans-white")}
-										>
-											Tip Jane
-										</FypText>
-									</FansView>
-									<FansView
-										width={172}
-										height={42}
-										borderRadius={42}
-										alignItems="center"
-										justifyContent="center"
-										style={tw.style(
-											"border border-fans-white",
-										)}
-										gap={9}
-										flexDirection="row"
-										pressableProps={{
-											onPress: handleSendOffer,
-										}}
-									>
-										<FypSvg
-											svg={RoundedTip1Svg}
-											width={15}
-											height={15}
-											color="fans-white"
-										/>
-										<FypText
-											fontSize={19}
-											lineHeight={26}
-											fontWeight={700}
-											style={tw.style("text-fans-white")}
-										>
-											Send offer
-										</FypText>
-									</FansView>
-								</FansView>
-							</FansView>
-
-							<FansView
-								flex="1"
-								flexDirection="row"
-								gap={24}
-								padding={{ x: 28 }}
-							>
-								<FansView
-									height="full"
-									style={tw.style(
-										"flex-1 max-h-[502px]",
-										openChatWindow && "max-h-[734px]",
-									)}
-									pressableProps={{
-										onPress: () => setIsSelectedUser(true),
-									}}
-								>
-									<Image
-										source={require("@assets/images/posts/post-img-2.png")}
-										style={tw.style(
-											"w-full h-full rounded-[15px]",
-										)}
-									/>
-								</FansView>
-								<FypNullableView visible={!openChatWindow}>
-									<FansView
-										height="full"
-										style={tw.style("flex-1 max-h-[502px]")}
-										pressableProps={{
-											onPress: () =>
-												setIsSelectedUser(true),
-										}}
-									>
-										<Image
-											source={require("@assets/images/posts/post-img-2.png")}
-											style={tw.style(
-												"w-full h-full rounded-[15px]",
-											)}
-										/>
-									</FansView>
-								</FypNullableView>
-								<FypNullableView
-									visible={openChatWindow && !!conversation}
-								>
-									<FansView
-										width={478}
-										position="relative"
-										padding={{ x: 18, b: 20, t: 42 }}
-										borderRadius={15}
-										style={tw.style("bg-fans-black-1d")}
-									>
-										<FansIconButton
-											size={30}
-											backgroundColor="bg-transparent"
-											style={tw.style(
-												"absolute top-3 right-3",
-											)}
-											onPress={() =>
-												setOpenChatWindow(false)
-											}
-										>
-											<FypSvg
-												svg={CloseSvg}
-												width={12}
-												height={12}
-												color="fans-white"
-											/>
-										</FansIconButton>
-										<ChatSection
-											userInfo={state.user.userInfo}
-										/>
-									</FansView>
-								</FypNullableView>
-							</FansView>
-
-							<ControlButtons />
-
-							<FypNullableView visible={!openChatWindow}>
-								<FansView
-									width={74}
-									height={74}
-									alignItems="center"
-									justifyContent="center"
-									borderRadius={74}
-									position="absolute"
-									style={tw.style(
-										"bg-fans-white/20 bottom-[70px] right-[145px]",
-									)}
-									pressableProps={{
-										onPress: () => setOpenChatWindow(true),
-									}}
+									Chat
+								</FypText>
+								<FansIconButton
+									size={30}
+									backgroundColor="bg-fans-black-33"
+									onPress={() => setOpenChatWindow(false)}
 								>
 									<FypSvg
-										svg={ChatSvg}
-										width={31}
-										height={31}
+										svg={CloseSvg}
+										width={13}
+										height={13}
 										color="fans-white"
 									/>
-								</FansView>
-							</FypNullableView>
-						</FypLinearGradientView>
-					) : (
-						<MobileScreen
-							handleClose={handleClose}
-							handlePressThreeDots={() => setOpenThreeDots(true)}
-							handleSelectUser={() => setIsSelectedUser(true)}
-							handleBuyMoreTime={handleBuyMoreTime}
-							handleTipUser={handleTipUser}
-							handlePressChat={() => setOpenChatModal(true)}
-							handleSendOffer={handleSendOffer}
-							handleWaitCallback={() =>
-								setOpenJoinErrorModal(true)
-							}
+								</FansIconButton>
+							</FansView>
+
+							<ChatSection profile={profile} />
+						</FansView>
+					</FypNullableView>
+				</FansView>
+				{!openExpandView || showNavs ? (
+					<ControlButtons
+						handleExpand={() => setOpenExpandView(!openExpandView)}
+						handlePressChat={handleOpenChatForm}
+					/>
+				) : null}
+
+				<FypNullableView visible={!openChatWindow}>
+					<FansView
+						width={74}
+						height={74}
+						alignItems="center"
+						justifyContent="center"
+						borderRadius={74}
+						position="absolute"
+						style={tw.style(
+							"bg-fans-black/40 bottom-[70px] right-[66px] z-11 hidden md:flex",
+						)}
+						pressableProps={{
+							onPress: () => setOpenChatWindow(true),
+						}}
+					>
+						<FypSvg
+							svg={ChatSvg}
+							width={31}
+							height={31}
+							color="fans-white"
 						/>
-					)}
-				</Fragment>
-			)}
+					</FansView>
+				</FypNullableView>
+			</FypLinearGradientView>
+
 			<MobileChatModal
 				open={openChatModal}
-				userInfo={state.user.userInfo}
+				profile={profile}
 				handleClose={() => setOpenChatModal(false)}
 			/>
 			<BuyMoreTimeModal

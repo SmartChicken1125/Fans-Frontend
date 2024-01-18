@@ -13,8 +13,9 @@ import {
 	FypText,
 	FypDropdown,
 	FypCountryDropdown,
+	FypSvg,
+	FypCheckbox,
 } from "@components/common/base";
-import Checkbox from "@components/common/checkbox";
 import CustomMaskInput from "@components/common/customMaskInput";
 import NotificationBox from "@components/common/notificationBox";
 import { FansText, FansIconButton, FansView } from "@components/controls";
@@ -261,10 +262,15 @@ const AddPaymentCardDialog = () => {
 				>
 					<FansIconButton
 						size={13}
-						backgroundColor="bg-fans-white"
+						backgroundColor="bg-fans-white dark:bg-fans-black-1d"
 						onPress={handleClose}
 					>
-						<ChevronLeftSvg size={13} color="#707070" />
+						<FypSvg
+							svg={ChevronLeftSvg}
+							width={13}
+							height={13}
+							color="fans-grey-70 dark:fans-grey-b1"
+						/>
 					</FansIconButton>
 					<FansText
 						fontSize={19}
@@ -414,7 +420,7 @@ const AddPaymentCardDialog = () => {
 						🔒 Secure Checkout{"\n"} Please note that we do not
 						store or process any credit/debit card information on
 						our site. All payment transactions are securely handled
-						through Authorize.Net, a Visa solution company.”
+						through Authorize.Net, a Visa solution company.
 					</FansText>
 				</NotificationBox>
 
@@ -423,7 +429,7 @@ const AddPaymentCardDialog = () => {
 					margin={{ b: showError ? 16 : 34 }}
 					alignItems={"center"}
 				>
-					<Checkbox
+					<FypCheckbox
 						checked={isConfirm}
 						onPress={() => setConfirm(!isConfirm)}
 					/>

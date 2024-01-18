@@ -10,13 +10,17 @@ import {
 	FansView,
 } from "@components/controls";
 import tw from "@lib/tailwind";
-import { AutomatedChatsNativeStackScreenProps } from "@usertypes/navigations";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { SettingsAutomatedChatsNativeStackParams } from "@usertypes/navigations";
 import { getColorStyle } from "@usertypes/styles";
 import React from "react";
 import { TouchableOpacity } from "react-native";
 
 const MessageCreateScreen = (
-	props: AutomatedChatsNativeStackScreenProps<"MessageCreate">,
+	props: NativeStackScreenProps<
+		SettingsAutomatedChatsNativeStackParams,
+		"MessageCreate"
+	>,
 ) => {
 	const { route, navigation } = props;
 	const { type } = route.params;

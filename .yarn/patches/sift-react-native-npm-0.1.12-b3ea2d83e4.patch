@@ -1,0 +1,13 @@
+diff --git a/package.json b/package.json
+index e4f3dd2baedd09e6242a48d92477b76ef94c0263..efb865863c384093aaae882e2dfd01b2248b1ca2 100644
+--- a/package.json
++++ b/package.json
+@@ -4,7 +4,7 @@
+   "description": "A React Native wrapper for Sift iOS and Android SDKs",
+   "main": "lib/commonjs/index",
+   "module": "lib/module/index",
+-  "types": "lib/typescript/src/index.d.ts",
++  "types": "lib/typescript/index.d.ts",
+   "react-native": "src/index",
+   "source": "src/index",
+   "files": [

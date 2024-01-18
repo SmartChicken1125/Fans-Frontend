@@ -17,17 +17,39 @@ import {
 	FansView,
 } from "@components/controls";
 import { FansImage2 } from "@components/controls/Image";
-import { useAppContext } from "@context/useAppContext";
+import SettingsNavigationHeader from "@components/screens/settings/SettingsNavigationHeader";
+import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
 import tw from "@lib/tailwind";
-import { SettingsNativeStackScreenProps } from "@usertypes/navigations";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { SettingsScheduledPostsNativeStackParams } from "@usertypes/navigations";
+import { useRouter } from "expo-router";
 import { DateTime } from "luxon";
 import React, { useState } from "react";
 import { TouchableOpacity } from "react-native";
 
-const ScheduledPostsScreen = (
-	props: SettingsNativeStackScreenProps<"ScheduledPosts">,
-) => {
-	const { dispatch } = useAppContext();
+const Stack =
+	createNativeStackNavigator<SettingsScheduledPostsNativeStackParams>();
+
+const SettingsScheduledPostsNativeStack = () => {
+	const router = useRouter();
+
+	return (
+		<Stack.Navigator
+			initialRouteName="ScheduledPosts"
+			screenOptions={{
+				header: (props) => SettingsNavigationHeader(props, router),
+			}}
+		>
+			<Stack.Screen
+				name="ScheduledPosts"
+				component={ScheduledPostsContentView}
+				options={{ title: "Scheduled posts" }}
+			/>
+		</Stack.Navigator>
+	);
+};
+
+const ScheduledPostsContentView = () => {
 	const [posts, setPosts] = useState([
 		{
 			id: 1,
@@ -323,6 +345,10 @@ const ScheduledPostsScreen = (
 			<FansGap height={20} />
 		</FansScreen3>
 	);
+};
+
+const ScheduledPostsScreen = () => {
+	return SettingsNavigationLayout(<SettingsScheduledPostsNativeStack />);
 };
 
 export default ScheduledPostsScreen;

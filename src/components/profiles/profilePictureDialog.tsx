@@ -1,9 +1,10 @@
-import { StarCheckSvg, CloseSvg } from "@assets/svgs/common";
+import { CloseSvg, StarCheckSvg } from "@assets/svgs/common";
 import UserAvatar from "@components/avatar/UserAvatar";
-import { FypText, FypSvg } from "@components/common/base";
+import { FypSvg, FypText } from "@components/common/base";
 import { FansIconButton, FansView } from "@components/controls";
+import { hasFlags } from "@helper/Utils";
 import tw from "@lib/tailwind";
-import { IProfile } from "@usertypes/types";
+import { IProfile, ProfileFlags } from "@usertypes/types";
 import React, { FC } from "react";
 import { Modal, useWindowDimensions } from "react-native";
 
@@ -51,7 +52,10 @@ const ProfilePictureDialog: FC<Props> = (props) => {
 							>
 								{profile?.displayName}
 							</FypText>
-							<StarCheckSvg width={16} height={16} />
+							{hasFlags(
+								profile?.flags ?? 0,
+								ProfileFlags.VERIFIED,
+							) && <StarCheckSvg width={16} height={16} />}
 						</FansView>
 						<FansIconButton
 							size={tw.prefixMatch("md") ? 30 : 25}

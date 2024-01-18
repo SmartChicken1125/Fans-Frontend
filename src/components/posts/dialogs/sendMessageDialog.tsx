@@ -9,6 +9,7 @@ import {
 import tw from "@lib/tailwind";
 import { RoundButtonType } from "@usertypes/commonEnums";
 import { IProfile, MessageType } from "@usertypes/types";
+import { useRouter } from "expo-router";
 import React, { FC, useState } from "react";
 import { Image, TextInput, View } from "react-native";
 import Toast from "react-native-toast-message";
@@ -22,7 +23,7 @@ interface Props {
 
 const SendMessageDialog: FC<Props> = (props) => {
 	const { open, onClose, reciever } = props;
-
+	const router = useRouter();
 	const [message, setMessage] = useState("");
 	const [inProgress, setInProgress] = useState(false);
 
@@ -53,6 +54,8 @@ const SendMessageDialog: FC<Props> = (props) => {
 						type: "success",
 						text1: "Sent message!",
 					});
+					onClose();
+					router.push(`/chat?id=${channelId}`);
 				} else {
 					Toast.show({
 						type: "error",
@@ -104,7 +107,8 @@ const SendMessageDialog: FC<Props> = (props) => {
 						maxLength={40}
 						onChangeText={(text: string) => setMessage(text)}
 						style={tw.style(
-							"bg-fans-grey py-3 px-5 rounded-[7px] h-[128px]",
+							"bg-fans-grey dark:bg-fans-grey-43 py-3 px-5 rounded-[7px] h-[128px]",
+							"text-fans-black dark:text-fans-white",
 						)}
 					/>
 				</View>

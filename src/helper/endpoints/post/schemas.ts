@@ -61,7 +61,6 @@ export interface PostReqBody {
 	thumbId?: string;
 	mediaIds?: string[];
 	text?: string;
-	roles?: string[];
 	categories?: string[];
 	paidPost?: IPostReqPaidPost;
 	fundraiser?: IPostReqFundraiser;
@@ -77,6 +76,9 @@ export interface PostReqBody {
 	taggedPeoples?: string[];
 	formIds?: string[];
 	location?: string;
+	roles?: string[];
+	users?: string[];
+	tiers?: string[];
 }
 export interface PostArchiveReqBody {
 	id: string;

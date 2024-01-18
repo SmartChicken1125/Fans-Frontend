@@ -89,7 +89,7 @@ const Step1ValuesGrid = () => {
 	const { state, dispatch } = useAppContext();
 	const { video } = state.profile.settings;
 
-	const { pricesDuration } = video;
+	// const { pricesDuration } = video;
 	const [newPrice, setNewPrice] = useState<PriceItem>({
 		price: 0,
 		duration: 0,
@@ -104,40 +104,35 @@ const Step1ValuesGrid = () => {
 		index: number,
 		updatedPriceItem: PriceItem,
 	) => {
-		const newPrices = [...pricesDuration];
-		newPrices[index] = updatedPriceItem;
-		const updatedSettings = {
-			...state.profile.settings,
-			video: {
-				...state.profile.settings.video,
-				pricesDuration: newPrices,
-			},
-		};
-
-		const response = await updateVideoSettings(updatedSettings);
-
-		if (response.ok) {
-			fetchProfileSettings();
-		}
+		// const newPrices = [...pricesDuration];
+		// newPrices[index] = updatedPriceItem;
+		// const updatedSettings = {
+		// 	...state.profile.settings,
+		// 	video: {
+		// 		...state.profile.settings.video,
+		// 		pricesDuration: newPrices,
+		// 	},
+		// };
+		// const response = await updateVideoSettings(updatedSettings);
+		// if (response.ok) {
+		// 	fetchProfileSettings();
+		// }
 	};
 
 	const handleDelete = async (index: number) => {
-		const updatedPrices = [...video.pricesDuration];
-		updatedPrices.splice(index, 1);
-
-		const updatedSettings = {
-			...state.profile.settings,
-			video: {
-				...state.profile.settings.video,
-				pricesDuration: updatedPrices,
-			},
-		};
-
-		const response = await updateVideoSettings(updatedSettings);
-
-		if (response.ok) {
-			fetchProfileSettings();
-		}
+		// const updatedPrices = [...video.pricesDuration];
+		// updatedPrices.splice(index, 1);
+		// const updatedSettings = {
+		// 	...state.profile.settings,
+		// 	video: {
+		// 		...state.profile.settings.video,
+		// 		pricesDuration: updatedPrices,
+		// 	},
+		// };
+		// const response = await updateVideoSettings(updatedSettings);
+		// if (response.ok) {
+		// 	fetchProfileSettings();
+		// }
 	};
 
 	const fetchProfileSettings = async () => {
@@ -153,31 +148,28 @@ const Step1ValuesGrid = () => {
 	};
 
 	const handleAddDuration = async () => {
-		if (newPrice.price !== 0 && newPrice.duration !== 0) {
-			const updatedPrices = [...video.pricesDuration, newPrice];
-
-			const updatedSettings = {
-				...state.profile.settings,
-				video: {
-					...video,
-					pricesDuration: updatedPrices,
-				},
-			};
-
-			const response = await updateVideoSettings({
-				video: updatedSettings.video,
-			});
-
-			if (response.ok) {
-				setNewPrice({ price: 0, duration: 0, active: false });
-				fetchProfileSettings();
-			}
-		}
+		// if (newPrice.price !== 0 && newPrice.duration !== 0) {
+		// 	const updatedPrices = [...video.pricesDuration, newPrice];
+		// 	const updatedSettings = {
+		// 		...state.profile.settings,
+		// 		video: {
+		// 			...video,
+		// 			pricesDuration: updatedPrices,
+		// 		},
+		// 	};
+		// 	const response = await updateVideoSettings({
+		// 		video: updatedSettings.video,
+		// 	});
+		// 	if (response.ok) {
+		// 		setNewPrice({ price: 0, duration: 0, active: false });
+		// 		fetchProfileSettings();
+		// 	}
+		// }
 	};
 
 	return (
 		<View style={styles.container}>
-			{pricesDuration.map((price, index) => (
+			{/* {pricesDuration.map((price, index) => (
 				<View key={index}>
 					<Line
 						priceItem={price}
@@ -191,7 +183,7 @@ const Step1ValuesGrid = () => {
 						<FansDivider />
 					</View>
 				</View>
-			))}
+			))} */}
 			<Line
 				priceItem={newPrice}
 				onChange={(updatedPriceItem) => setNewPrice(updatedPriceItem)}

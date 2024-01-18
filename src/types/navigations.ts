@@ -1,4 +1,3 @@
-import { NavigatorScreenParams } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { IProfile } from "./types";
 
@@ -20,45 +19,37 @@ export type ChatNativeStackScreenProps<T extends ChatNativeStackScreens> =
 	NativeStackScreenProps<ChatNativeStackParams, T>;
 
 export type SettingsNativeStackParams = {
-	Account: undefined;
-	Analytics: undefined;
-	AutomatedChats: NavigatorScreenParams<AutomatedChatsNativeStackParams>;
-	ChangePassword: undefined;
-	Connections: undefined;
-	DisplayName: undefined;
-	Email: undefined;
-	Notifications: undefined;
-	Payments: NavigatorScreenParams<SettingsPaymentsStackParams>;
-	Phone: undefined;
-	Privacy: NavigatorScreenParams<PrivacyNativeStackParams>;
-	REPORTABUSE: undefined;
 	Settings: undefined;
-	Subscriptions: {
-		screen?: string;
-		returnPopup?: string | string[];
-		subscriptionId?: string | string[];
-	};
-	Username: undefined;
-	ReferralProgram: { isSetting: boolean } | undefined;
-	ReferCreators: undefined;
-	ReferAndEarn: { profile?: IProfile } | undefined;
-	ReferralAnalytics: undefined;
-	ReferralPayments: undefined;
-	ReferralPayoutSetup: undefined;
-	AddPaymentMethod: undefined;
-	VerifyEmail: { email: string };
-	ScheduledPosts: undefined;
-	VideoCallSetupTOS: undefined;
-	VideoCallSetup: undefined;
-	CameoSetup: undefined;
-	FanProfileSetup: undefined;
 	ChatRoom: undefined;
-	EditVideoCallSetup: undefined;
 };
 export type SettingsNativeStackScreens = keyof SettingsNativeStackParams;
 export type SettingsNativeStackScreenProps<
 	T extends SettingsNativeStackScreens,
 > = NativeStackScreenProps<SettingsNativeStackParams, T>;
+
+export type SettingsAccountNativeStackParams = {
+	Account: undefined;
+	ChangePassword: undefined;
+	DisplayName: undefined;
+	Email: undefined;
+	Phone: undefined;
+	Username: undefined;
+	VerifyEmail: { email: string };
+};
+export type SettingsAccountNativeStackScreens =
+	keyof SettingsAccountNativeStackParams;
+export type SettingsAccountNativeStackScreenProps<
+	T extends SettingsAccountNativeStackScreens,
+> = NativeStackScreenProps<SettingsAccountNativeStackParams, T>;
+
+export type SettingsFanProfileSetupNativeStackParams = {
+	FanProfileSetup: undefined;
+};
+export type SettingsFanProfileSetupNativeStackScreens =
+	keyof SettingsFanProfileSetupNativeStackParams;
+export type SettingsFanProfileSetupNativeStackScreenProps<
+	T extends SettingsFanProfileSetupNativeStackScreens,
+> = NativeStackScreenProps<SettingsFanProfileSetupNativeStackParams, T>;
 
 export type SettingsPaymentsStackParams = {
 	AddPaymentMethod:
@@ -72,6 +63,111 @@ export type SettingsPaymentsStackParams = {
 export type SettingsPaymentsStackScreenProps<
 	T extends keyof SettingsPaymentsStackParams,
 > = NativeStackScreenProps<SettingsPaymentsStackParams, T>;
+
+export type SettingsAnalyticsNativeStackParams = {
+	Analytics: undefined;
+};
+export type SettingsAnalyticsNativeStackScreens =
+	keyof SettingsNativeStackParams;
+export type SettingsAnalyticsNativeStackScreenProps<
+	T extends SettingsNativeStackScreens,
+> = NativeStackScreenProps<SettingsNativeStackParams, T>;
+
+export type SettingsReferCreatorsNativeStackParams = {
+	ReferralProgram: { isSetting: boolean } | undefined;
+	ReferCreators: undefined;
+	ReferAndEarn: { profile?: IProfile } | undefined;
+	ReferralAnalytics: undefined;
+	ReferralPayments: undefined;
+	ReferralPayoutSetup: undefined;
+	AddPaymentMethod: undefined;
+	GetPaid: { isGreen?: boolean; refresh?: boolean } | undefined;
+};
+export type SettingsReferCreatorsNativeStackScreens =
+	keyof SettingsReferCreatorsNativeStackParams;
+export type SettingsReferCreatorsNativeStackScreenProps<
+	T extends SettingsReferCreatorsNativeStackScreens,
+> = NativeStackScreenProps<SettingsReferCreatorsNativeStackParams, T>;
+
+export type SettingsNotificationsNativeStackParams = {
+	Notifications: undefined;
+};
+export type SettingsNotificationsNativeStackScreens =
+	keyof SettingsNotificationsNativeStackParams;
+export type SettingsNotificationsNativeStackScreenProps<
+	T extends SettingsNotificationsNativeStackScreens,
+> = NativeStackScreenProps<SettingsNotificationsNativeStackParams, T>;
+
+export type SettingsVideoCallSetupNativeStackParams = {
+	VideoCallSetupTOS: undefined;
+	VideoCallSetup: undefined;
+	EditVideoCallSetup: undefined;
+};
+export type SettingsVideoCallSetupNativeStackScreens =
+	keyof SettingsVideoCallSetupNativeStackParams;
+export type SettingsVideoCallSetupNativeStackScreenProps<
+	T extends SettingsVideoCallSetupNativeStackScreens,
+> = NativeStackScreenProps<SettingsVideoCallSetupNativeStackParams, T>;
+
+export type SettingsCameoSetupNativeStackParams = {
+	CameoSetup: undefined;
+};
+export type SettingsCameoSetupNativeStackScreens =
+	keyof SettingsCameoSetupNativeStackParams;
+export type SettingsCameoSetupNativeStackScreenProps<
+	T extends SettingsCameoSetupNativeStackScreens,
+> = NativeStackScreenProps<SettingsCameoSetupNativeStackParams, T>;
+
+export type SettingsConnectionsNativeStackParams = {
+	Connections: undefined;
+};
+export type SettingsConnectionsNativeStackScreens =
+	keyof SettingsConnectionsNativeStackParams;
+export type SettingsConnectionsNativeStackScreenProps<
+	T extends SettingsConnectionsNativeStackScreens,
+> = NativeStackScreenProps<SettingsConnectionsNativeStackParams, T>;
+
+export type SettingsSubscriptionsNativeStackParams = {
+	Subscriptions: {
+		screen?: string;
+		returnPopup?: string | string[];
+		subscriptionId?: string | string[];
+	};
+};
+export type SettingsSubscriptionsNativeStackScreens =
+	keyof SettingsSubscriptionsNativeStackParams;
+export type SettingsSubscriptionsNativeStackScreenProps<
+	T extends SettingsSubscriptionsNativeStackScreens,
+> = NativeStackScreenProps<SettingsSubscriptionsNativeStackParams, T>;
+
+export type SettingsAutomatedChatsNativeStackParams = {
+	AutomatedChats: undefined;
+	MessageImage: { type: "Welcome" | "Custom" };
+	MessageCreate: { type: "Welcome" | "Custom" };
+};
+export type SettingsAutomatedChatsNativeStackScreens =
+	keyof SettingsAutomatedChatsNativeStackParams;
+export type SettingsAutomatedChatsNativeStackScreenProps<
+	T extends SettingsAutomatedChatsNativeStackScreens,
+> = NativeStackScreenProps<SettingsAutomatedChatsNativeStackParams, T>;
+
+export type SettingsScheduledPostsNativeStackParams = {
+	ScheduledPosts: undefined;
+};
+export type SettingsScheduledPostsNativeStackScreens =
+	keyof SettingsScheduledPostsNativeStackParams;
+export type SettingsScheduledPostsNativeStackScreenProps<
+	T extends SettingsScheduledPostsNativeStackScreens,
+> = NativeStackScreenProps<SettingsScheduledPostsNativeStackParams, T>;
+
+export type SettingsReportAbuseNativeStackParams = {
+	REPORTABUSE: undefined;
+};
+export type SettingsReportAbuseNativeStackScreens =
+	keyof SettingsReportAbuseNativeStackParams;
+export type SettingsReportAbuseNativeStackScreenProps<
+	T extends SettingsReportAbuseNativeStackScreens,
+> = NativeStackScreenProps<SettingsReportAbuseNativeStackParams, T>;
 
 export type TabNavigationStacks = {};
 
@@ -173,6 +269,8 @@ export type PostsNavigationStacks = {
 	AdvancedSettings: undefined;
 	Chatroom: undefined;
 	OrderVideoCallScreen: undefined;
+	Vault: undefined;
+	NewTier: undefined;
 };
 
 export type StoriesNavigationStacks = {
@@ -188,17 +286,6 @@ export type PlaylistNavigationStacks = {
 export type PostDetailNavigationStacks = {
 	Detail: { id: string };
 };
-
-export type AutomatedChatsNativeStackParams = {
-	AutomatedChats: undefined;
-	MessageImage: { type: "Welcome" | "Custom" };
-	MessageCreate: { type: "Welcome" | "Custom" };
-};
-export type AutomatedChatsNativeStackScreens =
-	keyof AutomatedChatsNativeStackParams;
-export type AutomatedChatsNativeStackScreenProps<
-	T extends AutomatedChatsNativeStackScreens,
-> = NativeStackScreenProps<AutomatedChatsNativeStackParams, T>;
 
 export type PrivacyNativeStackParams = {
 	Privacy: undefined;
@@ -261,3 +348,7 @@ export type SupportNativeStackParams = {
 export type SupportNativeStackScreens = keyof SupportNativeStackParams;
 export type SupportNativeStackScreenProps<T extends SupportNativeStackScreens> =
 	NativeStackScreenProps<SupportNativeStackParams, T>;
+
+export type VaultNavigationStacks = {
+	Home: undefined;
+};

@@ -6,23 +6,36 @@ import {
 } from "@assets/svgs/common";
 import BottomSheetWrapper from "@components/common/bottomSheetWrapper";
 import { FansGap, FansSvg, FansText, FansView } from "@components/controls";
+import { IGif } from "@giphy/js-types";
 import tw from "@lib/tailwind";
 import { Colors } from "@usertypes/enums";
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import { View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import GifSheet from "./Gif";
 
 interface Props {
 	open: boolean;
 	onClose: () => void;
 	onPressPhoto: () => void;
+	onGifSelect: (gif: IGif) => void;
 }
 
 const AddSheet: FC<Props> = (props) => {
-	const { open, onClose, onPressPhoto } = props;
+	const { open, onClose, onPressPhoto, onGifSelect } = props;
+
+	const [gifOpen, setGifOpen] = useState(false);
+
+	const onPressGif = () => setGifOpen(true);
+	const onGifClose = () => setGifOpen(false);
 
 	return (
 		<BottomSheetWrapper open={open} onClose={onClose}>
+			<GifSheet
+				open={gifOpen}
+				onClose={onGifClose}
+				onGifSelect={onGifSelect}
+			/>
 			<FansView
 				width={30}
 				height={30}
@@ -55,12 +68,14 @@ const AddSheet: FC<Props> = (props) => {
 						<FansText fontSize={19}>Send tip</FansText>
 					</View>
 				</TouchableOpacity>
-				<View style={tw.style("flex gap-[10px] items-center")}>
-					<View style={tw.style("p-[2px]")}>
-						<GIFSvg size={32} color={Colors.Purple} />
+				<TouchableOpacity onPress={onPressGif}>
+					<View style={tw.style("flex gap-[10px] items-center")}>
+						<View style={tw.style("p-[2px]")}>
+							<GIFSvg size={32} color={Colors.Purple} />
+						</View>
+						<FansText fontSize={19}>GIF</FansText>
 					</View>
-					<FansText fontSize={19}>GIF</FansText>
-				</View>
+				</TouchableOpacity>
 				<TouchableOpacity onPress={onPressPhoto}>
 					<View style={tw.style("flex gap-[10px] items-center")}>
 						<View style={tw.style("p-[2px]")}>

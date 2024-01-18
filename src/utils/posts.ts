@@ -31,10 +31,15 @@ export const getCreatePostData = (data: {
 		mediaIds: mediaIds,
 		caption: postForm.caption,
 		categories: postForm.categories,
-		roles: postForm.roles,
 		advanced: postForm.advanced,
 		taggedPeoples: postForm.taggedPeoples.map((people) => people.user.id),
 		formIds: formIds,
+		roles: postForm.viewType === "XPLevels" ? postForm.roles : [],
+		users:
+			postForm.viewType === "SpecificFans"
+				? postForm.users.map((user) => user.id)
+				: [],
+		tiers: postForm.viewType === "PaymentTiers" ? postForm.tiers : [],
 	};
 
 	if (postForm.location) {
@@ -107,8 +112,12 @@ export const getCreatePostData = (data: {
 		postBody.isNoiseReduction = postForm.audio.isNoiseReduction;
 	}
 
-	if (postForm.schedule.startDate !== "") {
-		postBody.schedule = postForm.schedule;
+	if (postForm.schedule.startDate !== undefined) {
+		postBody.schedule = {
+			...postForm.schedule,
+			startDate: postForm.schedule.startDate.toString(),
+			endDate: postForm.schedule.startDate.toString(),
+		};
 	}
 	if (
 		!!postForm.giveaway.prize &&
@@ -144,6 +153,8 @@ export const getPostTitleIcon = (postType: PostType) => {
 			return "story";
 		case PostType.Text:
 			return "text";
+		case PostType.Vault:
+			return "vault";
 		default:
 			return "photo";
 	}

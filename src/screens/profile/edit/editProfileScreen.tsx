@@ -151,10 +151,12 @@ const EditProfileScreen = (
 					...formData,
 					displayName: formData.displayName.slice(0, 50),
 					profileLink: updatedProfileLink,
-					user: {
-						...userInfo,
-						birthdate: formData.birthday,
-					},
+					user: profile.user
+						? {
+								...profile.user,
+								birthdate: birthday.toJSON(),
+						  }
+						: undefined,
 				},
 			});
 			navigation.goBack();

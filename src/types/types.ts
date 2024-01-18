@@ -22,6 +22,12 @@ export type LanguageType = (typeof languages)[number];
 const genderTypes = ["Male", "Female", "NonBinary", "Other"] as const;
 export type GenderType = (typeof genderTypes)[number];
 
+// This is a bitfield
+export enum ProfileFlags {
+	VERIFIED = 1 << 0,
+	STAFF = 1 << 1,
+}
+
 export interface ICountry {
 	code: CountryCode | "AQ" | "BV" | "GS" | "HM" | "PN" | "TF" | "UM";
 	name: string;
@@ -103,12 +109,12 @@ export interface IProfile {
 	displayName: string;
 	migrationLink: string;
 	profileLink: string;
-	verified: boolean;
+	flags: number;
 	bio: string;
 	cover: string[];
 	isNSFW: boolean | null;
 	subscriptionType: SubscriptionTypes;
-	isEnabled: boolean;
+	disabled: boolean;
 	location: string;
 	// birthday: string;
 	socialLinks: ISocialLink[];
@@ -247,6 +253,7 @@ export interface IPost {
 	isPinned: boolean;
 	isSelf: boolean;
 	isExclusive: boolean;
+	isPosted: boolean;
 	fundraiser?: IFundraiser;
 	poll?: IPoll;
 	giveaway?: IGiveaway;
@@ -530,6 +537,12 @@ export interface IPollForm {
 	timezone: string;
 }
 
+export type IPostFormViewType =
+	| "All"
+	| "PaymentTiers"
+	| "XPLevels"
+	| "SpecificFans";
+
 export interface IPostForm {
 	id: string;
 	title: string;
@@ -538,12 +551,11 @@ export interface IPostForm {
 	thumb: IPickerMedia;
 	medias: IPickerMedia[];
 	text?: string;
-	roles: string[];
 	categories: string[];
 	paidPost?: IPaidPostForm;
 	fundraiser?: IFundraiserForm;
 	giveaway: IGiveawayForm;
-	schedule: ISchedule;
+	schedule: IScheduleForm;
 	advanced: IPostAdvanced;
 	poll: IPollForm;
 	audio: IAudioDetail;
@@ -552,11 +564,15 @@ export interface IPostForm {
 	formIds: string[];
 	uploadFiles: IUploadForm[];
 	isReleaseForm: boolean;
-	isAllSubscribers: boolean;
 	carouselIndex: number;
 	newUsertags: INewTaggedPeople[];
 	categoryForm: IPostCategoryForm;
 	paidPostAccess: IPaidPostAccessForm;
+	// Everyone can view
+	viewType: IPostFormViewType;
+	roles: string[];
+	tiers: string[];
+	users: IFansUser[];
 }
 
 export interface IPaidPostAccessForm {
@@ -692,6 +708,12 @@ export interface Bundle {
 	price?: number;
 }
 
+export interface Campaign {
+	type: PromotionType;
+	duration: number;
+	discount: number;
+}
+
 export interface Subscription {
 	id: string;
 	subscriptionId?: string;
@@ -708,6 +730,7 @@ export interface Subscription {
 		bundles?: Bundle[];
 	};
 	bundle?: Bundle;
+	campaign?: Campaign;
 	tier?: {
 		id: string;
 		price: number;
@@ -1025,8 +1048,8 @@ export enum ContentPreference {
 }
 
 export enum VideoCallWays {
-	OneWay = "One-Way",
-	TwoWay = "Two-Way",
+	OneWay = "OneOnOne_OneWay",
+	TwoWay = "OneOnOne_TwoWay",
 }
 
 export interface SocialMediaUrl {
@@ -1035,23 +1058,29 @@ export interface SocialMediaUrl {
 	title: string;
 }
 
+export interface IVideoCallSetting {
+	timeZone: string;
+	timeframes: ITimeframeInterval[];
+	bufferBetweenCalls: number;
+	sexualContentAllowed: boolean;
+	contentPreferences: string[];
+	customContentPreferences: string;
+	meetingType: VideoCallWays;
+	meetingTitle: string;
+	meetingDescription: string;
+	customVideoOrdersEnabled: boolean;
+	vacationMode: boolean;
+	meetingDurations: IVideoCallDuration[];
+	notificationNewRequests: boolean;
+	notificationCancellations: boolean;
+	notificationReminders: boolean;
+	notificationsByEmail: boolean;
+	notificationsByPhone: boolean;
+	videoCallsEnabled: boolean;
+}
+
 export interface IProfileSettings {
-	video: {
-		timeZone: string;
-		timeframes: Timeframe[];
-		bufferBetweenCalls: number;
-		sexualContent: boolean;
-		contentPreferences: string[];
-		additionalContentPreferences: string;
-		videoCallWays: VideoCallWays;
-		meetingTitle: string;
-		meetingDescription: string;
-		notifications: NotificationsSettings;
-		customVideoOrdersEnabled: boolean;
-		vacationMode: boolean;
-		pricesDuration: PriceDuration[];
-		videoCallsEnabled: boolean;
-	};
+	video: IVideoCallSetting;
 	cameo: {
 		pricesDuration: PriceDuration[];
 		sexualContent: boolean;
@@ -1238,3 +1267,20 @@ export const transactionStatuses = [
 	"Cancelled", // The transaction was cancelled by the user or system
 ] as const;
 export type TransactionStatus = (typeof transactionStatuses)[number];
+
+export interface IVideoCallDuration {
+	id: string;
+	length: number;
+	price: number;
+	currency: string;
+	isEnabled: boolean;
+}
+
+export interface ITimeframeInterval {
+	id: string;
+	startTime: string;
+	length: number;
+	day: number;
+}
+
+export type SortType = "Newest" | "Oldest";

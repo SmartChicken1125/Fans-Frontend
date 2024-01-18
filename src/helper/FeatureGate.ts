@@ -137,6 +137,14 @@ export const featureGates = {
 		description: "Checkout methods in get gems screen",
 		production: false,
 	},
+	"2024_01-new-vault-design": {
+		description: "New vault screen",
+		production: false,
+	},
+	"2024_01-new-exclusive-post": {
+		description: "New exclusive post form",
+		production: false,
+	},
 } satisfies Record<string, IFeatureGateData>; // Note, it's year_month-feature-name, not year_month_feature-name!!!
 
 export type ValidFeatureGateNames = keyof typeof featureGates;

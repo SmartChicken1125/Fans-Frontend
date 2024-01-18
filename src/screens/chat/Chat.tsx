@@ -53,6 +53,7 @@ import React, { Fragment, useEffect, useRef, useState } from "react";
 import {
 	Animated,
 	Image,
+	Pressable,
 	ScrollView,
 	TouchableOpacity,
 	View,
@@ -157,7 +158,7 @@ const ReactionMenu = () => {
 
 const SelfMessage = ({ message }: { message: IMessage }) => (
 	<View
-		style={tw`bg-fans-purple self-end px-[15px] py-[8px] rounded-l-2xl rounded-tr-2xl max-w-full`}
+		style={tw`bg-fans-purple self-end px-[15px] py-[8px] rounded-l-2xl rounded-tr-2xl max-w-full md:max-w-[80%]`}
 	>
 		<FansText color="white" fontSize={18}>
 			{message.content}
@@ -226,7 +227,7 @@ const FromMessage = ({
 	const singleTapRef = useRef();
 
 	return (
-		<View style={tw`flex-row gap-2.5 self-start max-w-full`}>
+		<View style={tw`flex-row gap-2.5 self-start max-w-full md:max-w-[80%]`}>
 			<UserAvatar size="34px" image={message.user.avatar ?? undefined} />
 			<View style={tw`flex shrink`}>
 				<TapGestureHandler
@@ -1080,6 +1081,90 @@ const ChatScreen = (
 		return <FansScreen2 contentStyle={tw.style("pt-[0px]")}></FansScreen2>;
 	}
 
+	const isSameDay = (date1: Date, date2: Date) => {
+		return (
+			date1.getFullYear() === date2.getFullYear() &&
+			date1.getMonth() === date2.getMonth() &&
+			date1.getDate() === date2.getDate()
+		);
+	};
+
+	const getDateLabel = (dateString: string) => {
+		const today = new Date();
+		const yesterday = new Date(today);
+		yesterday.setDate(yesterday.getDate() - 1);
+
+		const date = new Date(dateString);
+
+		if (isSameDay(date, today)) {
+			return "TODAY";
+		} else if (isSameDay(date, yesterday)) {
+			return "YESTERDAY";
+		} else {
+			return date.toLocaleDateString(undefined, {
+				month: "long",
+				day: "numeric",
+				year: "numeric",
+			});
+		}
+	};
+
+	const renderItem = ({ item, index }: { item: IMessage; index: number }) => {
+		const messages = messagesView?.messages ?? [];
+		const reversedMessages = [...messages].reverse();
+
+		let isEndOfCurrentDay = false;
+		if (index === reversedMessages.length - 1) {
+			isEndOfCurrentDay = true;
+		} else {
+			const currentMessageDate = new Date(item.createdAt);
+			const nextMessageDate = new Date(
+				reversedMessages[index + 1].createdAt,
+			);
+			isEndOfCurrentDay = !isSameDay(currentMessageDate, nextMessageDate);
+		}
+
+		return (
+			<>
+				<ChatItem
+					isSelf={item.user.id === state.user.userInfo.id}
+					message={item}
+					animatedValue={animatedValue}
+					handleActivatedDoubleTapMessage={() => {}}
+					handleActivatedTapMessage={() => {}}
+					onPressImage={handlePressImage}
+				/>
+				{isEndOfCurrentDay && (
+					<View style={tw.style("flex-row", "items-center", "my-2")}>
+						<View
+							style={tw.style(
+								"flex-1",
+								"border-b",
+								"border-gray-300",
+							)}
+						/>
+						<FansText
+							style={tw.style(
+								"mx-2",
+								"text-center",
+								"text-gray-500",
+							)}
+						>
+							{getDateLabel(item.createdAt)}
+						</FansText>
+						<View
+							style={tw.style(
+								"flex-1",
+								"border-b",
+								"border-gray-300",
+							)}
+						/>
+					</View>
+				)}
+			</>
+		);
+	};
+
 	return (
 		<FansScreen2 contentStyle={tw.style("pt-[0px]")}>
 			<Stack.Screen
@@ -1087,28 +1172,44 @@ const ChatScreen = (
 					headerShown: !isSearch,
 					headerTitleAlign: "left",
 					headerTitle: (props) => (
-						<View
-							{...props}
-							style={tw.style("flex-row gap-2.5 items-center")}
+						<Pressable
+							onPress={() => {
+								const profileLink =
+									state.profile.profileLink ||
+									conversation.otherParticipant?.profileLink;
+								if (profileLink) {
+									router.push(`/${profileLink}`);
+								}
+							}}
 						>
-							<View style={tw.style("relative")}>
-								<OnlineAvatar
-									size="34px"
-									image={conversation.icon || undefined}
-								/>
-								<View
-									style={tw.style(
-										"w-[11px] h-[11px]",
-										"absolute right-0 bottom-0",
-										"bg-fans-green",
-										"border-[2px] border-white rounded-full dark:border-fans-black-1d",
-									)}
-								/>
+							<View
+								{...props}
+								style={tw.style(
+									"flex-row gap-2.5 items-center",
+								)}
+							>
+								<View style={tw.style("relative")}>
+									<OnlineAvatar
+										size="34px"
+										image={conversation.icon || undefined}
+									/>
+									<View
+										style={tw.style(
+											"w-[11px] h-[11px]",
+											"absolute right-0 bottom-0",
+											"bg-fans-green",
+											"border-[2px] border-white rounded-full dark:border-fans-black-1d",
+										)}
+									/>
+								</View>
+								<FansText
+									fontFamily="inter-semibold"
+									fontSize={16}
+								>
+									{conversation.name}
+								</FansText>
 							</View>
-							<FansText fontFamily="inter-semibold" fontSize={16}>
-								{conversation.name}
-							</FansText>
-						</View>
+						</Pressable>
 					),
 					headerRight: () => (
 						<View style={tw.style("flex-row gap-1 justify-end")}>
@@ -1218,16 +1319,7 @@ const ChatScreen = (
 				<VirtualizedList
 					ref={listMessages}
 					keyExtractor={(item) => item.id}
-					renderItem={({ item }: { item: IMessage }) => (
-						<ChatItem
-							isSelf={item.user.id === state.user.userInfo.id}
-							message={item}
-							animatedValue={animatedValue}
-							handleActivatedDoubleTapMessage={() => {}}
-							handleActivatedTapMessage={() => {}}
-							onPressImage={handlePressImage}
-						/>
-					)}
+					renderItem={renderItem}
 					style={tw.style("pt-5")}
 					data={[...(messagesView?.messages ?? [])].reverse()}
 					getItem={(data, index) => data[index]}

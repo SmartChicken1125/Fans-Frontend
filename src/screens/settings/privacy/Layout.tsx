@@ -1,14 +1,11 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import PrivacyScreen from "@screens/settings/privacy/Privacy";
-import {
-	PrivacyNativeStackParams,
-	SettingsNativeStackScreenProps,
-} from "@usertypes/navigations";
+import { PrivacyNativeStackParams } from "@usertypes/navigations";
 import React from "react";
 
 const PrivacyNavigator = createNativeStackNavigator<PrivacyNativeStackParams>();
 
-const PrivacyLayout = (props: SettingsNativeStackScreenProps<"Privacy">) => {
+const PrivacyLayout = () => {
 	return (
 		<PrivacyNavigator.Navigator
 			screenOptions={{

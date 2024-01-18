@@ -1,4 +1,3 @@
-process.env.EXPO_ROUTER_APP_ROOT = __dirname + "/app";
 /** @type {import('@expo/config').AppJSONConfig} */
 export default {
 	expo: {

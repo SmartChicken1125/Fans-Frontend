@@ -14,3 +14,4 @@ export { default as BecomeCreator } from "./becomeCreator";
 export { default as AudioItem } from "./audioItem";
 export { default as CreatorStoryFeed } from "./creatorStoryFeed";
 export { default as YouStoryFeed } from "./youStoryFeed";
+export { SelectableUserListItem } from "./userListItem";

@@ -74,6 +74,7 @@ export enum PostType {
 	Poll = "Poll",
 	Fundraiser = "Fundraiser",
 	Story = "Story",
+	Vault = "Vault",
 }
 
 export enum OTPPageTypes {
@@ -158,6 +159,7 @@ export enum IconTypes {
 
 	Edit = "Edit",
 	Statistics = "Statistics",
+	Vault = "Vault",
 }
 
 export enum PostStepTypes {
@@ -184,6 +186,8 @@ export enum PostStepTypes {
 	NewFundraiserPost = "New Fundraiser Post",
 	AudioDetail = "Audio Detail",
 	Text = "Text",
+	Vault = "Vault",
+	NewTier = "New Tier",
 }
 
 export enum SubscribeActionType {

@@ -7,13 +7,17 @@ import {
 	FansView,
 } from "@components/controls";
 import { changePassword } from "@helper/endpoints/settings/apis";
-import { SettingsNativeStackScreenProps } from "@usertypes/navigations";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { SettingsAccountNativeStackParams } from "@usertypes/navigations";
 import React, { useEffect, useState } from "react";
 import { TouchableOpacity } from "react-native";
 import ToastMessage from "react-native-toast-message";
 
 const ChangePasswordScreen = (
-	props: SettingsNativeStackScreenProps<"ChangePassword">,
+	props: NativeStackScreenProps<
+		SettingsAccountNativeStackParams,
+		"ChangePassword"
+	>,
 ) => {
 	const { navigation } = props;
 
@@ -47,9 +51,9 @@ const ChangePasswordScreen = (
 		});
 
 		if (
-			!resValidation.currentPassword.length ||
-			!resValidation.newPassword.length ||
-			!resValidation.confirmPassword.length
+			resValidation.currentPassword.length ||
+			resValidation.newPassword.length ||
+			resValidation.confirmPassword.length
 		)
 			return;
 
@@ -58,9 +62,10 @@ const ChangePasswordScreen = (
 			newPassword: strNewPassword,
 		});
 		if (res.ok) {
+			trigInit();
 			ToastMessage.show({
 				type: "success",
-				text1: "Password is changed!",
+				text1: "Password change successful",
 			});
 		} else {
 			setValidation({
@@ -68,6 +73,18 @@ const ChangePasswordScreen = (
 				currentPassword: "Incorrect current password!",
 			});
 		}
+	};
+
+	const trigInit = () => {
+		setCurrentPassword("");
+		setNewPassword("");
+		setConfirmPassword("");
+		setValidation({
+			isValidation: false,
+			currentPassword: "",
+			newPassword: "",
+			confirmPassword: "",
+		});
 	};
 
 	const trigValidation = () => {

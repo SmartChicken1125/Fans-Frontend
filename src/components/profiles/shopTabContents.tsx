@@ -1,16 +1,15 @@
-import { postsData } from "@assets/dummyData/post";
 import {
-	StarCheckSvg,
-	PushNotificationSvg,
 	PlaySvg,
 	PlusSvg,
-	SortDescSvg,
+	PushNotificationSvg,
 	SortAscSvg,
+	SortDescSvg,
+	StarCheckSvg,
 } from "@assets/svgs/common";
-import { FypText, FypSvg, FypSwitch } from "@components/common/base";
-import { FansView, FansDivider } from "@components/controls";
+import { FypSvg, FypSwitch, FypText } from "@components/common/base";
+import { FansDivider, FansView } from "@components/controls";
 import PostCard from "@components/posts/postCard";
-import { useAppContext, PostsActionType } from "@context/useAppContext";
+import { PostsActionType, useAppContext } from "@context/useAppContext";
 import tw from "@lib/tailwind";
 import { PostStepTypes } from "@usertypes/commonEnums";
 import { IPost } from "@usertypes/types";

@@ -18,3 +18,5 @@ export { default as ViewSettingScreen } from "./viewSettingScreen";
 export { default as NewTextPostScreen } from "./newTextPostScreen";
 export { default as TagPeopleSearchScreen } from "./tagPeopleSearchScreen";
 export { default as PaidPostAccessScreen } from "./paidPostAccessScreen";
+export { default as VaultScreen } from "./vaultScreen";
+export { default as NewTierScreen } from "./newTierScreen";

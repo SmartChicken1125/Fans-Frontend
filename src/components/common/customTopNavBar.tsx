@@ -10,6 +10,7 @@ import {
 	TextSvg,
 	ThreeDotsSvg,
 	VideoCallSvg,
+	VaultSvg,
 } from "@assets/svgs/common";
 import tw from "@lib/tailwind";
 import React, { FC } from "react";
@@ -31,7 +32,8 @@ interface Props {
 		| "fundraiser"
 		| "video"
 		| "archived-post"
-		| "story";
+		| "story"
+		| "vault";
 	leftIcon?: "close";
 	rightIcon?: "menu";
 	hideLeftIcon?: boolean;
@@ -125,6 +127,15 @@ const CustomTopNavBar: FC<Props> = (props) => {
 						svg={StorySvg}
 						width={14.58}
 						height={14.55}
+						color="fans-black dark:fans-white"
+					/>
+				);
+			case "vault":
+				return (
+					<FypSvg
+						svg={VaultSvg}
+						width={18}
+						height={15}
 						color="fans-black dark:fans-white"
 					/>
 				);

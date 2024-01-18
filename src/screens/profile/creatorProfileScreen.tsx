@@ -54,17 +54,18 @@ import {
 	StoryActionType,
 	useAppContext,
 } from "@context/useAppContext";
+import { hasFlags } from "@helper/Utils";
 import { getPostMedias } from "@helper/endpoints/media/apis";
 import { MediasRespBody } from "@helper/endpoints/media/schemas";
 import {
 	deleteBookmark,
+	deletePostById,
+	getPaidPosts,
 	getPostById,
 	getPostFeedForProfile,
 	likePostWithPostId,
 	setBookmark,
 	unlikePostWithPostId,
-	getPaidPosts,
-	deletePostById,
 } from "@helper/endpoints/post/apis";
 import { PostListRespBody } from "@helper/endpoints/post/schemas";
 import {
@@ -74,7 +75,6 @@ import {
 	getPlaylists,
 } from "@helper/endpoints/profile/apis";
 import tw from "@lib/tailwind";
-import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFeatureGates } from "@state/featureGates";
 import {
@@ -92,6 +92,7 @@ import {
 	IHighlight,
 	IPost,
 	IPostAdvanced,
+	ProfileFlags,
 } from "@usertypes/types";
 import { checkEnableMediasLoadingMore } from "@utils/common";
 import { getBirthdayString } from "@utils/stringHelper";
@@ -99,7 +100,7 @@ import { useBlankLink } from "@utils/useBlankLink";
 import useClipboard from "@utils/useClipboard";
 import { createURL } from "expo-linking";
 import { useRouter } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NativeScrollEvent, ScrollView } from "react-native";
 import { Button } from "react-native-paper";
 import Toast from "react-native-toast-message";
@@ -385,12 +386,13 @@ const CreatorProfileScreen = (
 		});
 	};
 
-	const onTrachCallback = () => {
+	const onTrashCallback = async () => {
 		setPosts({
 			...posts,
 			total: posts.total - 1,
 			posts: posts.posts.filter((post) => post.id !== selectedPostId),
 		});
+		await dispatch.fetchProfile();
 	};
 
 	const handleLikePost = async (postId: string) => {
@@ -672,18 +674,41 @@ const CreatorProfileScreen = (
 	};
 
 	const onPinCallback = (post: IPost) => {
+		const focusedPost = posts.posts.find((el) => el.id === post.id) || post;
 		setOpenPostActions(false);
-		setPosts({
-			...posts,
-			posts: posts.posts.map((_post) =>
-				_post.id === post.id
-					? {
-							..._post,
-							isPinned: post.isPinned,
-					  }
-					: _post,
-			),
-		});
+		if (post.isPinned) {
+			setPosts({
+				...posts,
+				posts: [
+					{ ...focusedPost, isPinned: post.isPinned },
+					...posts.posts.filter((el) => el.id !== post.id),
+				],
+			});
+		} else {
+			const fromPosition = posts.posts.findIndex(
+				(el) => el.id === post.id,
+			);
+			const toPosition = posts.posts
+				.filter((el) => !el.isPinned)
+				.findIndex(
+					(_el) => new Date(_el.createdAt) < new Date(post.createdAt),
+				);
+			const rearrangedPosts = posts.posts;
+			rearrangedPosts.splice(fromPosition, 1);
+			rearrangedPosts.splice(
+				toPosition + rearrangedPosts.filter((el) => el.isPinned).length,
+				0,
+				{
+					...focusedPost,
+					isPinned: post.isPinned,
+				},
+			);
+			setPosts({
+				...posts,
+				posts: rearrangedPosts,
+			});
+		}
+
 		const mediaIds = post.medias.map((media) => media.id);
 		setMedias({
 			...medias,
@@ -701,7 +726,7 @@ const CreatorProfileScreen = (
 	const postLiveModalCallback = async (postId: string) => {
 		if (tw.prefixMatch("md")) {
 			const resp = await getPostById({ id: postId });
-			if (resp.ok) {
+			if (resp.ok && resp.data.isPosted) {
 				setPosts({
 					...posts,
 					total: posts.total + 1,
@@ -931,8 +956,15 @@ const CreatorProfileScreen = (
 									>
 										{profile.displayName}
 									</FansText>
-
-									<StarCheckSvg width={15.66} height={15} />
+									{hasFlags(
+										profile.flags,
+										ProfileFlags.VERIFIED,
+									) && (
+										<StarCheckSvg
+											width={15.66}
+											height={15}
+										/>
+									)}
 								</FansView>
 								<FansText
 									fontSize={16}
@@ -1203,7 +1235,7 @@ const CreatorProfileScreen = (
 				onPostAdvancedCallback={onPostAdvancedCallback}
 				onPinCallback={onPinCallback}
 				onArchivePostCallback={onArchivePostCallback}
-				onTrashCallback={onTrachCallback}
+				onTrashCallback={onTrashCallback}
 			/>
 
 			<ShareDialog open={openShare} onClose={() => setOpenShare(false)} />

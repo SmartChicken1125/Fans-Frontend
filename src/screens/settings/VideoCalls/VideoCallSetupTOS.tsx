@@ -1,7 +1,7 @@
 import { ChatSvg } from "@assets/svgs/common";
 import { FaqImage } from "@assets/svgs/images";
 import RoundButton from "@components/common/RoundButton";
-import { FypVideo, FypText } from "@components/common/base";
+import { FypText, FypVideo } from "@components/common/base";
 import {
 	FansDivider,
 	FansGap,
@@ -9,21 +9,55 @@ import {
 	FansText,
 	FansView,
 } from "@components/controls";
-import { useAppContext } from "@context/useAppContext";
+import SettingsNavigationHeader from "@components/screens/settings/SettingsNavigationHeader";
+import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
 import tw from "@lib/tailwind";
+import {
+	NativeStackNavigationProp,
+	createNativeStackNavigator,
+} from "@react-navigation/native-stack";
 import { FaqItem } from "@screens/profile/edit/badgeSystemScreen";
 import { ResizeMode } from "@usertypes/commonEnums";
-import { SettingsNativeStackScreenProps } from "@usertypes/navigations";
+import { SettingsVideoCallSetupNativeStackParams } from "@usertypes/navigations";
 import { useBlankLink } from "@utils/useBlankLink";
+import { useNavigation, useRouter } from "expo-router";
 import React from "react";
 import { ScrollView } from "react-native";
+import VideoCallSetup from "./VideoCallSetup";
 
-const VideoCallSetupTOS = (
-	props: SettingsNativeStackScreenProps<"VideoCallSetupTOS">,
-) => {
-	const { navigation } = props;
+const Stack =
+	createNativeStackNavigator<SettingsVideoCallSetupNativeStackParams>();
+
+const SettingsVideoCallSetupNativeStack = () => {
+	const router = useRouter();
+
+	return (
+		<Stack.Navigator
+			initialRouteName="VideoCallSetupTOS"
+			screenOptions={{
+				header: (props) => SettingsNavigationHeader(props, router),
+			}}
+		>
+			<Stack.Screen
+				name="VideoCallSetup"
+				component={VideoCallSetup}
+				options={{ title: "Set up video calls" }}
+			/>
+			<Stack.Screen
+				name="VideoCallSetupTOS"
+				component={VideoCallSetupTOSContentView}
+				options={{ title: "Set up video calls" }}
+			/>
+		</Stack.Navigator>
+	);
+};
+
+const VideoCallSetupTOSContentView = () => {
+	const navigation =
+		useNavigation<
+			NativeStackNavigationProp<SettingsVideoCallSetupNativeStackParams>
+		>();
 	const [openLink] = useBlankLink();
-	const { dispatch } = useAppContext();
 	const handlePressChat = () => {
 		openLink("https://support.fyp.fans/");
 	};
@@ -195,6 +229,10 @@ const VideoCallSetupTOS = (
 			</FansView>
 		</ScrollView>
 	);
+};
+
+const VideoCallSetupTOS = () => {
+	return SettingsNavigationLayout(<SettingsVideoCallSetupNativeStack />);
 };
 
 export default VideoCallSetupTOS;

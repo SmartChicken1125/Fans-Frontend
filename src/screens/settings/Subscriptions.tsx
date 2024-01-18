@@ -10,11 +10,13 @@ import {
 	FansView,
 } from "@components/controls";
 import { SendMessageDialog } from "@components/posts/dialogs";
+import SettingsNavigationHeader from "@components/screens/settings/SettingsNavigationHeader";
+import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
 import SubscriptionDetailsSheet from "@components/sheet/settings/subscriptions/SubscriptionDetails";
 import { ANIMATION_LOADING_DIALOG_ID } from "@constants/modal";
 import {
-	ModalActionType,
 	CommonActionType,
+	ModalActionType,
 	useAppContext,
 } from "@context/useAppContext";
 import {
@@ -22,18 +24,51 @@ import {
 	unsubscribe,
 } from "@helper/endpoints/subscriptions/apis";
 import tw from "@lib/tailwind";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import {
+	NativeStackScreenProps,
+	createNativeStackNavigator,
+} from "@react-navigation/native-stack";
 import {
 	SubscribeActionType,
 	SubscriptionFilterTypes,
 } from "@usertypes/commonEnums";
-import { SettingsNativeStackParams } from "@usertypes/navigations";
+import { SettingsSubscriptionsNativeStackParams } from "@usertypes/navigations";
 import { Subscription } from "@usertypes/types";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import Toast from "react-native-toast-message";
 
-const SubscriptionsScreen = (
-	props: NativeStackScreenProps<SettingsNativeStackParams, "Subscriptions">,
+const Stack =
+	createNativeStackNavigator<SettingsSubscriptionsNativeStackParams>();
+
+const SettingsSubscriptionsNativeStack = () => {
+	const { returnPopup, subscriptionId } = useLocalSearchParams();
+	const router = useRouter();
+
+	return (
+		<Stack.Navigator
+			initialRouteName="Subscriptions"
+			screenOptions={{
+				header: (props) => SettingsNavigationHeader(props, router),
+			}}
+		>
+			<Stack.Screen
+				name="Subscriptions"
+				component={SubscriptionsContentView}
+				options={{
+					title: "Subscriptions",
+				}}
+				initialParams={{ returnPopup, subscriptionId }}
+			/>
+		</Stack.Navigator>
+	);
+};
+
+const SubscriptionsContentView = (
+	props: NativeStackScreenProps<
+		SettingsSubscriptionsNativeStackParams,
+		"Subscriptions"
+	>,
 ) => {
 	const { route } = props;
 	const { params } = route;
@@ -278,6 +313,10 @@ const SubscriptionsScreen = (
 			<FansGap height={20} />
 		</FansScreen3>
 	);
+};
+
+const SubscriptionsScreen = () => {
+	return SettingsNavigationLayout(<SettingsSubscriptionsNativeStack />);
 };
 
 export default SubscriptionsScreen;

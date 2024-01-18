@@ -11,6 +11,7 @@
     "lint": "tsc --noEmit -p tsconfig.json && eslint --ignore-path .gitignore --ignore-path .eslintignore --ext .js,.jsx,.ts,.tsx ."
   },
   "dependencies": {
+    "@giphy/react-components": "^9.2.3",
     "@gorhom/bottom-sheet": "^4.5.1",
     "@r0b0t3d/react-native-swipeable": "^0.1.1",
     "@react-native-async-storage/async-storage": "1.18.2",
@@ -138,6 +139,7 @@
     "sentry-expo": "~7.0.0",
     "shaka-player": "^4.6.1",
     "sift-react-native": "^0.1.12",
+    "styled-components": "^6.1.6",
     "timezones.json": "^1.7.1",
     "tus-js-client": "^3.1.1",
     "twrnc": "^3.6.4",
@@ -171,7 +173,7 @@
     "typescript": "^5.3.2"
   },
   "private": true,
-  "packageManager": "yarn@3.6.1",
+  "packageManager": "yarn@4.0.2",
   "engines": {
     "node": ">=20.9.0",
     "yarn": ">=3.6.1"

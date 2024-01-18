@@ -67,7 +67,7 @@ const PostInteractiveScreen = (
 	const getPostDetail = async () => {
 		dispatch.setShowLoading();
 		const resp = await getPostById({ id: id as string });
-		if (resp.ok) {
+		if (resp.ok && resp.data.isPosted) {
 			setPost({ ...resp.data });
 		} else {
 			Toast.show({

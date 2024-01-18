@@ -36,12 +36,12 @@ const JoinErrorModal: FC<Props> = (props) => {
 						"w-full md:w-[450px]",
 						"h-auto max-h-9/10",
 						"rounded-[15px] px-[14px]",
-						"bg-fans-white dark:bg-fans-black-1d",
+						"bg-fans-black/50",
 					)}
 				>
 					<FansIconButton
 						size={25}
-						backgroundColor="bg-fans-black/30 dark:bg-fans-white/30"
+						backgroundColor="bg-fans-white/20"
 						onPress={handleClose}
 						style={tw.style("absolute top-[14px] right-[14px]")}
 					>
@@ -49,7 +49,7 @@ const JoinErrorModal: FC<Props> = (props) => {
 							svg={CloseSvg}
 							width={11}
 							height={11}
-							color="fans-white dark:fans-black-1d"
+							color="fans-white"
 						/>
 					</FansIconButton>
 					<FansView
@@ -57,7 +57,6 @@ const JoinErrorModal: FC<Props> = (props) => {
 						height={95}
 						position="relative"
 						margin={{ b: 18 }}
-						style={tw.style("mx-auto")}
 					>
 						<UserAvatar size="95px" />
 						<FansView
@@ -68,7 +67,7 @@ const JoinErrorModal: FC<Props> = (props) => {
 							justifyContent="center"
 							position="absolute"
 							style={tw.style(
-								"border-[4px] border-fans-white dark:border-fans-black-1d bg-fans-red",
+								"border-[4px] border-fans-black-33 bg-fans-red",
 								"right-[-4px] bottom-[-10.5px]",
 							)}
 						>
@@ -86,6 +85,7 @@ const JoinErrorModal: FC<Props> = (props) => {
 						fontWeight={700}
 						textAlign="center"
 						margin={{ t: 20, b: 18 }}
+						style={tw.style("text-fans-white")}
 					>
 						We'are sorry, it seems the creator couldn't join!
 					</FypText>
@@ -94,6 +94,7 @@ const JoinErrorModal: FC<Props> = (props) => {
 						lineHeight={21}
 						textAlign="center"
 						margin={{ b: 24 }}
+						style={tw.style("text-fans-white")}
 					>
 						We apologize for any inconvenience caused. Please know
 						that you will receive a 100% refund promptly (process
@@ -104,7 +105,7 @@ const JoinErrorModal: FC<Props> = (props) => {
 						borderRadius={42}
 						alignItems="center"
 						justifyContent="center"
-						style={tw.style("bg-fans-purple")}
+						style={tw.style("border border-fans-white")}
 						pressableProps={{
 							onPress: handleSubmit,
 						}}

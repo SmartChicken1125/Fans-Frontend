@@ -378,24 +378,22 @@ const generateSocialMediaUrls = () => {
 export const defaultProfileSettings: IProfileSettings = {
 	video: {
 		timeZone: "Your Default Timezone",
-		timeframes: [], // Provide default values based on the 'Timeframe' structure
+		timeframes: [],
 		bufferBetweenCalls: 15,
-		sexualContent: true,
+		sexualContentAllowed: true,
 		contentPreferences: [],
-		additionalContentPreferences: "",
-		videoCallWays: VideoCallWays.TwoWay,
+		customContentPreferences: "",
+		meetingType: VideoCallWays.TwoWay,
 		meetingTitle: "Default Meeting Title",
 		meetingDescription: "Default Meeting Description",
-		notifications: {
-			reminders: true,
-			newRequests: true,
-			cancellations: true,
-			notificationsByPhone: true,
-			notificationsByEmail: true,
-		},
+		notificationNewRequests: true,
+		notificationCancellations: true,
+		notificationReminders: true,
+		notificationsByEmail: true,
+		notificationsByPhone: true,
 		customVideoOrdersEnabled: false,
 		vacationMode: false,
-		pricesDuration: [],
+		meetingDurations: [],
 		videoCallsEnabled: false,
 	},
 	cameo: {
@@ -609,13 +607,13 @@ export const emptyProfileData: IProfile = {
 	displayName: "",
 	migrationLink: "",
 	profileLink: "",
-	verified: false,
+	flags: 0,
 	bio: "",
 	cover: [],
 	previews: [],
 	isNSFW: null,
 	subscriptionType: SubscriptionTypes.Flat,
-	isEnabled: false,
+	disabled: false,
 	location: "",
 	imageCount: 0,
 	videoCount: 0,
@@ -655,6 +653,7 @@ export const emptyPostData: IPost = {
 	isPinned: false,
 	isSelf: true,
 	isExclusive: false,
+	isPosted: true,
 };
 
 export const allowedAudioFileTypes = [
@@ -663,4 +662,51 @@ export const allowedAudioFileTypes = [
 	"audio/wav",
 	"audio/aac",
 	"audio/flac",
+];
+
+export const videoCallPriceOptions = [
+	{
+		data: "5",
+		label: "5 minutes",
+	},
+	{
+		data: "10",
+		label: "10 minutes",
+	},
+	{
+		data: "15",
+		label: "15 minutes",
+	},
+	{
+		data: "20",
+		label: "20 minutes",
+	},
+	{
+		data: "30",
+		label: "30 minutes",
+	},
+	{
+		data: "45",
+		label: "45 minutes",
+	},
+	{
+		data: "60",
+		label: "1 hour",
+	},
+	{
+		data: "75",
+		label: "1:15 hours",
+	},
+	{
+		data: "90",
+		label: "1:30 hours",
+	},
+	{
+		data: "105",
+		label: "1:45 hours",
+	},
+	{
+		data: "120",
+		label: "2 hours",
+	},
 ];

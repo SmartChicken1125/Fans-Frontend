@@ -6,13 +6,12 @@ import { FilterButton } from "@components/posts/common";
 import { SendMessageDialog } from "@components/posts/dialogs";
 import PostCard from "@components/posts/postCard";
 import SuggestProfiles from "@components/posts/suggestProfiles";
-import { useAppContext } from "@context/useAppContext";
 import { deleteBookmark, setBookmark } from "@helper/endpoints/post/apis";
 import tw from "@lib/tailwind";
 import { useFeatureGates } from "@state/featureGates";
 import { IconTypes } from "@usertypes/commonEnums";
 import { ICardAction, IPost, IUserList, IUserProfile } from "@usertypes/types";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 const UserLists = () => {
@@ -125,7 +124,6 @@ const UserLists = () => {
 };
 
 const FansView = () => {
-	const { state, dispatch } = useAppContext();
 	const [openMessageDialog, setOpenMessageDialog] = useState(false);
 	const [openActionMenu, setOpenActionMenu] = useState(false);
 
@@ -227,10 +225,6 @@ const FansView = () => {
 			labelClass: "text-fans-red",
 		},
 	];
-
-	useEffect(() => {
-		// setPosts(postsData);
-	}, []);
 
 	return (
 		<Layout>

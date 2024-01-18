@@ -20,6 +20,7 @@ import {
 import AddSheet from "@components/dialogs/chat/Add";
 import PaidPostCreateSheet from "@components/dialogs/chat/PaidPostCreate";
 import { CommonActionType, useAppContext } from "@context/useAppContext";
+import { IGif } from "@giphy/js-types";
 import tw from "@lib/tailwind";
 import {
 	MediaType,
@@ -727,6 +728,10 @@ const MessageInput: FC<IMessageInput> = (props) => {
 					open={isAddSheetOpened}
 					onClose={handleCloseAddSheet}
 					onPressPhoto={handlePressPhoto}
+					onGifSelect={(gif: IGif) => {
+						// Todo Alula: Handle gif
+						console.log("GIF selected", gif);
+					}}
 				/>
 				<PaidPostCreateSheet
 					open={isPaidPostCreateSheetOpened}

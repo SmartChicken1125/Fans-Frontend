@@ -1,6 +1,8 @@
 import { ChevronLeftSvg, TitleSvg } from "@assets/svgs/common";
 import RoundButton from "@components/common/RoundButton";
 import TextButton from "@components/common/TextButton";
+import { FypText, FypSvg } from "@components/common/base";
+import { useAppContext } from "@context/useAppContext";
 import {
 	authForgotPassword,
 	authVerifyCode,
@@ -14,7 +16,6 @@ import {
 	ImageBackground,
 	Pressable,
 	ScrollView,
-	Text,
 	View,
 } from "react-native";
 import {
@@ -32,6 +33,7 @@ const CheckYourEmailScreen = () => {
 	const { email } = useLocalSearchParams<{ email: string }>();
 	const setAccessToken = useSetRecoilState(accessTokenAtom);
 	const setAuthState = useSetRecoilState(authStateAtom);
+	const { dispatch } = useAppContext();
 	const [value, setValue] = useState<string>("");
 	const [loading, setLoading] = useState<boolean>(false);
 	const [submitted, setSubmitted] = useState<boolean>(false);
@@ -111,7 +113,7 @@ const CheckYourEmailScreen = () => {
 	};
 
 	return (
-		<View style={tw`flex-1 flex relative bg-white`}>
+		<View style={tw`flex-1 flex relative bg-white dark:bg-fans-black-1d`}>
 			<Spinner
 				visible={loading}
 				overlayColor="rgba(0,0,0,.5)"
@@ -140,7 +142,7 @@ const CheckYourEmailScreen = () => {
 					/>
 					<View
 						style={tw.style(
-							"flex-1 md:flex-none md:bg-white md:rounded-[15px] md:px-10 md:pt-12 md:pb-10 md:mt-13 relative",
+							"flex-1 md:flex-none md:bg-white md:dark:bg-fans-black-1d md:rounded-[15px] md:px-10 md:pt-12 md:pb-10 md:mt-13 relative",
 						)}
 					>
 						<Pressable
@@ -149,10 +151,11 @@ const CheckYourEmailScreen = () => {
 							)}
 							onPress={() => router.back()}
 						>
-							<ChevronLeftSvg
+							<FypSvg
+								svg={ChevronLeftSvg}
 								width={8}
-								height={14.6}
-								color="#707070"
+								height={15}
+								color="fans-grey-70 dark:fans-grey-b1"
 							/>
 						</Pressable>
 						<View
@@ -164,18 +167,25 @@ const CheckYourEmailScreen = () => {
 							/>
 						</View>
 
-						<Text
-							style={tw`mt-9 text-[23px] font-bold leading-[31px] text-center font-inter-bold md:mt-6`}
+						<FypText
+							fontSize={23}
+							lineHeight={31}
+							textAlign="center"
+							fontWeight={700}
+							style={tw`mt-9 md:mt-6`}
 						>
 							Check your email
-						</Text>
-						<Text
-							style={tw`mt-4 text-base leading-[21px] text-center font-inter-regular`}
+						</FypText>
+						<FypText
+							fontSize={16}
+							lineHeight={21}
+							textAlign="center"
+							margin={{ t: 16 }}
 						>
 							We have sent you a 6-digit code
 							{"\n"}
 							to recover your password
-						</Text>
+						</FypText>
 
 						<View style={tw`mt-9 flex md:mt-7 md:px-10`}>
 							<CodeField
@@ -189,12 +199,14 @@ const CheckYourEmailScreen = () => {
 								textContentType="oneTimeCode"
 								rootStyle={tw`h-[54px] md:h-17`}
 								renderCell={({ index, symbol, isFocused }) => (
-									<Text
+									<FypText
 										key={index}
+										fontWeight={600}
+										textAlign="center"
 										style={[
 											tw.style(
-												"w-12 h-full rounded-lg border-[1px] border-fans-dark-grey p-2.5 md:w-15",
-												"font-inter-semibold text-2xl text-black text-center flex items-center justify-center",
+												"w-12 h-full rounded-lg border-[1px] border-fans-dark-grey p-2.5 md:w-15 dark:border-fans-grey-b1",
+												"text-2xl text-black dark:text-fans-white flex items-center justify-center",
 											),
 											isFocused && tw`border-fans-purple`,
 										]}
@@ -202,15 +214,17 @@ const CheckYourEmailScreen = () => {
 									>
 										{symbol ||
 											(isFocused ? <Cursor /> : null)}
-									</Text>
+									</FypText>
 								)}
 							/>
 							{submitted && validateStr && (
-								<Text
-									style={tw`mt-1 text-sm leading-[21px] text-[#ff0000] mx-auto`}
+								<FypText
+									fontSize={15}
+									lineHeight={21}
+									style={tw`mt-1 text-[#ff0000] mx-auto`}
 								>
 									{validateStr}
-								</Text>
+								</FypText>
 							)}
 						</View>
 
@@ -229,22 +243,24 @@ const CheckYourEmailScreen = () => {
 						</TextButton>
 
 						<View style={tw`flex-auto`}>
-							<Text
+							<FypText
+								fontSize={16}
+								lineHeight={21}
+								textAlign="center"
 								style={tw.style(
 									"mt-auto md:mt-15 md:w-[340px] md:mx-auto",
-									"text-base leading-[21px] text-center font-inter-regular",
 								)}
 							>
 								Didn't receive our email? Check under Spam or{" "}
-								<Text
+								<FypText
 									style={tw`text-fans-purple`}
 									onPress={() => {
 										handleTryAnotherEmail();
 									}}
 								>
 									try another email address
-								</Text>
-							</Text>
+								</FypText>
+							</FypText>
 						</View>
 					</View>
 				</View>

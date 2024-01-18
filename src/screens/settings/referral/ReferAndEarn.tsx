@@ -136,7 +136,7 @@ const ReferAndEarnScreen = (
 			if (router.canGoBack()) {
 				router.back();
 			} else {
-				router.push({
+				router.replace({
 					pathname: "posts",
 					params: { screen: "Home" },
 				});

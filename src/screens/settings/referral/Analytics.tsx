@@ -16,18 +16,17 @@ import {
 	FansChips4,
 	FansGap,
 	FansHorizontalDivider,
-	FansScreen4,
 	FansSvg,
 	FansText,
 	FansTextInput5,
 	FansView,
 } from "@components/controls";
 import { RemoveModal } from "@components/modals/settings/referral";
+import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
 import { ITransaction } from "@helper/CommonAPISchemas";
 import tw from "@lib/tailwind";
 import { useFeatureGates } from "@state/featureGates";
 import { Colors } from "@usertypes/enums";
-import { SettingsNativeStackScreenProps } from "@usertypes/navigations";
 import {
 	CategoryScale,
 	Chart,
@@ -645,9 +644,7 @@ const Transactions = () => {
 	);
 };
 
-const AnalyticsScreen = (
-	props: SettingsNativeStackScreenProps<"Analytics">,
-) => {
+const AnalyticsContentView = () => {
 	const router = useRouter();
 	const featureGates = useFeatureGates();
 	if (!featureGates.has("2023_12-fans-referral")) {
@@ -673,7 +670,7 @@ const AnalyticsScreen = (
 	};
 
 	return (
-		<FansScreen4 contentStyle1={{ maxWidth: { lg: 670 } }}>
+		<FansView>
 			<FansChips4
 				data={items}
 				value={selected}
@@ -703,8 +700,12 @@ const AnalyticsScreen = (
 				onClose={handleCloseRemoveModal}
 				onSubmit={() => {}}
 			/>
-		</FansScreen4>
+		</FansView>
 	);
+};
+
+const AnalyticsScreen = () => {
+	return SettingsNavigationLayout(<AnalyticsContentView />);
 };
 
 export default AnalyticsScreen;

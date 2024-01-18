@@ -34,3 +34,16 @@ export interface VerifyNewEmailReqBody {
 	code: string;
 	newEmail: string;
 }
+
+export interface VideoCallDurationReqBody {
+	length: number;
+	price: number;
+	currency: string;
+	isEnabled: boolean;
+}
+
+export interface VideoCallIntervalReqBody {
+	startTime: string;
+	length: number;
+	day: number;
+}

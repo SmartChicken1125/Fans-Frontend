@@ -1,5 +1,9 @@
 import { FansScreen2, FansView } from "@components/controls";
+import SettingsNavigationHeader from "@components/screens/settings/SettingsNavigationHeader";
+import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
 import { useAppContext } from "@context/useAppContext";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { SettingsCameoSetupNativeStackParams } from "@usertypes/navigations";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { View } from "react-native";
@@ -12,7 +16,28 @@ import Step5 from "./Step5";
 import VideoCallSetupStepper from "./VideoCallSetupStepper";
 import VideoStepperButtons from "./VideoStepperButtons";
 
-const CameoSetup = () => {
+const Stack = createNativeStackNavigator<SettingsCameoSetupNativeStackParams>();
+
+const SettingsCameoSetupNativeStack = () => {
+	const router = useRouter();
+
+	return (
+		<Stack.Navigator
+			initialRouteName="CameoSetup"
+			screenOptions={{
+				header: (props) => SettingsNavigationHeader(props, router),
+			}}
+		>
+			<Stack.Screen
+				name="CameoSetup"
+				component={CameoSetupContentView}
+				options={{ title: "Set up custom video" }}
+			/>
+		</Stack.Navigator>
+	);
+};
+
+const CameoSetupContentView = () => {
 	// Define the state for currentStep and steps
 	const [currentStep, setCurrentStep] = useState(0);
 	const { state } = useAppContext();
@@ -76,6 +101,10 @@ const CameoSetup = () => {
 			</View>
 		</FansScreen2>
 	);
+};
+
+const CameoSetup = () => {
+	return SettingsNavigationLayout(<SettingsCameoSetupNativeStack />);
 };
 
 export default CameoSetup;

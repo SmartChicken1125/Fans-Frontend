@@ -308,7 +308,7 @@ const GetPaidScreen = () => {
 								lineHeight={21}
 								margin={{ b: 12 }}
 								style={tw.style(
-									"text-fans-dark-grey dark:text-fans-grey-43",
+									"text-fans-dark-grey dark:text-fans-grey-b1",
 								)}
 							>
 								Fee Schedule: Platform fee: 7% of the income you
@@ -318,7 +318,7 @@ const GetPaidScreen = () => {
 									lineHeight={21}
 									margin={{ b: 12 }}
 									style={tw.style(
-										"text-fans-dark-grey dark:text-fans-grey-43",
+										"text-fans-dark-grey dark:text-fans-grey-b1",
 									)}
 									fontWeight={700}
 								>
@@ -331,7 +331,7 @@ const GetPaidScreen = () => {
 								lineHeight={21}
 								margin={{ b: 28 }}
 								style={tw.style(
-									"text-fans-dark-grey dark:text-fans-grey-43",
+									"text-fans-dark-grey dark:text-fans-grey-b1",
 								)}
 							>
 								When setting tiers and receiving payments, you
@@ -357,7 +357,7 @@ const GetPaidScreen = () => {
 									fontSize={16}
 									lineHeight={21}
 									style={tw.style(
-										"text-fans-dark-grey dark:text-fans-grey-43",
+										"text-fans-dark-grey dark:text-fans-grey-b1",
 									)}
 								>
 									Edit your payout settings, including how

@@ -128,10 +128,17 @@ const CreatorStoriesScreen = (
 			if (creatorIndex === 0) {
 				onClickClose();
 			} else {
-				setCreator(creators[creatorIndex - 1]);
-				setCreatorIndex(creatorIndex - 1);
-				setStories(creators[creatorIndex - 1].stories);
-				setStoryIndex(0);
+				// setCreator(creators[creatorIndex - 1]);
+				// setCreatorIndex(creatorIndex - 1);
+				// setStories(creators[creatorIndex - 1].stories);
+				// setStoryIndex(0);
+				router.replace({
+					pathname: "stories",
+					params: {
+						screen: "Creator",
+						userId: creators[creatorIndex - 1].userId,
+					},
+				});
 			}
 		} else {
 			setStoryIndex(storyIndex - 1);
@@ -143,10 +150,17 @@ const CreatorStoriesScreen = (
 			if (creatorIndex === creators.length - 1) {
 				onClickClose();
 			} else {
-				setCreator(creators[creatorIndex + 1]);
-				setCreatorIndex(creatorIndex + 1);
-				setStories(creators[creatorIndex + 1].stories);
-				setStoryIndex(0);
+				// setCreator(creators[creatorIndex + 1]);
+				// setCreatorIndex(creatorIndex + 1);
+				// setStories(creators[creatorIndex + 1].stories);
+				// setStoryIndex(0);
+				router.replace({
+					pathname: "stories",
+					params: {
+						screen: "Creator",
+						userId: creators[creatorIndex + 1].userId,
+					},
+				});
 			}
 		} else {
 			setStoryIndex(storyIndex + 1);
@@ -210,6 +224,7 @@ const CreatorStoriesScreen = (
 						type: "success",
 						text1: "Sent message!",
 					});
+					router.push(`/chat?id=${channelId}`);
 				} else {
 					Toast.show({
 						type: "error",
@@ -222,6 +237,7 @@ const CreatorStoriesScreen = (
 
 	useEffect(() => {
 		if (creators.length > 0) {
+			setStoryIndex(0);
 			setCreator(creators.find((el) => el.userId === userId));
 			setStories(
 				creators.find((el) => el.userId === userId)?.stories ?? [],

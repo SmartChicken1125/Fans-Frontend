@@ -36,12 +36,12 @@ const SubmitSuccessModal: FC<Props> = (props) => {
 						"w-full md:w-[450px]",
 						"h-auto max-h-9/10",
 						"rounded-[15px] px-[14px]",
-						"bg-fans-white dark:bg-fans-black-1d",
+						"bg-fans-black/50",
 					)}
 				>
 					<FansIconButton
 						size={25}
-						backgroundColor="bg-fans-black/30 dark:bg-fans-white/30"
+						backgroundColor="bg-fans-white/20"
 						onPress={handleClose}
 						style={tw.style("absolute top-[14px] right-[14px]")}
 					>
@@ -49,7 +49,7 @@ const SubmitSuccessModal: FC<Props> = (props) => {
 							svg={CloseSvg}
 							width={11}
 							height={11}
-							color="fans-white dark:fans-black-1d"
+							color="fans-white"
 						/>
 					</FansIconButton>
 					<FypSvg
@@ -64,6 +64,7 @@ const SubmitSuccessModal: FC<Props> = (props) => {
 						fontWeight={700}
 						textAlign="center"
 						margin={{ t: 20, b: 18 }}
+						style={tw.style("text-fans-white")}
 					>
 						Submitted
 					</FypText>
@@ -72,6 +73,7 @@ const SubmitSuccessModal: FC<Props> = (props) => {
 						lineHeight={21}
 						textAlign="center"
 						margin={{ b: 48 }}
+						style={tw.style("text-fans-white")}
 					>
 						We will respond promptly to assist you. However, if you
 						are in immediate danger or need urgent help, please call

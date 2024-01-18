@@ -1,9 +1,10 @@
 import { ChevronLeftSvg, TitleSvg } from "@assets/svgs/common";
 import FormControl from "@components/common/FormControl";
 import RoundButton from "@components/common/RoundButton";
-import { FypModal, FypText } from "@components/common/base";
+import { FypModal, FypText, FypSvg } from "@components/common/base";
 import CustomTopNavBar from "@components/common/customTopNavBar";
 import { FansView } from "@components/controls";
+import { useAppContext } from "@context/useAppContext";
 import { authResetPassword } from "@helper/endpoints/auth/apis";
 import tw from "@lib/tailwind";
 import { validateResetPassword } from "@utils/validateHelper";
@@ -14,7 +15,6 @@ import {
 	Pressable,
 	SafeAreaView,
 	ScrollView,
-	Text,
 	View,
 } from "react-native";
 import Spinner from "react-native-loading-spinner-overlay";
@@ -67,6 +67,7 @@ export const SuccessDialog: FC<SuccessDialogProps> = (props) => {
 const CreateNewPasswordScreen = () => {
 	const router = useRouter();
 	const { email } = useLocalSearchParams<{ email: string }>();
+	const { dispatch } = useAppContext();
 	const [password, setPassword] = useState<string>("");
 	const [confirmPassword, setConfirmPassword] = useState<string>("");
 	const [submitted, setSubmitted] = useState<boolean>(false);
@@ -103,12 +104,14 @@ const CreateNewPasswordScreen = () => {
 	};
 
 	return (
-		<SafeAreaView style={tw`flex-1 flex relative bg-white`}>
+		<SafeAreaView
+			style={tw`flex-1 flex relative bg-white dark:bg-fans-black-1d`}
+		>
 			<Spinner
 				visible={loading}
 				overlayColor="rgba(0,0,0,.5)"
 				color="white"
-				textStyle={tw`text-white`}
+				textStyle={tw`text-white dark:text-fans-black-1d`}
 			/>
 			<CustomTopNavBar
 				title="Create new password"
@@ -140,7 +143,7 @@ const CreateNewPasswordScreen = () => {
 					/>
 					<View
 						style={tw.style(
-							"md:bg-white md:rounded-[15px] md:px-10 md:pt-9 md:pb-10 md:mt-13 relative md:h-[600px]",
+							"md:bg-white md:dark:bg-fans-black-1d md:rounded-[15px] md:px-10 md:pt-9 md:pb-10 md:mt-13 relative md:h-[600px]",
 						)}
 					>
 						<View
@@ -148,30 +151,33 @@ const CreateNewPasswordScreen = () => {
 								"mb-9 relative flex-row justify-center hidden md:flex",
 							)}
 						>
-							<Text
-								style={tw.style(
-									"text-[23px] leading-[31px] font-semibold text-black",
-								)}
+							<FypText
+								fontSize={23}
+								lineHeight={31}
+								fontWeight={600}
 							>
 								Create new password
-							</Text>
+							</FypText>
 							<Pressable
 								style={tw.style("absolute left-0 top-2")}
 								onPress={() => router.back()}
 							>
-								<ChevronLeftSvg
+								<FypSvg
+									svg={ChevronLeftSvg}
 									width={8}
-									height={14.6}
-									color="#707070"
+									height={15}
+									color="fans-grey-70 dark:fans-grey-b1"
 								/>
 							</Pressable>
 						</View>
-						<Text
-							style={tw`text-center text-base leading-[21px] font-inter-regular`}
+						<FypText
+							textAlign="center"
+							fontSize={16}
+							lineHeight={21}
 						>
 							Your new password must be different from previous
 							passwords
-						</Text>
+						</FypText>
 						<FypText
 							fontSize={17}
 							lineHeight={22}

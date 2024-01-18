@@ -1246,6 +1246,16 @@ export const BannerSection = () => {
 							>
 								fyp.fans/
 							</FypText>
+							{/* <FansText
+								fontSize={{ xs: 21, md: 28 }}
+								lineHeight={{ xs: 28, md: 37 }}
+								fontFamily="inter-semibold"
+								onLayout={(e) => {
+									setPrefixWidth(e.nativeEvent.layout.width);
+								}}
+							>
+								fyp.fans/
+							</FansText> */}
 						</View>
 					</FansView>
 					<Pressable

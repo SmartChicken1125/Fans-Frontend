@@ -1,4 +1,4 @@
-import { RedirectSvg, CopySvg } from "@assets/svgs/common";
+import { RedirectSvg, CopySvg, CheckSvg } from "@assets/svgs/common";
 import RoundButton from "@components/common/RoundButton";
 import { FypText, FypSvg } from "@components/common/base";
 import {
@@ -7,30 +7,87 @@ import {
 	FansDivider,
 	FansIconButton,
 } from "@components/controls";
+import { ProfileActionType, useAppContext } from "@context/useAppContext";
+import { updateVideoCallSettings } from "@helper/endpoints/settings/apis";
 import tw from "@lib/tailwind";
-import React, { useState } from "react";
+import useClipboard from "@utils/useClipboard";
+import React, { FC, useState } from "react";
+import Toast from "react-native-toast-message";
+import ContentPreferenceForm from "./contentPreferenceForm";
+import PricesForm from "./pricesForm";
+import TimeframeForm from "./timeframeForm";
+import TitleForm from "./titleForm";
 
-const SettingsForm = () => {
-	const [settings, setSettings] = useState({
-		videoCallEnabled: true,
-		vacationMode: true,
-		newRequest: true,
-		pendingVideos: true,
-		completedRequest: true,
-		email: true,
-		phone: false,
-	});
+interface Props {
+	handleNext: () => void;
+}
 
-	const handleChangeField = (name: string, value: boolean) => {
-		setSettings({
-			...settings,
-			[name]: value,
-		});
+const SettingsForm: FC<Props> = (props) => {
+	const { handleNext } = props;
+	const { state, dispatch } = useAppContext();
+	const { video } = state.profile.settings;
+	const { copyString } = useClipboard();
+
+	const {
+		vacationMode,
+		videoCallsEnabled,
+		notificationNewRequests,
+		notificationsByEmail,
+		notificationsByPhone,
+	} = video;
+
+	const [copied, setCopied] = useState(false);
+
+	const handleSelectAll = async () => {
+		const postbody = {
+			videoCallsEnabled: true,
+			notificationNewRequests: true,
+			notificationsByEmail: true,
+			notificationsByPhone: true,
+		};
+		const resp = await updateVideoCallSettings(postbody);
+		if (resp.ok) {
+			dispatch.setProfile({
+				type: ProfileActionType.updateSettings,
+				data: {
+					video: {
+						...state.profile.settings.video,
+						...postbody,
+					},
+				},
+			});
+		} else {
+			Toast.show({
+				type: "error",
+				text1: resp.data.message,
+			});
+		}
 	};
 
-	const handleSelectAll = () => {};
+	const handleUpdate = async (name: string, val: boolean) => {
+		const resp = await updateVideoCallSettings({ [name]: val });
+		if (resp.ok) {
+			dispatch.setProfile({
+				type: ProfileActionType.updateSettings,
+				data: {
+					video: {
+						...state.profile.settings.video,
+						[name]: val,
+					},
+				},
+			});
+		} else {
+			Toast.show({
+				type: "error",
+				text1: resp.data.message,
+			});
+		}
+	};
 
-	const handleSave = () => {};
+	const handleCopy = async () => {
+		await copyString("fyp.fans/videocall/jane");
+		setCopied(true);
+	};
 
 	return (
 		<FansView>
@@ -45,9 +102,9 @@ const SettingsForm = () => {
 			<FansView height={52} justifyContent="center">
 				<FansSwitch
 					text="Video calls enabled"
-					value={settings.videoCallEnabled}
+					value={videoCallsEnabled}
 					onValueChange={(value: boolean) =>
-						handleChangeField("videoCallEnabled", value)
+						handleUpdate("videoCallsEnabled", value)
 					}
 				/>
 			</FansView>
@@ -55,9 +112,9 @@ const SettingsForm = () => {
 			<FansView height={52} justifyContent="center" margin={{ b: 35 }}>
 				<FansSwitch
 					text="Vacation mode"
-					value={settings.vacationMode}
+					value={vacationMode}
 					onValueChange={(value: boolean) =>
-						handleChangeField("vacationMode", value)
+						handleUpdate("vacationMode", value)
 					}
 				/>
 			</FansView>
@@ -88,18 +145,32 @@ const SettingsForm = () => {
 						lineHeight={21}
 						numberOfLines={1}
 						style={tw.style("relative pr-[42px]")}
+						onPress={handleCopy}
 					>
 						fyp.fans/videocall/jane
-						<FypSvg
-							svg={CopySvg}
-							width={12}
-							height={16}
-							color="fans-purple"
-							style={[
-								tw.style("absolute right-0 top-1/2"),
-								{ transform: [{ translateY: -8 }] },
-							]}
-						/>
+						{copied ? (
+							<FypSvg
+								svg={CheckSvg}
+								width={16}
+								height={16}
+								color="fans-purple"
+								style={[
+									tw.style("absolute right-0 top-1/2"),
+									{ transform: [{ translateY: -8 }] },
+								]}
+							/>
+						) : (
+							<FypSvg
+								svg={CopySvg}
+								width={12}
+								height={16}
+								color="fans-purple"
+								style={[
+									tw.style("absolute right-0 top-1/2"),
+									{ transform: [{ translateY: -8 }] },
+								]}
+							/>
+						)}
 					</FypText>
 					<FansIconButton
 						size={34}
@@ -114,8 +185,10 @@ const SettingsForm = () => {
 					</FansIconButton>
 				</FansView>
 			</FansView>
+
 			<FansDivider style={tw.style("mt-9 mb-[30px]")} />
-			<FansView margin={{ b: 54 }}>
+
+			<FansView>
 				<FypText
 					fontSize={19}
 					lineHeight={26}
@@ -146,9 +219,9 @@ const SettingsForm = () => {
 				<FansView height={52} justifyContent="center">
 					<FansSwitch
 						text="New requests"
-						value={settings.newRequest}
+						value={notificationNewRequests}
 						onValueChange={(value: boolean) =>
-							handleChangeField("newRequest", value)
+							handleUpdate("notificationNewRequests", value)
 						}
 					/>
 				</FansView>
@@ -156,10 +229,8 @@ const SettingsForm = () => {
 				<FansView height={52} justifyContent="center">
 					<FansSwitch
 						text="Pending videos"
-						value={settings.pendingVideos}
-						onValueChange={(value: boolean) =>
-							handleChangeField("pendingVideos", value)
-						}
+						value={true}
+						onValueChange={(value: boolean) => {}}
 					/>
 				</FansView>
 				<FansDivider style={tw.style("my-1")} />
@@ -170,10 +241,8 @@ const SettingsForm = () => {
 				>
 					<FansSwitch
 						text="Completed requests"
-						value={settings.completedRequest}
-						onValueChange={(value: boolean) =>
-							handleChangeField("completedRequest", value)
-						}
+						value={true}
+						onValueChange={(value: boolean) => {}}
 					/>
 				</FansView>
 				<FypText
@@ -187,9 +256,9 @@ const SettingsForm = () => {
 				<FansView height={52} justifyContent="center">
 					<FansSwitch
 						text="Email"
-						value={settings.email}
+						value={notificationsByEmail}
 						onValueChange={(value: boolean) =>
-							handleChangeField("email", value)
+							handleUpdate("notificationsByEmail", value)
 						}
 					/>
 				</FansView>
@@ -220,14 +289,70 @@ const SettingsForm = () => {
 						</FypText>
 					</FansView>
 					<FansSwitch
-						value={settings.phone}
+						value={notificationsByPhone}
 						onValueChange={(value: boolean) =>
-							handleChangeField("phone", value)
+							handleUpdate("notificationsByPhone", value)
 						}
 					/>
 				</FansView>
 			</FansView>
-			<RoundButton onPress={handleSave}>Save</RoundButton>
+
+			<FansDivider style={tw.style("mt-9 mb-[30px]")} />
+
+			<FansView>
+				<FypText
+					fontWeight={600}
+					fontSize={19}
+					lineHeight={26}
+					margin={{ b: 26 }}
+				>
+					Title & description
+				</FypText>
+				<TitleForm />
+			</FansView>
+
+			<FansDivider style={tw.style("mt-9 mb-7")} />
+
+			<FansView>
+				<FypText
+					fontWeight={600}
+					fontSize={19}
+					lineHeight={26}
+					margin={{ b: 12 }}
+				>
+					Prices
+				</FypText>
+				<FypText
+					fontSize={16}
+					lineHeight={21}
+					margin={{ b: 50 }}
+					style={tw.style("text-fans-grey-48")}
+				>
+					Create prices for different video call durations. Provide up
+					to 10 time options for fans to buy
+				</FypText>
+				<PricesForm />
+			</FansView>
+
+			<FansDivider style={tw.style("mt-10 mb-[30px]")} />
+
+			<FansView>
+				<FypText fontWeight={600} fontSize={19} margin={{ b: 26 }}>
+					Availability
+				</FypText>
+				<TimeframeForm />
+			</FansView>
+
+			<FansDivider style={tw.style("mt-[70px] mb-[30px]")} />
+
+			<FansView margin={{ b: 36 }}>
+				<FypText fontWeight={600} fontSize={19} margin={{ b: 26 }}>
+					Content preferences
+				</FypText>
+				<ContentPreferenceForm />
+			</FansView>
+
+			<RoundButton onPress={handleNext}>Next</RoundButton>
 		</FansView>
 	);
 };

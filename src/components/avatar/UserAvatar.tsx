@@ -13,7 +13,6 @@ interface AvatarProps {
 }
 
 const UserAvatar = ({ image, icon, size = "50px" }: AvatarProps) => {
-	const sizeInt = parseFloat(size.split("px")[0]);
 	return (
 		<View
 			style={tw.style(

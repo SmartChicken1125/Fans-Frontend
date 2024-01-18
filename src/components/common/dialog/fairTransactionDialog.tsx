@@ -7,7 +7,6 @@ import { FAIR_TRANSACTION_DIALOG_ID } from "@constants/modal";
 import { ModalState } from "@context/state/modalState";
 import { useAppContext, ModalActionType } from "@context/useAppContext";
 import tw from "@lib/tailwind";
-import { RoundButtonType } from "@usertypes/commonEnums";
 import { useBlankLink } from "@utils/useBlankLink";
 import React from "react";
 import RoundButton from "../RoundButton";
@@ -57,7 +56,7 @@ const FairTransactionDialog = () => {
 					lineHeight={31}
 					style={tw.style("text-center font-bold mb-[18px]")}
 				>
-					IMPORTANT READ: {"\n"} Fair Transactions
+					IMPORTANT READ:{"\n"}Fair Transactions
 				</FansText>
 				<FansView gap={30} margin={{ b: 24 }}>
 					<FansText
@@ -69,8 +68,8 @@ const FairTransactionDialog = () => {
 						<FypLink onPress={onContactSupport} color="purple">
 							CONTACT US
 						</FypLink>
-						, not your bank, and we will FULLY REFUND YOU, without
-						any questions asked.
+						, and we will FULLY REFUND YOU, without any questions
+						asked.
 					</FansText>
 					<FansText
 						fontSize={16}
@@ -83,12 +82,6 @@ const FairTransactionDialog = () => {
 							support
 						</FypLink>
 						&nbsp;before initiating a chargeback through your bank.
-					</FansText>
-					<FansText
-						fontSize={16}
-						lineHeight={21}
-						style={tw.style("text-center")}
-					>
 						Accounts involved in chargebacks without prior
 						communication may be subject to permanent closure.
 					</FansText>

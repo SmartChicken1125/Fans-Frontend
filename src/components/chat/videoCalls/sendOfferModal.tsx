@@ -1,6 +1,6 @@
 import { ChevronLeftSvg } from "@assets/svgs/common";
 import { ApprovePendingImage, GiftImage } from "@assets/svgs/images";
-import FormControl from "@components/common/FormControl";
+import { RoundTextInput2 } from "@components/common/RoundTextInput";
 import { FypSvg, FypText, FypNullableView } from "@components/common/base";
 import { FansView, FansIconButton } from "@components/controls";
 import tw from "@lib/tailwind";
@@ -29,6 +29,7 @@ const StartScreen: FC<StartScreenProps> = (props) => {
 				fontWeight={700}
 				textAlign="center"
 				margin={{ b: 32 }}
+				style={tw.style("text-fans-white")}
 			>
 				Send offer
 			</FypText>
@@ -39,9 +40,7 @@ const StartScreen: FC<StartScreenProps> = (props) => {
 					flexDirection="row"
 					alignItems="center"
 					padding={{ x: 20 }}
-					style={tw.style(
-						"border border-fans-grey-de dark:border-fans-grey-50",
-					)}
+					style={tw.style("border border-fans-white/20")}
 					pressableProps={{
 						onPress: () => handleChangeTab("requestTime"),
 					}}
@@ -53,7 +52,12 @@ const StartScreen: FC<StartScreenProps> = (props) => {
 							height={32}
 						/>
 					</FansView>
-					<FypText fontSize={16} lineHeight={21} fontWeight={600}>
+					<FypText
+						fontSize={16}
+						lineHeight={21}
+						fontWeight={600}
+						style={tw.style("text-fans-white")}
+					>
 						Request time increase
 					</FypText>
 				</FansView>
@@ -64,9 +68,7 @@ const StartScreen: FC<StartScreenProps> = (props) => {
 					flexDirection="row"
 					alignItems="center"
 					padding={{ x: 20 }}
-					style={tw.style(
-						"border border-fans-grey-de dark:border-fans-grey-50",
-					)}
+					style={tw.style("border border-fans-white/20")}
 					pressableProps={{
 						onPress: () => handleChangeTab("sendTributeFee"),
 					}}
@@ -74,7 +76,12 @@ const StartScreen: FC<StartScreenProps> = (props) => {
 					<FansView width={32} margin={{ r: 20 }}>
 						<FypSvg svg={GiftImage} width={28} height={28} />
 					</FansView>
-					<FypText fontSize={16} lineHeight={21} fontWeight={600}>
+					<FypText
+						fontSize={16}
+						lineHeight={21}
+						fontWeight={600}
+						style={tw.style("text-fans-white")}
+					>
 						Send tribute fee
 					</FypText>
 				</FansView>
@@ -108,7 +115,7 @@ const RequestTimeScreen: FC<RequestTimeScreenProps> = (props) => {
 					svg={ChevronLeftSvg}
 					width={13}
 					height={13}
-					color="fans-grey-70 dark:fans-grey-b1"
+					color="fans-white"
 				/>
 			</FansIconButton>
 			<FypSvg
@@ -123,6 +130,7 @@ const RequestTimeScreen: FC<RequestTimeScreenProps> = (props) => {
 				fontWeight={700}
 				textAlign="center"
 				margin={{ b: 22 }}
+				style={tw.style("text-fans-white")}
 			>
 				Request time increase
 			</FypText>
@@ -131,6 +139,7 @@ const RequestTimeScreen: FC<RequestTimeScreenProps> = (props) => {
 				lineHeight={21}
 				textAlign="center"
 				margin={{ b: 26 }}
+				style={tw.style("text-fans-white")}
 			>
 				Encourage your fan to extend the duration of the video call by
 				paying more
@@ -140,6 +149,7 @@ const RequestTimeScreen: FC<RequestTimeScreenProps> = (props) => {
 				lineHeight={22}
 				fontWeight={600}
 				margin={{ b: 15 }}
+				style={tw.style("text-fans-white")}
 			>
 				Duration & prices
 			</FypText>
@@ -160,7 +170,7 @@ const RequestTimeScreen: FC<RequestTimeScreenProps> = (props) => {
 								"border",
 								time === el
 									? "border-fans-purple border-[2px]"
-									: "border-fans-grey-f0 dark:border-fans-grey-43",
+									: "border-fans-white/20",
 							)}
 							pressableProps={{
 								onPress: () => setTime(el),
@@ -171,6 +181,7 @@ const RequestTimeScreen: FC<RequestTimeScreenProps> = (props) => {
 								fontWeight={500}
 								textAlign="center"
 								lineHeight={21}
+								style={tw.style("text-fans-white")}
 							>
 								{`${el} min`}
 							</FypText>
@@ -237,7 +248,7 @@ const SendTributeFeeScreen: FC<SendTributeFeeScreenProps> = (props) => {
 					svg={ChevronLeftSvg}
 					width={13}
 					height={13}
-					color="fans-grey-70 dark:fans-grey-b1"
+					color="fans-white"
 				/>
 			</FansIconButton>
 			<FypSvg
@@ -252,6 +263,7 @@ const SendTributeFeeScreen: FC<SendTributeFeeScreenProps> = (props) => {
 				fontWeight={700}
 				textAlign="center"
 				margin={{ b: 22 }}
+				style={tw.style("text-fans-white")}
 			>
 				Send tribute fee
 			</FypText>
@@ -260,16 +272,29 @@ const SendTributeFeeScreen: FC<SendTributeFeeScreenProps> = (props) => {
 				lineHeight={21}
 				textAlign="center"
 				margin={{ b: 28 }}
+				style={tw.style("text-fans-white")}
 			>
 				Invite your fan to express their appreciation through a tip
 			</FypText>
-			<FormControl
-				label="Tribute fee"
-				value={fee}
-				onChangeText={setFee}
-				placeholder="Enter amount ($)"
-				keyboardType="numeric"
-			/>
+			<FansView>
+				<FypText
+					fontSize={17}
+					fontWeight={600}
+					lineHeight={22}
+					style={tw.style("text-fans-white")}
+					margin={{ b: 14 }}
+				>
+					Tribute fee
+				</FypText>
+				<RoundTextInput2
+					value={fee}
+					onChangeText={setFee}
+					placeholder="Enter amount ($)"
+					keyboardType="numeric"
+					customStyles="bg-fans-white/20 text-fans-white"
+				/>
+			</FansView>
+
 			<FansView
 				height={42}
 				borderRadius={42}
@@ -341,7 +366,7 @@ const SendOfferModal: FC<Props> = (props) => {
 						"w-full md:w-[450px]",
 						"h-auto max-h-9/10",
 						"rounded-t-[7px] md:rounded-[15px] md:rounded-t-[15px]",
-						"bg-fans-white dark:bg-fans-black-1d",
+						"bg-fans-black/50",
 					)}
 				>
 					<FansView height={40} style={tw.style("md:hidden")}>
@@ -352,7 +377,7 @@ const SendOfferModal: FC<Props> = (props) => {
 									height={4}
 									borderRadius={4}
 									style={tw.style(
-										"bg-fans-grey-70/40 dark:bg-fans-grey-b1/40 mx-auto",
+										"bg-fans-grey-b1/40 mx-auto",
 									)}
 								></FansView>
 							</FansView>

@@ -17,3 +17,5 @@ export { default as AudioDetailForm } from "./audioDetailForm";
 export { default as TextPostForm } from "./textPostForm";
 export { default as TagPeopleSearchForm } from "./tagPeopleSearchForm";
 export { default as PaidPostAccessForm } from "./paidPostAccessForm";
+export { default as FansUsersSearchForm } from "./fansUsersSearchForm";
+export { default as NewTierForm } from "./newTierForm";

@@ -19,6 +19,7 @@ import {
 	NotificationSvg,
 	ChatSvg,
 	ShopSvg,
+	VaultSvg,
 } from "@assets/svgs/common";
 import { FypText, FypSvg } from "@components/common/base";
 import { FansView } from "@components/controls";
@@ -142,6 +143,15 @@ const MenuItem: FC<Props> = (props) => {
 						height={24}
 						color="fans-black dark:fans-white"
 						svg={ShopSvg}
+					/>
+				);
+			case "Vault":
+				return (
+					<FypSvg
+						svg={VaultSvg}
+						width={25}
+						height={21}
+						color="fans-black dark:fans-white"
 					/>
 				);
 			// settings icons

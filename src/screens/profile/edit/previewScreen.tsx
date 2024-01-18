@@ -12,7 +12,6 @@ import { ProfileNavigationStacks } from "@usertypes/navigations";
 import { IPickerMedia } from "@usertypes/types";
 import useDocumentPicker from "@utils/useDocumentPicker";
 import useUploadFiles from "@utils/useUploadFile";
-import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -22,7 +21,6 @@ const PreviewScreen = (
 	props: NativeStackScreenProps<ProfileNavigationStacks, "Preview">,
 ) => {
 	const { navigation } = props;
-	const router = useRouter();
 	const insets = useSafeAreaInsets();
 
 	const { state, dispatch } = useAppContext();
@@ -95,10 +93,10 @@ const PreviewScreen = (
 		};
 
 		const previewResp = await updateProfilePreview(postbody);
+
 		setInProgress(false);
 
 		if (previewResp.ok) {
-			// router.back();
 			navigation.goBack();
 		} else {
 			Toast.show({
@@ -115,7 +113,7 @@ const PreviewScreen = (
 		setSelectedImages(
 			previews.map((preview) => ({ uri: preview.url, isPicker: false })),
 		);
-	}, []);
+	}, [previews]);
 
 	return (
 		<AppLayout

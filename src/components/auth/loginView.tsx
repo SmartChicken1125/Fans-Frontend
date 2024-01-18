@@ -63,7 +63,7 @@ const LoginView: FC<Props> = (props) => {
 					? "google_ios"
 					: Platform.OS === "android"
 					? "google_android"
-					: "google_web";
+					: "google";
 			body.code = googleResponse.params.code;
 			body.redirectUri = googleRequest.redirectUri;
 			body.codeVerifier = googleRequest.codeVerifier;

@@ -3,23 +3,50 @@ import {
 	FansButton,
 	FansButton2,
 	FansGap,
-	FansScreen2,
 	FansScreen3,
 	FansSvg,
 	FansSwitch1,
 	FansText,
 	FansView,
 } from "@components/controls";
+import SettingsNavigationHeader from "@components/screens/settings/SettingsNavigationHeader";
+import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
 import { useAppContext } from "@context/useAppContext";
 import { useDiscordAuthRequest } from "@helper/OAuth2";
 import tw from "@lib/tailwind";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { UserRoleTypes } from "@usertypes/commonEnums";
-import { Colors } from "@usertypes/enums";
+import { SettingsConnectionsNativeStackParams } from "@usertypes/navigations";
+import { useRouter } from "expo-router";
 import React, { Fragment, useRef, useState } from "react";
 import { View } from "react-native";
 import SelectDropdown from "react-native-select-dropdown";
 
-const ConnectionsScreen = () => {
+const Stack =
+	createNativeStackNavigator<SettingsConnectionsNativeStackParams>();
+
+const SettingsConnectionsNativeStack = () => {
+	const router = useRouter();
+
+	return (
+		<Stack.Navigator
+			initialRouteName="Connections"
+			screenOptions={{
+				header: (props) => SettingsNavigationHeader(props, router),
+			}}
+		>
+			<Stack.Screen
+				name="Connections"
+				component={ConnectionsContentView}
+				options={{
+					title: "Connections",
+				}}
+			/>
+		</Stack.Navigator>
+	);
+};
+
+const ConnectionsContentView = () => {
 	const { state } = useAppContext();
 	const { userInfo } = state.user;
 	const { type } = userInfo;
@@ -348,6 +375,10 @@ const ConnectionsScreen = () => {
 			<FansGap height={20} />
 		</FansScreen3>
 	);
+};
+
+const ConnectionsScreen = () => {
+	return SettingsNavigationLayout(<SettingsConnectionsNativeStack />);
 };
 
 export default ConnectionsScreen;

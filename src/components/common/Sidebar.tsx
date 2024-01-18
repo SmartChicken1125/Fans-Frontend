@@ -117,16 +117,6 @@ const Sidebar = (props: Props) => {
 			icon: <UserAvatar image={avatar} size="29px" />,
 			onPress: handlePressProfile,
 		},
-		{
-			icon: (
-				<FypSvg
-					width={28.03}
-					height={5.72}
-					svg={ThreeDotsSvg}
-					color="fans-black dark:fans-white"
-				/>
-			),
-		},
 	];
 
 	return (

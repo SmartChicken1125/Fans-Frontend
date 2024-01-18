@@ -85,7 +85,9 @@ const ModalHeader: FC<Props> = (props) => {
 				alignItems="center"
 				justifyContent="center"
 				position="absolute"
-				style={tw.style("py-[34px] top-[-100px] w-full")}
+				style={tw.style(
+					"py-3 md:py-[34px] top-[-50px] md:top-[-100px] w-full",
+				)}
 			>
 				<FansView
 					position="absolute"
@@ -94,7 +96,7 @@ const ModalHeader: FC<Props> = (props) => {
 					flexDirection="row"
 					width={20}
 					height={20}
-					left={40}
+					style={tw.style("left-3 md:left-10")}
 					pressableProps={{
 						onPress: onClickLeft,
 					}}
@@ -109,8 +111,8 @@ const ModalHeader: FC<Props> = (props) => {
 				>
 					{getTitleIcon()}
 					<FansText
-						fontSize={23}
-						lineHeight={31}
+						fontSize={{ xs: 19, md: 23 }}
+						lineHeight={{ xs: 26, md: 31 }}
 						style={tw.style(
 							"font-bold text-fans-black dark:text-fans-white",
 						)}
@@ -121,7 +123,7 @@ const ModalHeader: FC<Props> = (props) => {
 
 				<FansView
 					style={tw.style(
-						"absolute right-8 flex-row items-center",
+						"absolute right-3 md:right-8 flex-row items-center",
 						!onClickRight && "hidden",
 					)}
 					pressableProps={{
@@ -138,8 +140,8 @@ const ModalHeader: FC<Props> = (props) => {
 						size={16}
 					/>
 					<FansText
-						fontSize={19}
-						lineHeight={26}
+						fontSize={{ xs: 17, md: 19 }}
+						lineHeight={{ xs: 22, md: 26 }}
 						style={tw.style(
 							"font-bold text-fans-purple ml-2",
 							"text-fans-black dark:text-fans-white",
@@ -150,7 +152,7 @@ const ModalHeader: FC<Props> = (props) => {
 					</FansText>
 				</FansView>
 			</FansView>
-			<FansDivider style={tw.style("mx-8")} />
+			<FansDivider style={tw.style("md:mx-8")} />
 		</Fragment>
 	);
 };

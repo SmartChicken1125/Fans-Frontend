@@ -1,5 +1,5 @@
 import { CallSvg } from "@assets/svgs/common";
-import RoundTextInput from "@components/common/RoundTextInput";
+import { RoundTextInput2 } from "@components/common/RoundTextInput";
 import { FypSvg, FypText, FypLink } from "@components/common/base";
 import { FansView, FansDivider } from "@components/controls";
 import tw from "@lib/tailwind";
@@ -53,7 +53,7 @@ const EmergencyModal: FC<Props> = (props) => {
 						"w-full md:w-[450px]",
 						"h-auto max-h-9/10",
 						"rounded-t-[7px] md:rounded-[15px] md:rounded-t-[15px]",
-						"bg-fans-white dark:bg-fans-black-1d",
+						"bg-fans-black/50",
 					)}
 				>
 					<FansView height={40} style={tw.style("md:hidden")}>
@@ -63,9 +63,7 @@ const EmergencyModal: FC<Props> = (props) => {
 									width={38}
 									height={4}
 									borderRadius={4}
-									style={tw.style(
-										"bg-fans-grey-70/40 dark:bg-fans-grey-b1/40 mx-auto",
-									)}
+									style={tw.style("bg-fans-white/20 mx-auto")}
 								></FansView>
 							</FansView>
 						</GestureDetector>
@@ -80,6 +78,7 @@ const EmergencyModal: FC<Props> = (props) => {
 							fontWeight={700}
 							textAlign="center"
 							margin={{ b: 32 }}
+							style={tw.style("text-fans-white")}
 						>
 							SOS emergency
 						</FypText>
@@ -88,6 +87,7 @@ const EmergencyModal: FC<Props> = (props) => {
 							lineHeight={21}
 							textAlign="center"
 							margin={{ b: 22 }}
+							style={tw.style("text-fans-white")}
 						>
 							If you are in immediate danger, please{" "}
 							<FypLink
@@ -124,24 +124,27 @@ const EmergencyModal: FC<Props> = (props) => {
 								Call 9111
 							</FypText>
 						</FansView>
-						<FansDivider style={tw.style("mt-7 mb-6")} />
+						<FansDivider
+							style={tw.style("mt-7 mb-6 bg-fans-white/20")}
+						/>
 						<FypText
 							fontSize={16}
 							lineHeight={21}
 							textAlign="center"
 							margin={{ b: 24 }}
+							style={tw.style("text-fans-white")}
 						>
 							If you are not in immediate danger but require
 							prompt assistance, please complete the form below
 						</FypText>
-						<RoundTextInput
+						<RoundTextInput2
 							value={description}
 							onChangeText={setDescription}
 							placeholder="Describe the situation"
 							multiline
 							numberOfLines={4}
 							maxLength={1000}
-							customStyles="py-3 px-5 rounded-[7px] h-[128px]"
+							customStyles="py-3 px-5 rounded-[7px] h-[128px] bg-fans-white/20 text-fans-white"
 						/>
 						<FansView
 							height={42}

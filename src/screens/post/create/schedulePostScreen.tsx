@@ -53,19 +53,19 @@ const SchedulePostScreen = (
 		if (!scheduleForm.startDate || scheduleForm.timezone === "") {
 			return;
 		}
-		const postbody = {
-			startDate: moment(scheduleForm.startDate)
-				.utcOffset("+000", true)
-				.format(),
-			endDate: moment(scheduleForm.startDate)
-				.utcOffset("+000", true)
-				.format(),
-			timezone: scheduleForm.timezone,
-		};
+		// const postbody = {
+		// 	startDate: moment(scheduleForm.startDate)
+		// 		.utcOffset("+000", true)
+		// 		.format(),
+		// 	endDate: moment(scheduleForm.startDate)
+		// 		.utcOffset("+000", true)
+		// 		.format(),
+		// 	timezone: scheduleForm.timezone,
+		// };
 		dispatch.setPosts({
 			type: PostsActionType.updatePostForm,
 			data: {
-				schedule: postbody,
+				schedule: scheduleForm,
 			},
 		});
 		navigation.goBack();
@@ -75,9 +75,7 @@ const SchedulePostScreen = (
 		setScheduleForm({
 			...scheduleForm,
 			timezone: postForm.schedule.timezone,
-			startDate: postForm.schedule.startDate
-				? new Date(postForm.schedule.startDate.split("T")[0])
-				: undefined,
+			startDate: postForm.schedule.startDate,
 		});
 	}, []);
 

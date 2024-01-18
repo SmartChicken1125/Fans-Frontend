@@ -5,7 +5,7 @@ export * from "./Cards";
 export { default as EmailImage } from "./Email";
 export { default as FaqImage } from "./Faq";
 export { default as GemImage } from "./Gem";
-export { default as ImageImage, ImagesImage } from "./Image";
+export { default as ImageImage, ImagesImage, Image2Image } from "./Image";
 export { LevelDevotedImage } from "./Levels";
 export * from "./Logo";
 export { default as MediaSetImage } from "./MediaSet";
@@ -29,3 +29,11 @@ export {
 	Money5Image,
 } from "./Money";
 export { TransactionImage } from "./Transaction";
+export { default as NewStoryImage } from "./NewStory";
+export { default as VideoImage, VideoImage2 } from "./Video";
+export { default as VaultImage } from "./Vault";
+export { default as AudioImage } from "./Audio";
+export { default as TextImage } from "./Text";
+export { default as DocumentImage } from "./Document";
+export { ConsultationImage } from "./Preferences";
+export { default as AdultImage } from "./Adult";

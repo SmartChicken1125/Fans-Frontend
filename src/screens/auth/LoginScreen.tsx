@@ -2,7 +2,7 @@ import { TitleSvg } from "@assets/svgs/common";
 import FormControl from "@components/common/FormControl";
 import RoundButton from "@components/common/RoundButton";
 import TextButton from "@components/common/TextButton";
-import { FypText } from "@components/common/base";
+import { FypText, FypSvg } from "@components/common/base";
 import { FansText, FansTextInput5 } from "@components/controls";
 import { useAppContext } from "@context/useAppContext";
 import {
@@ -39,7 +39,6 @@ import {
 	Platform,
 	Pressable,
 	ScrollView,
-	Text,
 	View,
 } from "react-native";
 import Spinner from "react-native-loading-spinner-overlay";
@@ -88,7 +87,7 @@ const LoginScreen = () => {
 					? "google_ios"
 					: Platform.OS === "android"
 					? "google_android"
-					: "google_web";
+					: "google";
 			body.code = googleResponse.params.code;
 			body.redirectUri = googleRequest.redirectUri;
 			body.codeVerifier = googleRequest.codeVerifier;
@@ -217,7 +216,9 @@ const LoginScreen = () => {
 	};
 
 	return (
-		<View style={tw.style("flex-1 relative bg-white")}>
+		<View
+			style={tw.style("flex-1 relative bg-white dark:bg-fans-black-1d")}
+		>
 			<ImageBackground
 				source={require("@assets/images/background/login-bg.jpg")}
 				style={tw.style(
@@ -229,7 +230,7 @@ const LoginScreen = () => {
 				visible={loading}
 				overlayColor="rgba(0,0,0,.5)"
 				color="white"
-				textStyle={tw`text-white`}
+				textStyle={tw`text-white dark:text-fans-black-1d`}
 			/>
 			<ScrollView contentContainerStyle={tw.style("flex-1")}>
 				<View
@@ -248,22 +249,27 @@ const LoginScreen = () => {
 								"absolute bottom-[30px] w-full flex justify-center items-center",
 							)}
 						>
-							<TitleSvg width={189} height={38} color="#fff" />
+							<FypSvg
+								svg={TitleSvg}
+								width={189}
+								height={38}
+								color="fans-white"
+							/>
 						</View>
 					</View>
-
-					<TitleSvg
+					<FypSvg
+						svg={TitleSvg}
 						width={306}
 						height={61.5}
+						color="fans-white"
 						style={tw.style("mx-auto hidden md:flex")}
-						color="#fff"
 					/>
 
 					<View
 						style={tw.style(
 							"mt-[-12px] md:mt-13",
 							"flex-1 flex flex-col rounded-tl-[15px] rounded-tr-[15px] md:rounded-[15px]",
-							"h-full py-10 px-[18px] bg-white md:pt-9 md:px-10",
+							"h-full py-10 px-[18px] bg-white md:pt-9 md:px-10 dark:bg-fans-black-1d",
 						)}
 					>
 						<View style={tw`flex flex-col gap-2 md:gap-0`}>
@@ -357,37 +363,43 @@ const LoginScreen = () => {
 									}}
 								>
 									<FansText
-										color="grey-70"
 										fontSize={16}
 										lineHeight={21}
+										style={tw.style(
+											"text-fans-grey-70 dark:text-fans-grey-b1",
+										)}
 									>
 										Terms of Use
 									</FansText>
 								</Pressable>
 								<View
 									style={tw.style(
-										"w-1 h-1 bg-fans-dark-grey rounded-full mx-2",
+										"w-1 h-1 bg-fans-dark-grey rounded-full mx-2 dark:bg-fans-grey-b1",
 									)}
 								></View>
 								<Pressable onPress={onGoToPrivacy}>
 									<FansText
-										color="grey-70"
 										fontSize={16}
 										lineHeight={21}
+										style={tw.style(
+											"text-fans-grey-70 dark:text-fans-grey-b1",
+										)}
 									>
 										Privacy policy
 									</FansText>
 								</Pressable>
 								<View
 									style={tw.style(
-										"w-1 h-1 bg-fans-dark-grey rounded-full mx-2",
+										"w-1 h-1 bg-fans-dark-grey rounded-full mx-2 dark:bg-fans-grey-b1",
 									)}
 								></View>
 								<Pressable onPress={handleContactUs}>
 									<FansText
-										color="grey-70"
 										fontSize={16}
 										lineHeight={21}
+										style={tw.style(
+											"text-fans-grey-70 dark:text-fans-grey-b1",
+										)}
 									>
 										Contact us
 									</FansText>
@@ -397,13 +409,13 @@ const LoginScreen = () => {
 						<View
 							style={tw`mt-10 flex flex-row justify-center items-center`}
 						>
-							<Text
-								style={tw.style(
-									"text-[17px] leading-[22px] font-inter-semibold",
-								)}
+							<FypText
+								fontSize={17}
+								lineHeight={22}
+								fontWeight={600}
 							>
 								Don't have an account?
-							</Text>
+							</FypText>
 							<TextButton onPress={handleSignup}>
 								Sign up
 							</TextButton>

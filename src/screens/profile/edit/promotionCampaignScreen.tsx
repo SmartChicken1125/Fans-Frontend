@@ -300,12 +300,12 @@ const PromotionCampaignScreen = (
 											keyboardType="numeric"
 											hasError={
 												isSubmitted &&
-												(formData.discount === "" ||
+												(formData.duration === "" ||
 													parseInt(
-														formData.discount as string,
+														formData.duration as string,
 													) < 1 ||
 													parseInt(
-														formData.discount as string,
+														formData.duration as string,
 													) > 12)
 											}
 											helperText="Duration must be between 1 and 12"

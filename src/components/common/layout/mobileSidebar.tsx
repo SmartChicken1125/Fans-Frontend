@@ -17,6 +17,7 @@ import {
 	StarCheckSvg,
 	SunSvg,
 	SupportSvg,
+	VaultSvg,
 } from "@assets/svgs/common";
 import { FypNullableView, FypSvg, FypText } from "@components/common/base";
 import BottomSheetWrapper from "@components/common/bottomSheetWrapper";
@@ -28,6 +29,7 @@ import {
 	ProfileActionType,
 	useAppContext,
 } from "@context/useAppContext";
+import { hasFlags } from "@helper/Utils";
 import { authLogout } from "@helper/endpoints/auth/apis";
 import { getSubscribedProfiles } from "@helper/endpoints/userlist/apis";
 import { SubscribedProfilesRespBody } from "@helper/endpoints/userlist/schemas";
@@ -35,6 +37,7 @@ import tw from "@lib/tailwind";
 import { authAtom } from "@state/auth";
 import { useFeatureGates } from "@state/featureGates";
 import { SnapPoints, UserRoleTypes } from "@usertypes/commonEnums";
+import { ProfileFlags } from "@usertypes/types";
 import { useBlankLink } from "@utils/useBlankLink";
 import { useRouter } from "expo-router";
 import React, { FC, useCallback, useEffect, useRef, useState } from "react";
@@ -315,7 +318,6 @@ const MobileSidebar: FC = () => {
 	const onClickProfileLink = () => {
 		onClose();
 		if (user.userInfo.type === UserRoleTypes.Creator) {
-			onClose();
 			router.push("/profile");
 		} else {
 			router.push({
@@ -332,33 +334,22 @@ const MobileSidebar: FC = () => {
 
 	const handlePressYourCards = () => {
 		onClose();
-		router.replace({
-			pathname: "settings",
-			params: { screen: "Payments" },
-		});
+		router.push("/payments");
 	};
 
 	const onGoToSubscriptions = () => {
 		onClose();
-		router.replace({
-			pathname: "settings",
-			params: { screen: "Subscriptions" },
-		});
+		router.push("/subscriptions");
 	};
 
 	const onGoToReferCreators = () => {
 		onClose();
-		router.replace({
-			pathname: "referrals",
-		});
+		router.push("/referrals");
 	};
 
 	const onGoToSettings = () => {
 		onClose();
-		router.replace({
-			pathname: "settings",
-			params: { screen: tw.prefixMatch("lg") ? "Account" : "Settings" },
-		});
+		router.push(tw.prefixMatch("lg") ? "/account" : "/settings");
 	};
 
 	const onNavigate = (pathname: string) => {
@@ -468,7 +459,15 @@ const MobileSidebar: FC = () => {
 									>
 										{profile.displayName}
 									</FypText>
-									<StarCheckSvg width={15.66} height={15} />
+									{hasFlags(
+										profile.flags,
+										ProfileFlags.VERIFIED,
+									) && (
+										<StarCheckSvg
+											width={15.66}
+											height={15}
+										/>
+									)}
 								</FansView>
 							)}
 							<FypText
@@ -579,6 +578,23 @@ const MobileSidebar: FC = () => {
 									svg={ShopSvg}
 									width={19}
 									height={24}
+									color="fans-black dark:fans-white"
+								/>
+							}
+						/>
+					)}
+					{featureGates.has("2024_01-new-vault-design") && (
+						<MenuItem
+							title="Vault"
+							onPress={() => {
+								onClose();
+								router.replace("/vault");
+							}}
+							icon={
+								<FypSvg
+									svg={VaultSvg}
+									width={25}
+									height={21}
 									color="fans-black dark:fans-white"
 								/>
 							}

@@ -7,6 +7,7 @@ import {
 import { FypSvg, FypLinearGradientView } from "@components/common/base";
 import { FansImage2, FansText, FansView } from "@components/controls";
 import AddSheet from "@components/dialogs/chat/Add";
+import { IGif } from "@giphy/js-types";
 import tw from "@lib/tailwind";
 import { MediaType, UploadUsageType } from "@usertypes/commonEnums";
 import { Colors } from "@usertypes/enums";
@@ -388,16 +389,14 @@ const ChatInput: FC<IChatInput> = (props) => {
 					</FansView>
 					{isSendable || !isTipAndPhotoVisible ? null : (
 						<FansView
-							width={{ xs: 34, md: 22 }}
-							height={{ xs: 34, md: 20 }}
+							width={{ xs: 34, md: 43 }}
+							height={{ xs: 34, md: 43 }}
+							borderRadius={43}
 							position="absolute"
 							alignItems="center"
 							justifyContent="center"
 							style={tw.style(
-								"top-1 left-1 md:top-[17px] md:left-[17px]   rounded-full md:rounded-0",
-								tw.prefixMatch("md")
-									? "bg-transparent"
-									: "bg-fans-white",
+								"top-1 left-1 md:top-[5px] md:left-[9px] bg-fans-white",
 							)}
 							pressableProps={{
 								onPress: () => handlePressPhoto(),
@@ -407,11 +406,7 @@ const ChatInput: FC<IChatInput> = (props) => {
 								svg={OutlineCamera}
 								width={{ xs: 16, md: 22 }}
 								height={{ xs: 25, md: 20 }}
-								color={
-									tw.prefixMatch("md")
-										? "fans-white"
-										: "fans-black-1d"
-								}
+								color="fans-black"
 							/>
 						</FansView>
 					)}
@@ -420,6 +415,9 @@ const ChatInput: FC<IChatInput> = (props) => {
 					open={isAddSheetOpened}
 					onClose={handleCloseAddSheet}
 					onPressPhoto={handlePressPhoto}
+					onGifSelect={(gif: IGif) => {
+						console.log("GIF selected", gif);
+					}}
 				/>
 			</View>
 		</Fragment>

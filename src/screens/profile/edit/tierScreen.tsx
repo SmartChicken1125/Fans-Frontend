@@ -7,6 +7,7 @@ import CustomTopNavBar from "@components/common/customTopNavBar";
 import FileDropzone from "@components/common/fileDropzone";
 import AppLayout, { LayoutContentsContainer } from "@components/common/layout";
 import { TierPerk } from "@components/profiles";
+import { defaultTierFormData } from "@constants/defaultFormData";
 import { ProfileActionType, useAppContext } from "@context/useAppContext";
 import { cdnURL } from "@helper/Utils";
 import { createTier, updateTier } from "@helper/endpoints/profile/apis";
@@ -21,16 +22,6 @@ import React, { useEffect, useState } from "react";
 import { Image, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
-
-const defaultFormData = {
-	title: "",
-	currency: "USD",
-	description: "",
-	perks: [""],
-	cover: "",
-	id: "0",
-	price: 0,
-};
 
 const TierScreen = (
 	props: NativeStackScreenProps<ProfileNavigationStacks, "Tier">,
@@ -48,7 +39,7 @@ const TierScreen = (
 
 	const [inProgress, setInProgress] = useState(false);
 	const [tierForm, setTierForm] =
-		useState<ISubscriptionTier>(defaultFormData);
+		useState<ISubscriptionTier>(defaultTierFormData);
 	const [coverImg, setCoverImg] = useState<IPickerMedia>({
 		uri: "",
 		isPicker: false,
@@ -218,10 +209,10 @@ const TierScreen = (
 					isPicker: false,
 				});
 			} else {
-				setTierForm(defaultFormData);
+				setTierForm(defaultTierFormData);
 			}
 		} else {
-			setTierForm(defaultFormData);
+			setTierForm(defaultTierFormData);
 		}
 	}, [id]);
 

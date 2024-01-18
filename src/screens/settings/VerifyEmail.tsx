@@ -8,7 +8,7 @@ import { verifyNewEmail } from "@helper/endpoints/settings/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { OTPPageTypes } from "@usertypes/commonEnums";
-import { SettingsNativeStackParams } from "@usertypes/navigations";
+import { SettingsAccountNativeStackParams } from "@usertypes/navigations";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -28,7 +28,10 @@ import Spinner from "react-native-loading-spinner-overlay";
 import Toast from "react-native-toast-message";
 
 const VerifyEmailScreen = (
-	props: NativeStackScreenProps<SettingsNativeStackParams, "VerifyEmail">,
+	props: NativeStackScreenProps<
+		SettingsAccountNativeStackParams,
+		"VerifyEmail"
+	>,
 ) => {
 	const { navigation, route } = props;
 	const { email: newEmail } = route.params;

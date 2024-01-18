@@ -1,4 +1,3 @@
-// BuyMoreTime.tsx
 import {
 	OutlinedDollarSvg,
 	OutlinedInfoSvg,
@@ -21,15 +20,21 @@ import CustomTopNavBar from "@components/common/customTopNavBar";
 import AppLayout from "@components/common/layout";
 import PaymentMethodDropdown from "@components/common/paymentMethodDropdown";
 import { FansView, FansDivider } from "@components/controls";
+import { defaultProfileStateData } from "@context/state/profileState";
 import { useAppContext } from "@context/useAppContext";
+import { cdnURL } from "@helper/Utils";
+import { getCreatorProfileByLink } from "@helper/endpoints/profile/apis";
+import { getProfileVideoCallSettings } from "@helper/endpoints/settings/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { CreatorProfileNavigationStacks } from "@usertypes/navigations";
+import { IProfile, IVideoCallSetting } from "@usertypes/types";
 import { useBlankLink } from "@utils/useBlankLink";
 import { Video } from "expo-av";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Image, ScrollView } from "react-native";
+import Toast from "react-native-toast-message";
 import { ContentPreferencesList } from "../../../components/common/ContentPreferencesList";
 
 const ChatWithUsBlock = () => {
@@ -85,26 +90,6 @@ const ChatWithUsBlock = () => {
 	);
 };
 
-interface ProfileData {
-	username: string;
-	description: string;
-	availability: string;
-	priceRange: string;
-	avatarSrc?: string;
-}
-
-const fetchProfileData = async (): Promise<ProfileData> => {
-	// Mocked data for now, replace this with your actual fetch logic
-	return {
-		username: "Jane Love",
-		description:
-			"Model & content creator. From Australia to the world. New photos every week! Let’s have some fun :)",
-		availability: "24 HR AVAILABLE",
-		priceRange: "15-30",
-		avatarSrc: "",
-	};
-};
-
 const OrderVideoCallScreen = (
 	props: NativeStackScreenProps<
 		CreatorProfileNavigationStacks,
@@ -113,38 +98,13 @@ const OrderVideoCallScreen = (
 ) => {
 	const router = useRouter();
 	const { state } = useAppContext();
-	const [profileData, setProfileData] = useState<ProfileData | null>(null);
-	const [options, setOptions] = useState<string[]>([]);
+	const { creatorUsername: username } = state.common;
+
+	const [profile, setProfile] = useState<IProfile>(defaultProfileStateData);
+	const [settings, setSettings] = useState<IVideoCallSetting>();
 	const [bufferBeforeCall, setBufferBeforeCall] = useState<string>("");
 	const [time, setTime] = useState(0);
 	const [payment, setPayment] = useState("");
-
-	const fetchOptions = async () => {
-		// Mocked data for options
-		const fetchedOptionIds = ["Consultation", "Advice"];
-		// Simulate delay of 1 second (you can replace this with actual API call)
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-
-		// Set the fetched options into state
-		setOptions(fetchedOptionIds);
-	};
-
-	useEffect(() => {
-		const fetchProfile = async () => {
-			try {
-				const data = await fetchProfileData();
-				data.avatarSrc = profile.avatar;
-				setProfileData(data);
-				fetchOptions();
-			} catch (error) {
-				console.error("Error fetching profile data:", error);
-			}
-		};
-
-		fetchProfile();
-	}, []); // Fetch profile data once when the component mounts
-
-	const profile = state.profile;
 
 	const timeOptions = [
 		{ data: "15", label: "15 min" },
@@ -156,6 +116,37 @@ const OrderVideoCallScreen = (
 	};
 
 	const handlePressOrderCall = () => {};
+
+	const fetchVideoCallSettings = async () => {
+		const resp = await getProfileVideoCallSettings({ id: profile.id });
+		if (resp.ok) {
+			setSettings(resp.data);
+		}
+	};
+
+	const fetchProfileData = async () => {
+		const resp = await getCreatorProfileByLink({
+			profileLink: username as string,
+		});
+		if (resp.ok) {
+			setProfile(resp.data);
+		} else {
+			Toast.show({
+				type: "error",
+				text1: resp.data.message,
+			});
+		}
+	};
+
+	useEffect(() => {
+		fetchProfileData();
+	}, [username]);
+
+	useEffect(() => {
+		if (profile.id !== "0") {
+			fetchVideoCallSettings();
+		}
+	}, [profile.id]);
 
 	return (
 		<AppLayout
@@ -192,10 +183,24 @@ const OrderVideoCallScreen = (
 										height={85}
 										style={tw.style("md:hidden")}
 									>
-										<Image
-											source={require("@assets/images/posts/post-img-2.png")}
-											style={tw.style("h-full w-full")}
-										/>
+										{profile.cover.length === 0 ? (
+											<FypLinearGradientView
+												colors={["#8a49f1", "#d885ff"]}
+												position="relative"
+												height={85}
+											/>
+										) : (
+											<Image
+												source={{
+													uri: cdnURL(
+														profile.cover[0],
+													),
+												}}
+												style={tw.style(
+													"h-full w-full",
+												)}
+											/>
+										)}
 									</FansView>
 									<FansView
 										gap={{ xs: 18, md: 24 }}
@@ -217,7 +222,7 @@ const OrderVideoCallScreen = (
 										>
 											<AvatarWithStatus
 												size={109}
-												avatar=""
+												avatar={profile.avatar}
 											/>
 											<FypLinearGradientView
 												colors={["#d885ff", "#1d21e5"]}
@@ -246,36 +251,37 @@ const OrderVideoCallScreen = (
 												"px-[18px] md:px-0 items-center md:items-start",
 											)}
 										>
-											<FansView
-												flexDirection="row"
-												alignItems="center"
-												gap={15}
-												style={tw.style("mb-3")}
-											>
-												<FypText
-													fontSize={23}
-													lineHeight={31}
-													fontWeight={700}
+											{profile.displayName ? (
+												<FansView
+													flexDirection="row"
+													alignItems="center"
+													gap={15}
+													style={tw.style("mb-3")}
 												>
-													Jane Love
-												</FypText>
-												<FypSvg
-													svg={StarCheckSvg}
-													width={16}
-													height={15}
-												/>
-											</FansView>
+													<FypText
+														fontSize={23}
+														lineHeight={31}
+														fontWeight={700}
+													>
+														{profile.displayName}
+													</FypText>
+													<FypSvg
+														svg={StarCheckSvg}
+														width={16}
+														height={15}
+													/>
+												</FansView>
+											) : null}
+
 											<FypText
 												fontSize={16}
 												lineHeight={21}
 												style={tw.style(
 													"mb-3 text-center md:text-left",
 												)}
+												numberOfLines={2}
 											>
-												Model & content creator. From
-												Australia to the world. New
-												photos every week! Let’s have
-												some fun :)
+												{profile.bio}
 											</FypText>
 											<FansView
 												flexDirection="row"
@@ -394,9 +400,12 @@ const OrderVideoCallScreen = (
 									>
 										Type of content
 									</FypText>
-									{options && (
+									{settings?.contentPreferences && (
 										<ContentPreferencesList
-											availableOptionIds={options}
+											availableOptionIds={
+												settings?.contentPreferences ??
+												[]
+											}
 										/>
 									)}
 									<FansDivider
@@ -436,51 +445,56 @@ const OrderVideoCallScreen = (
 										flexWrap="wrap"
 										style={tw.style("flex mb-9 mx-[-6px] ")}
 									>
-										{[15, 30, 45, 60].map((el) => (
-											<FansView
-												key={el}
-												padding={3}
-												style={tw.style(
-													"w-1/3 md:w-1/4",
-												)}
-											>
+										{settings?.meetingDurations.map(
+											(duration) => (
 												<FansView
-													height={77}
-													borderRadius={7}
-													justifyContent="center"
+													key={duration.length}
+													padding={3}
 													style={tw.style(
-														"border",
-														time === el
-															? "border-fans-purple border-[2px]"
-															: "border-fans-grey-f0 dark:border-fans-grey-43",
+														"w-1/3 md:w-1/4",
 													)}
-													pressableProps={{
-														onPress: () =>
-															setTime(el),
-													}}
 												>
-													<FypText
-														fontSize={16}
-														fontWeight={500}
-														textAlign="center"
-														lineHeight={21}
-													>
-														{`${el} min`}
-													</FypText>
-													<FypText
-														fontSize={19}
-														fontWeight={600}
-														textAlign="center"
-														lineHeight={26}
+													<FansView
+														height={77}
+														borderRadius={7}
+														justifyContent="center"
 														style={tw.style(
-															"text-fans-purple",
+															"border",
+															time ===
+																duration.length
+																? "border-fans-purple border-[2px]"
+																: "border-fans-grey-f0 dark:border-fans-grey-43",
 														)}
+														pressableProps={{
+															onPress: () =>
+																setTime(
+																	duration.length,
+																),
+														}}
 													>
-														{`$${el}`}
-													</FypText>
+														<FypText
+															fontSize={16}
+															fontWeight={500}
+															textAlign="center"
+															lineHeight={21}
+														>
+															{`${duration.length} min`}
+														</FypText>
+														<FypText
+															fontSize={19}
+															fontWeight={600}
+															textAlign="center"
+															lineHeight={26}
+															style={tw.style(
+																"text-fans-purple",
+															)}
+														>
+															{`$${duration.price}`}
+														</FypText>
+													</FansView>
 												</FansView>
-											</FansView>
-										))}
+											),
+										)}
 									</FansView>
 									<FypText
 										fontWeight={600}

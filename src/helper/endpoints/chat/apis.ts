@@ -1,4 +1,5 @@
 import {
+	createDELETEWithParams,
 	createGET,
 	createGETWithParams,
 	createPOST,
@@ -58,3 +59,13 @@ export const createWelcomeAutomatedMessage =
 		"/chat/automated-messages/welcome",
 		true,
 	);
+
+export const pinInbox = createPOSTWithParams<ChatIdParams>(
+	"/chat/conversations/:id/pin",
+	true,
+);
+
+export const deleteInbox = createDELETEWithParams<ChatIdParams>(
+	"/chat/conversations/:id/delete",
+	true,
+);

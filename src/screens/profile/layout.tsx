@@ -1,3 +1,4 @@
+import { useAppContext } from "@context/useAppContext";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ReferCreatorsEarnScreen from "@screens/settings/referCreators/ReferAndEarn";
 import { ProfileNavigationStacks } from "@usertypes/navigations";
@@ -50,6 +51,9 @@ const Stack = createNativeStackNavigator<ProfileNavigationStacks>();
 const ProfileLayout = () => {
 	const { playlistId, returnPopup, subscriptionId } = useLocalSearchParams();
 
+	const { state } = useAppContext();
+	const { userInfo } = state.user;
+
 	return (
 		<Stack.Navigator initialRouteName="Profile">
 			<Stack.Screen
@@ -80,7 +84,6 @@ const ProfileLayout = () => {
 					title: "Refer and earn",
 				}}
 			/>
-
 			<Stack.Screen
 				name="ProfileStyle"
 				component={CreatePageStyleScreen}
@@ -88,7 +91,6 @@ const ProfileLayout = () => {
 					headerShown: false,
 				}}
 			/>
-
 			<Stack.Screen
 				name="Edit"
 				component={EditProfileScreen}
@@ -181,7 +183,6 @@ const ProfileLayout = () => {
 					headerShown: false,
 				}}
 			/>
-
 			<Stack.Screen
 				name="Highlights"
 				component={HighlightsScreen}

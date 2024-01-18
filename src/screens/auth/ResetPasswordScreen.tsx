@@ -1,8 +1,9 @@
 import { ChevronLeftSvg, TitleSvg } from "@assets/svgs/common";
 import FormControl from "@components/common/FormControl";
 import RoundButton from "@components/common/RoundButton";
-import { FypText } from "@components/common/base";
+import { FypText, FypSvg } from "@components/common/base";
 import CustomTopNavBar from "@components/common/customTopNavBar";
+import { useAppContext } from "@context/useAppContext";
 import { authForgotPassword } from "@helper/endpoints/auth/apis";
 import tw from "@lib/tailwind";
 import { validateEmail } from "@utils/validateHelper";
@@ -13,7 +14,6 @@ import {
 	Pressable,
 	SafeAreaView,
 	ScrollView,
-	Text,
 	View,
 } from "react-native";
 import Spinner from "react-native-loading-spinner-overlay";
@@ -21,6 +21,7 @@ import Toast from "react-native-toast-message";
 
 const ResetPasswordScreen = () => {
 	const router = useRouter();
+	const { dispatch } = useAppContext();
 	const [email, setEmail] = useState<string>("");
 	const [submitted, setSubmitted] = useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(false);
@@ -52,7 +53,9 @@ const ResetPasswordScreen = () => {
 	};
 
 	return (
-		<SafeAreaView style={tw`flex-1 bg-white relative`}>
+		<SafeAreaView
+			style={tw`flex-1 bg-white relative dark:bg-fans-black-1d`}
+		>
 			<CustomTopNavBar
 				title="Reset password"
 				onClickLeft={() => router.back()}
@@ -84,37 +87,42 @@ const ResetPasswordScreen = () => {
 						style={tw.style("mx-auto hidden md:flex")}
 					/>
 					<View
-						style={tw`flex-1 flex py-6 px-[18px] md:bg-white md:mt-13 md:rounded-[15px] md:px-10 md:mb-10`}
+						style={tw`flex-1 flex py-6 px-[18px] md:bg-white md:dark:bg-fans-black-1d md:mt-13 md:rounded-[15px] md:px-10 md:mb-10`}
 					>
 						<View
 							style={tw.style(
 								"mb-9 relative flex-row justify-center hidden md:flex",
 							)}
 						>
-							<Text
+							<FypText
 								style={tw.style(
-									"text-[23px] leading-[31px] font-semibold text-black",
+									"text-[23px] leading-[31px] font-semibold text-black dark:text-fans-white",
 								)}
 							>
 								Reset password
-							</Text>
+							</FypText>
 							<Pressable
 								style={tw.style("absolute left-0 top-2")}
 								onPress={() => router.back()}
 							>
-								<ChevronLeftSvg
+								<FypSvg
+									svg={ChevronLeftSvg}
 									width={8}
-									height={14.6}
-									color="#707070"
+									height={15}
+									color="fans-grey-70 dark:fans-grey-b1"
 								/>
 							</Pressable>
 						</View>
 
-						<Text style={tw`text-center text-base leading-[21px]`}>
+						<FypText
+							fontSize={16}
+							lineHeight={21}
+							textAlign="center"
+						>
 							Enter the email address linked to your account, and
 							we will send you an email with instructions to reset
 							your password.
-						</Text>
+						</FypText>
 						<FypText
 							fontSize={17}
 							lineHeight={22}

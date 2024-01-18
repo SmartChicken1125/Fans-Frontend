@@ -1,17 +1,16 @@
-import { ChevronLeft1Svg } from "@assets/svgs/common";
 import { Sidebar } from "@components/common";
 import {
 	FansGap,
 	FansScreen3,
-	FansSvg,
-	FansText,
 	FansVerticalDivider,
 	FansView,
 } from "@components/controls";
+import SettingsNavigationHeader from "@components/screens/settings/SettingsNavigationHeader";
 import tw from "@lib/tailwind";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SupportNativeStackParams } from "@usertypes/navigations";
+import { useRouter } from "expo-router";
 import React from "react";
 import ContactUsScreen from "./ContactUs";
 import LawEnforcementGuideScreen from "./LawEnforcementGuide";
@@ -19,45 +18,12 @@ import LawEnforcementGuideScreen from "./LawEnforcementGuide";
 const ContactNativeStackNavigator =
 	createNativeStackNavigator<SupportNativeStackParams>();
 
+const router = useRouter();
+
 const SupportNativeStack = () => (
 	<ContactNativeStackNavigator.Navigator
 		screenOptions={{
-			header: (props) => {
-				const { navigation, options } = props;
-				const { title } = options;
-
-				const handlePress = () => navigation.goBack();
-
-				return (
-					<FansView
-						height={{ xs: 64, lg: 103 }}
-						alignItems="center"
-						backgroundColor="white"
-						border={{ b: 1 }}
-						borderColor="grey-f0"
-						flexDirection="row"
-						padding={{ x: 17.8 }}
-					>
-						<FansView
-							touchableOpacityProps={{
-								onPress: handlePress,
-							}}
-							flex="1"
-						>
-							<FansSvg
-								width={6.36}
-								height={12.72}
-								svg={ChevronLeft1Svg}
-								color1="grey-70"
-							/>
-						</FansView>
-						<FansText fontFamily="inter-bold" fontSize={19}>
-							{title}
-						</FansText>
-						<FansView flex="1" />
-					</FansView>
-				);
-			},
+			header: (props) => SettingsNavigationHeader(props, router),
 		}}
 	>
 		<ContactNativeStackNavigator.Screen

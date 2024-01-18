@@ -3,9 +3,7 @@ declare module "@env" {
 	export const BUILD_NUMBER: string | undefined;
 	export const CDN_URL: string;
 	export const DISCORD_CLIENT_ID: string;
-	export const GOOGLE_ANDROID_CLIENT_ID: string;
-	export const GOOGLE_IOS_CLIENT_ID: string;
-	export const GOOGLE_WEB_CLIENT_ID: string;
+	export const GOOGLE_CLIENT_ID: string;
 	export const TWITTER_CONSUMER_KEY: string;
 	export const TWITTER_CONSUMER_SECRET: string;
 	export const STRIPE_PUBLISHABLE_KEY: string;
@@ -19,4 +17,5 @@ declare module "@env" {
 	export const SIFT_ACCOUNT_ID: string;
 	export const SIFT_BEACON_KEY: string;
 	export const SIFT_SERVER_URL_FORMAT: string;
+	export const GIPHY_API_KEY: string;
 }

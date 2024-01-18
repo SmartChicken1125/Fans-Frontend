@@ -19,22 +19,76 @@ import {
 	FansText,
 	FansView,
 } from "@components/controls";
+import SettingsNavigationHeader from "@components/screens/settings/SettingsNavigationHeader";
+import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
 import { useAppContext } from "@context/useAppContext";
 import { executePayout, getPayoutLogs } from "@helper/endpoints/payout/apis";
 import tw from "@lib/tailwind";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import {
+	NativeStackNavigationProp,
+	createNativeStackNavigator,
+} from "@react-navigation/native-stack";
+import GetPaidScreen from "@screens/profile/edit/getPaidScreen";
 import { useFeatureGates } from "@state/featureGates";
 import { RoundButtonType } from "@usertypes/commonEnums";
-import { ReferralProgramNativeStackParams } from "@usertypes/navigations";
+import {
+	ReferralProgramNativeStackParams,
+	SettingsReferCreatorsNativeStackParams,
+} from "@usertypes/navigations";
 import { IPayoutLog } from "@usertypes/types";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { DateTime } from "luxon";
 import React, { Fragment, useEffect, useState } from "react";
 import { TouchableOpacity } from "react-native";
 import Toast from "react-native-toast-message";
+import AddPaymentMethodScreen from "../payments/AddPaymentMethod";
+import ReferCreatorsPayoutSetupScreen from "./PayoutSetup";
 import PayoutPendingModal from "./modal/PayoutPendingModal";
 
-const ReferCreatorsPaymentsScreen = () => {
+const Stack =
+	createNativeStackNavigator<SettingsReferCreatorsNativeStackParams>();
+
+const SettingsReferCreatorsNativeStack = () => {
+	const router = useRouter();
+
+	return (
+		<Stack.Navigator
+			initialRouteName="ReferralAnalytics"
+			screenOptions={{
+				header: (props) => SettingsNavigationHeader(props, router),
+			}}
+		>
+			<Stack.Screen
+				name="ReferralPayments"
+				component={ReferCreatorsPaymentsContenView}
+				options={{
+					title: "Payments",
+				}}
+			/>
+			<Stack.Screen
+				name="ReferralPayoutSetup"
+				component={ReferCreatorsPayoutSetupScreen}
+				options={{ headerShown: false }}
+			/>
+			<Stack.Screen
+				name="AddPaymentMethod"
+				component={AddPaymentMethodScreen}
+				options={{
+					title: "Add payment method",
+				}}
+			/>
+			<Stack.Screen
+				name="GetPaid"
+				component={GetPaidScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+		</Stack.Navigator>
+	);
+};
+
+const ReferCreatorsPaymentsContenView = () => {
 	const router = useRouter();
 	const featureGates = useFeatureGates();
 	if (!featureGates.has("2023_11-referral-links")) {
@@ -488,6 +542,10 @@ const ReferCreatorsPaymentsScreen = () => {
 			/>
 		</FansScreen3>
 	);
+};
+
+const ReferCreatorsPaymentsScreen = () => {
+	return SettingsNavigationLayout(<SettingsReferCreatorsNativeStack />);
 };
 
 export default ReferCreatorsPaymentsScreen;

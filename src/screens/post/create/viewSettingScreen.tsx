@@ -10,9 +10,9 @@ import { deleteRole } from "@helper/endpoints/post/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { PostsNavigationStacks } from "@usertypes/navigations";
-import { IRole } from "@usertypes/types";
+import { IRole, IFansUser, IPostFormViewType } from "@usertypes/types";
 import React, { useEffect, useState } from "react";
-import { View, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
@@ -24,10 +24,55 @@ const ViewSettingScreen = (
 
 	const { state, dispatch } = useAppContext();
 	const { postForm } = state.posts;
-	const { roles } = state.profile;
+	const { roles, tiers } = state.profile;
 
 	const [localRoles, setLocalRoles] = useState<IRole[]>([]);
+	const [tierIds, setTierIds] = useState<string[]>([]);
+	const [fanUsers, setFanUsers] = useState<IFansUser[]>([]);
 	const [inProgress, setInProgress] = useState(false);
+
+	const handleSaveFormData = () => {
+		const viewType = postForm.viewType;
+		if (viewType === "All") {
+			dispatch.setPosts({
+				type: PostsActionType.updatePostForm,
+				data: {
+					roles: [],
+					tiers: [],
+					users: [],
+				},
+			});
+		} else if (viewType === "XPLevels") {
+			dispatch.setPosts({
+				type: PostsActionType.updatePostForm,
+				data: {
+					roles: localRoles
+						.filter((role) => role.isEnable)
+						.map((el) => el.id),
+					tiers: [],
+					users: [],
+				},
+			});
+		} else if (viewType === "PaymentTiers") {
+			dispatch.setPosts({
+				type: PostsActionType.updatePostForm,
+				data: {
+					roles: [],
+					tiers: tierIds,
+					users: [],
+				},
+			});
+		} else if (viewType === "SpecificFans") {
+			dispatch.setPosts({
+				type: PostsActionType.updatePostForm,
+				data: {
+					roles: [],
+					tiers: [],
+					users: fanUsers,
+				},
+			});
+		}
+	};
 
 	const handleCancel = () => {
 		navigation.goBack();
@@ -69,47 +114,95 @@ const ViewSettingScreen = (
 		navigation.navigate("Role", { id: null });
 	};
 
-	const onClickAllSubscribers = (val: boolean) => {
-		if (val) {
-			dispatch.setPosts({
-				type: PostsActionType.updatePostForm,
-				data: {
-					roles: roles.map((el) => el.id),
-					isAllSubscribers: val,
-				},
-			});
-			setLocalRoles(roles.map((el) => ({ ...el, isEnable: true })));
-		} else {
-			dispatch.setPosts({
-				type: PostsActionType.updatePostForm,
-				data: {
-					roles: [],
-					isAllSubscribers: val,
-				},
-			});
+	const onChangeViewType = (val: IPostFormViewType) => {
+		switch (val) {
+			case "All":
+				dispatch.setPosts({
+					type: PostsActionType.updatePostForm,
+					data: {
+						viewType: val,
+						roles: [],
+						tiers: [],
+						users: [],
+					},
+				});
+				break;
+			case "XPLevels":
+				dispatch.setPosts({
+					type: PostsActionType.updatePostForm,
+					data: {
+						viewType: val,
+						roles: roles.map((el) => el.id),
+						tiers: [],
+						users: [],
+					},
+				});
+				setLocalRoles(roles.map((el) => ({ ...el, isEnable: true })));
+				break;
+			case "PaymentTiers":
+				dispatch.setPosts({
+					type: PostsActionType.updatePostForm,
+					data: {
+						viewType: val,
+						roles: [],
+						tiers: tiers.map((tier) => tier.id),
+						users: [],
+					},
+				});
+				setTierIds(tiers.map((tier) => tier.id));
+				break;
+			case "SpecificFans":
+				dispatch.setPosts({
+					type: PostsActionType.updatePostForm,
+					data: {
+						viewType: val,
+						roles: [],
+						tiers: [],
+						users: [],
+					},
+				});
+				break;
+			default:
+				break;
 		}
 	};
 
 	const onSave = () => {
-		dispatch.setPosts({
-			type: PostsActionType.updatePostForm,
-			data: {
-				roles: localRoles
-					.filter((role) => role.isEnable)
-					.map((el) => el.id),
-			},
-		});
+		handleSaveFormData();
 		navigation.goBack();
+	};
+
+	const onToggleTier = (tierId: string, val: boolean) => {
+		setTierIds(
+			tierIds.includes(tierId)
+				? tierIds.filter((el) => el !== tierId)
+				: [tierId, ...tierIds],
+		);
+	};
+
+	const onCreateTier = () => {
+		handleSaveFormData();
+		navigation.navigate("NewTier");
+	};
+
+	const onRemoveFanUser = (userId: string) => {
+		setFanUsers(fanUsers.filter((user) => user.id !== userId));
+	};
+
+	const onAddFanUsers = (users: IFansUser[]) => {
+		setFanUsers(users);
 	};
 
 	useEffect(() => {
 		setLocalRoles(
 			roles.map((el) => ({
 				...el,
-				isEnable: postForm.roles.includes(el.id) ? true : false,
+				isEnable: postForm.roles.includes(el.id),
 			})),
 		);
-	}, [postForm.roles]);
+		setTierIds(postForm.tiers);
+		setFanUsers(postForm.users);
+	}, [postForm.tiers, postForm.roles, postForm.viewType, postForm.users]);
 
 	return (
 		<FansView
@@ -126,17 +219,24 @@ const ViewSettingScreen = (
 				loading={inProgress}
 			/>
 			<ScrollView style={tw.style("pt-6")}>
-				<View style={tw.style("px-[18px]")}>
+				<FansView padding={{ x: 18, b: 24 }}>
 					<ViewSettingForm
 						roles={localRoles}
-						isAll={postForm.isAllSubscribers}
-						onClickAllSubscribers={onClickAllSubscribers}
+						viewType={postForm.viewType}
+						onChangeViewType={onChangeViewType}
 						onCreateRole={hanldeCreateRole}
 						onEditRole={handleEditRole}
 						onDeleteRole={handleDeleteRole}
 						onToggleRole={handleToggleRole}
+						tiers={tiers}
+						tierIds={tierIds}
+						onToggleTier={onToggleTier}
+						onCreateTier={onCreateTier}
+						fanUsers={fanUsers}
+						onRemoveFanUser={onRemoveFanUser}
+						onAddFanUsers={onAddFanUsers}
 					/>
-				</View>
+				</FansView>
 			</ScrollView>
 		</FansView>
 	);

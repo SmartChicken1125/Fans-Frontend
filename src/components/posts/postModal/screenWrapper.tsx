@@ -10,11 +10,15 @@ const ScreenWrapper: FC<Props> = (props) => {
 	const { children } = props;
 
 	return (
-		<View style={tw.style("flex-row h-[600px] xl:h-[670px]")}>
-			<View style={tw.style("w-[600px] xl:w-[670px] relative")}></View>
+		<View style={tw.style("flex-row h-screen md:h-[600px] xl:h-[670px]")}>
+			<View
+				style={tw.style(
+					"hidden md:flex w-[600px] xl:w-[670px] relative",
+				)}
+			></View>
 			<ScrollView
 				style={tw.style(
-					"border-l border-fans-grey dark:border-fans-grey-43",
+					"md:border-l border-fans-grey dark:border-fans-grey-43",
 				)}
 				contentContainerStyle={{
 					flex: 1,

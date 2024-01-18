@@ -3,9 +3,9 @@ import {
 	ChevronRight2Svg,
 	DiscordPng,
 	GooglePng,
-	TwitterSvg,
 	MoonSvg,
 	SunSvg,
+	TwitterSvg,
 } from "@assets/svgs/common";
 import RoundButton from "@components/common/RoundButton";
 import { FypSvg, FypText } from "@components/common/base";
@@ -25,6 +25,7 @@ import {
 	DeleteAccountModal,
 	DeleteAccountRequestModal,
 } from "@components/modals";
+import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
 import { DELETE_ACCOUNT_SUCCESS_DIALOG_ID } from "@constants/modal";
 import {
 	ModalActionType,
@@ -44,7 +45,10 @@ import {
 } from "@helper/endpoints/auth/apis";
 import { deleteAccount, updateSetting } from "@helper/endpoints/settings/apis";
 import tw from "@lib/tailwind";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import {
+	NativeStackNavigationProp,
+	createNativeStackNavigator,
+} from "@react-navigation/native-stack";
 import { useFeatureGates } from "@state/featureGates";
 import {
 	RoundButtonType,
@@ -54,10 +58,10 @@ import {
 import { IFansDropdownItem } from "@usertypes/components";
 import { defaultProfile } from "@usertypes/defaults";
 import { Colors } from "@usertypes/enums";
-import { SettingsNativeStackParams } from "@usertypes/navigations";
+import { SettingsAccountNativeStackParams } from "@usertypes/navigations";
 import { AgeVerifyStatus, GenderType } from "@usertypes/types";
 import { setObjectStorage, setStorage } from "@utils/storage";
-import { useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import { DateTime } from "luxon";
 import moment from "moment";
 import React, { FC, Fragment, ReactNode, useEffect, useState } from "react";
@@ -66,6 +70,64 @@ import {
 	default as Toast,
 	default as ToastMessage,
 } from "react-native-toast-message";
+import SettingsNavigationHeader from "../../components/screens/settings/SettingsNavigationHeader";
+import ChangePasswordScreen from "./ChangePassword";
+import EmailScreen from "./Email";
+import PhoneScreen from "./Phone";
+import UsernameScreen from "./Username";
+import VerifyEmailScreen from "./VerifyEmail";
+
+const Stack = createNativeStackNavigator<SettingsAccountNativeStackParams>();
+
+const SettingsAccountNativeStack = () => {
+	const router = useRouter();
+
+	return (
+		<Stack.Navigator
+			initialRouteName="Account"
+			screenOptions={{
+				header: (props) => SettingsNavigationHeader(props, router),
+			}}
+		>
+			<Stack.Screen
+				name="Account"
+				component={AccountContentView}
+				options={{
+					title: "Account",
+				}}
+			/>
+			<Stack.Screen
+				name="ChangePassword"
+				component={ChangePasswordScreen}
+				options={{
+					title: "Change password",
+				}}
+			/>
+			<Stack.Screen
+				name="Email"
+				component={EmailScreen}
+				options={{
+					title: "Email",
+				}}
+			/>
+			<Stack.Screen
+				name="Phone"
+				component={PhoneScreen}
+				options={{
+					title: "Phone",
+				}}
+			/>
+			<Stack.Screen
+				name="Username"
+				component={UsernameScreen}
+				options={{
+					title: "Username",
+				}}
+			/>
+			<Stack.Screen name="VerifyEmail" component={VerifyEmailScreen} />
+		</Stack.Navigator>
+	);
+};
 
 type ItemProps = {
 	title: string;
@@ -230,10 +292,11 @@ const ThemeButton: FC<ThemeButtonProps> = (props) => {
 	);
 };
 
-const AccountScreen = (
-	props: NativeStackScreenProps<SettingsNativeStackParams, "Account">,
-) => {
-	const { navigation } = props;
+const AccountContentView = () => {
+	const navigation =
+		useNavigation<
+			NativeStackNavigationProp<SettingsAccountNativeStackParams>
+		>();
 	const router = useRouter();
 	const [twitterRequest, twitterResponse, twitterPromptAsync] =
 		useTwitterAuthRequest("/settings");
@@ -241,8 +304,6 @@ const AccountScreen = (
 		useGoogleAuthRequest("/settings");
 	const [discordRequest, discordResponse, discordPromptAsync] =
 		useDiscordAuthRequest("/settings");
-
-	// useDeviceContext(tw);
 
 	const { state, dispatch } = useAppContext();
 	const { toggleTheme } = dispatch;
@@ -481,7 +542,7 @@ const AccountScreen = (
 						? "google_ios"
 						: Platform.OS === "android"
 						? "google_android"
-						: "google_web",
+						: "google",
 			},
 		).then(async (resp) => {
 			if (resp.ok) {
@@ -814,6 +875,10 @@ const AccountScreen = (
 			<FansGap height={20} />
 		</FansScreen3>
 	);
+};
+
+const AccountScreen = () => {
+	return SettingsNavigationLayout(<SettingsAccountNativeStack />);
 };
 
 export default AccountScreen;

@@ -34,7 +34,6 @@ import {
 	ProfilePictureDialog,
 	ProfilePostActions,
 	ProfileThreeDotsDialog,
-	ShopTabContents,
 	SocialLinkList,
 	StickyHeader,
 	SubscriptionPart,
@@ -55,6 +54,7 @@ import {
 	StoryActionType,
 	useAppContext,
 } from "@context/useAppContext";
+import { hasFlags } from "@helper/Utils";
 import { getOrCreateConversation } from "@helper/endpoints/chat/apis";
 import { getPostMediasByUserId } from "@helper/endpoints/media/apis";
 import { MediasRespBody } from "@helper/endpoints/media/schemas";
@@ -89,6 +89,7 @@ import {
 	IPost,
 	IPostAdvanced,
 	IProfile,
+	ProfileFlags,
 } from "@usertypes/types";
 import { checkEnableMediasLoadingMore } from "@utils/common";
 import { useBlankLink } from "@utils/useBlankLink";
@@ -256,7 +257,15 @@ const ProfileScreen = (
 				setPosts({
 					...posts,
 					posts: posts.posts.map((el) =>
-						el.id === id ? resp.data.updatedPost : el,
+						el.id === id
+							? {
+									...el,
+									isBookmarked:
+										resp.data.updatedPost.isBookmarked,
+									bookmarkCount:
+										resp.data.updatedPost.bookmarkCount,
+							  }
+							: el,
 					),
 				});
 			}
@@ -266,7 +275,15 @@ const ProfileScreen = (
 				setPosts({
 					...posts,
 					posts: posts.posts.map((el) =>
-						el.id === id ? resp.data.updatedPost : el,
+						el.id === id
+							? {
+									...el,
+									isBookmarked:
+										resp.data.updatedPost.isBookmarked,
+									bookmarkCount:
+										resp.data.updatedPost.bookmarkCount,
+							  }
+							: el,
 					),
 				});
 			}
@@ -515,7 +532,7 @@ const ProfileScreen = (
 
 	const onPaidPostCallback = async (postId: string) => {
 		const resp = await getPostById({ id: postId });
-		if (resp.ok) {
+		if (resp.ok && resp.data.isPosted) {
 			setPosts({
 				...posts,
 				posts: posts.posts.map((post) =>
@@ -710,20 +727,20 @@ const ProfileScreen = (
 	}, [username]);
 
 	useEffect(() => {
-		if ((profile?.userId ?? "0") !== "0" && auth) {
+		if ((profile?.userId ?? "0") !== "0") {
 			fetchPosts();
 		} else {
 			setPosts(defaultPosts);
 		}
-	}, [profile?.userId, filter.post, posts.page, auth]);
+	}, [profile?.userId, filter.post, posts.page]);
 
 	useEffect(() => {
-		if ((profile?.userId ?? "0") !== "0" && auth) {
+		if ((profile?.userId ?? "0") !== "0") {
 			fetchMedias();
 		} else {
 			setMedias(defaultMedias);
 		}
-	}, [profile?.userId, medias.page, filter.media, auth]);
+	}, [profile?.userId, medias.page, filter.media]);
 
 	return (
 		<AppLayout
@@ -869,7 +886,10 @@ const ProfileScreen = (
 																profile.displayName
 															}
 														</FansText>
-														{profile.verified && (
+														{hasFlags(
+															profile.flags,
+															ProfileFlags.VERIFIED,
+														) && (
 															<StarCheckSvg
 																width={15.66}
 																height={15}

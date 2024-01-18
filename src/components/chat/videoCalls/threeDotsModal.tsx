@@ -68,7 +68,7 @@ const ThreeDotsModal: FC<Props> = (props) => {
 						"w-full md:w-[450px]",
 						"h-auto max-h-9/10",
 						"rounded-t-[7px] md:rounded-[15px] md:rounded-t-[15px]",
-						"bg-fans-white dark:bg-fans-black-1d",
+						"bg-fans-black/50",
 					)}
 				>
 					<FansView height={40} style={tw.style("md:hidden")}>
@@ -78,9 +78,7 @@ const ThreeDotsModal: FC<Props> = (props) => {
 									width={38}
 									height={4}
 									borderRadius={4}
-									style={tw.style(
-										"bg-fans-grey-70/40 dark:bg-fans-grey-b1/40 mx-auto",
-									)}
+									style={tw.style("bg-fans-white/20 mx-auto")}
 								></FansView>
 							</FansView>
 						</GestureDetector>
@@ -88,12 +86,13 @@ const ThreeDotsModal: FC<Props> = (props) => {
 					<FansView flex="1" style={tw.style("md:pt-5")}>
 						<MenuItem
 							title="View profile"
+							labelClass="text-fans-white"
 							icon={
 								<FypSvg
 									svg={UserSvg}
 									width={23}
 									height={23}
-									color="fans-black dark:fans-white"
+									color="fans-white"
 								/>
 							}
 							onPress={handleViewProfile}

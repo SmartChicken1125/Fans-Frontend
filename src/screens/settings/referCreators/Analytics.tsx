@@ -1,15 +1,9 @@
-import {
-	CalendarSvg,
-	ChevronDownSvg,
-	ChevronLeft1Svg,
-	SearchSvg,
-} from "@assets/svgs/common";
+import { CalendarSvg, ChevronDownSvg, SearchSvg } from "@assets/svgs/common";
 import {
 	FansChips3,
 	FansGap,
 	FansHorizontalDivider,
 	FansScreen3,
-	FansSvg,
 	FansText,
 	FansTextInput,
 	FansView,
@@ -17,6 +11,7 @@ import {
 import { FilterDuringDialog } from "@components/dialogs/chat";
 import { BanModal } from "@components/modals";
 import { Transaction } from "@components/payment";
+import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
 import { LineChart } from "@components/screens/settings/analytics";
 import {
 	getCreatorReferralCreators,
@@ -29,9 +24,15 @@ import {
 	GetCreatorReferralTotalEarningReqQueryParams,
 } from "@helper/endpoints/referral/schemas";
 import tw from "@lib/tailwind";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import {
+	NativeStackNavigationProp,
+	createNativeStackNavigator,
+} from "@react-navigation/native-stack";
 import { useFeatureGates } from "@state/featureGates";
-import { ReferralProgramNativeStackParams } from "@usertypes/navigations";
+import {
+	ReferralProgramNativeStackParams,
+	SettingsReferCreatorsNativeStackParams,
+} from "@usertypes/navigations";
 import {
 	CreatorReferralCreator,
 	CreatorReferralLinkPerformance,
@@ -51,9 +52,34 @@ import {
 import { useNavigation, useRouter } from "expo-router";
 import { DateTime } from "luxon";
 import React, { Fragment, useEffect, useState } from "react";
+import SettingsNavigationHeader from "../../../components/screens/settings/SettingsNavigationHeader";
 import TransactionHistorySheet from "./TransactionHistorySheet";
 import CreatorItem from "./item/CreatorItem";
 import LinkItem from "./item/LinkItem";
+
+const Stack =
+	createNativeStackNavigator<SettingsReferCreatorsNativeStackParams>();
+
+const SettingsReferCreatorsNativeStack = () => {
+	const router = useRouter();
+
+	return (
+		<Stack.Navigator
+			initialRouteName="ReferralAnalytics"
+			screenOptions={{
+				header: (props) => SettingsNavigationHeader(props, router),
+			}}
+		>
+			<Stack.Screen
+				name="ReferralAnalytics"
+				component={ReferCreatorsAnalyticsContentView}
+				options={{
+					title: "Refer creator analytics",
+				}}
+			/>
+		</Stack.Navigator>
+	);
+};
 
 Chart.register(
 	CategoryScale,
@@ -639,7 +665,7 @@ const Earnings = () => {
 	);
 };
 
-const ReferCreatorsAnalyticsScreen = () => {
+const ReferCreatorsAnalyticsContentView = () => {
 	const router = useRouter();
 	const featureGates = useFeatureGates();
 	if (!featureGates.has("2023_11-referral-links")) {
@@ -653,52 +679,7 @@ const ReferCreatorsAnalyticsScreen = () => {
 		>();
 
 	navigation.setOptions({
-		header: (props) => {
-			const { navigation, options } = props;
-			const { title } = options;
-
-			const handlePress = () => {
-				if (navigation.canGoBack()) {
-					navigation.goBack();
-				} else {
-					if (router.canGoBack()) {
-						router.back();
-					} else {
-						router.replace({
-							pathname: "posts",
-							params: { screen: "Home" },
-						});
-					}
-				}
-			};
-
-			return (
-				<FansView
-					height={{ xs: 64, lg: 103 }}
-					alignItems="center"
-					border={{ b: 1 }}
-					borderColor="grey-f0"
-					flexDirection="row"
-					padding={{ x: 24 }}
-					backgroundColor="white"
-				>
-					<FansView
-						touchableOpacityProps={{ onPress: handlePress }}
-						width={40}
-						height={40}
-						padding={{ x: 4, y: 12 }}
-					>
-						<FansSvg width={8} height={16} svg={ChevronLeft1Svg} />
-					</FansView>
-					<FansGap viewStyle={{ flex: "1" }} />
-					<FansText fontFamily="inter-bold" fontSize={19}>
-						{title}
-					</FansText>
-					<FansGap viewStyle={{ flex: "1" }} />
-					<FansGap width={40} />
-				</FansView>
-			);
-		},
+		header: (props) => SettingsNavigationHeader(props, router),
 	});
 
 	const items = [
@@ -743,6 +724,10 @@ const ReferCreatorsAnalyticsScreen = () => {
 			/>{" "}
 		</FansScreen3>
 	);
+};
+
+const ReferCreatorsAnalyticsScreen = () => {
+	return SettingsNavigationLayout(<SettingsReferCreatorsNativeStack />);
 };
 
 export default ReferCreatorsAnalyticsScreen;

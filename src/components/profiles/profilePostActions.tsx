@@ -283,7 +283,7 @@ const ProfilePostActions: FC<Props> = (props) => {
 						icon={
 							<FypSvg
 								svg={ArchivedPostSvg}
-								width={22.87}
+								width={23}
 								height={23}
 								color="fans-black dark:fans-white"
 							/>

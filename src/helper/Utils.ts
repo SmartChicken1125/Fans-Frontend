@@ -57,3 +57,7 @@ export function atoburl(data: string): string {
 		return window.atob(data.replace(/-/g, "+").replace(/_/g, "/"));
 	}
 }
+
+export function hasFlags(field: number, flags: number): boolean {
+	return (field & flags) === flags;
+}

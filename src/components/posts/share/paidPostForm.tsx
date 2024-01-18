@@ -1,7 +1,7 @@
 import FormControl from "@components/common/FormControl";
 import RoundButton from "@components/common/RoundButton";
-import { FypNullableView, FypText } from "@components/common/base";
-import { FansView } from "@components/controls";
+import { FypNullableView, FypText, FypRadio } from "@components/common/base";
+import { FansView, FansDivider } from "@components/controls";
 import { PreviewImageField } from "@components/posts/common";
 import tw from "@lib/tailwind";
 import { useFeatureGates } from "@state/featureGates";
@@ -13,8 +13,9 @@ import {
 	IRole,
 } from "@usertypes/types";
 import useDocumentPicker from "@utils/useDocumentPicker";
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import { AccessItem } from "./paidPostAccessForm";
+import PaymentFansForm from "./paymentFansForm";
 
 interface Props {
 	postForm: IPostForm;
@@ -49,6 +50,7 @@ const PaidPostForm: FC<Props> = (props) => {
 	const featureGates = useFeatureGates();
 	const { useImagePicker } = useDocumentPicker();
 	const { roleIds, tierIds, fanUsers } = postForm.paidPostAccess;
+	const [isAllSubscribers, setIsAllSubscribers] = useState(true);
 
 	const handleChangeImage = async () => {
 		const result = await useImagePicker();
@@ -246,6 +248,39 @@ const PaidPostForm: FC<Props> = (props) => {
 					}
 				/>
 			</FypNullableView>
+			{featureGates.has("2024_01-new-exclusive-post") ? (
+				<FansView
+					style={tw.style("px-[18px] md:px-0")}
+					margin={{ b: 43 }}
+				>
+					<FypText
+						fontSize={17}
+						lineHeight={22}
+						fontWeight={600}
+						margin={{ b: 15 }}
+					>
+						Who has to pay
+					</FypText>
+					<FansView margin={{ b: 14 }}>
+						<FansView padding={{ y: 16 }}>
+							<FypRadio
+								label="All subscribers"
+								checked={isAllSubscribers}
+								onPress={() => setIsAllSubscribers(true)}
+							/>
+						</FansView>
+						<FansDivider />
+						<FansView padding={{ y: 16 }}>
+							<FypRadio
+								label="Specific tiers"
+								checked={!isAllSubscribers}
+								onPress={() => setIsAllSubscribers(false)}
+							/>
+						</FansView>
+					</FansView>
+					{/* <PaymentFansForm collapsed={isAllSubscribers} /> */}
+				</FansView>
+			) : null}
 
 			<FansView style={tw.style("px-[18px] md:px-0 mb-13")}>
 				<RoundButton onPress={handleSave} loading={inProgress}>

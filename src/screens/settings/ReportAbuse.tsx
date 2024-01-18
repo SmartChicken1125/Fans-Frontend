@@ -4,20 +4,44 @@ import RoundButton from "@components/common/RoundButton";
 import {
 	FansDropdown,
 	FansGap,
-	FansScreen2,
 	FansScreen3,
 	FansSvg,
 	FansText,
 	FansTextInput5,
 	FansView,
 } from "@components/controls";
+import SettingsNavigationHeader from "@components/screens/settings/SettingsNavigationHeader";
+import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
 import tw from "@lib/tailwind";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { SettingsReportAbuseNativeStackParams } from "@usertypes/navigations";
 import { getColorStyle } from "@usertypes/styles";
+import { useRouter } from "expo-router";
 import React from "react";
-import { TextInput } from "react-native-gesture-handler";
-import { Path, Svg } from "react-native-svg";
 
-const ReportAbuseScreen = () => {
+const Stack =
+	createNativeStackNavigator<SettingsReportAbuseNativeStackParams>();
+
+const SettingsReportAbuseNativeStack = () => {
+	const router = useRouter();
+
+	return (
+		<Stack.Navigator
+			initialRouteName="REPORTABUSE"
+			screenOptions={{
+				header: (props) => SettingsNavigationHeader(props, router),
+			}}
+		>
+			<Stack.Screen
+				name="REPORTABUSE"
+				component={ReportAbuseContentView}
+				options={{ title: "Report abuse" }}
+			/>
+		</Stack.Navigator>
+	);
+};
+
+const ReportAbuseContentView = () => {
 	/*return (
 		<ScrollView>
 			<View style={tw.style("flex-column gap-[20px]", "m-[15px]")}>
@@ -200,6 +224,10 @@ const ReportAbuseScreen = () => {
 			</FansText>
 		</FansScreen3>
 	);
+};
+
+const ReportAbuseScreen = () => {
+	return SettingsNavigationLayout(<SettingsReportAbuseNativeStack />);
 };
 
 export default ReportAbuseScreen;

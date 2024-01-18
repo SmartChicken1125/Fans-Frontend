@@ -23,6 +23,7 @@ import tw from "@lib/tailwind";
 import {
 	SubscriptionFilterTypes,
 	SubscribeActionType,
+	PromotionType,
 } from "@usertypes/commonEnums";
 import { Subscription, Bundle } from "@usertypes/types";
 import React, { FC, Fragment, useState } from "react";
@@ -64,6 +65,19 @@ const SubscriptionCard: FC<Props> = (props) => {
 		});
 	}
 
+	function renewalDate(date: Date) {
+		const currentDate = new Date();
+		const renewalDate = new Date(date);
+		renewalDate.setMonth(currentDate.getMonth() + 1);
+		renewalDate.setDate(date.getDate());
+
+		if (date.getDate() !== renewalDate.getDate()) {
+			renewalDate.setDate(0);
+		}
+
+		return renewalDate;
+	}
+
 	const handleOpenSubscribeModal = () => {
 		dispatch.setCommon({
 			type: CommonActionType.toggleSubscribeModal,
@@ -87,6 +101,17 @@ const SubscriptionCard: FC<Props> = (props) => {
 
 	const isCanceledButNotExpired =
 		new Date(subscription.endDate) >= new Date();
+
+	const freeTrialEndDate =
+		subscription.campaign?.type === PromotionType.FreeTrial
+			? new Date(
+					new Date(subscription.startDate).setMonth(
+						subscription.campaign.duration,
+					),
+			  )
+			: false;
+
+	const isFreeTrialPeriod = freeTrialEndDate && freeTrialEndDate > new Date();
 
 	return (
 		<FansView
@@ -211,7 +236,11 @@ const SubscriptionCard: FC<Props> = (props) => {
 				</View>
 				{subscription.bundle ? (
 					<SubscriptionBundle
-						title={`${subscription.bundle.month} months`}
+						title={
+							isFreeTrialPeriod
+								? "Free Trial"
+								: `${subscription.bundle.month} months`
+						}
 						value={`$${subscription.amount} / month`}
 						optionalText={`($${subscription.bundle.discount} off)`}
 						onPress={() =>
@@ -225,7 +254,9 @@ const SubscriptionCard: FC<Props> = (props) => {
 						title={
 							props.variant === SubscriptionFilterTypes.Active &&
 							!subscription.endDate
-								? `$${subscription.amount} / month`
+								? isFreeTrialPeriod
+									? "Free Trial"
+									: `$${subscription.amount} / month`
 								: "Subscribe"
 						}
 						value={
@@ -264,6 +295,8 @@ const SubscriptionCard: FC<Props> = (props) => {
 						!subscription.endDate
 							? subscription.amount === 0
 								? "Renews for free"
+								: isFreeTrialPeriod
+								? "Free Trial ends"
 								: "Renews"
 							: isCanceledButNotExpired
 							? "Expires"
@@ -278,7 +311,13 @@ const SubscriptionCard: FC<Props> = (props) => {
 					>
 						{props.variant === SubscriptionFilterTypes.Active
 							? formatDateToCustomString(
-									new Date(subscription.startDate),
+									isFreeTrialPeriod
+										? freeTrialEndDate
+										: renewalDate(
+												new Date(
+													subscription.startDate,
+												),
+										  ),
 							  )
 							: formatDateToCustomString(
 									new Date(subscription.endDate),

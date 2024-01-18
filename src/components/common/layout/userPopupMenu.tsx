@@ -1,14 +1,10 @@
 import { StarCheckSvg, ThreeDotsVerticalSvg } from "@assets/svgs/common";
-import {
-	FypNullableView,
-	FypText,
-	FypSvg,
-	FypLink,
-} from "@components/common/base";
+import { FypNullableView, FypSvg, FypText } from "@components/common/base";
 import { FansDivider, FansIconButton, FansView } from "@components/controls";
+import { hasFlags } from "@helper/Utils";
 import tw from "@lib/tailwind";
 import { UserRoleTypes } from "@usertypes/commonEnums";
-import { IProfile, IUserInfo } from "@usertypes/types";
+import { IProfile, IUserInfo, ProfileFlags } from "@usertypes/types";
 import React, { FC, useState } from "react";
 import { Pressable, View } from "react-native";
 import OutsidePressHandler from "react-native-outside-press";
@@ -87,12 +83,13 @@ const UserPopupMenu: FC<Props> = (props) => {
 					>
 						{profile.displayName}
 					</FypText>
-
-					<StarCheckSvg
-						style={tw.style(
-							"w-4 h-4 md:w-[11.3px] md:h-[10.8px] lg:w-[15.66px] lg:h-[15px]",
-						)}
-					/>
+					{hasFlags(profile.flags, ProfileFlags.VERIFIED) && (
+						<StarCheckSvg
+							style={tw.style(
+								"w-4 h-4 md:w-[11.3px] md:h-[10.8px] lg:w-[15.66px] lg:h-[15px]",
+							)}
+						/>
+					)}
 				</View>
 				<FypText
 					fontSize={{ xs: 16, md: 11, lg: 16 }}
@@ -152,7 +149,7 @@ const UserPopupMenu: FC<Props> = (props) => {
 						]}
 					>
 						<FansView gap={{ xs: 20, lg: 28 }}>
-							<FypLink
+							<FypText
 								onPress={onPressTerms}
 								style={tw.style(
 									"w-full justify-start text-fans-black dark:text-fans-white",
@@ -161,8 +158,8 @@ const UserPopupMenu: FC<Props> = (props) => {
 								lineHeight={24}
 							>
 								Terms of use
-							</FypLink>
-							<FypLink
+							</FypText>
+							<FypText
 								onPress={onPressPrivacy}
 								style={tw.style(
 									"w-full justify-start text-fans-black dark:text-fans-white",
@@ -171,10 +168,10 @@ const UserPopupMenu: FC<Props> = (props) => {
 								lineHeight={24}
 							>
 								Privacy Policy
-							</FypLink>
+							</FypText>
 						</FansView>
 						<FansDivider style={tw.style("my-4 lg:my-5")} />
-						<FypLink
+						<FypText
 							onPress={onPressLogOut}
 							style={tw.style(
 								"w-full justify-start text-fans-black dark:text-fans-white",
@@ -183,7 +180,7 @@ const UserPopupMenu: FC<Props> = (props) => {
 							lineHeight={24}
 						>
 							Log out
-						</FypLink>
+						</FypText>
 					</Animated.View>
 				</OutsidePressHandler>
 			</FypNullableView>

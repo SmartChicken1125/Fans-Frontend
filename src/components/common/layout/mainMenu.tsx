@@ -33,42 +33,32 @@ const MainMenu: FC<Props> = (props) => {
 	const isCreator = type === UserRoleTypes.Creator;
 
 	const onPressYourCard = () => {
-		router.replace({
-			pathname: "settings",
-			params: { screen: "Payments" },
-		});
+		router.push("/payments");
 	};
 
 	const onPressProfile = () => {
 		if (user.userInfo.type === UserRoleTypes.Creator) {
-			router.replace({
-				pathname: "profile",
+			router.push({
+				pathname: "/profile",
 				params: { screen: "Profile" },
 			});
 		} else {
-			router.replace({
-				pathname: "profile",
+			router.push({
+				pathname: "/profile",
 				params: { screen: "ProfileName" },
 			});
 		}
 	};
 
 	const onPressSubscriptions = () => {
-		router.replace({
-			pathname: "settings",
-			params: { screen: "Subscriptions" },
-		});
+		router.push("/subscriptions");
 	};
 
 	const onPressSettings = () => {
-		router.replace({
-			pathname: "settings",
-			params: { screen: "Account" },
-		});
+		router.push(tw.prefixMatch("lg") ? "/account" : "/settings");
 	};
 
 	const onPressCollections = () => {
-		// router.push("/bookmarks");
 		router.replace({
 			pathname: "bookmarks",
 			params: {
@@ -83,14 +73,14 @@ const MainMenu: FC<Props> = (props) => {
 	}, []);
 
 	const onPressPurchases = async () => {
-		// if (Platform.OS === "web") {
-		// 	setStorage(StorageKeyTypes.PreviousUrl, window.location.pathname);
-		// }
-
-		router.replace({
+		router.push({
 			pathname: "profile",
 			params: { screen: "Purchases" },
 		});
+	};
+
+	const onPressVault = () => {
+		router.replace("/vault");
 	};
 
 	return (
@@ -137,6 +127,9 @@ const MainMenu: FC<Props> = (props) => {
 							title="Purchases"
 							onPress={onPressPurchases}
 						/>
+					)}
+					{featureGates.has("2024_01-new-vault-design") && (
+						<MenuItem title="Vault" onPress={onPressVault} />
 					)}
 					{featureGates.has("2023_12-fans-referral") && isCreator && (
 						<MenuItem

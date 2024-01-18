@@ -4,6 +4,7 @@ import { FansDivider, FansView } from "@components/controls";
 import tw from "@lib/tailwind";
 import { IPaymentMethod } from "@usertypes/types";
 import React, { FC, useState } from "react";
+import { ViewStyle, TextStyle } from "react-native";
 
 interface Props {
 	options: IPaymentMethod[];
@@ -13,10 +14,13 @@ interface Props {
 		customerPaymentProfileId: string,
 		method: IPaymentMethod,
 	) => void;
+	style?: ViewStyle;
+	textStyle?: TextStyle;
 }
 
 const PaymentMethodDropdown: FC<Props> = (props) => {
-	const { handleAddMethod, value, onChange, options } = props;
+	const { handleAddMethod, value, onChange, options, style, textStyle } =
+		props;
 	const [closeDropdown, setCloseDropdown] = useState(true);
 
 	const getPaymentMethod = () => {
@@ -54,9 +58,12 @@ const PaymentMethodDropdown: FC<Props> = (props) => {
 	return (
 		<FansView
 			borderRadius={24}
-			style={tw.style(
-				"border border-fans-dark-grey dark:border-fans-grey-b1",
-			)}
+			style={[
+				tw.style(
+					"border border-fans-dark-grey dark:border-fans-grey-b1",
+				),
+				style,
+			]}
 		>
 			<FansView
 				flexDirection="row"
@@ -71,7 +78,7 @@ const PaymentMethodDropdown: FC<Props> = (props) => {
 				<FypText
 					fontSize={16}
 					lineHeight={21}
-					style={tw.style("ml-2 mr-auto")}
+					style={[tw.style("ml-2 mr-auto"), textStyle]}
 				>
 					{getPaymentMethod().label}
 				</FypText>

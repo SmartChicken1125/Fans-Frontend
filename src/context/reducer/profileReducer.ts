@@ -19,7 +19,10 @@ export enum ProfileActionType {
 }
 
 export type ProfileAction =
-	| { type: ProfileActionType.updateSettings; data: IProfileSettings }
+	| {
+			type: ProfileActionType.updateSettings;
+			data: Partial<IProfileSettings>;
+	  }
 	| { type: ProfileActionType.initProfile; data: Partial<IProfileState> }
 	| { type: ProfileActionType.updateProfile; data: Partial<IProfileState> }
 	| { type: ProfileActionType.updateSocialLinks; data: ISocialLink[] }
@@ -83,7 +86,8 @@ export function ProfileReducer(
 			return {
 				...state,
 				settings: {
-					...action.data,
+					...state.settings,
+					...data,
 				},
 			};
 		default:

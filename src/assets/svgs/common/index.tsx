@@ -311,3 +311,5 @@ export { default as VolumnSvg, Volumn1Svg } from "./Volumn";
 export { Mic1Svg, default as MicSvg } from "./Mic";
 export { default as PhoneSvg } from "./Phone";
 export { default as EmergencySvg } from "./Emergency";
+export { default as VaultSvg } from "./Vault";
+export { default as DownloadSvg } from "./Download";

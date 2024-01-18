@@ -6,8 +6,8 @@ import {
 	FypDropdown,
 	FypCountryDropdown,
 	FypText,
+	FypCheckbox,
 } from "@components/common/base";
-import Checkbox from "@components/common/checkbox";
 import CustomMaskInput from "@components/common/customMaskInput";
 import CustomTopNavBar from "@components/common/customTopNavBar";
 import AppLayout, { LayoutContentsContainer } from "@components/common/layout";
@@ -416,7 +416,7 @@ const AddCardScreen = (
 									do not store or process any credit/debit
 									card information on our site. All payment
 									transactions are securely handled through
-									Authorize.Net, a Visa solution company.”
+									Authorize.Net, a Visa solution company.
 								</FansText>
 							</NotificationBox>
 
@@ -425,7 +425,7 @@ const AddCardScreen = (
 									"flex-row mb-[34px] items-center",
 								)}
 							>
-								<Checkbox
+								<FypCheckbox
 									checked={isConfirm}
 									onPress={() => setConfirm(!isConfirm)}
 								/>

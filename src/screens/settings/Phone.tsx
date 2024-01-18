@@ -10,13 +10,13 @@ import { UserActionType, useAppContext } from "@context/useAppContext";
 import { updateSetting } from "@helper/endpoints/settings/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { SettingsNativeStackParams } from "@usertypes/navigations";
+import { SettingsAccountNativeStackParams } from "@usertypes/navigations";
 import React, { useCallback, useState } from "react";
 import { TouchableOpacity } from "react-native";
 import ToastMessage from "react-native-toast-message";
 
 const PhoneScreen = (
-	props: NativeStackScreenProps<SettingsNativeStackParams, "Phone">,
+	props: NativeStackScreenProps<SettingsAccountNativeStackParams, "Phone">,
 ) => {
 	const { navigation } = props;
 

@@ -5,6 +5,7 @@ import {
 	getProfile,
 	getSuggestedProfiles,
 } from "@helper/endpoints/profile/apis";
+import { getVideoCallSettings } from "@helper/endpoints/settings/apis";
 import tw from "@lib/tailwind";
 import { AuthState, authAtom, authStateAtom } from "@state/auth";
 import { useRefreshNotifications } from "@state/notifications";
@@ -116,6 +117,21 @@ const AppProvider: FC<Props> = (props) => {
 		return res;
 	};
 
+	const fetchVideoCallSettings = async () => {
+		const resp = await getVideoCallSettings();
+		if (resp.ok) {
+			setProfile({
+				type: ProfileActionType.updateSettings,
+				data: {
+					video: {
+						...profile.settings.video,
+						...resp.data,
+					},
+				},
+			});
+		}
+	};
+
 	const fetchProfile = async () => {
 		const resp = await getProfile();
 		if (!resp.ok) return;
@@ -146,6 +162,7 @@ const AppProvider: FC<Props> = (props) => {
 				data: socialLinks,
 			});
 		}
+		fetchVideoCallSettings();
 	};
 
 	const fetchSuggestedCreators = async () => {

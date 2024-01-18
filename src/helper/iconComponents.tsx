@@ -19,6 +19,7 @@ import {
 	EditSvg,
 	UnsubscribeSvg,
 	StatisticsSvg,
+	VaultSvg,
 } from "@assets/svgs/common";
 import { IconTypes } from "@usertypes/commonEnums";
 import { FansSvgProps } from "@usertypes/components";
@@ -49,6 +50,7 @@ const IconComponents: IconComponentType = {
 	[IconTypes.Edit]: EditSvg,
 	[IconTypes.Unsubscribe]: UnsubscribeSvg,
 	[IconTypes.Statistics]: StatisticsSvg,
+	[IconTypes.Vault]: VaultSvg,
 };
 
 export default IconComponents;

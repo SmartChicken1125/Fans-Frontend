@@ -1,259 +1,205 @@
-import { Trash2Svg } from "@assets/svgs/common";
 import RoundButton from "@components/common/RoundButton";
 import RoundTextInput from "@components/common/RoundTextInput";
-import { FypText } from "@components/common/base";
-import {
-	FansDivider,
-	FansGap,
-	FansSwitch,
-	FansView,
-} from "@components/controls";
+import { FypText, FypDropdown, FypNullableView } from "@components/common/base";
+import { FansDivider, FansSwitch, FansView } from "@components/controls";
+import { videoCallPriceOptions } from "@constants/common";
+import { defaultVideoCallDurationFormData } from "@constants/defaultFormData";
 import { ProfileActionType, useAppContext } from "@context/useAppContext";
 import {
-	getUserSettings,
-	updateVideoSettings,
-} from "@helper/endpoints/profile/apis";
+	getVideoCallDurations,
+	createVideoCallDuration,
+	updateVideoCallDuration,
+} from "@helper/endpoints/settings/apis";
 import tw from "@lib/tailwind";
 import { RoundButtonType } from "@usertypes/commonEnums";
+import { IVideoCallDuration } from "@usertypes/types";
 import React, { useEffect, useState } from "react";
+import Toast from "react-native-toast-message";
 
-interface PriceItem {
-	price: number;
-	duration: number;
-	active: boolean;
+interface LineProps {
+	duration: IVideoCallDuration;
+	onChange: (duration: IVideoCallDuration) => void;
 }
 
-const Line: React.FC<{
-	priceItem: PriceItem;
-	onChange: (priceItem: PriceItem) => void;
-	onDelete: () => void;
-	active?: boolean;
-}> = ({ priceItem, onChange, onDelete, active }) => {
-	const [localPriceItem, setLocalPriceItem] = useState<PriceItem>(priceItem);
+const Line: React.FC<LineProps> = (props) => {
+	const { duration, onChange } = props;
+	const [localPriceItem, setLocalPriceItem] =
+		useState<IVideoCallDuration>(duration);
 
-	const onTextChanged = (text: string, property: string) => {
+	const onChangePrice = (text: string, property: string) => {
 		const numericValue = text.replace(/[^0-9]/g, "");
 		setLocalPriceItem({ ...localPriceItem, [property]: +numericValue });
 	};
 
+	const handleChangeMinutes = (minues: string) => {
+		onChange({ ...localPriceItem, length: parseInt(minues) });
+		setLocalPriceItem({ ...localPriceItem, length: parseInt(minues) });
+	};
+
 	const handleBlur = () => {
-		if (
-			localPriceItem.price !== priceItem.price ||
-			localPriceItem.duration !== priceItem.duration ||
-			localPriceItem.active !== priceItem.active
-		) {
+		if (localPriceItem.price !== duration.price) {
 			onChange(localPriceItem);
 		}
 	};
 
 	useEffect(() => {
-		setLocalPriceItem(priceItem);
-	}, [priceItem]);
+		setLocalPriceItem(duration);
+	}, [duration]);
 
 	return (
-		<FansView flex="1" alignItems="center" flexDirection="row">
-			<FansView
-				style={[{ flex: 0.4, marginRight: 18 }]}
-				position="relative"
-			>
-				<FypText
-					fontSize={14}
-					lineHeight={19}
-					style={tw.style(
-						"absolute left-5 top-[11px] text-fans-black dark:text-fans-white z-10",
-					)}
-				>
-					MIN
-				</FypText>
-				<RoundTextInput
-					placeholder="Time"
-					value={localPriceItem.price.toString()}
-					onChangeText={(text: string) =>
-						onTextChanged(text, "price")
-					}
-					onBlur={handleBlur}
-					customStyles="pl-14 bg-fans-grey-f0 dark:bg-fans-grey-43 border-0 text-[18px] leading-[26px]"
-				/>
+		<FansView
+			alignItems="center"
+			flexDirection="row"
+			gap={{ xs: 12, md: 36 }}
+		>
+			<FansView flexDirection="row" gap={{ xs: 9, md: 14 }} flex="1">
+				<FansView flex="1">
+					<FypDropdown
+						data={videoCallPriceOptions}
+						value={localPriceItem.length.toString()}
+						onSelect={(val) => handleChangeMinutes(val as string)}
+					/>
+				</FansView>
+				<FansView flex="1" position="relative">
+					<FypText
+						fontSize={14}
+						lineHeight={19}
+						style={tw.style(
+							"absolute left-5 top-[11px] text-fans-black dark:text-fans-white z-10",
+						)}
+					>
+						$
+					</FypText>
+					<RoundTextInput
+						placeholder="Price"
+						value={localPriceItem.price.toString()}
+						onChangeText={(text: string) =>
+							onChangePrice(text, "price")
+						}
+						onBlur={handleBlur}
+						customStyles="pl-[38px] bg-fans-grey-f0 dark:bg-fans-grey-43 border-0 text-[18px] leading-[26px]"
+						keyboardType="numeric"
+					/>
+				</FansView>
 			</FansView>
-			<FansView
-				style={[{ flex: 0.4, marginRight: 10 }]}
-				position="relative"
-			>
-				<FypText
-					fontSize={14}
-					lineHeight={19}
-					style={tw.style(
-						"absolute left-5 top-[11px] text-fans-black dark:text-fans-white z-10",
-					)}
-				>
-					$
-				</FypText>
-				<RoundTextInput
-					placeholder="Price"
-					value={localPriceItem.duration.toString()}
-					onChangeText={(text: string) =>
-						onTextChanged(text, "duration")
-					}
-					onBlur={handleBlur}
-					customStyles="pl-[38px] bg-fans-grey-f0 dark:bg-fans-grey-43 border-0 text-[18px] leading-[26px]"
-				/>
-			</FansView>
-			<FansView flexDirection="row" style={[{ flex: 0.2 }]}>
+			{duration.id === "0" ? (
+				<FansView width={40}></FansView>
+			) : (
 				<FansSwitch
-					value={priceItem.active}
+					value={duration.isEnabled}
 					onValueChange={(value: boolean) =>
-						onChange({ ...priceItem, active: value })
+						onChange({ ...duration, isEnabled: value })
 					}
 					justifyContent="justify-end"
 				/>
-				<FansView margin={{ l: 18 }}>
-					<FansView
-						flexDirection="row"
-						justifyContent="start"
-						alignItems="center"
-						gap={20}
-						padding={{ y: 16 }}
-						pressableProps={{
-							onPress: onDelete,
-						}}
-					>
-						<FansView width={11.87} height={14.76}>
-							{!active && (
-								<Trash2Svg color={tw.color("fans-red")} />
-							)}
-						</FansView>
-					</FansView>
-				</FansView>
-			</FansView>
+			)}
 		</FansView>
 	);
 };
 
 const PricesForm = () => {
 	const { state, dispatch } = useAppContext();
-	const { video } = state.profile.settings;
 
-	const { pricesDuration } = video;
-	const [newPrice, setNewPrice] = useState<PriceItem>({
-		price: 0,
-		duration: 0,
-		active: true,
-	});
+	const [isLoading, setIsLoading] = useState(false);
+	const [durations, setDurations] = useState<IVideoCallDuration[]>([]);
+	const [showNewForm, setShowNewForm] = useState(false);
+	const [formData, setFormData] = useState<IVideoCallDuration>(
+		defaultVideoCallDurationFormData,
+	);
 
-	useEffect(() => {
-		fetchProfileSettings();
-	}, []);
-
-	const handleInputChange = async (
-		index: number,
-		updatedPriceItem: PriceItem,
-	) => {
-		const newPrices = [...pricesDuration];
-		newPrices[index] = updatedPriceItem;
-		const updatedSettings = {
-			...state.profile.settings,
-			video: {
-				...state.profile.settings.video,
-				pricesDuration: newPrices,
-			},
-		};
-
-		const response = await updateVideoSettings(updatedSettings);
-
-		if (response.ok) {
-			fetchProfileSettings();
-		}
-	};
-
-	const handleDelete = async (index: number) => {
-		const updatedPrices = [...video.pricesDuration];
-		updatedPrices.splice(index, 1);
-
-		const updatedSettings = {
-			...state.profile.settings,
-			video: {
-				...state.profile.settings.video,
-				pricesDuration: updatedPrices,
-			},
-		};
-
-		const response = await updateVideoSettings(updatedSettings);
-
-		if (response.ok) {
-			fetchProfileSettings();
-		}
-	};
-
-	const fetchProfileSettings = async () => {
-		const response = await getUserSettings();
-		if (response.ok) {
-			const profileSettings = response.data;
-
+	const fetchVideoCallDurations = async () => {
+		const resp = await getVideoCallDurations();
+		if (resp.ok) {
 			dispatch.setProfile({
 				type: ProfileActionType.updateSettings,
-				data: profileSettings,
+				data: {
+					video: {
+						...state.profile.settings.video,
+						meetingDurations: resp.data,
+					},
+				},
+			});
+			setDurations(resp.data);
+		} else {
+			setDurations([]);
+		}
+	};
+
+	const handleUpdate = async (duration: IVideoCallDuration) => {
+		const { id, ...postbody } = duration;
+		const resp = await updateVideoCallDuration(postbody, {
+			id: id,
+		});
+		if (resp.ok) {
+			setDurations(durations.map((el) => (el.id === id ? duration : el)));
+		} else {
+			Toast.show({
+				type: "error",
+				text1: resp.data.message,
 			});
 		}
 	};
 
 	const handleAddDuration = async () => {
-		if (newPrice.price !== 0 && newPrice.duration !== 0) {
-			const updatedPrices = [...video.pricesDuration, newPrice];
-
-			const updatedSettings = {
-				...state.profile.settings,
-				video: {
-					...video,
-					pricesDuration: updatedPrices,
-				},
-			};
-
-			const response = await updateVideoSettings({
-				video: updatedSettings.video,
+		if (!showNewForm) {
+			setShowNewForm(true);
+		} else {
+			setIsLoading(true);
+			const resp = await createVideoCallDuration({
+				price: formData.price,
+				length: formData.length,
+				currency: "usd",
+				isEnabled: true,
 			});
-
-			if (response.ok) {
-				setNewPrice({ price: 0, duration: 0, active: true });
-				fetchProfileSettings();
+			setIsLoading(false);
+			if (resp.ok) {
+				fetchVideoCallDurations();
+				setShowNewForm(false);
+				setFormData(defaultVideoCallDurationFormData);
+			} else {
+				Toast.show({
+					type: "error",
+					text1: resp.data.message,
+				});
 			}
 		}
 	};
 
-	return (
-		<FansView flex="1" padding={{ x: 10 }}>
-			{pricesDuration.map((price, index) => (
-				<FansView key={index}>
-					<Line
-						priceItem={price}
-						onChange={(updatedPriceItem) =>
-							handleInputChange(index, updatedPriceItem)
-						}
-						onDelete={() => handleDelete(index)}
-					/>
+	useEffect(() => {
+		setFormData(defaultVideoCallDurationFormData);
+		fetchVideoCallDurations();
+	}, []);
 
-					<FansView height={35} padding={17}>
-						<FansDivider />
-					</FansView>
+	return (
+		<FansView>
+			{durations.map((duration, index) => (
+				<FansView key={index}>
+					<Line duration={duration} onChange={handleUpdate} />
+					{index !== durations.length - 1 ? (
+						<FansDivider style={tw.style("my-[18px] md:my-4")} />
+					) : null}
 				</FansView>
 			))}
-			<Line
-				priceItem={newPrice}
-				onChange={(updatedPriceItem) => setNewPrice(updatedPriceItem)}
-				onDelete={() =>
-					setNewPrice({ price: 0, duration: 0, active: false })
-				}
-				active
-			/>
-			<FansGap height={27.4} />
-			<FansView flex="1" justifyContent="center">
-				<RoundButton
-					variant={RoundButtonType.OUTLINE_PRIMARY}
-					onPress={handleAddDuration}
-					disabled={newPrice.price === 0 || newPrice.duration === 0}
-				>
-					Add duration
-				</RoundButton>
-			</FansView>
+			<FypNullableView visible={showNewForm}>
+				<FansView>
+					<FansDivider style={tw.style("my-[18px] md:my-4")} />
+					<Line duration={formData} onChange={setFormData} />
+				</FansView>
+			</FypNullableView>
+
+			<FypNullableView
+				visible={videoCallPriceOptions.length !== durations.length}
+			>
+				<FansView flex="1" justifyContent="center" margin={{ t: 30 }}>
+					<RoundButton
+						variant={RoundButtonType.OUTLINE_PRIMARY}
+						onPress={handleAddDuration}
+						loading={isLoading}
+					>
+						{showNewForm ? "Save duration" : "Add duration"}
+					</RoundButton>
+				</FansView>
+			</FypNullableView>
 		</FansView>
 	);
 };

@@ -1,23 +1,11 @@
-import {
-	DISCORD_CLIENT_ID,
-	GOOGLE_ANDROID_CLIENT_ID,
-	GOOGLE_IOS_CLIENT_ID,
-	GOOGLE_WEB_CLIENT_ID,
-	TWITTER_CLIENT_ID,
-} from "@env";
+import { DISCORD_CLIENT_ID, GOOGLE_CLIENT_ID, TWITTER_CLIENT_ID } from "@env";
 import {
 	ResponseType,
 	makeRedirectUri,
 	useAuthRequest,
 } from "expo-auth-session";
-import { Platform } from "react-native";
 
-const googleClientId =
-	Platform.OS === "ios"
-		? GOOGLE_IOS_CLIENT_ID
-		: Platform.OS === "android"
-		? GOOGLE_ANDROID_CLIENT_ID
-		: GOOGLE_WEB_CLIENT_ID;
+const googleClientId = GOOGLE_CLIENT_ID;
 const twitterClientId = TWITTER_CLIENT_ID;
 const discordClientId = DISCORD_CLIENT_ID;
 

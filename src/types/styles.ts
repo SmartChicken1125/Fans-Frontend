@@ -702,20 +702,30 @@ export const getFontWeightStyle = (
 ): string => {
 	switch (fontWeight) {
 		case 300:
-			return `font-light ${fontFamily ?? "font-inter-light"}`;
+			return fontFamily ? `font-light ${fontFamily}` : "font-inter-light";
 		case 400:
-			return `font-normal ${fontFamily ?? "font-inter-regular"}`;
+			return fontFamily
+				? `font-normal ${fontFamily}`
+				: "font-inter-regular";
 		case 500:
-			return `font-medium ${fontFamily ?? "font-inter-medium"}`;
+			return fontFamily
+				? `font-medium ${fontFamily}`
+				: "font-inter-medium";
 		case 600:
-			return `font-semibold ${fontFamily ?? "font-inter-semibold"}`;
+			return fontFamily
+				? `font-semibold ${fontFamily}`
+				: "font-inter-semibold";
 		case 700:
-			return `font-bold ${fontFamily ?? "font-inter-bold"}`;
+			return fontFamily ? `font-bold ${fontFamily}` : "font-inter-bold";
 		case 800:
 		case 900:
-			return `font-bolder ${fontFamily ?? "font-inter-black"}`;
+			return fontFamily
+				? `font-bolder ${fontFamily}`
+				: "font-inter-black";
 		default:
-			return `font-normal ${fontFamily ?? "font-inter-regular"}`;
+			return fontFamily
+				? `font-normal ${fontFamily}`
+				: "font-inter-regular";
 	}
 };
 

@@ -1,5 +1,4 @@
 import { CloseSvg } from "@assets/svgs/common";
-import { GemImage } from "@assets/svgs/images";
 import {
 	FypLink,
 	FypNullableView,
@@ -29,6 +28,7 @@ import {
 	Pressable,
 	ScrollView,
 	View,
+	Image,
 } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import AvatarWithStatus from "../AvatarWithStatus";
@@ -68,7 +68,11 @@ export const GermsBlock = () => {
 					justifyContent="center"
 					margin={{ r: 12 }}
 				>
-					<FypSvg svg={GemImage} width={38} height={35} />
+					<Image
+						source={require("@assets/images/gem.png")}
+						style={tw.style("w-[38px] h-[35px]")}
+						resizeMode="contain"
+					/>
 				</FansView>
 				<FansView>
 					<FypText

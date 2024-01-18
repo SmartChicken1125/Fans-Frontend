@@ -1,5 +1,4 @@
 import {
-	SuccessImage,
 	Money1Image,
 	Money2Image,
 	Money3Image,
@@ -10,6 +9,7 @@ import { FypSvg, FypText } from "@components/common/base";
 import { FansView } from "@components/controls";
 import tw from "@lib/tailwind";
 import React from "react";
+import { Image } from "react-native";
 
 const MoneyGuarantee = () => {
 	return (
@@ -26,7 +26,11 @@ const MoneyGuarantee = () => {
 				gap={14}
 				margin={{ b: 16 }}
 			>
-				<FypSvg svg={SuccessImage} width={32} height={30} />
+				<Image
+					source={require("@assets/images/common/success.webp")}
+					style={tw.style("w-8 h-[30px]")}
+					resizeMode="contain"
+				/>
 				<FypText fontSize={19} lineHeight={26} fontWeight={600}>
 					Money back guarantee
 				</FypText>

@@ -25,6 +25,8 @@ import {
 	TagPeopleSearchScreen,
 	ThumbnailScreen,
 	ViewSettingScreen,
+	VaultScreen,
+	NewTierScreen,
 } from "./create";
 
 const Stack = createNativeStackNavigator<PostsNavigationStacks>();
@@ -195,6 +197,20 @@ const Layout = () => {
 			<Stack.Screen
 				name="AdvancedSettings"
 				component={AdvancedSettingsScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<Stack.Screen
+				name="Vault"
+				component={VaultScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<Stack.Screen
+				name="NewTier"
+				component={NewTierScreen}
 				options={{
 					headerShown: false,
 				}}

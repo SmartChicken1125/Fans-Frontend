@@ -3,9 +3,10 @@ import RoundButton from "@components/common/RoundButton";
 import { FypText } from "@components/common/base";
 import PaymentMethodModal from "@components/common/subscriptionCard/paymentMethodModal";
 import { FansText, FansView } from "@components/controls";
+import { hasFlags } from "@helper/Utils";
 import tw from "@lib/tailwind";
 import { RoundButtonType } from "@usertypes/commonEnums";
-import { Subscription } from "@usertypes/types";
+import { ProfileFlags, Subscription } from "@usertypes/types";
 import React, { FC, useState } from "react";
 import { Text, View } from "react-native";
 import AvatarWithStatus from "../AvatarWithStatus";
@@ -61,7 +62,10 @@ const AttentionCard: FC<Props> = (props) => {
 							>
 								{subscription.creator.displayName}
 							</Text>
-							<StarCheckSvg width={15.66} height={15} />
+							{hasFlags(
+								subscription.creator.flags,
+								ProfileFlags.VERIFIED,
+							) && <StarCheckSvg width={15.66} height={15} />}
 						</View>
 						<Text
 							style={tw.style(

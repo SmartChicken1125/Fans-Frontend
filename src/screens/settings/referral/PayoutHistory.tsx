@@ -1,5 +1,6 @@
 import { Check2Svg, WarningSvg } from "@assets/svgs/common";
 import RoundButton from "@components/common/RoundButton";
+import { FypSvg } from "@components/common/base";
 import {
 	FansDivider,
 	FansGap,
@@ -124,7 +125,7 @@ const PaymentHistorySheet: IFansSheet = (props) => {
 										{label !== "Status" ? (
 											<FansText
 												style={tw.style(
-													"text-[16px] text-fans-grey-dark",
+													"text-[16px] text-fans-grey-70 dark:text-fans-grey-b1",
 												)}
 											>
 												{text}
@@ -139,13 +140,16 @@ const PaymentHistorySheet: IFansSheet = (props) => {
 													"self-start",
 												)}
 											>
-												<FansView
-													style={tw.style(
-														"w-[10.04px] h-[7.01px]",
-													)}
-												>
-													<Check2Svg colorFans="fans-green" />
-												</FansView>
+												<FypSvg
+													svg={Check2Svg}
+													width={10}
+													height={7}
+													color={
+														isSubscriptionUpdate
+															? "fans-green"
+															: "fans-red"
+													}
+												/>
 												<FansText
 													style={tw.style(
 														"font-inter-semibold",

@@ -7,7 +7,6 @@ import React, {
 	useRef,
 	useState,
 } from "react";
-import "shaka-player/dist/controls.css";
 import shaka from "shaka-player/dist/shaka-player.ui.js";
 
 export interface ShakaPlayerProps {

@@ -67,7 +67,7 @@ const BuyMoreTimeModal: FC<Props> = (props) => {
 						"w-full md:w-[450px]",
 						"h-9/10 md:h-auto md:max-h-9/10",
 						"rounded-t-[7px] md:rounded-[15px] md:rounded-t-[15px]",
-						"bg-fans-white dark:bg-fans-black-1d",
+						"bg-fans-black/50",
 					)}
 				>
 					<FansView height={40} style={tw.style("md:hidden")}>
@@ -77,9 +77,7 @@ const BuyMoreTimeModal: FC<Props> = (props) => {
 									width={38}
 									height={4}
 									borderRadius={4}
-									style={tw.style(
-										"bg-fans-grey-70/40 dark:bg-fans-grey-b1/40 mx-auto",
-									)}
+									style={tw.style("bg-fans-white/20 mx-auto")}
 								></FansView>
 							</FansView>
 						</GestureDetector>
@@ -93,6 +91,7 @@ const BuyMoreTimeModal: FC<Props> = (props) => {
 									fontWeight={700}
 									textAlign="center"
 									margin={{ b: 34 }}
+									style={tw.style("text-fans-white")}
 								>
 									Buy more time
 								</FypText>
@@ -117,7 +116,7 @@ const BuyMoreTimeModal: FC<Props> = (props) => {
 													"border",
 													time === el
 														? "border-fans-purple border-[2px]"
-														: "border-fans-grey-f0 dark:border-fans-grey-43",
+														: "border-fans-white/20",
 												)}
 												pressableProps={{
 													onPress: () => setTime(el),
@@ -128,6 +127,9 @@ const BuyMoreTimeModal: FC<Props> = (props) => {
 													fontWeight={500}
 													textAlign="center"
 													lineHeight={21}
+													style={tw.style(
+														"text-fans-white",
+													)}
 												>
 													{`${el} min`}
 												</FypText>
@@ -147,7 +149,9 @@ const BuyMoreTimeModal: FC<Props> = (props) => {
 									))}
 								</FansView>
 								<FansDivider
-									style={tw.style("mt-6 mb-[18px]")}
+									style={tw.style(
+										"mt-6 mb-[18px] bg-fans-grey",
+									)}
 								/>
 								<FansView>
 									<FypText
@@ -155,6 +159,7 @@ const BuyMoreTimeModal: FC<Props> = (props) => {
 										lineHeight={22}
 										fontWeight={600}
 										margin={{ b: 14 }}
+										style={tw.style("text-fans-white")}
 									>
 										Total
 									</FypText>
@@ -162,9 +167,7 @@ const BuyMoreTimeModal: FC<Props> = (props) => {
 										fontSize={16}
 										lineHeight={21}
 										margin={{ b: 5 }}
-										style={tw.style(
-											"text-fans-grey-70 dark:text-fans-grey-b1",
-										)}
+										style={tw.style("text-fans-grey-b1")}
 									>
 										$15.00 USD + $1.50 Platform fee
 									</FypText>
@@ -173,6 +176,7 @@ const BuyMoreTimeModal: FC<Props> = (props) => {
 										fontWeight={600}
 										lineHeight={28}
 										margin={{ b: 18 }}
+										style={tw.style("text-fans-white")}
 									>
 										$16.50
 									</FypText>
@@ -184,7 +188,7 @@ const BuyMoreTimeModal: FC<Props> = (props) => {
 											gap={7}
 											padding={{ l: 12, r: 23, y: 6 }}
 											style={tw.style(
-												"bg-fans-purple-f6 dark:bg-fans-purple-47",
+												"bg-fans-purple-47",
 											)}
 										>
 											<FypSvg
@@ -207,7 +211,9 @@ const BuyMoreTimeModal: FC<Props> = (props) => {
 									</FansView>
 								</FansView>
 								<FansDivider
-									style={tw.style("mt-[26px] mb-5")}
+									style={tw.style(
+										"mt-[26px] mb-5 bg-fans-white/20",
+									)}
 								/>
 								<FansView margin={{ b: 22 }}>
 									<FypText
@@ -215,6 +221,7 @@ const BuyMoreTimeModal: FC<Props> = (props) => {
 										lineHeight={22}
 										fontWeight={600}
 										margin={{ b: 15 }}
+										style={tw.style("text-fans-white")}
 									>
 										Payment method
 									</FypText>
@@ -223,6 +230,8 @@ const BuyMoreTimeModal: FC<Props> = (props) => {
 										value={payment}
 										onChange={setPayment}
 										handleAddMethod={() => {}}
+										style={tw.style("border-fans-white/20")}
+										textStyle={tw.style("text-fans-white")}
 									/>
 								</FansView>
 
@@ -253,9 +262,7 @@ const BuyMoreTimeModal: FC<Props> = (props) => {
 									fontSize={12}
 									lineHeight={21}
 									textAlign="center"
-									style={tw.style(
-										"text-fans-grey-70 dark:text-fans-grey-b1",
-									)}
+									style={tw.style("text-fans-grey-b1")}
 								>
 									By moving forward, you agree to our{" "}
 									<FypLink

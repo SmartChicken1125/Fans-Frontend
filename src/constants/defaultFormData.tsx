@@ -70,9 +70,9 @@ export const defaultPostFormData: IPostForm = {
 	fundraiser: defaultFundraiserFormData,
 	giveaway: defaultAddGiveawayFormData,
 	schedule: {
-		startDate: "",
-		endDate: "",
+		startDate: undefined,
 		timezone: "",
+		time: { hours: 0, minutes: 0 },
 	},
 	advanced: {
 		isHideLikeViewCount: false,
@@ -86,7 +86,6 @@ export const defaultPostFormData: IPostForm = {
 	formIds: [],
 	uploadFiles: [],
 	isReleaseForm: false,
-	isAllSubscribers: true,
 	carouselIndex: 0,
 	newUsertags: [],
 	categoryForm: {
@@ -99,6 +98,9 @@ export const defaultPostFormData: IPostForm = {
 		tierIds: [],
 		fanUsers: [],
 	},
+	tiers: [],
+	users: [],
+	viewType: "All",
 };
 
 export const defaultPaymentCardData: IPaymentCard = {
@@ -130,4 +132,29 @@ export const defaultRoleFormData = {
 	color: "",
 	icon: roleIcons[0].name,
 	level: "",
+};
+
+export const defaultVideoCallDurationFormData = {
+	id: "0",
+	price: 0,
+	length: 0,
+	isEnabled: true,
+	currency: "usd",
+};
+
+export const defaultVideoCallTimeframeFormData = {
+	id: "0",
+	startTime: "",
+	endTime: "",
+	day: 0,
+};
+
+export const defaultTierFormData = {
+	title: "",
+	currency: "USD",
+	description: "",
+	perks: [""],
+	cover: "",
+	id: "0",
+	price: 0,
 };

@@ -9,13 +9,8 @@ import { ModalActionType, useAppContext } from "@context/useAppContext";
 import tw from "@lib/tailwind";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useFeatureGates } from "@state/featureGates";
-import {
-	IconTypes,
-	ProfileViewType,
-	StorageKeyTypes,
-} from "@usertypes/commonEnums";
+import { IconTypes, ProfileViewType } from "@usertypes/commonEnums";
 import { ProfileNavigationStacks } from "@usertypes/navigations";
-import { getUser } from "@utils/storage";
 import { useSegments, useRouter } from "expo-router";
 import React, { FC, useState, useCallback, useEffect } from "react";
 
@@ -59,9 +54,8 @@ const ProfileThreeDotsDialog: FC<Props> = (props) => {
 				pathname: "profile",
 				params: { screen: "Profile" },
 			});
-		} else if (val === ProfileViewType.Public) {
-			const userInfo = await getUser();
-			if (userInfo.username) router.push(`/${userInfo.username}`);
+		} else if (val === ProfileViewType.Public && profile.profileLink) {
+			router.push(`/${profile.profileLink}`);
 		}
 	};
 

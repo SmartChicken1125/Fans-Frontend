@@ -27,17 +27,12 @@ import {
 } from "@components/controls";
 import { useAppContext } from "@context/useAppContext";
 import tw from "@lib/tailwind";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFeatureGates } from "@state/featureGates";
 import { UserRoleTypes } from "@usertypes/commonEnums";
 import { Colors } from "@usertypes/enums";
-import {
-	SettingsNativeStackParams,
-	SettingsNativeStackScreens,
-} from "@usertypes/navigations";
 import { isDesktop } from "@utils/global";
-import { useRouter, useSegments } from "expo-router";
-import React, { Fragment, useEffect, useState } from "react";
+import { useNavigation, useRouter, useSegments } from "expo-router";
+import React, { Fragment } from "react";
 import { TouchableOpacity } from "react-native";
 import { SvgProps } from "react-native-svg";
 
@@ -54,12 +49,6 @@ type ItemProps = {
 	text: string;
 	onPress?: () => void;
 };
-
-interface SettingsScreenContentProps {
-	active: SettingsNativeStackScreens;
-	onNavigate: (screen: keyof SettingsNativeStackParams) => void;
-	onNavigateBack: () => void;
-}
 
 const Item = (props: ItemProps) => {
 	const { isActive, iconNode } = props;
@@ -100,9 +89,8 @@ const Item = (props: ItemProps) => {
 	);
 };
 
-export const SettingsScreenContent = (props: SettingsScreenContentProps) => {
-	const { active, onNavigate, onNavigateBack } = props;
-
+export const SettingsScreenContent = () => {
+	const navigation = useNavigation();
 	const router = useRouter();
 	const segments = useSegments();
 
@@ -110,30 +98,12 @@ export const SettingsScreenContent = (props: SettingsScreenContentProps) => {
 	const { toggleTheme } = dispatch;
 	const { userInfo } = state.user;
 	const { type } = userInfo;
+	const { video } = state.profile.settings;
 	const isCreator = type === UserRoleTypes.Creator;
 	const featureGates = useFeatureGates();
 
-	// useDeviceContext(tw);
-
-	useEffect(() => {
-		setCurrent(active);
-	}, [active]);
-
-	const [current, setCurrent] = useState(
-		segments[0] === "(tabs)" &&
-			["referrals", "refer-analytics", "refer-payout"].includes(
-				segments[1],
-			)
-			? "ReferCreators"
-			: "Account",
-	);
-
-	const handleMenuItemPress = (
-		current: string,
-		screen: keyof SettingsNativeStackParams,
-	) => {
-		setCurrent(current);
-		onNavigate(screen);
+	const handleMenuItemPress = (path: string) => {
+		router.push(path);
 	};
 
 	return (
@@ -144,7 +114,16 @@ export const SettingsScreenContent = (props: SettingsScreenContentProps) => {
 					<FansGap width={38} />
 					<FansView
 						touchableOpacityProps={{
-							onPress: () => onNavigateBack(),
+							onPress: () => {
+								if (navigation.canGoBack()) {
+									navigation.goBack();
+									return;
+								}
+								router.push({
+									pathname: "posts",
+									params: { screen: "Home" },
+								});
+							},
 						}}
 						flex="1"
 					>
@@ -184,8 +163,11 @@ export const SettingsScreenContent = (props: SettingsScreenContentProps) => {
 						color1="purple"
 					/>
 				}
-				isActive={current === "Account"}
-				onPress={() => handleMenuItemPress("Account", "Account")}
+				isActive={
+					segments[0] === "(tabs)" &&
+					(segments[1] === "account" || segments[1] === "settings")
+				}
+				onPress={() => handleMenuItemPress("/account")}
 			/>
 			{featureGates.has("2023_11-custom-videos") && (
 				<Item
@@ -198,30 +180,31 @@ export const SettingsScreenContent = (props: SettingsScreenContentProps) => {
 							color1="purple"
 						/>
 					}
-					isActive={current === "FanProfileSetup"}
-					onPress={() =>
-						handleMenuItemPress(
-							"FanProfileSetup",
-							"FanProfileSetup",
-						)
+					isActive={
+						segments[0] === "(tabs)" &&
+						segments[1] === "fan-profile-setup"
 					}
+					onPress={() => handleMenuItemPress("/fan-profile-setup")}
 				/>
 			)}
 			<Item
 				text="Payments"
 				icon={PaymentSvg}
-				isActive={current === "Payments"}
-				onPress={() => handleMenuItemPress("Payments", "Payments")}
+				isActive={
+					segments[0] === "(tabs)" && segments[1] === "payments"
+				}
+				onPress={() => handleMenuItemPress("/payments")}
 			/>
 			{isCreator && (
 				<>
 					<Item
 						text="Analytics"
 						icon={AnalyticsSvg}
-						isActive={current === "Analytics"}
-						onPress={() =>
-							handleMenuItemPress("Analytics", "Analytics")
+						isActive={
+							segments[0] === "(tabs)" &&
+							segments[1] === "analytics"
 						}
+						onPress={() => handleMenuItemPress("/analytics")}
 					/>
 					{featureGates.has("2023_11-referral-links") &&
 						isCreator && (
@@ -229,25 +212,13 @@ export const SettingsScreenContent = (props: SettingsScreenContentProps) => {
 								text="Creator Referral"
 								icon={SpeakerSvg}
 								isActive={
-									current === "ReferCreators" ||
-									current === "ReferralAnalytics" ||
-									current === "ReferralPayments" ||
-									current === "ReferralPayoutSetup"
+									segments[0] === "(tabs)" &&
+									(segments[1] === "referrals" ||
+										segments[1] === "refer-analytics" ||
+										segments[1] === "refer-payout")
 								}
 								onPress={() => {
-									if (
-										segments[0] === "(tabs)" &&
-										segments[1] === "referrals"
-									) {
-										handleMenuItemPress(
-											"ReferCreators",
-											"ReferCreators",
-										);
-									} else {
-										router.push({
-											pathname: "referrals",
-										});
-									}
+									handleMenuItemPress("/referrals");
 								}}
 							/>
 						)}
@@ -255,10 +226,11 @@ export const SettingsScreenContent = (props: SettingsScreenContentProps) => {
 						<Item
 							text="Privacy & Safety"
 							icon={PrivacySvg}
-							isActive={current === "Privacy"}
-							onPress={() =>
-								handleMenuItemPress("Privacy", "Privacy")
+							isActive={
+								segments[0] === "(tabs)" &&
+								segments[1] === "privacy"
 							}
+							onPress={() => handleMenuItemPress("/privacy")}
 						/>
 					)}
 				</>
@@ -272,7 +244,10 @@ export const SettingsScreenContent = (props: SettingsScreenContentProps) => {
 			/>
 			<Item
 				text="Notifications"
-				isActive={current === "Notifications"}
+				isActive={
+					segments[0] === "(tabs)" &&
+					segments[1] === "notifications-option"
+				}
 				iconNode={
 					<FypSvg
 						width={22}
@@ -281,32 +256,22 @@ export const SettingsScreenContent = (props: SettingsScreenContentProps) => {
 						color="fans-purple"
 					/>
 				}
-				onPress={() =>
-					handleMenuItemPress("Notifications", "Notifications")
-				}
+				onPress={() => handleMenuItemPress("/notifications-option")}
 			/>
 			{featureGates.has("2023_10-video-calls") && (
 				<Item
 					text="Video calls"
-					isActive={current === "VideoCallSetupTOS"}
-					icon={VideoCallSvg}
-					onPress={() =>
-						handleMenuItemPress(
-							"VideoCallSetupTOS",
-							"VideoCallSetupTOS",
-						)
+					isActive={
+						segments[0] === "(tabs)" &&
+						(segments[1] === "video-call-setup-tos" ||
+							segments[1] === "video-call-setup-edit")
 					}
-				/>
-			)}
-			{featureGates.has("2023_10-video-calls") && (
-				<Item
-					text="Edit Video calls"
-					isActive={current === "EditVideoCallSetup"}
 					icon={VideoCallSvg}
 					onPress={() =>
 						handleMenuItemPress(
-							"EditVideoCallSetup",
-							"EditVideoCallSetup",
+							video.videoCallsEnabled
+								? "/video-call-setup-edit"
+								: "/video-call-setup-tos",
 						)
 					}
 				/>
@@ -314,31 +279,33 @@ export const SettingsScreenContent = (props: SettingsScreenContentProps) => {
 			{featureGates.has("2023_11-custom-videos") && (
 				<Item
 					text="Custom video orders"
-					isActive={current === "CameoSetup"}
-					icon={CameoVideoSVG}
-					onPress={() =>
-						handleMenuItemPress("CameoSetup", "CameoSetup")
+					isActive={
+						segments[0] === "(tabs)" &&
+						segments[1] === "cameo-setup"
 					}
+					icon={CameoVideoSVG}
+					onPress={() => handleMenuItemPress("/cameo-setup")}
 				/>
 			)}
 
 			{featureGates.has("2023_10-discord-integration") && isCreator && (
 				<Item
 					text="Discord integration"
-					isActive={current === "Connections"}
-					icon={IntegrationSvg}
-					onPress={() =>
-						handleMenuItemPress("Connections", "Connections")
+					isActive={
+						segments[0] === "(tabs)" &&
+						segments[1] === "connections"
 					}
+					icon={IntegrationSvg}
+					onPress={() => handleMenuItemPress("/connections")}
 				/>
 			)}
 			<Item
 				text="Subscribed"
 				icon={HeartSvg}
-				isActive={current === "Subscriptions"}
-				onPress={() =>
-					handleMenuItemPress("Subscriptions", "Subscriptions")
+				isActive={
+					segments[0] === "(tabs)" && segments[1] === "subscriptions"
 				}
+				onPress={() => handleMenuItemPress("/subscriptions")}
 			/>
 			{featureGates.has("2023_10-random-future-stuff") && isCreator && (
 				<>
@@ -352,24 +319,20 @@ export const SettingsScreenContent = (props: SettingsScreenContentProps) => {
 								color={tw.color("fans-purple")}
 							/>
 						}
-						isActive={current === "AutomatedChats"}
-						onPress={() =>
-							handleMenuItemPress(
-								"AutomatedChats",
-								"AutomatedChats",
-							)
+						isActive={
+							segments[0] === "(tabs)" &&
+							segments[1] === "automated-chats"
 						}
+						onPress={() => handleMenuItemPress("/automated-chats")}
 					/>
 					<Item
 						text="Scheduled posts"
 						icon={CalendarSvg}
-						isActive={current === "ScheduledPosts"}
-						onPress={() =>
-							handleMenuItemPress(
-								"ScheduledPosts",
-								"ScheduledPosts",
-							)
+						isActive={
+							segments[0] === "(tabs)" &&
+							segments[1] === "scheduled-posts"
 						}
+						onPress={() => handleMenuItemPress("/scheduled-posts")}
 					/>
 				</>
 			)}
@@ -384,10 +347,11 @@ export const SettingsScreenContent = (props: SettingsScreenContentProps) => {
 				<Item
 					text="Report creator"
 					icon={WarningSvg}
-					isActive={current === "REPORTABUSE"}
-					onPress={() =>
-						handleMenuItemPress("ReportCreator", "REPORTABUSE")
+					isActive={
+						segments[0] === "(tabs)" &&
+						segments[1] === "report-abuse"
 					}
+					onPress={() => handleMenuItemPress("/report-abuse")}
 				/>
 			</>
 			<FansView padding={{ l: 37.5 }}>
@@ -399,53 +363,10 @@ export const SettingsScreenContent = (props: SettingsScreenContentProps) => {
 	);
 };
 
-const SettingsScreen = (
-	props: NativeStackScreenProps<SettingsNativeStackParams, "Settings">,
-) => {
-	const { navigation } = props;
-	const segments = useSegments();
-
-	const handleNavigate = (screen: keyof SettingsNativeStackParams) => {
-		switch (screen) {
-			case "Payments":
-				navigation.navigate(screen, { screen: "Payments" });
-				break;
-			case "Subscriptions":
-				navigation.navigate(screen, { screen: "Subscriptions" });
-				break;
-			case "Privacy":
-				navigation.navigate(screen, { screen: "Privacy" });
-				break;
-			case "AutomatedChats":
-				navigation.navigate(screen, { screen: "AutomatedChats" });
-				break;
-			case "VerifyEmail":
-				break;
-			default:
-				navigation.navigate(screen);
-				break;
-		}
-	};
-	const handleNavigateBack = () => {
-		navigation.goBack();
-	};
-
+const SettingsScreen = () => {
 	return (
 		<FansScreen3>
-			<SettingsScreenContent
-				active={
-					segments[0] === "(tabs)" &&
-					["referrals", "refer-analytics", "refer-payout"].includes(
-						segments[1],
-					)
-						? "ReferCreators"
-						: tw.prefixMatch("lg")
-						? "Account"
-						: "Settings"
-				}
-				onNavigate={handleNavigate}
-				onNavigateBack={handleNavigateBack}
-			/>
+			<SettingsScreenContent />
 		</FansScreen3>
 	);
 };

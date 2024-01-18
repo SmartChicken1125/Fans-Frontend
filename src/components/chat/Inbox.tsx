@@ -14,7 +14,7 @@ import tw from "@lib/tailwind";
 import { UserRoleTypes } from "@usertypes/commonEnums";
 import { Colors } from "@usertypes/enums";
 import { IConversationMeta } from "@usertypes/types";
-import { DateTime } from "luxon";
+import { formatRelativeDateTime } from "@utils/dateTime";
 import React, { Fragment, memo } from "react";
 import { View } from "react-native";
 
@@ -137,9 +137,9 @@ const Inbox = (props: InboxProps) => {
 										"text-fans-grey-70 dark:text-fans-grey-b1",
 									)}
 								>
-									{DateTime.fromISO(
+									{formatRelativeDateTime(
 										lastMessage.createdAt,
-									).toFormat("h:mm a")}
+									)}
 								</FansText>
 							)}
 							<FypSvg

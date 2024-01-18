@@ -1,7 +1,7 @@
 import React from "react";
 import { Svg, G, Path, SvgProps } from "react-native-svg";
 
-const Adult = (props: SvgProps) => (
+const AdultSvg = (props: SvgProps) => (
 	<Svg width={37.344} height={37.344} {...props}>
 		<G fill="#e53ec6" data-name="Group 54405">
 			<Path
@@ -23,4 +23,4 @@ const Adult = (props: SvgProps) => (
 		</G>
 	</Svg>
 );
-export default Adult;
+export default AdultSvg;

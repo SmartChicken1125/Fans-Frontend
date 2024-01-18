@@ -106,7 +106,7 @@ const TagPeopleSearchForm: FC<Props> = (props) => {
 	useEffect(() => {
 		fetchUsers();
 	}, [searchQuery, users.page]);
-	console.log(newUsertags);
+
 	return (
 		<FansView>
 			<FansView

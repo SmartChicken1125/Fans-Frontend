@@ -17,7 +17,7 @@ import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFeatureGates } from "@state/featureGates";
 import { RoundButtonType } from "@usertypes/commonEnums";
-import { SettingsNativeStackParams } from "@usertypes/navigations";
+import { ProfileNavigationStacks } from "@usertypes/navigations";
 import { useNavigation, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -32,7 +32,7 @@ import Toast from "react-native-toast-message";
 import YoutubePlayer from "react-native-youtube-iframe";
 
 const ReferralProgramScreen = (
-	props: NativeStackScreenProps<SettingsNativeStackParams, "ReferralProgram">,
+	props: NativeStackScreenProps<ProfileNavigationStacks, "ReferralProgram">,
 ) => {
 	const router = useRouter();
 	const featureGates = useFeatureGates();
@@ -123,7 +123,7 @@ const ReferralProgramScreen = (
 									if (router.canGoBack()) {
 										router.back();
 									} else {
-										router.push({
+										router.replace({
 											pathname: "posts",
 											params: { screen: "Home" },
 										});

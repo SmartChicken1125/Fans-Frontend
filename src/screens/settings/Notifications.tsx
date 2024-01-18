@@ -6,15 +6,44 @@ import {
 	FansText,
 	FansView,
 } from "@components/controls";
+import SettingsNavigationHeader from "@components/screens/settings/SettingsNavigationHeader";
+import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
 import { useAppContext } from "@context/useAppContext";
 import {
 	getNotificationSettings,
 	updateNotificationSettings,
 } from "@helper/endpoints/notifications/apis";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { UserRoleTypes } from "@usertypes/commonEnums";
+import { SettingsNotificationsNativeStackParams } from "@usertypes/navigations";
+import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 
-const NotificationsScreen = () => {
+const Stack =
+	createNativeStackNavigator<SettingsNotificationsNativeStackParams>();
+
+const SettingsNotificationsNativeStack = () => {
+	const router = useRouter();
+
+	return (
+		<Stack.Navigator
+			initialRouteName="Notifications"
+			screenOptions={{
+				header: (props) => SettingsNavigationHeader(props, router),
+			}}
+		>
+			<Stack.Screen
+				name="Notifications"
+				component={NotificationsContentView}
+				options={{
+					title: "Notifications",
+				}}
+			/>
+		</Stack.Navigator>
+	);
+};
+
+const NotificationsContentView = () => {
 	const { state } = useAppContext();
 	const { user } = state;
 	const { userInfo } = user;
@@ -314,6 +343,10 @@ const NotificationsScreen = () => {
 			<FansGap height={20} />
 		</FansScreen3>
 	);
+};
+
+const NotificationsScreen = () => {
+	return SettingsNavigationLayout(<SettingsNotificationsNativeStack />);
 };
 
 export default NotificationsScreen;

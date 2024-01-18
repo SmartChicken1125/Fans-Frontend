@@ -13,8 +13,8 @@ import {
 	FypSvg,
 	FypDropdown,
 	FypCountryDropdown,
+	FypCheckbox,
 } from "@components/common/base";
-import Checkbox from "@components/common/checkbox";
 import CheckoutOption from "@components/common/checkoutOption";
 import CustomMaskInput from "@components/common/customMaskInput";
 import CustomTopNavBar from "@components/common/customTopNavBar";
@@ -453,12 +453,13 @@ const GetGemsScreen = () => {
 					},
 				});
 
+				hideAnimationLoading();
+
 				if (purchase.ok) {
 					Toast.show({
 						type: "success",
 						text1: "Purchase successful",
 					});
-					hideAnimationLoading();
 					dispatch.fetchUserInfo();
 					router.replace("/posts");
 				} else {
@@ -870,7 +871,7 @@ const GetGemsScreen = () => {
 											site. All payment transactions are
 											securely handled through
 											Authorize.Net, a Visa solution
-											company.”
+											company.
 										</FansText>
 									</NotificationBox>
 								</View>
@@ -887,10 +888,9 @@ const GetGemsScreen = () => {
 									"flex-row items-center mb-[20px]",
 								)}
 							>
-								<Checkbox
+								<FypCheckbox
 									checked={saveDetails}
 									onPress={() => setSaveDetails(!saveDetails)}
-									size="lg"
 								/>
 								<FypText
 									fontSize={16}

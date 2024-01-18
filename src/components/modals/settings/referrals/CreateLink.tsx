@@ -17,6 +17,7 @@ import {
 } from "@components/controls";
 import { FansModal3 } from "@components/controls/Modal";
 import { IFansModal } from "@usertypes/components";
+import { setStringAsync } from "expo-clipboard";
 import React, { useState } from "react";
 
 const CreateLinkModal: IFansModal = (props) => {
@@ -26,7 +27,10 @@ const CreateLinkModal: IFansModal = (props) => {
 
 	const [isCopied, setCopied] = useState(false);
 
-	const handlePressCopy = () => setCopied(true);
+	const handlePressCopy = () => {
+		setStringAsync("https://" + link);
+		setCopied(true);
+	};
 
 	return (
 		<FansModal3 modalStyle={{ padding: { x: 17, y: 31 } }} {...props}>

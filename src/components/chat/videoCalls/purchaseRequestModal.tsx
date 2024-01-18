@@ -61,12 +61,11 @@ const PurchaseRequestModal: FC<Props> = (props) => {
 						padding={5}
 						borderRadius={15}
 						style={tw.style("w-full")}
+						position="relative"
 					>
 						<FansView
 							borderRadius={15}
-							style={tw.style(
-								"bg-fans-white dark:bg-fans-black-1d",
-							)}
+							style={tw.style("bg-fans-black-1d")}
 						>
 							<ScrollView>
 								<FansView
@@ -75,7 +74,7 @@ const PurchaseRequestModal: FC<Props> = (props) => {
 								>
 									<FansIconButton
 										size={25}
-										backgroundColor="bg-fans-black/30 dark:bg-fans-white/30"
+										backgroundColor="bg-fans-white/20"
 										onPress={handleClose}
 										style={tw.style(
 											"absolute top-[14px] right-3",
@@ -85,7 +84,7 @@ const PurchaseRequestModal: FC<Props> = (props) => {
 											svg={CloseSvg}
 											width={11}
 											height={11}
-											color="fans-white dark:fans-black-1d"
+											color="fans-white"
 										/>
 									</FansIconButton>
 									<FansView
@@ -107,7 +106,7 @@ const PurchaseRequestModal: FC<Props> = (props) => {
 											justifyContent="center"
 											position="absolute"
 											style={tw.style(
-												"border-[4px] border-fans-white dark:border-fans-black-1d",
+												"border-[4px] border-fans-grey-53",
 												"right-[-4px] bottom-[-10.5px]",
 											)}
 										>
@@ -134,6 +133,7 @@ const PurchaseRequestModal: FC<Props> = (props) => {
 										fontWeight={700}
 										textAlign="center"
 										margin={{ b: 18 }}
+										style={tw.style("text-fans-white")}
 									>
 										{data.type === "time"
 											? "Jane has requested a time increase!"
@@ -155,6 +155,9 @@ const PurchaseRequestModal: FC<Props> = (props) => {
 												fontWeight={500}
 												lineHeight={21}
 												textAlign="center"
+												style={tw.style(
+													"text-fans-white",
+												)}
 											>
 												{`${amount} min`}
 											</FypText>
@@ -186,6 +189,7 @@ const PurchaseRequestModal: FC<Props> = (props) => {
 											fontWeight={500}
 											textAlign="center"
 											lineHeight={21}
+											style={tw.style("text-fans-white")}
 										>
 											you will be charged $10.82
 										</FypText>
@@ -194,19 +198,24 @@ const PurchaseRequestModal: FC<Props> = (props) => {
 											lineHeight={21}
 											textAlign="center"
 											style={tw.style(
-												"text-fans-grey-70 dark:text-fans-grey-b1",
+												"text-fans-grey-b1",
 											)}
 										>
 											$10 + $0.20 Fee + $0.60 Tax
 										</FypText>
 									</FansView>
-									<FansDivider style={tw.style("my-7")} />
+									<FansDivider
+										style={tw.style(
+											"my-7 border-fans-white/20",
+										)}
+									/>
 									<FansView margin={{ b: 22 }}>
 										<FypText
 											fontSize={17}
 											lineHeight={22}
 											fontWeight={600}
 											margin={{ b: 15 }}
+											style={tw.style("text-fans-white")}
 										>
 											Payment method
 										</FypText>
@@ -215,6 +224,12 @@ const PurchaseRequestModal: FC<Props> = (props) => {
 											value={payment}
 											onChange={setPayment}
 											handleAddMethod={() => {}}
+											style={tw.style(
+												"border-fans-white/20",
+											)}
+											textStyle={tw.style(
+												"text-fans-white",
+											)}
 										/>
 									</FansView>
 									<FansView
@@ -248,7 +263,7 @@ const PurchaseRequestModal: FC<Props> = (props) => {
 										lineHeight={22}
 										textAlign="center"
 										onPress={handleClose}
-										style={tw.style("text-fans-purple")}
+										style={tw.style("text-fans-white")}
 									>
 										Reject offer
 									</FypText>

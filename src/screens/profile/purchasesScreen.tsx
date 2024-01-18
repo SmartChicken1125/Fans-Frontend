@@ -7,10 +7,7 @@ import { FilterButton } from "@components/posts/common";
 import PostCard from "@components/posts/postCard";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { StorageKeyTypes } from "@usertypes/commonEnums";
 import { ProfileNavigationStacks } from "@usertypes/navigations";
-import { getStorage } from "@utils/storage";
-import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { ScrollView } from "react-native";
 
@@ -18,7 +15,6 @@ const PurchasesScreen = (
 	props: NativeStackScreenProps<ProfileNavigationStacks, "Purchases">,
 ) => {
 	const { navigation } = props;
-	const router = useRouter();
 	const [searchQuery, setSearchQuery] = useState("");
 
 	const handlePressPrev = async () => {

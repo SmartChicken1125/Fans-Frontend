@@ -3,9 +3,7 @@ import { FansGap } from "@components/controls";
 import { useAppContext } from "@context/useAppContext";
 import { RoundButtonType } from "@usertypes/commonEnums";
 import React from "react";
-import { View, StyleSheet } from "react-native";
-
-const styles = StyleSheet.create({});
+import { View } from "react-native";
 
 interface VideoStepperButtonsProps {
 	currentStep: number;
@@ -24,12 +22,12 @@ const VideoStepperButtons: React.FC<VideoStepperButtonsProps> = ({
 }) => {
 	const { state } = useAppContext();
 	const { video } = state.profile.settings;
-	const { pricesDuration, timeframes, meetingTitle } = video;
-	console.log(state.profile.settings);
+	const { meetingDurations = [], timeframes, meetingTitle } = video;
+
 	const getNextDisabled = () => {
 		switch (currentStep) {
 			case 0:
-				return pricesDuration.length === 0;
+				return meetingDurations.length === 0;
 			case 1:
 				return timeframes.length < 3;
 			case 3:

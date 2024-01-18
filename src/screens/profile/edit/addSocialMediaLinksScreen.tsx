@@ -11,6 +11,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { ComponentSizeTypes, RoundButtonType } from "@usertypes/commonEnums";
 import { ProfileNavigationStacks } from "@usertypes/navigations";
 import { ISocialLink } from "@usertypes/types";
+import { validateSocialLink } from "@utils/validateHelper";
 import React, { FC, useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -18,11 +19,12 @@ import Toast from "react-native-toast-message";
 
 interface SocialMediaLinkInputProps {
 	data: ISocialLink;
+	isSubmitted: boolean;
 	onChange: (val: string) => void;
 }
 
 export const SocialMediaLinkInput: FC<SocialMediaLinkInputProps> = (props) => {
-	const { data, onChange } = props;
+	const { data, onChange, isSubmitted } = props;
 
 	return (
 		<View>
@@ -42,6 +44,8 @@ export const SocialMediaLinkInput: FC<SocialMediaLinkInputProps> = (props) => {
 					customStyles="pl-12"
 					autoCapitalize="none"
 					maxLength={100}
+					hasError={isSubmitted && !validateSocialLink(data).isValid}
+					helperText={validateSocialLink(data).message}
 				/>
 				<View style={tw.style("absolute top-1 left-1")}>
 					{getSocialIconComponent({
@@ -65,8 +69,19 @@ const AddSocialMediaLinksScreen = (
 
 	const [socials, setSocials] = useState<ISocialLink[]>([]);
 	const [inProgress, setInProgress] = useState(false);
+	const [isSubmitted, setIsSubmitted] = useState(false);
 
 	const handleSave = async () => {
+		setIsSubmitted(true);
+		let hasError = false;
+		socials.forEach((link) => {
+			if (!validateSocialLink(link).isValid) {
+				hasError = true;
+			}
+		});
+		if (hasError) {
+			return;
+		}
 		const postbody = {
 			links: socials.map((social) => ({
 				provider: social.provider,
@@ -151,6 +166,7 @@ const AddSocialMediaLinksScreen = (
 									<SocialMediaLinkInput
 										key={social.provider}
 										data={social}
+										isSubmitted={isSubmitted}
 										onChange={(val) =>
 											handleChange(social.provider, val)
 										}

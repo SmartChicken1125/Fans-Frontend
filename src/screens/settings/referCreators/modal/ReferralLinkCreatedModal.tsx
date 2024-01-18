@@ -81,7 +81,7 @@ const ReferralLinkCreatedModal: IFansModal = (props) => {
 	];
 
 	const handlePressCopy = () => {
-		setStringAsync(link);
+		setStringAsync("https://" + link);
 		ToastMessage.show({ type: "success", text1: "Copied" });
 		setCopied(true);
 	};

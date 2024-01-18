@@ -54,6 +54,8 @@ import {
 import { BanModal } from "@components/modals";
 import { PostAnalyticsModal } from "@components/modals/shop";
 import { SendMessageDialog } from "@components/posts/dialogs";
+import SettingsNavigationHeader from "@components/screens/settings/SettingsNavigationHeader";
+import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
 import { LineChart } from "@components/screens/settings/analytics";
 import {
 	PostSheet,
@@ -77,15 +79,16 @@ import {
 	getPaidPostsEarnings,
 	getTopPosts,
 } from "@helper/endpoints/creator/apis";
-import { getPaidPosts, getPurchasedPosts } from "@helper/endpoints/post/apis";
+import { getPaidPosts } from "@helper/endpoints/post/apis";
 import { PostListRespBody } from "@helper/endpoints/post/schemas";
 import { getPostAnalytics } from "@helper/endpoints/settings/apis";
 import tw from "@lib/tailwind";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { updateInbox } from "@state/chat";
 import { useFeatureGates } from "@state/featureGates";
 import { PostType } from "@usertypes/commonEnums";
 import { Colors } from "@usertypes/enums";
-import { SettingsNativeStackScreenProps } from "@usertypes/navigations";
+import { SettingsAnalyticsNativeStackParams } from "@usertypes/navigations";
 import { IPostFilterQuery } from "@usertypes/params";
 import {
 	CategoryScale,
@@ -109,13 +112,7 @@ import React, {
 	useState,
 } from "react";
 import { Line } from "react-chartjs-2";
-import {
-	Animated,
-	Image,
-	NativeScrollEvent,
-	Pressable,
-	ScrollView,
-} from "react-native";
+import { Animated, Image, NativeScrollEvent, ScrollView } from "react-native";
 import {
 	PanGestureHandler,
 	PanGestureHandlerGestureEvent,
@@ -125,6 +122,29 @@ import {
 	useSharedValue,
 } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
+
+const Stack = createNativeStackNavigator<SettingsAnalyticsNativeStackParams>();
+
+const SettingsAnalyticsNativeStack = () => {
+	const router = useRouter();
+
+	return (
+		<Stack.Navigator
+			initialRouteName="Analytics"
+			screenOptions={{
+				header: (props) => SettingsNavigationHeader(props, router),
+			}}
+		>
+			<Stack.Screen
+				name="Analytics"
+				component={AnalyticsConstentView}
+				options={{
+					title: "Analytics",
+				}}
+			/>
+		</Stack.Navigator>
+	);
+};
 
 type ContextType = {
 	x: number;
@@ -894,6 +914,7 @@ const Posts = () => {
 				isPinned: false,
 				isSelf: true,
 				isExclusive: false,
+				isPosted: true,
 			},
 			{
 				id: "2",
@@ -920,6 +941,7 @@ const Posts = () => {
 				isPinned: false,
 				isSelf: true,
 				isExclusive: false,
+				isPosted: true,
 			},
 			{
 				id: "3",
@@ -946,6 +968,7 @@ const Posts = () => {
 				isPinned: false,
 				isSelf: true,
 				isExclusive: false,
+				isPosted: true,
 			},
 			{
 				id: "4",
@@ -972,6 +995,7 @@ const Posts = () => {
 				isPinned: false,
 				isSelf: true,
 				isExclusive: false,
+				isPosted: true,
 			},
 			{
 				id: "5",
@@ -998,6 +1022,7 @@ const Posts = () => {
 				isPinned: false,
 				isSelf: true,
 				isExclusive: false,
+				isPosted: true,
 			},
 		]);
 	}, [page, size]);
@@ -1742,10 +1767,7 @@ const ShopContent = ({ isScrollEnd }: { isScrollEnd: boolean }) => {
 	);
 };
 
-const AnalyticsScreen = (
-	props: SettingsNativeStackScreenProps<"Analytics">,
-) => {
-	const { navigation } = props;
+const AnalyticsConstentView = () => {
 	const { state } = useAppContext();
 	const { userInfo } = state.user;
 	const featureGates = useFeatureGates();
@@ -2154,6 +2176,10 @@ const AnalyticsScreen = (
 			<FansGap height={20} />
 		</FansScreen3>
 	);
+};
+
+const AnalyticsScreen = () => {
+	return SettingsNavigationLayout(<SettingsAnalyticsNativeStack />);
 };
 
 export default AnalyticsScreen;

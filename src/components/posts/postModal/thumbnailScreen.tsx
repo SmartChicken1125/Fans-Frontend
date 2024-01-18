@@ -204,7 +204,13 @@ const ThumbnailScreen: FC<Props> = (props) => {
 				/>
 			</FypNullableView>
 
-			<View style={tw.style(step === PostStepTypes.Thumbnail && "py-5")}>
+			<View
+				style={tw.style(
+					step === PostStepTypes.Thumbnail
+						? "py-5"
+						: "hidden md:flex",
+				)}
+			>
 				<View
 					style={tw.style(
 						"w-150 xl:w-[670px] h-150 xl:h-[670px] mx-auto",

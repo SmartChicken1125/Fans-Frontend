@@ -10,18 +10,16 @@ import { useAppContext } from "@context/useAppContext";
 import { updateEmail } from "@helper/endpoints/settings/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { SettingsNativeStackParams } from "@usertypes/navigations";
-import { useRouter } from "expo-router";
+import { SettingsAccountNativeStackParams } from "@usertypes/navigations";
 import React, { useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 
 const EmailScreen = (
-	props: NativeStackScreenProps<SettingsNativeStackParams, "Email">,
+	props: NativeStackScreenProps<SettingsAccountNativeStackParams, "Email">,
 ) => {
 	const { navigation } = props;
-	const router = useRouter();
 
-	const { dispatch, state } = useAppContext();
+	const { state } = useAppContext();
 	const { email } = state.user.userInfo;
 
 	const [valEmail, changeEmail] = useState("");

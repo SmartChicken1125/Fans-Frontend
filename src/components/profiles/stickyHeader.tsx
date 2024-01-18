@@ -4,10 +4,9 @@ import {
 	StatisticsSvg,
 	StarCheckSvg,
 	ThreeDotsVerticalSvg,
-	MailSvg,
+	PostMailSvg,
 	TipSvg,
 	ShareSvg,
-	RedirectSvg,
 } from "@assets/svgs/common";
 import UserAvatar from "@components/avatar/UserAvatar";
 import { FypNullableView, FypSvg } from "@components/common/base";
@@ -128,7 +127,7 @@ const StickyHeader: FC<Props> = (props) => {
 						{profile?.displayName}
 						<FypSvg
 							svg={StarCheckSvg}
-							width={13.66}
+							width={14}
 							height={13}
 							style={tw.style("absolute top-[4.5px] right-0")}
 						/>
@@ -143,8 +142,8 @@ const StickyHeader: FC<Props> = (props) => {
 						>
 							<FypSvg
 								svg={ShareSvg}
-								width={18.23}
-								height={14.6}
+								width={19}
+								height={15}
 								color="fans-black dark:fans-white"
 							/>
 						</FansIconButton>
@@ -156,9 +155,9 @@ const StickyHeader: FC<Props> = (props) => {
 							onPress={onClickMail}
 						>
 							<FypSvg
-								svg={MailSvg}
-								width={18.23}
-								height={14.6}
+								svg={PostMailSvg}
+								width={19}
+								height={15}
 								color="fans-black dark:fans-white"
 							/>
 						</FansIconButton>
@@ -170,8 +169,8 @@ const StickyHeader: FC<Props> = (props) => {
 						>
 							<FypSvg
 								svg={TipSvg}
-								width={9.4}
-								height={19.33}
+								width={10}
+								height={20}
 								color="fans-black dark:fans-white"
 							/>
 						</FansIconButton>

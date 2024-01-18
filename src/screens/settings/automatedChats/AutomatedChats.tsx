@@ -15,24 +15,26 @@ import {
 	WelcomeMessageImageModal,
 	WelcomeMessageModal,
 } from "@components/modals/settings/automatedChats";
-import { useAppContext } from "@context/useAppContext";
 import {
 	createWelcomeAutomatedMessage,
 	getWelcomeAutomatedMessage,
 } from "@helper/endpoints/chat/apis";
 import tw from "@lib/tailwind";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { MediaType } from "@usertypes/commonEnums";
-import { AutomatedChatsNativeStackScreenProps } from "@usertypes/navigations";
+import { SettingsAutomatedChatsNativeStackParams } from "@usertypes/navigations";
 import useUploadFiles from "@utils/useUploadFile";
 import React, { useEffect, useState } from "react";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
 
 const AutomatedChatsScreen = (
-	prop: AutomatedChatsNativeStackScreenProps<"AutomatedChats">,
+	props: NativeStackScreenProps<
+		SettingsAutomatedChatsNativeStackParams,
+		"AutomatedChats"
+	>,
 ) => {
-	const { navigation } = prop;
-	const { dispatch } = useAppContext();
+	const { navigation } = props;
 	const { uploadFiles } = useUploadFiles();
 
 	const [welcomeText, setWelcomeText] = useState<string>();

@@ -29,6 +29,7 @@ const CardHeader: FC<Props> = (props) => {
 			router.push(`/${profileLink}`);
 		}
 	};
+
 	return (
 		<FansView
 			flexDirection="row"
@@ -37,12 +38,7 @@ const CardHeader: FC<Props> = (props) => {
 			gap={8}
 			style={tw.style("px-[18px] md:px-0", data.isExclusive && "px-0")}
 		>
-			<FansView
-				flexDirection="row"
-				alignItems="center"
-				flex="1"
-				// onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
-			>
+			<FansView flexDirection="row" alignItems="center" flex="1">
 				<FansView
 					pressableProps={{
 						onPress: onGoToProfile,
@@ -83,8 +79,8 @@ const CardHeader: FC<Props> = (props) => {
 							{
 								maxWidth:
 									width -
-									(tw.prefixMatch("md") ? 234 : 70) -
-									(data.isExclusive ? 100 : 0),
+									(tw.prefixMatch("md") ? 234 : 50) -
+									20,
 							},
 						]}
 					>
@@ -124,7 +120,7 @@ const CardHeader: FC<Props> = (props) => {
 							"min-w-30 text-fans-grey-70 dark:text-fans-grey-b1 hidden md:flex",
 						)}
 					>
-						{getAgoTime(data.updatedAt ?? "")}
+						{getAgoTime(data.createdAt ?? "")}
 					</FypText>
 					<FypNullableView visible={data.isPinned}>
 						<FansView margin={{ l: 4 }}>

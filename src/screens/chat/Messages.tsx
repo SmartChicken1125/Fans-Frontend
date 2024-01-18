@@ -26,7 +26,7 @@ import {
 import { FilterDuringDialog } from "@components/dialogs/chat";
 import MoneyRangeDlg from "@components/dialogs/chat/FilterTips";
 import { useAppContext } from "@context/useAppContext";
-import { getNotes } from "@helper/endpoints/chat/apis";
+import { getNotes, pinInbox, deleteInbox } from "@helper/endpoints/chat/apis";
 import tw from "@lib/tailwind";
 import {
 	chatInboxAtom,
@@ -35,6 +35,7 @@ import {
 	setNotes,
 	creatorNoteAtom,
 	setCreatorNote,
+	setInbox,
 } from "@state/chat";
 import { useFeatureGates } from "@state/featureGates";
 import { UserRoleTypes } from "@usertypes/commonEnums";
@@ -149,8 +150,20 @@ export const MessagesScreenContent = (props: MessagesScreenContentProps) => {
 		setFilterMode("");
 	};
 
-	const handleItemDelete = (id: string) => {
-		// setItems((items) => items.filter((item) => item.id !== id));
+	const handleItemDelete = async (id: string) => {
+		const res = await deleteInbox({ id }, { id });
+		if (res.ok) {
+			const newConversations = inbox.sorted.filter(
+				(conversation: IConversationMeta) => conversation.id !== id,
+			);
+			setInbox(newConversations);
+		} else {
+			Toast.show({
+				type: "error",
+				text1: "Error",
+				text2: "Failed to delete inbox",
+			});
+		}
 	};
 
 	const handleItemNotification = (id: string) => {
@@ -161,15 +174,23 @@ export const MessagesScreenContent = (props: MessagesScreenContentProps) => {
 		// });
 	};
 
-	const handleItemPin = (id: string) => {
-		// setItems((items) => {
-		//  const item = items.find((value) => value.id === id);
-		//  if (item) {
-		//      item.isPinned = !item.isPinned;
-		//      return [...items];
-		//  }
-		//  return items;
-		// });
+	const handleItemPin = async (id: string) => {
+		const res = await pinInbox({ id }, { id });
+		if (res.ok) {
+			const newConversations = inbox.sorted.map(
+				(conversation: IConversationMeta) =>
+					conversation.id === id
+						? { ...conversation, isPinned: true }
+						: conversation,
+			);
+			setInbox(newConversations);
+		} else {
+			Toast.show({
+				type: "error",
+				text1: "Error",
+				text2: "Failed to pin inbox",
+			});
+		}
 	};
 
 	const handlePress = (meta: IConversationMeta) => {

@@ -17,32 +17,36 @@ import React from "react";
 const Step5 = () => {
 	const { state, dispatch } = useAppContext();
 
-	const { notifications } = state.profile.settings.video;
+	const {
+		notificationNewRequests,
+		notificationCancellations,
+		notificationsByEmail,
+		notificationReminders,
+		notificationsByPhone,
+	} = state.profile.settings.video;
 	const { video } = state.profile.settings;
 
-	const {
-		newRequests,
-		cancellations,
-		reminders,
-		notificationsByEmail,
-		notificationsByPhone,
-	} = notifications;
+	// const {
+	// 	newRequests,
+	// 	cancellations,
+	// 	reminders,
+	// 	notificationsByEmail,
+	// 	notificationsByPhone,
+	// } = notifications;
 
 	const handleChangeField = async (name: string, val: boolean) => {
-		const updatedNotifications = {
-			...state.profile.settings.video.notifications,
-			[name]: val,
-		};
-
-		const updatedSettings = {
-			...state.profile.settings,
-			video: {
-				...video,
-				notifications: updatedNotifications,
-			},
-		};
-
-		await updateSettings(updatedSettings);
+		// const updatedNotifications = {
+		// 	...state.profile.settings.video.notifications,
+		// 	[name]: val,
+		// };
+		// const updatedSettings = {
+		// 	...state.profile.settings,
+		// 	video: {
+		// 		...video,
+		// 		notifications: updatedNotifications,
+		// 	},
+		// };
+		// await updateSettings(updatedSettings);
 	};
 
 	const updateSettings = async (updatedSettings: IProfileSettings) => {
@@ -54,14 +58,14 @@ const Step5 = () => {
 	};
 
 	const fetchProfileSettings = async () => {
-		const response = await getUserSettings();
-		if (response.ok) {
-			const profileSettings = response.data;
-			dispatch.setProfile({
-				type: ProfileActionType.updateSettings,
-				data: profileSettings,
-			});
-		}
+		// const response = await getUserSettings();
+		// if (response.ok) {
+		// 	const profileSettings = response.data;
+		// 	dispatch.setProfile({
+		// 		type: ProfileActionType.updateSettings,
+		// 		data: profileSettings,
+		// 	});
+		// }
 	};
 
 	return (
@@ -73,7 +77,7 @@ const Step5 = () => {
 				<FansGap height={40} />
 				<FansSwitch
 					text="New requests"
-					value={newRequests}
+					value={notificationNewRequests}
 					onValueChange={(value: boolean) =>
 						handleChangeField("newRequests", value)
 					}
@@ -83,7 +87,7 @@ const Step5 = () => {
 				<FansGap height={20} />
 				<FansSwitch
 					text="Cancellations"
-					value={cancellations}
+					value={notificationCancellations}
 					onValueChange={(value: boolean) =>
 						handleChangeField("cancellations", value)
 					}
@@ -93,7 +97,7 @@ const Step5 = () => {
 				<FansGap height={20} />
 				<FansSwitch
 					text="Reminders"
-					value={reminders}
+					value={notificationReminders}
 					onValueChange={(value: boolean) =>
 						handleChangeField("reminders", value)
 					}

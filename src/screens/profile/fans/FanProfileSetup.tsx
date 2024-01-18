@@ -4,7 +4,10 @@ import {
 	FansScreen2,
 	FansView,
 } from "@components/controls";
-import { useAppContext } from "@context/useAppContext";
+import SettingsNavigationHeader from "@components/screens/settings/SettingsNavigationHeader";
+import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { SettingsFanProfileSetupNativeStackParams } from "@usertypes/navigations";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { View } from "react-native";
@@ -14,10 +17,31 @@ import Step3 from "./Step3";
 import VideoCallSetupStepper from "./VideoCallSetupStepper";
 import VideoStepperButtons from "./VideoStepperButtons";
 
-const FanProfileSetup = () => {
+const Stack =
+	createNativeStackNavigator<SettingsFanProfileSetupNativeStackParams>();
+
+const SettingsFanProfileSetupNativeStack = () => {
+	const router = useRouter();
+
+	return (
+		<Stack.Navigator
+			initialRouteName="FanProfileSetup"
+			screenOptions={{
+				header: (props) => SettingsNavigationHeader(props, router),
+			}}
+		>
+			<Stack.Screen
+				name="FanProfileSetup"
+				component={FanProfileSetupContentView}
+				options={{ title: "Set up profile" }}
+			/>
+		</Stack.Navigator>
+	);
+};
+
+const FanProfileSetupContentView = () => {
 	// Define the state for currentStep and steps
 	const [currentStep, setCurrentStep] = useState(0);
-	const { state, dispatch } = useAppContext();
 	const router = useRouter();
 
 	// Define the steps array
@@ -72,6 +96,10 @@ const FanProfileSetup = () => {
 			<FansGap height={20} />
 		</FansScreen2>
 	);
+};
+
+const FanProfileSetup = () => {
+	return SettingsNavigationLayout(<SettingsFanProfileSetupNativeStack />);
 };
 
 export default FanProfileSetup;

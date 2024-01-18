@@ -360,7 +360,7 @@ const AddPaymentMethodScreen = (
 					🔒 Secure Checkout{"\n"} Please note that we do not store or
 					process any credit/debit card information on our site. All
 					payment transactions are securely handled through
-					Authorize.Net, a Visa solution company.”
+					Authorize.Net, a Visa solution company.
 				</FansText>
 			</NotificationBox>
 

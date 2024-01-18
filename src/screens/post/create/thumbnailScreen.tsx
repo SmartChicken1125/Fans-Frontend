@@ -224,7 +224,7 @@ const ThumbnailScreen = (
 		setMedias(postForm.medias);
 		setSelectedMedias(postForm.medias);
 	}, [postForm.medias]);
-	console.log(medias);
+
 	return (
 		<FansView
 			flex="1"

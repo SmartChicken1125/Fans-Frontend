@@ -52,19 +52,19 @@ const ScheduleScreen: FC<Props> = (props) => {
 		if (!scheduleForm.startDate || scheduleForm.timezone === "") {
 			return;
 		}
-		const postbody = {
-			startDate: moment(scheduleForm.startDate)
-				.utcOffset("+000", true)
-				.format(),
-			endDate: moment(scheduleForm.startDate)
-				.utcOffset("+000", true)
-				.format(),
-			timezone: scheduleForm.timezone,
-		};
+		// const postbody = {
+		// 	startDate: moment(scheduleForm.startDate)
+		// 		.utcOffset("+000", true)
+		// 		.format(),
+		// 	endDate: moment(scheduleForm.startDate)
+		// 		.utcOffset("+000", true)
+		// 		.format(),
+		// 	timezone: scheduleForm.timezone,
+		// };
 		dispatch.setPosts({
 			type: PostsActionType.updatePostForm,
 			data: {
-				schedule: postbody,
+				schedule: scheduleForm,
 			},
 		});
 		handleChangeTab(PostStepTypes.Caption);
@@ -74,9 +74,7 @@ const ScheduleScreen: FC<Props> = (props) => {
 		setScheduleForm({
 			...scheduleForm,
 			timezone: data.schedule.timezone,
-			startDate: data.schedule.startDate
-				? new Date(data.schedule.startDate.split("T")[0])
-				: undefined,
+			startDate: data.schedule.startDate,
 		});
 	}, []);
 

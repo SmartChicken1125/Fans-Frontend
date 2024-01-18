@@ -1,6 +1,5 @@
 import { UserSvg } from "@assets/svgs/common";
-import { FypText } from "@components/common/base";
-import Checkbox from "@components/common/checkbox";
+import { FypText, FypCheckbox } from "@components/common/base";
 import tw from "@lib/tailwind";
 import { ProfileThemeType } from "@usertypes/commonEnums";
 import React, { FC } from "react";
@@ -29,10 +28,10 @@ const ProfileTheme: FC<Props> = (props) => {
 				>
 					<UserSvg width={24.38} height={24.82} color="#000" />
 				</View>
-				<Checkbox
+				<FypCheckbox
 					checked={selected}
 					onPress={onSelect}
-					style="absolute top-[10px] right-[10px]"
+					style={tw.style("absolute top-[10px] right-[10px]")}
 				/>
 			</View>
 

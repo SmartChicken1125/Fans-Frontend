@@ -1,0 +1,42 @@
+diff --git a/src/getRoutes.ts b/src/getRoutes.ts
+index df64596452cd3963fe1db209cd21c977f364dcbe..9a0c0a20bfb4277e166c6a9ddb0657ebfe870a5a 100644
+--- a/src/getRoutes.ts
++++ b/src/getRoutes.ts
+@@ -327,7 +327,7 @@ function processKeys(files: string[], options: Options): string[] {
+ 
+   return files.filter((file) => {
+     return !ignore?.some((pattern) => pattern.test(file));
+-  });
++  }).filter(f => f.endsWith(".tsx"));
+ }
+ 
+ /**
+diff --git a/src/views/SuspenseFallback.tsx b/src/views/SuspenseFallback.tsx
+index 9a95b5adcd6bb02848b425cf9ed4b9602ac1a240..5a5a1ba874d1c83d6a9ea77c7b0a2e2980c97a6e 100644
+--- a/src/views/SuspenseFallback.tsx
++++ b/src/views/SuspenseFallback.tsx
+@@ -1,12 +1,20 @@
+ import React from "react";
+ 
+ import { RouteNode } from "../Route";
+-import { Toast, ToastWrapper } from "./Toast";
++import { ActivityIndicator, View } from "react-native";
+ 
+ export function SuspenseFallback({ route }: { route: RouteNode }) {
+   return (
+-    <ToastWrapper>
+-      <Toast filename={route?.contextKey}>Bundling...</Toast>
+-    </ToastWrapper>
++	<View
++		style={{
++			backgroundColor: "rgba(0,0,0,0.25)",
++			flex: 1,
++			justifyContent: "center",
++			alignItems: "center",
++		}}
++	>
++		<ActivityIndicator color={"white"} size={"large"} />
++	</View>
+   );
+ }
++

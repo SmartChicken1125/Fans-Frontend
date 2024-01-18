@@ -8,6 +8,7 @@ import {
 	useAppContext,
 } from "@context/useAppContext";
 import { createPost, createStory } from "@helper/endpoints/post/apis";
+import tw from "@lib/tailwind";
 import {
 	IconTypes,
 	MediaType,
@@ -37,6 +38,7 @@ import FundraiserScreen from "./fundraiserScreen";
 import InviteNewUserScreen from "./inviteNewUserScreen";
 import LocationScreen from "./locationScreen";
 import NewCategoryScreen from "./newCategoryScreen";
+import NewTierScreen from "./newTierScreen";
 import PaidPostAccessScreen from "./paidPostAccessScreen";
 import PaidPostScreen from "./paidPostScreen";
 import RoleScreen from "./roleScreen";
@@ -45,6 +47,7 @@ import TagPeopleScreen from "./tagPeopleScreen";
 import TagPeopleSearchScreen from "./tagPeopleSearchScreen";
 import TextScreen from "./textScreen";
 import ThumbnailScreen from "./thumbnailScreen";
+import VaultScreen from "./vaultScreen";
 import ViewSettingScreen from "./viewSettingScreen";
 
 export const titleIcons = {
@@ -55,6 +58,7 @@ export const titleIcons = {
 	[PostType.Poll]: IconTypes.Poll,
 	[PostType.Story]: IconTypes.Story,
 	[PostType.Text]: IconTypes.Text,
+	[PostType.Vault]: IconTypes.Vault,
 };
 
 const PostModal = () => {
@@ -68,7 +72,7 @@ const PostModal = () => {
 
 	const [roleId, setRoleId] = useState("");
 	const [inProgress, setInProgress] = useState(false);
-	const [rolePrevScreen, setRolePrevScreen] = useState<PostStepTypes>(
+	const [prevScreen, setPrevScreen] = useState<PostStepTypes>(
 		PostStepTypes.ViewSetting,
 	);
 
@@ -166,6 +170,7 @@ const PostModal = () => {
 			});
 			return;
 		}
+
 		setInProgress(true);
 
 		const medias = [
@@ -414,19 +419,34 @@ const PostModal = () => {
 			});
 		}
 	};
-
+	console.log(postForm);
 	return (
 		<FypModal
 			visible={visible}
 			onDismiss={handleClose}
 			width={{
-				xs: "full",
-				md: step !== PostStepTypes.Thumbnail ? 950 : 740,
-				xl: step !== PostStepTypes.Thumbnail ? 1050 : 740,
+				xs: "screen",
+				md: ![PostStepTypes.Thumbnail, PostStepTypes.Vault].includes(
+					step,
+				)
+					? 950
+					: 740,
+				xl: ![PostStepTypes.Thumbnail, PostStepTypes.Vault].includes(
+					step,
+				)
+					? 1050
+					: 740,
 			}}
 		>
-			<FansView position="relative" padding={{ t: 100 }}>
-				<FypNullableView visible={postForm.type !== PostType.Text}>
+			<FansView
+				position="relative"
+				style={tw.style("pt-[50px] md:pt-[100px]")}
+			>
+				<FypNullableView
+					visible={
+						![PostType.Text, PostType.Vault].includes(postForm.type)
+					}
+				>
 					<ThumbnailScreen
 						inProgress={inProgress}
 						data={postForm}
@@ -438,6 +458,14 @@ const PostModal = () => {
 						dispatch={dispatch}
 						progress={progress}
 						handleCancelUpload={cancelUpload}
+					/>
+				</FypNullableView>
+				<FypNullableView visible={postForm.type === PostType.Vault}>
+					<VaultScreen
+						data={postForm}
+						handlePrev={handleClearForm}
+						titleIcon={titleIcons[postForm.type]}
+						dispatch={dispatch}
 					/>
 				</FypNullableView>
 
@@ -487,15 +515,17 @@ const PostModal = () => {
 						data={postForm}
 						inProgress={inProgress}
 						roles={roles}
+						tiers={tiers}
 						handleChangeTab={handleChangeTab}
 						handleChangeRole={(roleId) => {
 							setRoleId(roleId);
-							setRolePrevScreen(PostStepTypes.ViewSetting);
+							setPrevScreen(PostStepTypes.ViewSetting);
 							handleChangeTab(PostStepTypes.Role);
 						}}
 						setInProgress={setInProgress}
 						handleUpdatePostForm={handleUpdatePostForm}
 						dispatch={dispatch}
+						setPrevScreen={setPrevScreen}
 					/>
 				</FypNullableView>
 				<FypNullableView visible={step === PostStepTypes.Role}>
@@ -507,7 +537,7 @@ const PostModal = () => {
 						handleChangeTab={handleChangeTab}
 						setInProgress={setInProgress}
 						dispatch={dispatch}
-						prevScreen={rolePrevScreen}
+						prevScreen={prevScreen}
 					/>
 				</FypNullableView>
 				<FypNullableView
@@ -535,7 +565,7 @@ const PostModal = () => {
 						setInProgress={setInProgress}
 						handleChangeRole={(roleId) => {
 							setRoleId(roleId);
-							setRolePrevScreen(PostStepTypes.NewCategory);
+							setPrevScreen(PostStepTypes.NewCategory);
 							handleChangeTab(PostStepTypes.Role);
 						}}
 						dispatch={dispatch}
@@ -637,6 +667,15 @@ const PostModal = () => {
 						data={postForm}
 						inProgress={inProgress}
 						dispatch={dispatch}
+						handleChangeTab={handleChangeTab}
+					/>
+				</FypNullableView>
+				<FypNullableView visible={step === PostStepTypes.NewTier}>
+					<NewTierScreen
+						data={postForm}
+						tiers={tiers}
+						dispatch={dispatch}
+						prevScreen={prevScreen}
 						handleChangeTab={handleChangeTab}
 					/>
 				</FypNullableView>

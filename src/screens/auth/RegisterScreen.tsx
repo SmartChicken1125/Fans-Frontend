@@ -35,7 +35,6 @@ import {
 	ImageBackground,
 	Platform,
 	ScrollView,
-	Text,
 	View,
 } from "react-native";
 import Spinner from "react-native-loading-spinner-overlay";
@@ -92,7 +91,7 @@ const RegisterScreen = () => {
 					? "google_ios"
 					: Platform.OS === "android"
 					? "google_android"
-					: "google_web";
+					: "google";
 			body.code = googleResponse.params.code;
 			body.redirectUri = googleRequest.redirectUri;
 			body.codeVerifier = googleRequest.codeVerifier;
@@ -230,7 +229,9 @@ const RegisterScreen = () => {
 	}, [username]);
 
 	return (
-		<View style={tw.style("flex-1 relative bg-white")}>
+		<View
+			style={tw.style("flex-1 relative bg-white dark:bg-fans-black-1d")}
+		>
 			<ImageBackground
 				source={require("@assets/images/background/login-bg.jpg")}
 				style={tw.style(
@@ -242,7 +243,7 @@ const RegisterScreen = () => {
 				visible={loading}
 				overlayColor="rgba(0,0,0,.5)"
 				color="white"
-				textStyle={tw`text-white`}
+				textStyle={tw`text-white dark:text-fans-black-1d`}
 			/>
 			<ScrollView contentContainerStyle={tw.style("flex-1")}>
 				<View
@@ -274,7 +275,7 @@ const RegisterScreen = () => {
 						style={tw.style(
 							"mt-[-12px] md:mt-13",
 							"flex flex-col rounded-tl-[15px] rounded-tr-[15px] md:rounded-[15px] flex-1",
-							"h-full py-10 px-[18px] bg-white md:pt-9 md:px-10",
+							"h-full py-10 px-[18px] bg-white md:pt-9 md:px-10 dark:bg-fans-black-1d",
 						)}
 					>
 						<View style={tw`flex flex-col gap-2 md:gap-0`}>
@@ -345,16 +346,18 @@ const RegisterScreen = () => {
 								"relative justify-center flex-row md:flex",
 							)}
 						>
-							<Text
+							<FypText
+								fontSize={16}
+								lineHeight={21}
 								style={tw.style(
-									"text-base text-[#b1b1b1] px-3 bg-white leading-[21px] relative z-10",
+									"text-fans-grey-b1 dark:text-fans-grey-70 px-3 bg-white dark:bg-fans-black-1d relative z-10",
 								)}
 							>
 								OR
-							</Text>
+							</FypText>
 							<View
 								style={tw.style(
-									"absolute w-full h-[1px] bg-fans-grey top-[10px]",
+									"absolute w-full h-[1px] bg-fans-grey top-[10px] dark:bg-fans-grey-43",
 								)}
 							></View>
 						</View>
@@ -388,46 +391,52 @@ const RegisterScreen = () => {
 						</View>
 
 						<View style={tw`mt-[18px]`}>
-							<Text
+							<FypText
+								fontSize={12}
+								lineHeight={22}
+								textAlign="center"
 								style={tw.style(
-									"text-[12px] leading-[22px] text-fans-dark-grey text-center font-inter-regular",
+									"text-fans-dark-grey dark:text-fans-grey-b1",
 								)}
 							>
 								By signing up, you agree to our{" "}
-								<Text
+								<FypText
 									style={tw`text-fans-purple underline`}
 									onPress={() => router.push("/terms")}
 								>
 									Terms of Service
-								</Text>{" "}
+								</FypText>{" "}
 								and
-							</Text>
-							<Text
+							</FypText>
+							<FypText
+								fontSize={12}
+								lineHeight={22}
+								textAlign="center"
 								style={tw.style(
-									"text-[12px] leading-[22px] text-fans-dark-grey text-center font-inter-regular",
+									"text-fans-dark-grey dark:text-fans-grey-b1",
 								)}
 							>
-								<Text
+								<FypText
 									style={tw`text-fans-purple underline`}
 									onPress={onGoToPrivacy}
 								>
 									Privacy Policy
-								</Text>
+								</FypText>
 								, and confirm that you are at least 18 years
 								old.
-							</Text>
+							</FypText>
 						</View>
 
 						<View
 							style={tw`mt-10 flex flex-row justify-center items-center md:mt-[46px]`}
 						>
-							<Text
-								style={tw.style(
-									"text-[17px] text-[17px] leading-[22px] font-inter-semibold",
-								)}
+							<FypText
+								fontSize={17}
+								lineHeight={22}
+								fontWeight={600}
 							>
 								Already have an account?
-							</Text>
+							</FypText>
 							<TextButton onPress={handleLogin}>
 								Log in
 							</TextButton>

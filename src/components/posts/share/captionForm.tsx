@@ -6,9 +6,9 @@ import { postPropertyLinks } from "@constants/common";
 import { cdnURL } from "@helper/Utils";
 import tw from "@lib/tailwind";
 import { useFeatureGates } from "@state/featureGates";
-import { PostStepTypes, PostType, ResizeMode } from "@usertypes/commonEnums";
+import { PostStepTypes, PostType } from "@usertypes/commonEnums";
 import { IPostForm, IPostPropertyLink } from "@usertypes/types";
-import { Video } from "expo-av";
+import { Image as ExpoImage } from "expo-image";
 import React, { FC, useEffect, useState } from "react";
 import { Image } from "react-native";
 
@@ -127,12 +127,10 @@ const CaptionForm: FC<Props> = (props) => {
 					}
 				>
 					<FansView width={95} height={95}>
-						<Video
-							source={{
-								uri: cdnURL(data.medias[0]?.uri) ?? "",
-							}}
-							resizeMode={ResizeMode.COVER}
-							style={tw.style("w-full h-full")}
+						<ExpoImage
+							source="LEHV6nWB2yk8pyo0adR*.7kCMdnj"
+							contentFit="cover"
+							style={tw.style("w-[95px] h-[95px] rounded-[7px]")}
 						/>
 					</FansView>
 				</FypNullableView>

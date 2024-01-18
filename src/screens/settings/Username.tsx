@@ -11,13 +11,13 @@ import { ProfileActionType, useAppContext } from "@context/useAppContext";
 import { updateSetting } from "@helper/endpoints/settings/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { SettingsNativeStackParams } from "@usertypes/navigations";
+import { SettingsAccountNativeStackParams } from "@usertypes/navigations";
 import React, { useState } from "react";
 import { TouchableOpacity } from "react-native";
 import ToastMessage from "react-native-toast-message";
 
 const UsernameScreen = (
-	props: NativeStackScreenProps<SettingsNativeStackParams, "Username">,
+	props: NativeStackScreenProps<SettingsAccountNativeStackParams, "Username">,
 ) => {
 	const { navigation } = props;
 
