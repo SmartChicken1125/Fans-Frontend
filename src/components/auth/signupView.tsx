@@ -20,7 +20,6 @@ import { ISignUpForm } from "@usertypes/commonTypes";
 import { setObjectStorage, setStorage } from "@utils/storage";
 import { validateSignUpForm } from "@utils/validateHelper";
 import React, { FC, useEffect, useState } from "react";
-import { Platform } from "react-native";
 import Toast from "react-native-toast-message";
 
 interface Props {
@@ -71,12 +70,7 @@ const SignupView: FC<Props> = (props) => {
 			body.redirectUri = twitterRequest.redirectUri;
 			body.codeVerifier = twitterRequest.codeVerifier;
 		} else if (googleRequest && googleResponse?.type === "success") {
-			provider =
-				Platform.OS === "ios"
-					? "google_ios"
-					: Platform.OS === "android"
-					? "google_android"
-					: "google";
+			provider = "google";
 			body.code = googleResponse.params.code;
 			body.redirectUri = googleRequest.redirectUri;
 			body.codeVerifier = googleRequest.codeVerifier;

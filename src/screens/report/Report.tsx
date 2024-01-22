@@ -36,7 +36,11 @@ const ReportScreen = () => {
 				onSubmit={handleSubmit}
 				onClose={() => {}}
 			/>
-			<ReportModal visible={showReportModal} handleClose={() => {}} />
+			<ReportModal
+				visible={showReportModal}
+				onClose={() => {}}
+				onSubmit={() => {}}
+			/>
 		</View>
 	);
 };

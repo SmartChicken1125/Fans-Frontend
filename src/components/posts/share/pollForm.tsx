@@ -2,19 +2,19 @@ import { PlusSvg } from "@assets/svgs/common";
 import FormControl from "@components/common/FormControl";
 import RoundButton from "@components/common/RoundButton";
 import {
-	FypText,
-	FypDateRangePicker,
-	FypNullableView,
 	FypDropdown,
+	FypNullableView,
 	FypSwitch,
+	FypText,
 } from "@components/common/base";
 import CustomRadio from "@components/common/customRadio";
+import DatePicker from "@components/common/datePicker";
 import { FansDivider } from "@components/controls";
 import { PollAnswer, PreviewImageField } from "@components/posts/common";
 import { timezones } from "@constants/timezones";
 import tw from "@lib/tailwind";
 import { RoundButtonType } from "@usertypes/commonEnums";
-import { IPickerMedia, IPollForm, IDateRange } from "@usertypes/types";
+import { ICalendarDate, IPickerMedia, IPollForm } from "@usertypes/types";
 import useDocumentPicker from "@utils/useDocumentPicker";
 import React, { FC } from "react";
 import { Pressable, View } from "react-native";
@@ -31,7 +31,7 @@ interface Props {
 	onChangeVoteType: (val: string) => void;
 	publicResult: boolean;
 	onChangePublicResult: (val: boolean) => void;
-	handleChangeDuration: (value: IDateRange) => void;
+	handleChangeDate: (value: ICalendarDate) => void;
 	handleCacheData: () => void;
 }
 
@@ -48,7 +48,7 @@ const PollForm: FC<Props> = (props) => {
 		onChangeVoteType,
 		publicResult,
 		onChangePublicResult,
-		handleChangeDuration,
+		handleChangeDate,
 		handleCacheData,
 	} = props;
 	const { useImagePicker } = useDocumentPicker();
@@ -152,16 +152,12 @@ const PollForm: FC<Props> = (props) => {
 
 			<View style={tw.style("px-[18px] md:px-0")}>
 				<View style={tw.style("mb-[30px]")}>
-					<FypDateRangePicker
-						label="Duration"
-						value={{
-							startDate: formData.startDate,
-							endDate: formData.endDate,
-						}}
-						onChangeValue={handleChangeDuration}
+					<DatePicker
+						value={formData.endDate}
+						onChangeValue={handleChangeDate}
 					/>
 				</View>
-				<View style={tw.style("mb-7")}>
+				{/* <View style={tw.style("mb-7")}>
 					<FypText
 						fontSize={17}
 						lineHeight={22}
@@ -180,7 +176,7 @@ const PollForm: FC<Props> = (props) => {
 						hasError={isSubmitted && formData.timezone === ""}
 						validateString="Please select timezone"
 					/>
-				</View>
+				</View> */}
 				<View style={tw.style("mb-4")}>
 					<FypText
 						fontSize={17}

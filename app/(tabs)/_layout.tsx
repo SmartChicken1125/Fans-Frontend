@@ -122,7 +122,7 @@ const NewLayout = () => {
 			})();
 		}
 	}, [userInfo.id]);
-
+	// console.log(screen);
 	return (
 		<Fragment>
 			<Tabs
@@ -361,6 +361,18 @@ const NewLayout = () => {
 					}}
 				/>
 				<Tabs.Screen
+					name="vault"
+					options={{
+						href: null,
+					}}
+				/>
+				<Tabs.Screen
+					name="video-call"
+					options={{
+						href: null,
+					}}
+				/>
+				<Tabs.Screen
 					name="referrals"
 					options={{
 						href: null,
@@ -458,6 +470,85 @@ const NewLayout = () => {
 				/>
 				<Tabs.Screen
 					name="referrals/index"
+					options={{
+						href: null,
+					}}
+				/>
+
+				<Tabs.Screen
+					name="account"
+					options={{
+						href: null,
+					}}
+				/>
+				<Tabs.Screen
+					name="payments"
+					options={{
+						href: null,
+					}}
+				/>
+				<Tabs.Screen
+					name="analytics"
+					options={{
+						href: null,
+					}}
+				/>
+				<Tabs.Screen
+					name="cameo-setup"
+					options={{
+						href: null,
+					}}
+				/>
+				<Tabs.Screen
+					name="connections"
+					options={{
+						href: null,
+					}}
+				/>
+				<Tabs.Screen
+					name="report-abuse"
+					options={{
+						href: null,
+					}}
+				/>
+				<Tabs.Screen
+					name="subscriptions"
+					options={{
+						href: null,
+					}}
+				/>
+				<Tabs.Screen
+					name="automated-chats"
+					options={{
+						href: null,
+					}}
+				/>
+				<Tabs.Screen
+					name="scheduled-posts"
+					options={{
+						href: null,
+					}}
+				/>
+				<Tabs.Screen
+					name="fan-profile-setup"
+					options={{
+						href: null,
+					}}
+				/>
+				<Tabs.Screen
+					name="notifications-option"
+					options={{
+						href: null,
+					}}
+				/>
+				<Tabs.Screen
+					name="video-call-setup-tos"
+					options={{
+						href: null,
+					}}
+				/>
+				<Tabs.Screen
+					name="video-call-setup-edit"
 					options={{
 						href: null,
 					}}

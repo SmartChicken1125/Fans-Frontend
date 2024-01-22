@@ -30,13 +30,7 @@ import { useBlankLink } from "@utils/useBlankLink";
 import { validateSignUpForm } from "@utils/validateHelper";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import {
-	Image,
-	ImageBackground,
-	Platform,
-	ScrollView,
-	View,
-} from "react-native";
+import { Image, ImageBackground, ScrollView, View } from "react-native";
 import Spinner from "react-native-loading-spinner-overlay";
 import Toast from "react-native-toast-message";
 import { useSetRecoilState } from "recoil";
@@ -86,12 +80,7 @@ const RegisterScreen = () => {
 			body.redirectUri = twitterRequest.redirectUri;
 			body.codeVerifier = twitterRequest.codeVerifier;
 		} else if (googleRequest && googleResponse?.type === "success") {
-			provider =
-				Platform.OS === "ios"
-					? "google_ios"
-					: Platform.OS === "android"
-					? "google_android"
-					: "google";
+			provider = "google";
 			body.code = googleResponse.params.code;
 			body.redirectUri = googleRequest.redirectUri;
 			body.codeVerifier = googleRequest.codeVerifier;

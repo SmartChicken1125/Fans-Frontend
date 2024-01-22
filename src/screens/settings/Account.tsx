@@ -537,12 +537,7 @@ const AccountContentView = () => {
 				codeVerifier: googleRequest.codeVerifier,
 			},
 			{
-				provider:
-					Platform.OS === "ios"
-						? "google_ios"
-						: Platform.OS === "android"
-						? "google_android"
-						: "google",
+				provider: "google",
 			},
 		).then(async (resp) => {
 			if (resp.ok) {

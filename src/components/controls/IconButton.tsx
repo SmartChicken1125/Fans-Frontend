@@ -16,7 +16,7 @@ export const FansIconButton: FansIconButtonComponent = (props) => {
 				style={[
 					tw.style(
 						"w-fans-iconbutton h-fans-iconbutton",
-						"flex justify-center items-center",
+						"justify-center items-center",
 						"rounded-full",
 						styles,
 					),

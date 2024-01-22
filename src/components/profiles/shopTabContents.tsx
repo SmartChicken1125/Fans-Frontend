@@ -9,12 +9,16 @@ import {
 import { FypSvg, FypSwitch, FypText } from "@components/common/base";
 import { FansDivider, FansView } from "@components/controls";
 import PostCard from "@components/posts/postCard";
+import { defaultPostFormData } from "@constants/defaultFormData";
 import { PostsActionType, useAppContext } from "@context/useAppContext";
 import tw from "@lib/tailwind";
-import { PostStepTypes } from "@usertypes/commonEnums";
+import { PostStepTypes, PostType } from "@usertypes/commonEnums";
 import { IPost } from "@usertypes/types";
+import useDocumentPicker from "@utils/useDocumentPicker";
+import { useRouter } from "expo-router";
 import React, { FC, useState } from "react";
 import Animated, { PinwheelIn, PinwheelOut } from "react-native-reanimated";
+import Toast from "react-native-toast-message";
 
 interface DescriptionItemProps {
 	title: string;
@@ -275,17 +279,60 @@ const ShopTabContents: FC<ShopTabContentsProps> = (props) => {
 		onClickComment,
 		onClickPostMessage,
 	} = props;
+	const router = useRouter();
 	const { dispatch } = useAppContext();
+	const { useImagePicker } = useDocumentPicker();
 
-	const handleAddNewPaidPost = () => {
-		dispatch.setPosts({
-			type: PostsActionType.updatePostModal,
-			data: {
-				visible: true,
-				step: PostStepTypes.PaidPost,
-			},
-		});
+	const handleOpenImagePicker = async () => {
+		const result = await useImagePicker();
+		if (result.ok) {
+			const medias = result.data;
+			dispatch.setPosts({
+				type: PostsActionType.updatePostForm,
+				data: {
+					...defaultPostFormData,
+					type: PostType.Photo,
+					medias: medias,
+					secondStep: PostStepTypes.PaidPost,
+					thumb:
+						medias.length > 0
+							? medias[0]
+							: defaultPostFormData.thumb,
+				},
+			});
+			router.push({
+				pathname: "posts",
+				params: { screen: "Thumbnail" },
+			});
+		} else {
+			Toast.show({
+				type: "error",
+				text1: result?.message ?? "",
+			});
+		}
 	};
+
+	const handleAddNewPaidPost = async () => {
+		if (tw.prefixMatch("md")) {
+			dispatch.setPosts({
+				type: PostsActionType.updatePostForm,
+				data: {
+					type: PostType.Photo,
+					secondStep: PostStepTypes.PaidPost,
+				},
+			});
+			dispatch.setPosts({
+				type: PostsActionType.updatePostModal,
+				data: {
+					visible: true,
+					step: PostStepTypes.Thumbnail,
+				},
+			});
+		} else {
+			handleOpenImagePicker();
+		}
+	};
+
 	return (
 		<FansView>
 			{posts.length === 0 ? (

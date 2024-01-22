@@ -12,6 +12,7 @@ import {
 	ChatConversationMessagesRespBody,
 	ChatFansListRespBody,
 	ChatIdParams,
+	ChatDeleteMessageIdParams,
 	ChatUserIdParams,
 	ChatWSInfoRespBody,
 	ChatNoteReqBody,
@@ -43,6 +44,11 @@ export const createTextMessage = createPOSTWithParams<
 	IMessage,
 	ChatIdParams
 >("/chat/conversations/:id/messages", true);
+
+export const deleteMessage = createDELETEWithParams<
+	ChatIdParams,
+	ChatDeleteMessageIdParams
+>("/chat/conversations/:id/messages/:messageId", true);
 
 export const getNotes = createGET<ChatNoteRespBody>("/chat/notes", true);
 

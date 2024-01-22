@@ -41,7 +41,9 @@ const SubscriptionButton: FC<Props> = (props) => {
 					(data.price *
 						(100 - parseFloat(campaign.discount as string))) /
 						100,
-				).toFixed(2)}/month`;
+				).toFixed(2)}/${campaign.duration} ${
+					(campaign.duration as number) > 1 ? "months" : "month"
+				}`;
 			}
 		} else {
 			return data.price === 0 ? "FOR FREE" : `$${data.price}/month`;
@@ -67,11 +69,16 @@ const SubscriptionButton: FC<Props> = (props) => {
 				<FansText
 					fontSize={16}
 					lineHeight={21}
-					style={tw.style("text-white")}
+					style={tw.style(
+						"text-white",
+						campaign && campaign.type === PromotionType.Discount
+							? "mr-5"
+							: "",
+					)}
 				>
 					{getValueString()}
 				</FansText>
-				{campaign ? (
+				{campaign && campaign.type === PromotionType.FreeTrial ? (
 					<View
 						style={tw.style(
 							"h-7.5 rounded-[15px] bg-fans-purple-light flex-row items-center px-4 ml-2",
@@ -82,9 +89,7 @@ const SubscriptionButton: FC<Props> = (props) => {
 							lineHeight={17}
 							style={tw.style("text-fans-purple font-semibold")}
 						>
-							{campaign.type === PromotionType.Discount
-								? `${campaign.discount}% OFF`
-								: "FREE"}
+							FREE
 						</FansText>
 					</View>
 				) : null}

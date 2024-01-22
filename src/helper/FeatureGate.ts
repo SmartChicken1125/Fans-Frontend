@@ -145,6 +145,14 @@ export const featureGates = {
 		description: "New exclusive post form",
 		production: false,
 	},
+	"2024_01-rejoin-active-video-call": {
+		description: "Re-join active video call",
+		production: false,
+	},
+	"2024_01-purchases-search-filter": {
+		description: "Search filed and filter options in purchase page",
+		production: false,
+	},
 } satisfies Record<string, IFeatureGateData>; // Note, it's year_month-feature-name, not year_month_feature-name!!!
 
 export type ValidFeatureGateNames = keyof typeof featureGates;

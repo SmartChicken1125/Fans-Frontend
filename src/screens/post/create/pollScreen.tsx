@@ -5,13 +5,13 @@ import {
 	defaultPollFormData,
 	defaultPostFormData,
 } from "@constants/defaultFormData";
-import { useAppContext, PostsActionType } from "@context/useAppContext";
+import { PostsActionType, useAppContext } from "@context/useAppContext";
 import { createPost } from "@helper/endpoints/post/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { PostType, MediaType } from "@usertypes/commonEnums";
+import { MediaType, PostType } from "@usertypes/commonEnums";
 import { PostsNavigationStacks } from "@usertypes/navigations";
-import { IPollForm, IPickerMedia, IDateRange } from "@usertypes/types";
+import { ICalendarDate, IPickerMedia, IPollForm } from "@usertypes/types";
 import useUploadFiles from "@utils/useUploadFile";
 import { useRouter } from "expo-router";
 import moment from "moment";
@@ -70,10 +70,10 @@ const PollScreen = (
 		});
 	};
 
-	const handleChangeDuration = (value: IDateRange) => {
+	const handleChangeDate = (value: ICalendarDate) => {
 		setFormData({
 			...formData,
-			...value,
+			endDate: value,
 		});
 	};
 
@@ -104,9 +104,6 @@ const PollScreen = (
 			poll: {
 				..._formData,
 				thumbId: coverImgId,
-				startDate: moment(formData.startDate)
-					.utcOffset("+000", true)
-					.format(),
 				endDate: moment(formData.endDate)
 					.utcOffset("+000", true)
 					.format(),
@@ -183,7 +180,7 @@ const PollScreen = (
 					onChangeVoteType={(val) => setVoteType(val)}
 					publicResult={publicResult}
 					onChangePublicResult={(val) => setPublicResult(val)}
-					handleChangeDuration={handleChangeDuration}
+					handleChangeDate={handleChangeDate}
 					handleCacheData={() => {}}
 				/>
 			</ScrollView>

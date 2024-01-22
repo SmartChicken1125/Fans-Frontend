@@ -1,7 +1,6 @@
-import { Search1Svg, WarningCircledSvg } from "@assets/svgs/common";
-import { ImageImage } from "@assets/svgs/images";
-import RoundButton from "@components/common/RoundButton";
+import { Photos1Svg, Search1Svg, WarningCircledSvg } from "@assets/svgs/common";
 import {
+	FansButton3,
 	FansDropdown,
 	FansGap,
 	FansScreen3,
@@ -10,6 +9,8 @@ import {
 	FansTextInput5,
 	FansView,
 } from "@components/controls";
+import { ReportModal } from "@components/modals/report";
+import { JoinProgramCard } from "@components/refer";
 import SettingsNavigationHeader from "@components/screens/settings/SettingsNavigationHeader";
 import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
 import tw from "@lib/tailwind";
@@ -17,7 +18,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SettingsReportAbuseNativeStackParams } from "@usertypes/navigations";
 import { getColorStyle } from "@usertypes/styles";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 
 const Stack =
 	createNativeStackNavigator<SettingsReportAbuseNativeStackParams>();
@@ -42,6 +43,7 @@ const SettingsReportAbuseNativeStack = () => {
 };
 
 const ReportAbuseContentView = () => {
+	const [isReportModalVisible, setReportModalVisible] = useState(false);
 	/*return (
 		<ScrollView>
 			<View style={tw.style("flex-column gap-[20px]", "m-[15px]")}>
@@ -91,6 +93,19 @@ const ReportAbuseContentView = () => {
 			</View>
 		</ScrollView>
 	);*/
+
+	const handleCloseReportModal = () => {
+		setReportModalVisible(false);
+	};
+
+	const handlePressContact = () => {
+		window.open("https://support.fyp.fans/", "_blank");
+	};
+
+	const handlePressReport = () => {
+		setReportModalVisible(true);
+	};
+
 	return (
 		<FansScreen3 contentStyle1={{ maxWidth: { lg: 670 } }}>
 			<FansGap height={{ lg: 40 }} />
@@ -186,9 +201,7 @@ const ReportAbuseContentView = () => {
 					"flex justify-center items-center",
 				)}
 			>
-				<FansView style={tw.style("w-[77.44px] h-[70.96px]")}>
-					<ImageImage />
-				</FansView>
+				<FansSvg width={77.44} height={70.96} svg={Photos1Svg} />
 				<FansGap height={13.3} />
 				<FansText style={tw.style("text-[17px]")}>
 					Drop image here or{" "}
@@ -203,7 +216,7 @@ const ReportAbuseContentView = () => {
 				</FansText>
 			</FansView>
 			<FansGap height={33.6} />
-			<RoundButton>Report</RoundButton>
+			<FansButton3 title="Report" onPress={handlePressReport} />
 			<FansGap height={16.4} />
 			<FansText
 				style={tw.style(
@@ -212,16 +225,24 @@ const ReportAbuseContentView = () => {
 				)}
 			>
 				Need help?{"\n"}
-				<FansText
-					style={tw.style(
-						"font-inter-semibold",
-						"text-[17px] text-fans-purple",
-					)}
+				<FansView
+					touchableOpacityProps={{ onPress: handlePressContact }}
 				>
-					Contact
-				</FansText>{" "}
+					<FansText
+						color="purple-a8"
+						fontFamily="inter-semibold"
+						fontSize={17}
+					>
+						Contact
+					</FansText>
+				</FansView>{" "}
 				our 24/7 support team
 			</FansText>
+			<ReportModal
+				visible={isReportModalVisible}
+				onClose={handleCloseReportModal}
+				onSubmit={() => {}}
+			/>
 		</FansScreen3>
 	);
 };

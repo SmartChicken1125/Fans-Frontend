@@ -1,47 +1,64 @@
 import {
-	createPOST,
+	createDELETEWithParams,
 	createGET,
 	createGETWithParams,
+	createPOST,
 	createPOSTWithParams,
-	createDELETEWithParams,
+	createPUTWithParams,
 } from "@helper/RequesterBase";
 import { IdParams } from "@usertypes/params";
-import { IStory } from "@usertypes/types";
 import {
-	RepliesRespBody,
-	AddStoryCommentReqBody,
-	StoriesFeedRespBody,
+	StoriesRespBody,
+	StoryCreateReqBody,
+	StoryFeedRespBody,
+	StoryRespBody,
 } from "./schemas";
 
-export const getStoriesFeed = createGET<StoriesFeedRespBody>(
+export const getStories = createGET<StoriesRespBody>("/stories", true);
+
+export const getStoryById = createGETWithParams<StoryRespBody, IdParams>(
+	"/stories/:id",
+	true,
+);
+
+export const createStory = createPOST<StoryCreateReqBody, StoryRespBody>(
+	"/stories",
+	true,
+);
+
+export const archiveStory = createPUTWithParams<unknown, unknown, IdParams>(
+	"/stories/archive/:id",
+	true,
+);
+
+export const deleteStory = createDELETEWithParams<unknown, never, IdParams>(
+	"/stories/:id",
+	true,
+);
+
+export const getStoriesFeed = createGET<StoryFeedRespBody>(
 	"/stories/feed",
 	true,
 );
-export const storyLike = createPOSTWithParams<null, IStory, IdParams>(
+
+export const storyLike = createPOSTWithParams<null, StoryRespBody, IdParams>(
 	"/stories/like/:id",
 	true,
 );
-export const unlikeStoryById = createDELETEWithParams<null, IStory, IdParams>(
-	"/stories/like/:id",
-	true,
-);
-export const getStoryCommentsByPostId = createGETWithParams<
-	RepliesRespBody,
+
+export const unlikeStoryById = createDELETEWithParams<
+	null,
+	StoryRespBody,
 	IdParams
->("/story/comments/reply/:id", true);
-export const addStoryComment = createPOST<AddStoryCommentReqBody, never>(
-	"/story/comments",
-	true,
-);
-export const likeStoryComment = createPOSTWithParams<null, never, IdParams>(
-	"/story/comments/like/:id",
-	true,
-);
-export const unlikeStoryComment = createDELETEWithParams<null, never, IdParams>(
-	"/story/comments/reply/:id",
-	true,
-);
-export const deleteCommentById = createDELETEWithParams<null, never, IdParams>(
-	"/story/comments/:id",
+>("/stories/like/:id", true);
+
+export const shareStoryById = createPOSTWithParams<
+	null,
+	StoryRespBody,
+	IdParams
+>("/stories/share/:id", true);
+
+export const hideFeedStoryById = createPOSTWithParams<null, never, IdParams>(
+	"/stories/hide-feed/:id",
 	true,
 );

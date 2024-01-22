@@ -1,9 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { ChatRoom } from "@screens/rooms/fans/ChatRoom";
-import { ChatRoomHeader } from "@screens/rooms/fans/ChatRoomHeader";
 import { PostsNavigationStacks } from "@usertypes/navigations";
 import React from "react";
-import PostDesignScreen from "./PostDesignScreen";
 import {
 	AddGiveAwayScreen,
 	AdvancedSettingsScreen,
@@ -28,6 +25,7 @@ import {
 	VaultScreen,
 	NewTierScreen,
 } from "./create";
+import PostsHomeScreen from "./postsHomeScreen";
 
 const Stack = createNativeStackNavigator<PostsNavigationStacks>();
 
@@ -36,7 +34,7 @@ const Layout = () => {
 		<Stack.Navigator initialRouteName="Home">
 			<Stack.Screen
 				name="Home"
-				component={PostDesignScreen}
+				component={PostsHomeScreen}
 				options={{
 					headerShown: false,
 				}}
@@ -70,25 +68,6 @@ const Layout = () => {
 					headerShown: false,
 				}}
 			/>
-			<Stack.Screen
-				name="Chatroom"
-				component={ChatRoom}
-				options={({ navigation, route }) => ({
-					header: (props) => (
-						<ChatRoomHeader
-							{...props}
-							navigation={navigation}
-							route={route}
-						/>
-					),
-					headerStyle: {
-						backgroundColor: "black",
-					},
-					headerTintColor: "white",
-					headerTitle: "",
-				})}
-			/>
-
 			<Stack.Screen
 				name="Caption"
 				component={CaptionScreen}

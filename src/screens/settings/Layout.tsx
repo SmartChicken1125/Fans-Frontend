@@ -11,9 +11,9 @@ import { Redirect, useRouter } from "expo-router";
 import React from "react";
 import { SettingsScreenContent } from "./Settings";
 
-const router = useRouter();
-
 const SettingsLayout = () => {
+	const router = useRouter();
+
 	const handlePress = () => {
 		if (router.canGoBack()) {
 			router.back();

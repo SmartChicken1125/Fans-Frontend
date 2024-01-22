@@ -15,10 +15,10 @@ import {
 	ProfileActionType,
 	useAppContext,
 } from "@context/useAppContext";
-import { createStory } from "@helper/endpoints/post/apis";
+import { createStory } from "@helper/endpoints/stories/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { MediaType, PostType } from "@usertypes/commonEnums";
+import { MediaType, PostStepTypes, PostType } from "@usertypes/commonEnums";
 import { PostsNavigationStacks } from "@usertypes/navigations";
 import { IPickerMedia } from "@usertypes/types";
 import { getPostTitleIcon } from "@utils/posts";
@@ -135,7 +135,11 @@ const ThumbnailScreen = (
 					},
 				});
 			}
-			navigation.navigate("Caption");
+			navigation.navigate(
+				postForm.secondStep === PostStepTypes.PaidPost
+					? "PaidPost"
+					: "Caption",
+			);
 		}
 	};
 

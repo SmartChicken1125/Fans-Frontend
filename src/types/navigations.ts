@@ -352,3 +352,8 @@ export type SupportNativeStackScreenProps<T extends SupportNativeStackScreens> =
 export type VaultNavigationStacks = {
 	Home: undefined;
 };
+
+export type VideoCallStackParams = {
+	Creator: undefined;
+	Fan: undefined;
+};

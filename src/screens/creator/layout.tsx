@@ -1,11 +1,11 @@
 import { FansText } from "@components/controls";
 import { CommonActionType, useAppContext } from "@context/useAppContext";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import OrderVideoCallScreen from "@screens/rooms/fans/OrderVideoCall";
 import ReferAndEarnScreen from "@screens/settings/referral/ReferAndEarn";
 import { CreatorProfileNavigationStacks } from "@usertypes/navigations";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect } from "react";
+import OrderVideoCallScreen from "./orderVideoCall";
 import PostInteractiveScreen from "./postInteractiveScreen";
 import PreviewScreen from "./previewScreen";
 import ProfileScreen from "./profileScreen";

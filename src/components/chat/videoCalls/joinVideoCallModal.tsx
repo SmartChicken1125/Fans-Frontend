@@ -76,51 +76,62 @@ const JoinVideoCallModal: FC<Props> = (props) => {
 				/>
 
 				<FansIconButton
-					size={tw.prefixMatch("md") ? 30 : 25}
-					backgroundColor={
-						tw.prefixMatch("md")
-							? "bg-fans-white"
-							: "bg-fans-white/30"
-					}
+					size={25}
+					backgroundColor="bg-fans-white/30"
 					onPress={handleClose}
 					style={tw.style(
-						"absolute top-4 right-[18px] md:top-17 md:right-[142px] z-10",
+						"absolute top-4 right-[18px] z-10 md:hidden",
 					)}
 				>
 					<FypSvg
 						svg={CloseSvg}
-						width={{ xs: 10, md: 13 }}
-						height={{ xs: 10, md: 13 }}
-						color={
-							tw.prefixMatch("md") ? "fans-black" : "fans-white"
-						}
+						width={10}
+						height={10}
+						color="fans-white"
 					/>
 				</FansIconButton>
+				<FypText
+					fontSize={42}
+					lineHeight={56}
+					fontWeight={600}
+					textAlign="center"
+					style={tw.style(
+						"md:hidden mt-[22px] text-fans-white mb-25",
+					)}
+				>
+					00:04:59
+				</FypText>
 				{receiver ? (
-					<FansView alignItems="center">
+					<FansView
+						alignItems="center"
+						style={tw.style(!tw.prefixMatch("md") ? "flex-1" : "")}
+					>
 						<FansView
 							position="relative"
-							width={137}
-							height={137}
-							margin={{ b: 28 }}
+							width={{ xs: 109, md: 137 }}
+							height={{ xs: 109, md: 137 }}
+							style={tw.style("mb-5 md:mb-7")}
 						>
-							<UserAvatar image={receiver.avatar} size="137px" />
+							<UserAvatar
+								image={receiver.avatar}
+								size={tw.prefixMatch("md") ? "137px" : "109px"}
+							/>
 							<FypLinearGradientView
 								colors={["#1d21E5", "#a854f5", "#d885ff"]}
-								width={57}
-								height={57}
+								width={{ xs: 42, md: 57 }}
+								height={{ xs: 42, md: 57 }}
 								borderRadius={57}
 								alignItems="center"
 								justifyContent="center"
 								position="absolute"
 								style={tw.style(
-									"border-[4px] border-fans-black-39 bottom-[-11.5px] right-0",
+									"border-[4px] border-fans-black-39 bottom-[-10px] right-0",
 								)}
 							>
 								<FypSvg
 									svg={VideoRecordSvg}
-									width={26}
-									height={26}
+									width={{ xs: 18, md: 26 }}
+									height={{ xs: 17, md: 26 }}
 									color="fans-white"
 								/>
 							</FypLinearGradientView>
@@ -131,7 +142,7 @@ const JoinVideoCallModal: FC<Props> = (props) => {
 							fontWeight={700}
 							textAlign="center"
 							style={tw.style(
-								"text-fans-white mb-9 md:mb-[66px]",
+								"text-fans-white mb-8 md:mb-[66px]",
 							)}
 						>
 							Video call with{`\n`}
@@ -143,7 +154,7 @@ const JoinVideoCallModal: FC<Props> = (props) => {
 							borderRadius={30}
 							margin={{ b: 15 }}
 							justifyContent="center"
-							style={tw.style("bg-fans-grey-70")}
+							style={tw.style("bg-fans-grey-70 hidden md:flex")}
 						>
 							<FypText
 								fontSize={13}
@@ -161,7 +172,7 @@ const JoinVideoCallModal: FC<Props> = (props) => {
 							lineHeight={28}
 							textAlign="center"
 							style={tw.style(
-								"text-fans-white mb-10 md:mb-[66px]",
+								"text-fans-white mb-10 md:mb-[66px] hidden md:flex",
 							)}
 						>
 							{tw.prefixMatch("md")
@@ -172,6 +183,9 @@ const JoinVideoCallModal: FC<Props> = (props) => {
 						<FansView
 							style={tw.style(
 								"flex-col-reverse md:flex-col gap-[68px] md:gap-30",
+								tw.prefixMatch("md")
+									? ""
+									: "flex-1 justify-between",
 							)}
 						>
 							<FansView alignItems="center">
@@ -231,9 +245,8 @@ const JoinVideoCallModal: FC<Props> = (props) => {
 									width={184}
 									borderRadius={34}
 									padding={{ l: 24, r: 18 }}
-									margin={{ b: 23 }}
 									style={tw.style(
-										"bg-fans-grey-70",
+										"bg-fans-grey-70 mb-3 md:mb-6",
 										isRecordAll && "bg-fans-white",
 									)}
 									pressableProps={{

@@ -19,6 +19,7 @@ module.exports = {
 				"fans-black-2f": "#2F2F2F",
 				"fans-black-1d": "#1D1D1D",
 				"fans-black-33": "#333333",
+				"fans-black-34": "#342113",
 				"fans-black-39": "#393939",
 				"fans-blue": {
 					DEFAULT: "#5865F2",
@@ -44,6 +45,7 @@ module.exports = {
 				"fans-purple-f6": "#F6EDFF",
 				"fans-purple-47": "#473656",
 				"fans-purple-6a": "#6a1de5",
+				"fans-purple-76": "#7642EF",
 				"fans-purple-84": "#8447F1",
 				"fans-green": "#4DCC36",
 				"fans-green-4d": "#4DCC36",

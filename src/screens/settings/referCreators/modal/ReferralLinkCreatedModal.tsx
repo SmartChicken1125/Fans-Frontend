@@ -20,7 +20,7 @@ import { IFansModal } from "@usertypes/components";
 import { useBlankLink } from "@utils/useBlankLink";
 import { setStringAsync } from "expo-clipboard";
 import React, { useState } from "react";
-import { View, Image } from "react-native";
+import { Image, Platform, View } from "react-native";
 import { IconButton } from "react-native-paper";
 import ToastMessage from "react-native-toast-message";
 
@@ -206,10 +206,32 @@ const ReferralLinkCreatedModal: IFansModal = (props) => {
 											);
 											break;
 										case 2: // Instagram
-											openLink(
-												"https://instagram.com/share?text=" +
-													encodeURIComponent(link),
-											);
+											if (Platform.OS !== "web") {
+												import(
+													"react-native-share"
+												).then(
+													({
+														default: Share,
+														Social,
+													}) => {
+														try {
+															Share.shareSingle({
+																message:
+																	encodeURIComponent(
+																		link,
+																	),
+																social: Social.Instagram,
+																type: "text/plain",
+															});
+														} catch (error) {
+															console.log(
+																"Error =>",
+																error,
+															);
+														}
+													},
+												);
+											}
 											break;
 										default: // Whatsapp
 											openLink(

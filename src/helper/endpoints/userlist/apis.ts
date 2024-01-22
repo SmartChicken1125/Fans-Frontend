@@ -7,12 +7,13 @@ import {
 	createPOSTWithParams,
 } from "@helper/RequesterBase";
 import { IdParams } from "@usertypes/params";
+import { IUserList } from "@usertypes/types";
 import {
 	UserlistCreateReqBody,
 	UserlistUpdateReqBody,
 	UserlistsRespBody,
-	UserlistRespBody,
 	SubscribedProfilesRespBody,
+	UserlistRespBody,
 } from "./schemas";
 
 export const getUserlists = createGET<UserlistsRespBody>("/userlists", true);

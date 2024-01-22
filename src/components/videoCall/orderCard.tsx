@@ -1,10 +1,16 @@
-import { Clock1Svg, CalendarSvg } from "@assets/svgs/common";
+import {
+	Clock1Svg,
+	CalendarSvg,
+	Check1Svg,
+	BlockSvg,
+} from "@assets/svgs/common";
 import UserAvatar from "@components/avatar/UserAvatar";
 import {
 	FypLinearGradientView,
 	FypText,
 	FypSvg,
 	FypButton2,
+	FypNullableView,
 } from "@components/common/base";
 import { FansView, FansDivider } from "@components/controls";
 import tw from "@lib/tailwind";
@@ -45,12 +51,31 @@ const OrderCard: FC<Props> = (props) => {
 				gap={8}
 				margin={{ b: 6 }}
 			>
-				<FypSvg
-					svg={Clock1Svg}
-					width={10}
-					height={10}
-					color="fans-white"
-				/>
+				<FypNullableView visible={status === "active"}>
+					<FypSvg
+						svg={Clock1Svg}
+						width={10}
+						height={10}
+						color="fans-white"
+					/>
+				</FypNullableView>
+				<FypNullableView visible={status === "fulfilled"}>
+					<FypSvg
+						svg={Check1Svg}
+						width={12}
+						height={8}
+						color="fans-white"
+					/>
+				</FypNullableView>
+				<FypNullableView visible={status === "refunded"}>
+					<FypSvg
+						svg={BlockSvg}
+						width={10}
+						height={10}
+						color="fans-white"
+					/>
+				</FypNullableView>
+
 				<FypText
 					fontSize={13}
 					lineHeight={13}
@@ -115,7 +140,11 @@ const OrderCard: FC<Props> = (props) => {
 					</FansView>
 
 					<FypLinearGradientView
-						colors={["#24A2FF", "#23C9B1", "#89F276"]}
+						colors={
+							status !== "refunded"
+								? ["#24A2FF", "#23C9B1", "#89F276"]
+								: ["#b1b1b1", "#b1b1b1"]
+						}
 						start={[0, 1]}
 						end={[1, 0]}
 						height={26}
@@ -171,7 +200,6 @@ const OrderCard: FC<Props> = (props) => {
 					<FypText
 						fontSize={16}
 						lineHeight={21}
-						margin={{ b: 26 }}
 						style={tw.style(
 							"text-fans-grey-48 dark:text-fans-grey-b1",
 						)}
@@ -179,48 +207,70 @@ const OrderCard: FC<Props> = (props) => {
 						It's my friend's birthday and I'd like you to give him a
 						special surprise....
 					</FypText>
-					<FansView flexDirection="row" gap={8}>
+					{status === "active" ? (
+						<>
+							<FansView
+								flexDirection="row"
+								gap={8}
+								margin={{ t: 26 }}
+							>
+								<FypButton2
+									style={tw.style(
+										"border border-fans-grey-48 dark:border-fans-grey-b1 flex-1",
+									)}
+									textStyle={tw.style(
+										"text-fans-grey-48 dark:text-fans-grey-48",
+									)}
+								>
+									Cancel
+								</FypButton2>
+								<FypButton2
+									style={tw.style(
+										"bg-fans-black dark:bg-fans-white flex-1",
+									)}
+									textStyle={tw.style(
+										"text-fans-white dark:text-fans-black-1d",
+									)}
+								>
+									Join
+								</FypButton2>
+							</FansView>
+							<FansView
+								flexDirection="row"
+								alignItems="center"
+								justifyContent="center"
+								gap={13}
+								margin={{ t: 14 }}
+							>
+								<FypSvg
+									svg={CalendarSvg}
+									width={14}
+									height={16}
+									color="fans-purple"
+								/>
+								<FypText
+									fontSize={17}
+									lineHeight={22}
+									fontWeight={600}
+									style={tw.style("text-fans-purple")}
+								>
+									Add to Calendar
+								</FypText>
+							</FansView>
+						</>
+					) : null}
+					{status === "fulfilled" ? (
 						<FypButton2
 							style={tw.style(
-								"border border-fans-grey-48 dark:border-fans-grey-b1",
+								"border border-fans-grey-48 dark:border-fans-grey-b1 mt-[26px]",
 							)}
 							textStyle={tw.style(
 								"text-fans-grey-48 dark:text-fans-grey-48",
 							)}
 						>
-							Cancel
+							Refund
 						</FypButton2>
-						<FypButton2
-							style={tw.style("bg-fans-black dark:bg-fans-white")}
-							textStyle={tw.style(
-								"text-fans-white dark:text-fans-black-1d",
-							)}
-						>
-							Join
-						</FypButton2>
-					</FansView>
-					<FansView
-						flexDirection="row"
-						alignItems="center"
-						justifyContent="center"
-						gap={13}
-						margin={{ t: 14 }}
-					>
-						<FypSvg
-							svg={CalendarSvg}
-							width={14}
-							height={16}
-							color="fans-purple"
-						/>
-						<FypText
-							fontSize={17}
-							lineHeight={22}
-							fontWeight={600}
-							style={tw.style("text-fans-purple")}
-						>
-							Add to Calendar
-						</FypText>
-					</FansView>
+					) : null}
 				</FansView>
 			</FansView>
 		</FypLinearGradientView>

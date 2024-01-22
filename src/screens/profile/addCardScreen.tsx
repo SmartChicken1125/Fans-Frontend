@@ -1,4 +1,4 @@
-import { CvcSvg, PhotoCameraSvg, OutlinedInfoSvg } from "@assets/svgs/common";
+import { CvcSvg, PhotoCameraSvg } from "@assets/svgs/common";
 import RoundButton from "@components/common/RoundButton";
 import RoundTextInput from "@components/common/RoundTextInput";
 import TextButton from "@components/common/TextButton";
@@ -26,7 +26,6 @@ import {
 	AUTHORIZE_NET_ENVIRONMENT,
 } from "@env";
 import { addPaymentMethod } from "@helper/endpoints/subscriptions/apis";
-import countries from "@helper/geo/country.json";
 import states from "@helper/geo/state.json";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -35,7 +34,7 @@ import { IPaymentCard } from "@usertypes/types";
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
 import { useAcceptJs } from "react-acceptjs";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ToastMessage from "react-native-toast-message";
 
@@ -50,17 +49,6 @@ const AddCardScreen = (
 	const router = useRouter();
 
 	const { dispatch } = useAppContext();
-	const countryOptions = useMemo(
-		() =>
-			countries
-				.map((el) => ({
-					data: el.isoCode,
-					label: el.name,
-					flag: el.flag,
-				}))
-				.sort((a, b) => a.label.localeCompare(b.label)),
-		[],
-	);
 
 	const [isConfirm, setConfirm] = useState(false);
 	const [country, setCountry] = useState("");
@@ -280,6 +268,7 @@ const AddCardScreen = (
 												setState(val as string)
 											}
 											placeholder="Select State"
+											search
 										/>
 									</View>
 								)}

@@ -13,6 +13,8 @@ import {
 	WarningSvg,
 	LockSvg,
 	Record1Svg,
+	ThreeDotsVerticalSvg,
+	ReplyArrowSvg,
 } from "@assets/svgs/common";
 import OnlineAvatar from "@components/avatar/OnlineAvatar";
 import UserAvatar from "@components/avatar/UserAvatar";
@@ -61,7 +63,97 @@ import {
 } from "react-native";
 import { TapGestureHandler } from "react-native-gesture-handler";
 import { Menu } from "react-native-paper";
+import { Popable, usePopable } from "react-native-popable";
+import Toast from "react-native-toast-message";
 import { useRecoilValue } from "recoil";
+
+const MessageOptionsMenu = ({
+	isSelf,
+	message,
+	onDeleteMessage,
+	onReplyMessage,
+}: {
+	isSelf?: boolean;
+	message: IMessage;
+	onDeleteMessage: (message: IMessage) => void;
+	onReplyMessage: (message: IMessage) => void;
+}) => {
+	const [ref, { hide }] = usePopable();
+
+	const onClose = () => hide();
+
+	const onCopy = () => {
+		navigator.clipboard.writeText(message.content);
+		Toast.show({
+			type: "success",
+			text1: "Message copied",
+		});
+		onClose();
+	};
+
+	const onReply = () => {
+		onReplyMessage(message);
+		onClose();
+	};
+
+	const onUnsend = () => {
+		onDeleteMessage(message);
+		onClose();
+	};
+
+	return (
+		<Popable
+			ref={ref}
+			action="press"
+			position={isSelf ? "left" : "right"}
+			style={tw.style("w-100")}
+			content={
+				<View style={tw.style("bg-fans-black-1d rounded-[10px] p-2")}>
+					<View style={tw.style("flex-row justify-evenly")}>
+						<FansText
+							onPress={onCopy}
+							style={tw.style("text-white text-sm ml-1")}
+						>
+							Copy
+						</FansText>
+						<FansText style={tw.style("text-white text-sm")}>
+							Like
+						</FansText>
+						<FansText
+							style={tw.style("text-white text-sm")}
+							onPress={onReply}
+						>
+							Reply
+						</FansText>
+						<FansText style={tw.style("text-white text-sm")}>
+							Pin
+						</FansText>
+						{isSelf && (
+							<FansText
+								onPress={onUnsend}
+								style={tw.style("text-white text-sm")}
+							>
+								Unsend
+							</FansText>
+						)}
+						{!isSelf && (
+							<FansText style={tw.style("text-white text-sm")}>
+								Report
+							</FansText>
+						)}
+					</View>
+				</View>
+			}
+		>
+			<FansSvg
+				width={4}
+				height={16}
+				svg={ThreeDotsVerticalSvg}
+				color1="grey-70"
+			/>
+		</Popable>
+	);
+};
 
 const MessageMenu = () => {
 	const [open, setOpen] = useState(false);
@@ -156,13 +248,63 @@ const ReactionMenu = () => {
 	);
 };
 
-const SelfMessage = ({ message }: { message: IMessage }) => (
+const SelfMessage = ({
+	message,
+	onDeleteMessage,
+	onReplyMessage,
+}: {
+	message: IMessage;
+	onDeleteMessage: (message: IMessage) => void;
+	onReplyMessage: (message: IMessage) => void;
+}) => (
 	<View
-		style={tw`bg-fans-purple self-end px-[15px] py-[8px] rounded-l-2xl rounded-tr-2xl max-w-full md:max-w-[80%]`}
+		style={tw`flex-row items-center self-end max-w-full md:max-w-[80%] ${
+			message.parentMessage ? "mt-[40px]" : ""
+		}`}
 	>
-		<FansText color="white" fontSize={18}>
-			{message.content}
-		</FansText>
+		<View style={tw`flex-1 min-w-0`}>
+			<View style={tw`flex-row justify-end items-center gap-2.5`}>
+				<MessageOptionsMenu
+					message={message}
+					onDeleteMessage={onDeleteMessage}
+					onReplyMessage={onReplyMessage}
+					isSelf
+				/>
+				{message.parentMessage && (
+					<View
+						style={tw.style(
+							"flex-row items-center gap-2.5 max-w-full md:max-w-[80%] absolute top-[-40px] right-0 justify-end",
+						)}
+					>
+						<UserAvatar
+							size="24px"
+							image={message.user.avatar ?? undefined}
+						/>
+						<View style={tw.style("relative")}>
+							<View style={tw`px-[5px] py-[8px]`}>
+								<FansText fontSize={16}>
+									{message.parentMessage.content}
+								</FansText>
+							</View>
+						</View>
+						<FypSvg
+							svg={ReplyArrowSvg}
+							width={17}
+							height={17}
+							color="fans-black dark:fans-white"
+							style={{ transform: "rotate(180deg) scaleY(-1)" }}
+						/>
+					</View>
+				)}
+				<View
+					style={tw`bg-fans-purple px-[15px] py-[8px] rounded-l-2xl rounded-tr-2xl max-w-full overflow-hidden`}
+				>
+					<FansText color="white" fontSize={18} style={tw`truncate`}>
+						{message.content}
+					</FansText>
+				</View>
+			</View>
+		</View>
 	</View>
 );
 
@@ -218,16 +360,24 @@ const FromMessage = ({
 	message,
 	handleActivatedDoubleTapMessage,
 	handleActivatedTapMessage,
+	onDeleteMessage,
+	onReplyMessage,
 }: {
 	message: IMessage;
 	handleActivatedDoubleTapMessage: () => void;
 	handleActivatedTapMessage: () => void;
+	onDeleteMessage: (message: IMessage) => void;
+	onReplyMessage: (message: IMessage) => void;
 }) => {
 	const doubleTapRef = useRef();
 	const singleTapRef = useRef();
 
 	return (
-		<View style={tw`flex-row gap-2.5 self-start max-w-full md:max-w-[80%]`}>
+		<View
+			style={tw`flex-row items-center gap-2.5 self-start max-w-full md:max-w-[80%] ${
+				message.parentMessage ? "mt-[40px]" : ""
+			}`}
+		>
 			<UserAvatar size="34px" image={message.user.avatar ?? undefined} />
 			<View style={tw`flex shrink`}>
 				<TapGestureHandler
@@ -247,6 +397,27 @@ const FromMessage = ({
 								message.emoji ? "mb-5" : undefined,
 							)}
 						>
+							{message.parentMessage && (
+								<View
+									style={tw.style(
+										"flex-row items-center gap-2.5 max-w-full md:max-w-[80%] absolute top-[-40px]",
+									)}
+								>
+									<FypSvg
+										svg={ReplyArrowSvg}
+										width={17}
+										height={17}
+										color="fans-black dark:fans-white"
+									/>
+									<View style={tw.style("relative")}>
+										<View style={tw`px-[5px] py-[8px]`}>
+											<FansText fontSize={16}>
+												{message.parentMessage.content}
+											</FansText>
+										</View>
+									</View>
+								</View>
+							)}
 							<View
 								style={tw`bg-fans-grey px-[15px] py-[8px] rounded-r-2xl rounded-tl-2xl dark:bg-fans-grey-43`}
 							>
@@ -274,6 +445,11 @@ const FromMessage = ({
 					</TapGestureHandler>
 				</TapGestureHandler>
 			</View>
+			<MessageOptionsMenu
+				message={message}
+				onDeleteMessage={onDeleteMessage}
+				onReplyMessage={onReplyMessage}
+			/>
 		</View>
 	);
 };
@@ -773,6 +949,8 @@ const ChatItem = ({
 	handleActivatedDoubleTapMessage,
 	handleActivatedTapMessage,
 	onPressImage,
+	onDeleteMessage,
+	onReplyMessage,
 }: {
 	message: IMessage;
 	isSelf: boolean;
@@ -780,12 +958,18 @@ const ChatItem = ({
 	handleActivatedDoubleTapMessage: () => void;
 	handleActivatedTapMessage: () => void;
 	onPressImage: (data: IMessage, index: number) => void;
+	onDeleteMessage: (message: IMessage) => void;
+	onReplyMessage: (message: IMessage) => void;
 }) => {
 	return (
 		<Animated.View style={[tw.style("my-[4px]")]}>
 			{message.messageType === MessageType.TEXT &&
 				(isSelf ? (
-					<SelfMessage message={message} />
+					<SelfMessage
+						message={message}
+						onDeleteMessage={onDeleteMessage}
+						onReplyMessage={onReplyMessage}
+					/>
 				) : (
 					<FromMessage
 						message={message}
@@ -793,6 +977,8 @@ const ChatItem = ({
 							handleActivatedDoubleTapMessage
 						}
 						handleActivatedTapMessage={handleActivatedTapMessage}
+						onDeleteMessage={onDeleteMessage}
+						onReplyMessage={onReplyMessage}
 					/>
 				))}
 			{message.messageType === MessageType.IMAGE && (
@@ -1050,6 +1236,14 @@ const ChatScreen = (
 		}).start();
 	};
 
+	const handleDeleteMessage = (message: IMessage) => {
+		messagesView?.deleteMessageById(message.id);
+	};
+
+	const handleReplyMessage = (message: IMessage) => {
+		messagesView?.setReplyToMessage(message);
+	};
+
 	const handleStartReached = () => {
 		messagesView?.scrolledToBottom();
 	};
@@ -1133,6 +1327,8 @@ const ChatScreen = (
 					handleActivatedDoubleTapMessage={() => {}}
 					handleActivatedTapMessage={() => {}}
 					onPressImage={handlePressImage}
+					onDeleteMessage={handleDeleteMessage}
+					onReplyMessage={handleReplyMessage}
 				/>
 				{isEndOfCurrentDay && (
 					<View style={tw.style("flex-row", "items-center", "my-2")}>
@@ -1378,6 +1574,33 @@ const ChatScreen = (
 					})}
 				</View>
 				</ReactNativeReanimated.default.ScrollView>*/}
+			{messagesView.replyToMessage && (
+				<View
+					style={tw`flex-row items-center bg-gray-200 p-2 rounded-lg mb-2`}
+				>
+					<View style={tw`flex-grow`}>
+						<FansText style={tw`text-sm font-bold text-gray-700`}>
+							Reply to:{" "}
+							{messagesView.replyToMessage?.user.username}
+						</FansText>
+						<FansText style={tw`text-xs text-gray-500`}>
+							{messagesView.replyToMessage.content.length > 50
+								? `${messagesView.replyToMessage.content.substring(
+										0,
+										50,
+								  )}...`
+								: messagesView.replyToMessage?.content}
+						</FansText>
+					</View>
+					<TouchableOpacity
+						onPress={() =>
+							messagesView.setReplyToMessage(undefined)
+						}
+					>
+						<Close4Svg style={tw`text-gray-500`} />
+					</TouchableOpacity>
+				</View>
+			)}
 			<MessageInput
 				onSend={handleSend}
 				creator={conversation.otherParticipant}

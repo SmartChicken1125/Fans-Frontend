@@ -5,15 +5,19 @@ import RoundTextInput from "@components/common/RoundTextInput";
 import { FypText } from "@components/common/base";
 import BottomSheetWrapper from "@components/common/bottomSheetWrapper";
 import { getProfiles } from "@helper/endpoints/profile/apis";
-import { UserlistRespBody } from "@helper/endpoints/userlist/schemas";
+import {
+	createUserlist,
+	updateUserlist,
+} from "@helper/endpoints/userlist/apis";
 import tw from "@lib/tailwind";
 import { RoundButtonType, SnapPoints } from "@usertypes/commonEnums";
-import { IProfile } from "@usertypes/types";
+import { IProfile, IUserList } from "@usertypes/types";
 import React, { FC, useCallback, useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
-import CreatorChip from "./creatorChip";
-import CreatorLine from "./creatorList";
+import Toast from "react-native-toast-message";
+import UserChip from "./userChip";
+import UserLine from "./userLine";
 
 export type CreateUserlistPayload = {
 	title: string;
@@ -29,14 +33,12 @@ export type UpdateUserlistPayload = {
 interface Props {
 	open: boolean;
 	onClose: () => void;
-	userlist?: UserlistRespBody;
-	onCreateUserlist: (payload: CreateUserlistPayload) => void;
-	onUpdateUserlist: (payload: UpdateUserlistPayload) => void;
+	userlist: IUserList | null;
+	onSubmitCallback: () => void;
 }
 
-const CreateUserListMOdal: FC<Props> = (props) => {
-	const { open, onClose, userlist, onUpdateUserlist, onCreateUserlist } =
-		props;
+const CreateUserListModal: FC<Props> = (props) => {
+	const { open, onClose, userlist, onSubmitCallback } = props;
 
 	const [userlistName, setUserlistName] = useState("");
 	const [query, setQuery] = useState("");
@@ -48,21 +50,18 @@ const CreateUserListMOdal: FC<Props> = (props) => {
 	const [total, setTotal] = useState(0);
 	const [isLoading, setIsLoading] = useState(false);
 
-	const onSelectCreator = useCallback(
-		(id: string) => {
-			setSelectedCreators((prevState) => {
-				const selectedCreator = creators.find((c) => c.id === id);
-				if (
-					selectedCreator &&
-					!prevState.find((item) => item.id === id)
-				) {
-					return [...prevState, selectedCreator];
-				}
-				return prevState;
-			});
-		},
-		[selectedCreators, setSelectedCreators, creators],
-	);
+	const onToggleCreator = (userId: string) => {
+		const userIds = selectedCreators.map((el) => el.id);
+		if (!userIds.includes(userId)) {
+			const selectedCreator = creators.find((c) => c.id === userId);
+			if (selectedCreator)
+				setSelectedCreators([...selectedCreators, selectedCreator]);
+		} else {
+			setSelectedCreators(
+				selectedCreators.filter((el) => el.id !== userId),
+			);
+		}
+	};
 
 	const onDeselectCreator = useCallback(
 		(id: string) => {
@@ -90,7 +89,6 @@ const CreateUserListMOdal: FC<Props> = (props) => {
 
 	useEffect(() => {
 		(async () => {
-			setIsLoading(true);
 			try {
 				const resp = await getProfiles({
 					page,
@@ -108,8 +106,6 @@ const CreateUserListMOdal: FC<Props> = (props) => {
 				}
 			} catch (error) {
 				console.log(error);
-			} finally {
-				setIsLoading(false);
 			}
 		})();
 	}, [page, size, query]);
@@ -131,18 +127,43 @@ const CreateUserListMOdal: FC<Props> = (props) => {
 		}
 	}, [page, size, total]);
 
-	const handleClickSubmit = () => {
+	const handleClickSubmit = async () => {
+		setIsLoading(true);
 		if (userlist) {
-			onUpdateUserlist({
-				id: userlist.id,
-				title: userlistName,
-				creators: selectedCreators.map((c) => c.id),
-			});
+			const resp = await updateUserlist(
+				{
+					title: userlistName,
+					creators: selectedCreators.map((c) => c.id),
+				},
+				{
+					id: userlist.id,
+				},
+			);
+			setIsLoading(false);
+			if (resp.ok) {
+				onClose();
+				onSubmitCallback();
+			} else {
+				Toast.show({
+					type: "error",
+					text1: resp.data.message,
+				});
+			}
 		} else {
-			onCreateUserlist({
+			const resp = await createUserlist({
 				title: userlistName,
 				creators: selectedCreators.map((c) => c.id),
 			});
+			setIsLoading(false);
+			if (resp.ok) {
+				onClose();
+				onSubmitCallback();
+			} else {
+				Toast.show({
+					type: "error",
+					text1: resp.data.message,
+				});
+			}
 		}
 	};
 
@@ -205,8 +226,8 @@ const CreateUserListMOdal: FC<Props> = (props) => {
 							)}
 						>
 							{selectedCreators.map((creator) => (
-								<CreatorChip
-									data={creator}
+								<UserChip
+									creator={creator}
 									key={`tag-${creator.id}`}
 									onCancel={() =>
 										onDeselectCreator(creator.id)
@@ -234,14 +255,15 @@ const CreateUserListMOdal: FC<Props> = (props) => {
 				<View style={tw.style("max-h-[200px] min-h-[150px]")}>
 					<FlatList
 						renderItem={({ item: creator }) => (
-							<CreatorLine
-								data={creator}
-								isSelected={selectedCreators
+							<UserLine
+								avatar={creator.avatar}
+								displayName={creator.displayName}
+								username={creator.username ?? ""}
+								selected={selectedCreators
 									.map((c) => c.id)
 									.includes(creator.id)}
 								key={creator.id}
-								onSelect={() => onSelectCreator(creator.id)}
-								onDeselect={() => onDeselectCreator(creator.id)}
+								onSelect={() => onToggleCreator(creator.id)}
 							/>
 						)}
 						data={creators}
@@ -259,6 +281,7 @@ const CreateUserListMOdal: FC<Props> = (props) => {
 						}
 						variant={RoundButtonType.OUTLINE_PRIMARY}
 						onPress={handleClickSubmit}
+						loading={isLoading}
 					>
 						{userlist ? "Update list" : "Create list"}
 					</RoundButton>
@@ -268,4 +291,4 @@ const CreateUserListMOdal: FC<Props> = (props) => {
 	);
 };
 
-export default CreateUserListMOdal;
+export default CreateUserListModal;

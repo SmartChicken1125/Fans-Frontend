@@ -8,15 +8,12 @@ import { useAppContext } from "@context/useAppContext";
 import { cdnURL } from "@helper/Utils";
 import {
 	deletePostById,
-	deleteStory,
 	getArchivedPosts,
-	getStories,
 	updatePostArchive,
 } from "@helper/endpoints/post/apis";
-import {
-	PostListRespBody,
-	StoriesRespBody,
-} from "@helper/endpoints/post/schemas";
+import { PostListRespBody } from "@helper/endpoints/post/schemas";
+import { deleteStory, getStories } from "@helper/endpoints/stories/apis";
+import { StoriesRespBody } from "@helper/endpoints/stories/schemas";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { PostType, ResizeMode } from "@usertypes/commonEnums";
@@ -25,10 +22,10 @@ import { IPostFilterQuery } from "@usertypes/params";
 import React, { useEffect, useState } from "react";
 import {
 	Image,
+	NativeScrollEvent,
 	Pressable,
 	ScrollView,
 	View,
-	NativeScrollEvent,
 } from "react-native";
 import Toast from "react-native-toast-message";
 
@@ -159,7 +156,7 @@ const ArchivedPostsScreen = (
 	const handleDeleteStory = async () => {
 		setOpenActions(false);
 		dispatch.setShowLoading();
-		const resp = await deleteStory({ id: selectedId }, { id: selectedId });
+		const resp = await deleteStory(null, { id: selectedId });
 		if (resp.ok) {
 			setStories({
 				...stories,

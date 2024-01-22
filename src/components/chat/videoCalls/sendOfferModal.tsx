@@ -4,6 +4,7 @@ import { RoundTextInput2 } from "@components/common/RoundTextInput";
 import { FypSvg, FypText, FypNullableView } from "@components/common/base";
 import { FansView, FansIconButton } from "@components/controls";
 import tw from "@lib/tailwind";
+import { BlurView } from "expo-blur";
 import React, { FC, useState } from "react";
 import { Modal } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -362,42 +363,45 @@ const SendOfferModal: FC<Props> = (props) => {
 			>
 				<FansView
 					touchableOpacityProps={{ activeOpacity: 1 }}
-					style={tw.style(
-						"w-full md:w-[450px]",
-						"h-auto max-h-9/10",
-						"rounded-t-[7px] md:rounded-[15px] md:rounded-t-[15px]",
-						"bg-fans-black/50",
-					)}
+					style={tw.style("w-full md:w-[450px]", "h-auto max-h-9/10")}
 				>
-					<FansView height={40} style={tw.style("md:hidden")}>
-						<GestureDetector gesture={panGesture}>
-							<FansView padding={{ t: 16, b: 20 }}>
-								<FansView
-									width={38}
-									height={4}
-									borderRadius={4}
-									style={tw.style(
-										"bg-fans-grey-b1/40 mx-auto",
-									)}
-								></FansView>
-							</FansView>
-						</GestureDetector>
-					</FansView>
-					<FypNullableView visible={tab === "start"}>
-						<StartScreen handleChangeTab={setTab} />
-					</FypNullableView>
-					<FypNullableView visible={tab === "requestTime"}>
-						<RequestTimeScreen
-							handleBack={() => setTab("start")}
-							handleSubmit={handleRequestTime}
-						/>
-					</FypNullableView>
-					<FypNullableView visible={tab === "sendTributeFee"}>
-						<SendTributeFeeScreen
-							handleBack={() => setTab("start")}
-							handleSubmit={handleSendTributeFee}
-						/>
-					</FypNullableView>
+					<BlurView
+						intensity={55}
+						tint="dark"
+						style={tw.style(
+							"rounded-t-[7px] md:rounded-[15px] md:rounded-t-[15px] flex-1",
+						)}
+					>
+						<FansView height={40} style={tw.style("md:hidden")}>
+							<GestureDetector gesture={panGesture}>
+								<FansView padding={{ t: 16, b: 20 }}>
+									<FansView
+										width={38}
+										height={4}
+										borderRadius={4}
+										style={tw.style(
+											"bg-fans-grey-b1/40 mx-auto",
+										)}
+									></FansView>
+								</FansView>
+							</GestureDetector>
+						</FansView>
+						<FypNullableView visible={tab === "start"}>
+							<StartScreen handleChangeTab={setTab} />
+						</FypNullableView>
+						<FypNullableView visible={tab === "requestTime"}>
+							<RequestTimeScreen
+								handleBack={() => setTab("start")}
+								handleSubmit={handleRequestTime}
+							/>
+						</FypNullableView>
+						<FypNullableView visible={tab === "sendTributeFee"}>
+							<SendTributeFeeScreen
+								handleBack={() => setTab("start")}
+								handleSubmit={handleSendTributeFee}
+							/>
+						</FypNullableView>
+					</BlurView>
 				</FansView>
 			</FansView>
 		</Modal>

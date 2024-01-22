@@ -2,12 +2,12 @@ import CustomTopNavBar from "@components/common/customTopNavBar";
 import { FansView } from "@components/controls";
 import { AddGiveawayForm } from "@components/posts/share";
 import { defaultAddGiveawayFormData } from "@constants/defaultFormData";
-import { useAppContext, PostsActionType } from "@context/useAppContext";
+import { PostsActionType, useAppContext } from "@context/useAppContext";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { PostsNavigationStacks } from "@usertypes/navigations";
-import { IGiveawayForm, IPickerMedia, IDateRange } from "@usertypes/types";
-import React, { useState, useEffect } from "react";
+import { ICalendarDate, IGiveawayForm, IPickerMedia } from "@usertypes/types";
+import React, { useEffect, useState } from "react";
 import { ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -33,11 +33,7 @@ const AddGiveAwayScreen = (
 
 	const onSave = () => {
 		setIsSubmitted(true);
-		if (
-			formData.prize === "" ||
-			formData.winnerCount === "" ||
-			formData.timezone === ""
-		) {
+		if (formData.prize === "" || formData.winnerCount === "") {
 			return;
 		}
 		dispatch.setPosts({
@@ -49,10 +45,10 @@ const AddGiveAwayScreen = (
 		navigation.goBack();
 	};
 
-	const handleChangeDuration = (value: IDateRange) => {
+	const handleChangeDate = (value: ICalendarDate) => {
 		setFormData({
 			...formData,
-			...value,
+			endDate: value,
 		});
 	};
 
@@ -79,7 +75,7 @@ const AddGiveAwayScreen = (
 					isSubmitted={isSubmitted}
 					onChangeForm={handleChangeForm}
 					onSave={onSave}
-					handleChangeDuration={handleChangeDuration}
+					handleChangeDate={handleChangeDate}
 				/>
 			</ScrollView>
 		</FansView>

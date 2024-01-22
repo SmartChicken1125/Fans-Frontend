@@ -3,7 +3,7 @@ import CustomTopNavBar from "@components/common/customTopNavBar";
 import AppLayout, { LayoutContentsContainer } from "@components/common/layout";
 import { ImagePostChip } from "@components/posts/common";
 import { ProfileActionType, useAppContext } from "@context/useAppContext";
-import { getStories } from "@helper/endpoints/post/apis";
+import { getStories } from "@helper/endpoints/stories/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { ProfileNavigationStacks } from "@usertypes/navigations";

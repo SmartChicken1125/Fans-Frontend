@@ -8,6 +8,7 @@ import { FypSvg } from "@components/common/base";
 import { FansView } from "@components/controls";
 import { MenuItem } from "@components/posts/common";
 import tw from "@lib/tailwind";
+import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
 import React, { FC } from "react";
 import { Modal } from "react-native";
@@ -18,10 +19,12 @@ interface Props {
 	open: boolean;
 	handleClose: () => void;
 	handlePressEmergency: () => void;
+	handlePressReport: () => void;
 }
 
 const ThreeDotsModal: FC<Props> = (props) => {
-	const { open, handleClose, handlePressEmergency } = props;
+	const { open, handleClose, handlePressEmergency, handlePressReport } =
+		props;
 	const router = useRouter();
 	const positionY = useSharedValue(0);
 
@@ -43,10 +46,6 @@ const ThreeDotsModal: FC<Props> = (props) => {
 		handleClose();
 	};
 
-	const handleReport = () => {
-		handleClose();
-	};
-
 	return (
 		<Modal transparent visible={open}>
 			<FansView
@@ -64,79 +63,84 @@ const ThreeDotsModal: FC<Props> = (props) => {
 			>
 				<FansView
 					touchableOpacityProps={{ activeOpacity: 1 }}
-					style={tw.style(
-						"w-full md:w-[450px]",
-						"h-auto max-h-9/10",
-						"rounded-t-[7px] md:rounded-[15px] md:rounded-t-[15px]",
-						"bg-fans-black/50",
-					)}
+					style={tw.style("w-full md:w-[450px]", "h-auto max-h-9/10")}
 				>
-					<FansView height={40} style={tw.style("md:hidden")}>
-						<GestureDetector gesture={panGesture}>
-							<FansView padding={{ t: 16, b: 20 }}>
-								<FansView
-									width={38}
-									height={4}
-									borderRadius={4}
-									style={tw.style("bg-fans-white/20 mx-auto")}
-								></FansView>
-							</FansView>
-						</GestureDetector>
-					</FansView>
-					<FansView flex="1" style={tw.style("md:pt-5")}>
-						<MenuItem
-							title="View profile"
-							labelClass="text-fans-white"
-							icon={
-								<FypSvg
-									svg={UserSvg}
-									width={23}
-									height={23}
-									color="fans-white"
-								/>
-							}
-							onPress={handleViewProfile}
-						/>
-						<MenuItem
-							title="Block"
-							icon={
-								<FypSvg
-									svg={BlockSvg}
-									width={25}
-									height={25}
-									color="fans-red"
-								/>
-							}
-							onPress={handleBlock}
-							labelClass="text-fans-red"
-						/>
-						<MenuItem
-							title="Report"
-							icon={
-								<FypSvg
-									svg={ReportSvg}
-									width={25}
-									height={23}
-									color="fans-red"
-								/>
-							}
-							onPress={handleReport}
-							labelClass="text-fans-red"
-						/>
-						<MenuItem
-							title="SOS emergency"
-							icon={
-								<FypSvg
-									svg={EmergencySvg}
-									width={25}
-									height={25}
-									color="fans-red"
-								/>
-							}
-							onPress={handlePressEmergency}
-							labelClass="text-fans-red"
-						/>
-					</FansView>
+					<BlurView
+						intensity={55}
+						tint="dark"
+						style={tw.style(
+							"rounded-t-[7px] md:rounded-[15px] md:rounded-t-[15px] flex-1",
+						)}
+					>
+						<FansView height={40} style={tw.style("md:hidden")}>
+							<GestureDetector gesture={panGesture}>
+								<FansView padding={{ t: 16, b: 20 }}>
+									<FansView
+										width={38}
+										height={4}
+										borderRadius={4}
+										style={tw.style(
+											"bg-fans-white/20 mx-auto",
+										)}
+									></FansView>
+								</FansView>
+							</GestureDetector>
+						</FansView>
+						<FansView flex="1" style={tw.style("md:pt-5")}>
+							<MenuItem
+								title="View profile"
+								labelClass="text-fans-white"
+								icon={
+									<FypSvg
+										svg={UserSvg}
+										width={23}
+										height={23}
+										color="fans-white"
+									/>
+								}
+								onPress={handleViewProfile}
+							/>
+							<MenuItem
+								title="Block"
+								icon={
+									<FypSvg
+										svg={BlockSvg}
+										width={25}
+										height={25}
+										color="fans-red"
+									/>
+								}
+								onPress={handleBlock}
+								labelClass="text-fans-red"
+							/>
+							<MenuItem
+								title="Report"
+								icon={
+									<FypSvg
+										svg={ReportSvg}
+										width={25}
+										height={23}
+										color="fans-red"
+									/>
+								}
+								onPress={handlePressReport}
+								labelClass="text-fans-red"
+							/>
+							<MenuItem
+								title="SOS emergency"
+								icon={
+									<FypSvg
+										svg={EmergencySvg}
+										width={25}
+										height={25}
+										color="fans-red"
+									/>
+								}
+								onPress={handlePressEmergency}
+								labelClass="text-fans-red"
+							/>
+						</FansView>
+					</BlurView>
 				</FansView>
 			</FansView>
 		</Modal>

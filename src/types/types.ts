@@ -300,6 +300,7 @@ export interface IUserList {
 	title: string;
 	creators: IProfile[];
 	isActive: boolean;
+	updatedAt: string;
 }
 
 export interface IComment {
@@ -492,9 +493,7 @@ export interface IGiveaway {
 
 export interface IGiveawayForm {
 	prize: string;
-	startDate: ICalendarDate;
 	endDate: ICalendarDate;
-	timezone: string;
 	winnerCount: number | string;
 	cover: IPickerMedia;
 }
@@ -519,12 +518,10 @@ export interface IPoll {
 	caption: string;
 	answers: IPollAnswer[];
 	thumb: IThumbImage;
-	// startDate: string;
 	endDate: string;
 	isPublic: boolean;
 	roles: IRole[];
 	updatedAt: string;
-	// timezone: string;
 }
 
 export interface IPollForm {
@@ -532,9 +529,8 @@ export interface IPollForm {
 	caption: string;
 	answers: string[];
 	cover?: IPickerMedia;
-	startDate: ICalendarDate;
 	endDate: ICalendarDate;
-	timezone: string;
+	isPublic: boolean;
 }
 
 export type IPostFormViewType =
@@ -573,6 +569,7 @@ export interface IPostForm {
 	roles: string[];
 	tiers: string[];
 	users: IFansUser[];
+	secondStep?: PostStepTypes;
 }
 
 export interface IPaidPostAccessForm {
@@ -663,6 +660,41 @@ export interface IStory {
 	isLiked: boolean;
 	shareCount: number;
 }
+
+export interface IStoryComment {
+	id: string;
+	storyId: string;
+	userId: string;
+	parentCommentId?: string;
+	content: string;
+	likeCount?: number;
+	replyCount?: number;
+	isLiked?: boolean;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface IStoryReply {
+	id: string;
+	userId: string;
+	user: IUser;
+	storyId: string;
+	content: string;
+	parentCommentId?: string;
+	likeCount?: number;
+	replyCount?: number;
+	isLiked?: boolean;
+	createdAt: string;
+	updatedAt: string;
+	replies: IStoryReply[];
+}
+
+export interface IStoryCommentLike {
+	storyCommentId: string;
+	userId: string;
+	updatedAt: string;
+}
+
 export interface IHighlight {
 	id: string;
 	title: string;
@@ -775,6 +807,8 @@ export interface IMessage {
 	previewImages?: string;
 	value?: number;
 	status?: string;
+	parentId?: string;
+	parentMessage?: IMessage;
 }
 
 export interface PaginatedRespBody {

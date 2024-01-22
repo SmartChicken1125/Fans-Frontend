@@ -819,6 +819,7 @@ const GetGemsScreen = () => {
 														setState(val as string)
 													}
 													placeholder="Select State"
+													search
 												/>
 											</View>
 										</View>

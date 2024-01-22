@@ -1,24 +1,18 @@
 import { VideoCameraSvg } from "@assets/svgs/common";
-import RoundButton from "@components/common/RoundButton";
-import { FypText } from "@components/common/base";
+import {
+	FypSvg,
+	FypText,
+	FypLinearGradientView,
+} from "@components/common/base";
 import { FansView } from "@components/controls";
 import tw from "@lib/tailwind";
-import { PostsNavigationStacks } from "@usertypes/navigations";
 import React from "react";
-import { View, TouchableOpacity, Image, StyleSheet } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons"; // Import the icon library
+import { Image } from "react-native";
 
 interface BookVideoCallProps {
 	username: string;
 	onClick: () => void;
 }
-interface SpacerProps {
-	size: number;
-}
-
-const Spacer: React.FC<SpacerProps> = ({ size }) => (
-	<View style={[{ width: size }]} />
-);
 
 const BookVideoCall: React.FC<BookVideoCallProps> = ({ username, onClick }) => {
 	const handleBookVideoCall = () => {
@@ -27,75 +21,57 @@ const BookVideoCall: React.FC<BookVideoCallProps> = ({ username, onClick }) => {
 
 	return (
 		<FansView
-			borderRadius={34}
+			borderRadius={15}
 			margin={{ b: 30, t: 12 }}
+			padding={{ l: 17, r: 15, t: 18, b: 19 }}
 			flexDirection="row"
-			style={tw.style("border border-fans-purple")}
+			gap={17}
+			style={tw.style(
+				"border border-fans-grey-f0 dark:border-fans-grey-43",
+			)}
 		>
-			<View style={styles.leftSection}>
-				<Image
-					source={require("@assets/images/call-to-action-video.png")}
-					style={styles.image}
-					resizeMode="cover"
-				/>
-			</View>
-			<View style={styles.rightSection}>
-				<FypText fontSize={24} fontWeight={700} margin={{ b: 10 }}>
+			<Image
+				source={require("@assets/images/call-to-action-video.png")}
+				style={tw.style("w-[75px] h-[90px]")}
+				resizeMode="cover"
+			/>
+			<FansView flex="1">
+				<FypText fontSize={19} fontWeight={600} margin={{ b: 6 }}>
 					Just for you
 				</FypText>
-				<FypText fontSize={16} margin={{ b: 20 }}>
+				<FypText fontSize={16} margin={{ b: 19 }}>
 					Have an exclusive 1:1 video call with {username}!
 				</FypText>
-				<RoundButton onPress={handleBookVideoCall}>
-					<View
-						style={{
-							flexDirection: "row",
-							alignItems: "center",
-							margin: 10,
-						}}
+				<FansView pressableProps={{ onPress: handleBookVideoCall }}>
+					<FypLinearGradientView
+						colors={["#1D21E5", "#D885FF"]}
+						start={[0, 1]}
+						end={[1, 0]}
+						height={42}
+						flexDirection="row"
+						alignItems="center"
+						justifyContent="center"
+						gap={9}
+						borderRadius={42}
 					>
-						<VideoCameraSvg
-							width={14.6}
-							height={13.6}
-							color={"white"}
+						<FypSvg
+							svg={VideoCameraSvg}
+							width={15}
+							height={14}
+							color="fans-white"
 						/>
-						<Spacer size={10} />
-						<View>Book Video call</View>
-					</View>
-				</RoundButton>
-			</View>
+						<FypText
+							fontSize={19}
+							fontWeight={700}
+							style={tw.style("text-fans-white")}
+						>
+							Book video call
+						</FypText>
+					</FypLinearGradientView>
+				</FansView>
+			</FansView>
 		</FansView>
 	);
 };
-
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		flexDirection: "row",
-	},
-	leftSection: {
-		flex: 1,
-		justifyContent: "center",
-		alignItems: "center",
-	},
-	rightSection: {
-		flex: 2,
-		padding: 20,
-	},
-	image: {
-		width: "75%",
-		height: "75%",
-	},
-	button: {
-		backgroundColor: "#f57c00",
-		padding: 10,
-		borderRadius: 5,
-		alignItems: "center",
-	},
-	buttonText: {
-		fontSize: 18,
-		color: "#fff",
-	},
-});
 
 export default BookVideoCall;

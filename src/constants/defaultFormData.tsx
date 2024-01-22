@@ -1,11 +1,11 @@
 import { roleIcons } from "@constants/common";
 import {
+	CampaignApplicableType,
+	DurationType,
 	PostType,
 	PromotionType,
-	DurationType,
-	CampaignApplicableType,
 } from "@usertypes/commonEnums";
-import { IPostForm, IPaymentCard } from "@usertypes/types";
+import { IPaymentCard, IPollForm, IPostForm } from "@usertypes/types";
 
 export const defaultAudioDetail = {
 	title: "",
@@ -16,14 +16,13 @@ export const defaultAudioDetail = {
 	isNoiseReduction: true,
 };
 
-export const defaultPollFormData = {
+export const defaultPollFormData: IPollForm = {
 	question: "",
 	caption: "",
 	answers: [""],
 	cover: { uri: "", isPicker: true },
-	startDate: undefined,
 	endDate: undefined,
-	timezone: "",
+	isPublic: true,
 };
 
 export const defaultFundraiserFormData = {

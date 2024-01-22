@@ -6,14 +6,14 @@ import BottomSheetWrapper from "@components/common/bottomSheetWrapper";
 import { FansView } from "@components/controls";
 import { useAppContext } from "@context/useAppContext";
 import {
-	addStoryComment,
+	createStoryComment,
 	deleteCommentById,
 	getStoryCommentsByPostId,
 	likeStoryComment,
 	unlikeStoryComment,
-} from "@helper/endpoints/stories/apis";
+} from "@helper/endpoints/stories/comment/apis";
 import tw from "@lib/tailwind";
-import { IComment } from "@usertypes/types";
+import { IStoryReply } from "@usertypes/types";
 import React, { FC, useEffect, useState } from "react";
 import {
 	Pressable,
@@ -39,7 +39,7 @@ const StoryCommentDialog: FC<Props> = (props) => {
 	const { userId } = state.profile;
 
 	const [totalCounts, setTotalCounts] = useState(0);
-	const [comments, setComments] = useState<IComment[]>([]);
+	const [comments, setComments] = useState<IStoryReply[]>([]);
 	const [commentText, setCommentText] = useState("");
 	const [hideForm, setHideForm] = useState(false);
 	const [selectedCommentId, setSelectedCommentId] = useState<
@@ -54,11 +54,11 @@ const StoryCommentDialog: FC<Props> = (props) => {
 		setTimeout(() => setHideForm(false), 1000);
 	};
 
-	const setTotalCommentsCounts = (_comments: IComment[]) => {
+	const setTotalCommentsCounts = (_comments: IStoryReply[]) => {
 		let counts = 0;
 
-		_comments.forEach((comment: IComment) => {
-			counts = counts + 1 + comment.replies.length;
+		_comments.forEach((comment: IStoryReply) => {
+			counts = counts + 1 + (comment.replies?.length ?? 0);
 		});
 		setTotalCounts(counts);
 	};
@@ -79,7 +79,7 @@ const StoryCommentDialog: FC<Props> = (props) => {
 		};
 		setCommentText("");
 		setHideForm(true);
-		const resp = await addStoryComment(postbody);
+		const resp = await createStoryComment(postbody);
 		setSelectedCommentId(undefined);
 
 		if (resp.ok) {
@@ -92,7 +92,7 @@ const StoryCommentDialog: FC<Props> = (props) => {
 		}
 	};
 
-	const handleToggleLike = async (comment: IComment) => {
+	const handleToggleLike = async (comment: IStoryReply) => {
 		if (comment.isLiked) {
 			const resp = await unlikeStoryComment(null, { id: comment.id });
 			if (resp.ok) {
@@ -108,7 +108,7 @@ const StoryCommentDialog: FC<Props> = (props) => {
 
 	const handleDeleteComment = async (commentId: string) => {
 		const isParent = comments.find((el) => el.id === commentId);
-		let _comments: IComment[] = [];
+		let _comments: IStoryReply[] = [];
 		if (isParent) {
 			_comments = comments.filter((el) => el.id !== commentId);
 		} else {

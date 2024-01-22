@@ -1,12 +1,12 @@
 import { defaultPollFormData } from "@constants/defaultFormData";
 import { IAppDispatch } from "@context/appContext";
 import { PostsActionType } from "@context/useAppContext";
-import { PostStepTypes, IconTypes, PostType } from "@usertypes/commonEnums";
+import { IconTypes, PostStepTypes, PostType } from "@usertypes/commonEnums";
 import {
-	IPostForm,
-	IPollForm,
+	ICalendarDate,
 	IPickerMedia,
-	IDateRange,
+	IPollForm,
+	IPostForm,
 } from "@usertypes/types";
 import React, { FC, useEffect, useState } from "react";
 import { View } from "react-native";
@@ -75,10 +75,10 @@ const AddPollScreen: FC<Props> = (props) => {
 		});
 	};
 
-	const handleChangeDuration = (value: IDateRange) => {
+	const handleChangeDate = (value: ICalendarDate) => {
 		setFormData({
 			...formData,
-			...value,
+			endDate: value,
 		});
 	};
 
@@ -154,7 +154,7 @@ const AddPollScreen: FC<Props> = (props) => {
 					onChangeVoteType={(val) => setVoteType(val)}
 					publicResult={publicResult}
 					onChangePublicResult={(val) => setPublicResult(val)}
-					handleChangeDuration={handleChangeDuration}
+					handleChangeDate={handleChangeDate}
 					handleCacheData={handleCacheData}
 				/>
 			</ScreenWrapper>

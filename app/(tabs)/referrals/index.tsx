@@ -1,1 +1,1 @@
-export { default } from "@screens/settings/Layout";
+export { default } from "@screens/settings/referCreators/ReferAndEarn";

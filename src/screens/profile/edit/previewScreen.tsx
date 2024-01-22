@@ -93,7 +93,7 @@ const PreviewScreen = (
 		};
 
 		const previewResp = await updateProfilePreview(postbody);
-
+		console.log(previewResp);
 		setInProgress(false);
 
 		if (previewResp.ok) {

@@ -3,6 +3,7 @@ import { RoundTextInput2 } from "@components/common/RoundTextInput";
 import { FypSvg, FypText, FypLink } from "@components/common/base";
 import { FansView, FansDivider } from "@components/controls";
 import tw from "@lib/tailwind";
+import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
 import React, { FC, useState } from "react";
 import { Modal } from "react-native";
@@ -49,124 +50,130 @@ const EmergencyModal: FC<Props> = (props) => {
 			>
 				<FansView
 					touchableOpacityProps={{ activeOpacity: 1 }}
-					style={tw.style(
-						"w-full md:w-[450px]",
-						"h-auto max-h-9/10",
-						"rounded-t-[7px] md:rounded-[15px] md:rounded-t-[15px]",
-						"bg-fans-black/50",
-					)}
+					style={tw.style("w-full md:w-[450px]", "h-auto max-h-9/10")}
 				>
-					<FansView height={40} style={tw.style("md:hidden")}>
-						<GestureDetector gesture={panGesture}>
-							<FansView padding={{ t: 16, b: 20 }}>
-								<FansView
-									width={38}
-									height={4}
-									borderRadius={4}
-									style={tw.style("bg-fans-white/20 mx-auto")}
-								></FansView>
-							</FansView>
-						</GestureDetector>
-					</FansView>
-					<FansView
-						flex="1"
-						style={tw.style("md:pt-5 px-[18px] pb-5")}
+					<BlurView
+						intensity={55}
+						tint="dark"
+						style={tw.style(
+							"rounded-t-[7px] md:rounded-[15px] md:rounded-t-[15px] flex-1",
+						)}
 					>
-						<FypText
-							fontSize={19}
-							lineHeight={26}
-							fontWeight={700}
-							textAlign="center"
-							margin={{ b: 32 }}
-							style={tw.style("text-fans-white")}
+						<FansView height={40} style={tw.style("md:hidden")}>
+							<GestureDetector gesture={panGesture}>
+								<FansView padding={{ t: 16, b: 20 }}>
+									<FansView
+										width={38}
+										height={4}
+										borderRadius={4}
+										style={tw.style(
+											"bg-fans-white/20 mx-auto",
+										)}
+									></FansView>
+								</FansView>
+							</GestureDetector>
+						</FansView>
+						<FansView
+							flex="1"
+							style={tw.style("md:pt-5 px-[18px] pb-5")}
 						>
-							SOS emergency
-						</FypText>
-						<FypText
-							fontSize={16}
-							lineHeight={21}
-							textAlign="center"
-							margin={{ b: 22 }}
-							style={tw.style("text-fans-white")}
-						>
-							If you are in immediate danger, please{" "}
-							<FypLink
+							<FypText
+								fontSize={19}
+								lineHeight={26}
+								fontWeight={700}
+								textAlign="center"
+								margin={{ b: 32 }}
+								style={tw.style("text-fans-white")}
+							>
+								SOS emergency
+							</FypText>
+							<FypText
 								fontSize={16}
 								lineHeight={21}
-								fontWeight={600}
-								style={tw.style("text-fans-red")}
+								textAlign="center"
+								margin={{ b: 22 }}
+								style={tw.style("text-fans-white")}
 							>
-								dial 911
-							</FypLink>{" "}
-							or your local emergency number.
-						</FypText>
-						<FansView
-							height={42}
-							borderRadius={42}
-							flexDirection="row"
-							alignItems="center"
-							justifyContent="center"
-							style={tw.style("bg-fans-red")}
-							gap={8}
-						>
-							<FypSvg
-								svg={CallSvg}
-								width={13}
-								height={14}
-								color="fans-white"
+								If you are in immediate danger, please{" "}
+								<FypLink
+									fontSize={16}
+									lineHeight={21}
+									fontWeight={600}
+									style={tw.style("text-fans-red")}
+								>
+									dial 911
+								</FypLink>{" "}
+								or your local emergency number.
+							</FypText>
+							<FansView
+								height={42}
+								borderRadius={42}
+								flexDirection="row"
+								alignItems="center"
+								justifyContent="center"
+								style={tw.style("bg-fans-red")}
+								gap={8}
+							>
+								<FypSvg
+									svg={CallSvg}
+									width={13}
+									height={14}
+									color="fans-white"
+								/>
+								<FypText
+									fontSize={19}
+									lineHeight={26}
+									fontWeight={700}
+									style={tw.style("text-fans-white")}
+								>
+									Call 911
+								</FypText>
+							</FansView>
+							<FansDivider
+								style={tw.style("mt-7 mb-6 bg-fans-white/20")}
 							/>
 							<FypText
-								fontSize={19}
-								lineHeight={26}
-								fontWeight={700}
+								fontSize={16}
+								lineHeight={21}
+								textAlign="center"
+								margin={{ b: 24 }}
 								style={tw.style("text-fans-white")}
 							>
-								Call 9111
+								If you are not in immediate danger but require
+								prompt assistance, please complete the form
+								below
 							</FypText>
-						</FansView>
-						<FansDivider
-							style={tw.style("mt-7 mb-6 bg-fans-white/20")}
-						/>
-						<FypText
-							fontSize={16}
-							lineHeight={21}
-							textAlign="center"
-							margin={{ b: 24 }}
-							style={tw.style("text-fans-white")}
-						>
-							If you are not in immediate danger but require
-							prompt assistance, please complete the form below
-						</FypText>
-						<RoundTextInput2
-							value={description}
-							onChangeText={setDescription}
-							placeholder="Describe the situation"
-							multiline
-							numberOfLines={4}
-							maxLength={1000}
-							customStyles="py-3 px-5 rounded-[7px] h-[128px] bg-fans-white/20 text-fans-white"
-						/>
-						<FansView
-							height={42}
-							borderRadius={42}
-							alignItems="center"
-							justifyContent="center"
-							margin={{ t: 22 }}
-							style={tw.style("bg-fans-purple")}
-							pressableProps={{
-								onPress: () => handleSubmit(description),
-							}}
-						>
-							<FypText
-								fontSize={19}
-								lineHeight={26}
-								fontWeight={700}
-								style={tw.style("text-fans-white")}
+							<RoundTextInput2
+								value={description}
+								onChangeText={setDescription}
+								placeholder="Describe the situation"
+								multiline
+								numberOfLines={4}
+								maxLength={1000}
+								customStyles="py-3 px-5 rounded-[7px] h-[128px] bg-fans-white/20 text-fans-white"
+							/>
+							<FansView
+								height={42}
+								borderRadius={42}
+								alignItems="center"
+								justifyContent="center"
+								margin={{ t: 22 }}
+								style={tw.style("bg-fans-purple")}
+								pressableProps={{
+									onPress: () => handleSubmit(description),
+								}}
 							>
-								Submit
-							</FypText>
+								<FypText
+									fontSize={19}
+									lineHeight={26}
+									fontWeight={700}
+									style={tw.style("text-fans-white")}
+								>
+									Submit
+								</FypText>
+							</FansView>
 						</FansView>
-					</FansView>
+					</BlurView>
 				</FansView>
 			</FansView>
 		</Modal>

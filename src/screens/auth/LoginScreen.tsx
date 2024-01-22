@@ -2,7 +2,7 @@ import { TitleSvg } from "@assets/svgs/common";
 import FormControl from "@components/common/FormControl";
 import RoundButton from "@components/common/RoundButton";
 import TextButton from "@components/common/TextButton";
-import { FypText, FypSvg } from "@components/common/base";
+import { FypSvg, FypText } from "@components/common/base";
 import { FansText, FansTextInput5 } from "@components/controls";
 import { useAppContext } from "@context/useAppContext";
 import {
@@ -36,7 +36,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
 	Image,
 	ImageBackground,
-	Platform,
 	Pressable,
 	ScrollView,
 	View,
@@ -82,12 +81,7 @@ const LoginScreen = () => {
 			body.redirectUri = twitterRequest.redirectUri;
 			body.codeVerifier = twitterRequest.codeVerifier;
 		} else if (googleRequest && googleResponse?.type === "success") {
-			provider =
-				Platform.OS === "ios"
-					? "google_ios"
-					: Platform.OS === "android"
-					? "google_android"
-					: "google";
+			provider = "google";
 			body.code = googleResponse.params.code;
 			body.redirectUri = googleRequest.redirectUri;
 			body.codeVerifier = googleRequest.codeVerifier;

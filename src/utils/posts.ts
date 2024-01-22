@@ -1,4 +1,4 @@
-import { PostReqBody } from "@helper/endpoints/post/schemas";
+import { PostCreateReqBody } from "@helper/endpoints/post/schemas";
 import { PostType } from "@usertypes/commonEnums";
 import { IPostForm } from "@usertypes/types";
 import moment from "moment";
@@ -24,15 +24,18 @@ export const getCreatePostData = (data: {
 		giveawayCover,
 	} = data;
 
-	const postBody: PostReqBody = {
+	const postBody: PostCreateReqBody = {
 		title: "",
 		type: postForm.type,
 		thumbId: thumbId,
-		mediaIds: mediaIds,
+		postMedias: mediaIds.map((mediaId) => ({
+			postMediaId: mediaId,
+			tags: [],
+		})),
 		caption: postForm.caption,
 		categories: postForm.categories,
 		advanced: postForm.advanced,
-		taggedPeoples: postForm.taggedPeoples.map((people) => people.user.id),
+		// taggedPeoples: postForm.taggedPeoples.map((people) => people.user.id),
 		formIds: formIds,
 		roles: postForm.viewType === "XPLevels" ? postForm.roles : [],
 		users:
@@ -67,13 +70,13 @@ export const getCreatePostData = (data: {
 			title: postForm.fundraiser.title,
 			caption: postForm.fundraiser.caption,
 			price: fundraiserPrice,
-			startDate: moment(postForm.fundraiser.startDate)
-				.utcOffset("+000", true)
-				.format(),
+			// startDate: moment(postForm.fundraiser.startDate)
+			// 	.utcOffset("+000", true)
+			// 	.format(),
 			endDate: moment(postForm.fundraiser.endDate)
 				.utcOffset("+000", true)
 				.format(),
-			timezone: postForm.fundraiser.timezone,
+			// timezone: postForm.fundraiser.timezone,
 			isXpAdd: postForm.fundraiser.isXpAdd,
 			currency: "USD",
 			thumbId: fundraiserCover ?? "",
@@ -91,13 +94,10 @@ export const getCreatePostData = (data: {
 			caption: postForm.poll.caption,
 			answers: postForm.poll.answers,
 			thumbId: pollCover ?? "",
-			startDate: moment(postForm.poll.startDate)
-				.utcOffset("+000", true)
-				.format(),
 			endDate: moment(postForm.poll.endDate)
 				.utcOffset("+000", true)
 				.format(),
-			timezone: postForm.poll.timezone,
+			isPublic: postForm.poll.isPublic,
 		};
 	}
 
@@ -122,18 +122,13 @@ export const getCreatePostData = (data: {
 	if (
 		!!postForm.giveaway.prize &&
 		!!postForm.giveaway.winnerCount &&
-		!!postForm.giveaway.startDate &&
 		!!postForm.giveaway.endDate
 	) {
 		postBody.giveaway = {
 			prize: postForm.giveaway.prize,
-			startDate: moment(postForm.giveaway.startDate)
-				.utcOffset("+000", true)
-				.format(),
 			endDate: moment(postForm.giveaway.endDate)
 				.utcOffset("+000", true)
 				.format(),
-			timezone: postForm.giveaway.timezone,
 			winnerCount: parseFloat(postForm.giveaway.winnerCount as string),
 			thumbId: giveawayCover ?? "",
 		};

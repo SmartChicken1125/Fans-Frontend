@@ -177,6 +177,7 @@ export const usersListData: IUserList[] = [
 		title: "Friends",
 		isActive: true,
 		userId: "",
+		updatedAt: "",
 		creators: [
 			{
 				id: "0",

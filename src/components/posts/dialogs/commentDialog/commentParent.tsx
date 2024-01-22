@@ -1,18 +1,18 @@
 import { FansView } from "@components/controls";
 import tw from "@lib/tailwind";
-import { IComment } from "@usertypes/types";
+import { IComment, IStoryReply } from "@usertypes/types";
 import React, { FC } from "react";
 import Comment from "./comment";
 
-interface Props {
-	data: IComment;
+interface Props<T extends IComment | IStoryReply> {
+	data: T;
 	userId: string;
 	onClickReply: (commentId: string) => void;
-	onClickLike: (comment: IComment) => void;
+	onClickLike: (comment: T) => void;
 	onDelete: (commentId: string) => void;
 }
 
-const CommentParent: FC<Props> = (props) => {
+function CommentParent<T extends IComment | IStoryReply>(props: Props<T>) {
 	const { data, onClickReply, onClickLike, onDelete, userId } = props;
 
 	return (
@@ -34,7 +34,7 @@ const CommentParent: FC<Props> = (props) => {
 						data={reply}
 						key={reply.id}
 						onClickReply={() => {}}
-						onClickLike={() => onClickLike(reply)}
+						onClickLike={() => onClickLike(reply as T)}
 						isChildren
 						onDelete={onDelete}
 						userId={userId}
@@ -43,6 +43,6 @@ const CommentParent: FC<Props> = (props) => {
 			</Comment>
 		</FansView>
 	);
-};
+}
 
 export default CommentParent;

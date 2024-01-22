@@ -38,7 +38,6 @@ export const FypButton2: FC<IFypButton2Props> = (props) => {
 	const { children, textStyle, style, icon, ..._props } = props;
 	return (
 		<FansView
-			flex="1"
 			flexDirection="row"
 			alignItems="center"
 			justifyContent="center"

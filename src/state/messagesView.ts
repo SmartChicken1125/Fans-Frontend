@@ -1,5 +1,9 @@
 import { emitEvent, useEvent } from "@helper/EventBus";
-import { createTextMessage, getMessages } from "@helper/endpoints/chat/apis";
+import {
+	createTextMessage,
+	deleteMessage,
+	getMessages,
+} from "@helper/endpoints/chat/apis";
 import { IMessage, MessageType } from "@usertypes/types";
 import { IUploadedFile } from "@utils/useUploadFile";
 import { useCallback, useEffect, useState } from "react";
@@ -20,6 +24,7 @@ interface MessageViewData {
 	atTop: boolean;
 	atBottom: boolean;
 	state: MessageViewState;
+	replyToMessage?: IMessage;
 }
 
 export class MessageView implements MessageViewData {
@@ -28,6 +33,7 @@ export class MessageView implements MessageViewData {
 	atTop: boolean;
 	atBottom: boolean;
 	state: MessageViewState;
+	replyToMessage?: IMessage;
 
 	constructor(channelId: string) {
 		this.channelId = channelId;
@@ -87,6 +93,7 @@ export class MessageView implements MessageViewData {
 			return;
 		}
 
+		this.replyToMessage = undefined;
 		this.messages.push(message);
 		while (this.messages.length > maxMessagesInView) {
 			this.messages.shift();
@@ -96,11 +103,25 @@ export class MessageView implements MessageViewData {
 		this.emitUpdate();
 	}
 
+	deleteMessage(messageId: string) {
+		const index = this.messages.findIndex((m) => m.id === messageId);
+		if (index === -1) return;
+
+		this.messages.splice(index, 1);
+		this.emitUpdate();
+	}
+
+	setReplyToMessage(message?: IMessage) {
+		this.replyToMessage = message;
+		this.emitUpdate();
+	}
+
 	async sendTextMessage(content: string) {
 		const resp = await createTextMessage(
 			{
 				content,
 				messageType: MessageType.TEXT,
+				parentId: this.replyToMessage?.id,
 			},
 			{
 				id: this.channelId,
@@ -120,6 +141,7 @@ export class MessageView implements MessageViewData {
 				content: "",
 				uploadIds: uploadedFiles.map((f) => f.id),
 				messageType: MessageType.IMAGE,
+				parentId: this.replyToMessage?.id,
 			},
 			{
 				id: this.channelId,
@@ -131,6 +153,19 @@ export class MessageView implements MessageViewData {
 		}
 
 		this.acceptMessage(resp.data);
+	}
+
+	async deleteMessageById(messageId: string) {
+		const resp = await deleteMessage(
+			{ id: this.channelId },
+			{ messageId: messageId },
+		);
+
+		if (!resp.ok) {
+			return;
+		}
+
+		this.deleteMessage(messageId);
 	}
 
 	async scrolledToTop() {

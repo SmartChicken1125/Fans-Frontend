@@ -24,7 +24,6 @@ import {
 	SendMessageDialog,
 } from "@components/posts/dialogs";
 import {
-	AddPaymentCardDialog,
 	BioText,
 	CountsDetails,
 	MediaTabContents,
@@ -1232,7 +1231,6 @@ const ProfileScreen = (
 												setOpenJoinTier(false)
 											}
 										/>
-										<AddPaymentCardDialog />
 										<CardActions
 											open={openProfileActions}
 											onClose={() =>

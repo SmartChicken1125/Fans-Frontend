@@ -139,11 +139,17 @@ const ThumbnailScreen: FC<Props> = (props) => {
 		} else if (type === PostType.Story) {
 			handleCreateStory(pickerMedias);
 		} else {
+			handleChangeTab(
+				data.secondStep === PostStepTypes.PaidPost
+					? PostStepTypes.PaidPost
+					: PostStepTypes.Caption,
+			);
 			if (type === PostType.Video) {
 				dispatch.setPosts({
 					type: PostsActionType.updatePostForm,
 					data: {
 						medias: pickerMedias,
+						secondStep: undefined,
 					},
 				});
 			} else {
@@ -152,10 +158,10 @@ const ThumbnailScreen: FC<Props> = (props) => {
 					data: {
 						thumb: pickerMedias[0],
 						medias: pickerMedias,
+						secondStep: undefined,
 					},
 				});
 			}
-			handleChangeTab(PostStepTypes.Caption);
 		}
 	};
 

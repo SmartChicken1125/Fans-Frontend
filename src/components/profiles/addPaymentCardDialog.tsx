@@ -20,13 +20,7 @@ import CustomMaskInput from "@components/common/customMaskInput";
 import NotificationBox from "@components/common/notificationBox";
 import { FansText, FansIconButton, FansView } from "@components/controls";
 import { defaultPaymentCardData } from "@constants/defaultFormData";
-import { ADD_PAYMENT_CARD_DIALOG_ID } from "@constants/modal";
-import { ModalState } from "@context/state/modalState";
-import {
-	useAppContext,
-	ModalActionType,
-	CommonActionType,
-} from "@context/useAppContext";
+import { useAppContext } from "@context/useAppContext";
 import {
 	AUTHORIZE_NET_API_LOGIN_ID,
 	AUTHORIZE_NET_CLIENT_KEY,
@@ -36,19 +30,19 @@ import { addPaymentMethod } from "@helper/endpoints/subscriptions/apis";
 import states from "@helper/geo/state.json";
 import tw from "@lib/tailwind";
 import { IPaymentCard } from "@usertypes/types";
-import React, { useMemo, useState, useEffect } from "react";
+import React, { FC, useMemo, useState, useEffect } from "react";
 import { useAcceptJs } from "react-acceptjs";
 import ToastMessage from "react-native-toast-message";
 
-const AddPaymentCardDialog = () => {
-	const { state: contextState, dispatch } = useAppContext();
-	const modals = contextState.modal.modals;
-	const modal = modals.find(
-		(m) => m.id === ADD_PAYMENT_CARD_DIALOG_ID,
-	) as ModalState<{
-		postId: string;
-	}>;
-	const visible = !!modal && modal.show;
+interface Props {
+	visible: boolean;
+	handleClose: () => void;
+	handleToggleModal: (val: boolean) => void;
+}
+
+const AddPaymentCardDialog: FC<Props> = (props) => {
+	const { visible, handleClose, handleToggleModal } = props;
+	const { dispatch } = useAppContext();
 
 	const [isConfirm, setConfirm] = useState(false);
 	const [country, setCountry] = useState("");
@@ -74,14 +68,6 @@ const AddPaymentCardDialog = () => {
 	);
 
 	const handleBack = () => {
-		// router.back();
-		// dispatch.setCommon({
-		// 	type: CommonActionType.toggleSubscribeModal,
-		// 	data: {
-		// 		visible: true,
-		// 		defaultTab: "form",
-		// 	},
-		// });
 		handleClose();
 	};
 
@@ -121,10 +107,11 @@ const AddPaymentCardDialog = () => {
 		}
 
 		setIsSubmitted(true);
-		dispatch.setModal({
-			type: ModalActionType.showModal,
-			data: { id: ADD_PAYMENT_CARD_DIALOG_ID, show: false },
-		});
+		// dispatch.setModal({
+		// 	type: ModalActionType.showModal,
+		// 	data: { id: ADD_PAYMENT_CARD_DIALOG_ID, show: false },
+		// });
+		handleToggleModal(false);
 		dispatch.setShowLoading();
 		try {
 			const response = await dispatchData({
@@ -192,25 +179,12 @@ const AddPaymentCardDialog = () => {
 		}
 	};
 
-	const handleClose = () => {
-		dispatch.setModal({
-			type: ModalActionType.showModal,
-			data: { id: ADD_PAYMENT_CARD_DIALOG_ID, show: false },
-		});
-		dispatch.setCommon({
-			type: CommonActionType.toggleSubscribeModal,
-			data: {
-				visible: true,
-				defaultTab: "form",
-			},
-		});
-	};
-
 	const handleOpen = () => {
-		dispatch.setModal({
-			type: ModalActionType.showModal,
-			data: { id: ADD_PAYMENT_CARD_DIALOG_ID, show: true },
-		});
+		// dispatch.setModal({
+		// 	type: ModalActionType.showModal,
+		// 	data: { id: ADD_PAYMENT_CARD_DIALOG_ID, show: true },
+		// });
+		handleToggleModal(true);
 	};
 
 	const newPaymentMethod = async () => {
@@ -249,7 +223,6 @@ const AddPaymentCardDialog = () => {
 	return (
 		<FypModal
 			visible={visible}
-			// onDismiss={handleClose}
 			onDismiss={() => {}}
 			width={{ xs: "full", lg: 600 }}
 		>

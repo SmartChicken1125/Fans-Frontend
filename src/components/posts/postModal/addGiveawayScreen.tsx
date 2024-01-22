@@ -1,12 +1,12 @@
 import { defaultAddGiveawayFormData } from "@constants/defaultFormData";
 import { PostStepTypes } from "@usertypes/commonEnums";
 import {
-	IPostForm,
+	ICalendarDate,
 	IGiveawayForm,
 	IPickerMedia,
-	IDateRange,
+	IPostForm,
 } from "@usertypes/types";
-import React, { FC, useState, useEffect } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { View } from "react-native";
 import { AddGiveawayForm } from "../share";
 import ModalHeader from "./modalHeader";
@@ -33,20 +33,16 @@ const AddGiveawayScreen: FC<Props> = (props) => {
 		});
 	};
 
-	const handleChangeDuration = (value: IDateRange) => {
+	const handleChangeDate = (value: ICalendarDate) => {
 		setFormData({
 			...formData,
-			...value,
+			endDate: value,
 		});
 	};
 
 	const onSave = () => {
 		setIsSubmitted(true);
-		if (
-			formData.prize === "" ||
-			formData.winnerCount === "" ||
-			formData.timezone === ""
-		) {
+		if (formData.prize === "" || formData.winnerCount === "") {
 			return;
 		}
 		handleUpdatePostForm({
@@ -73,7 +69,7 @@ const AddGiveawayScreen: FC<Props> = (props) => {
 					isSubmitted={isSubmitted}
 					onChangeForm={handleChangeForm}
 					onSave={onSave}
-					handleChangeDuration={handleChangeDuration}
+					handleChangeDate={handleChangeDate}
 				/>
 			</ScreenWrapper>
 		</View>

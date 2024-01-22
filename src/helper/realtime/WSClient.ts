@@ -77,7 +77,7 @@ class RTWebSocketManager {
 			this.state = RTSocketState.Disconnected;
 			console.error("[RT] State -> Disconnected.", e);
 
-			setTimeout(this.connect.bind(this), 5000);
+			// setTimeout(this.connect.bind(this), 5000);
 		}
 	}
 
@@ -186,7 +186,7 @@ class RTWebSocketManager {
 		this.ws = null;
 		this.state = RTSocketState.Disconnected;
 		console.log("[RT] Connection closed.", code, reason, wasClean);
-		setTimeout(this.connect.bind(this), 5000);
+		// setTimeout(this.connect.bind(this), 5000);
 	}
 }
 

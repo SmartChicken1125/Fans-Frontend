@@ -7,7 +7,8 @@ import {
 	ProfileActionType,
 	useAppContext,
 } from "@context/useAppContext";
-import { createPost, createStory } from "@helper/endpoints/post/apis";
+import { createPost } from "@helper/endpoints/post/apis";
+import { createStory } from "@helper/endpoints/stories/apis";
 import tw from "@lib/tailwind";
 import {
 	IconTypes,
@@ -324,9 +325,6 @@ const PostModal = () => {
 			poll: {
 				..._poll,
 				thumbId: coverImgId,
-				startDate: moment(poll.startDate)
-					.utcOffset("+000", true)
-					.format(),
 				endDate: moment(poll.endDate).utcOffset("+000", true).format(),
 			},
 		};

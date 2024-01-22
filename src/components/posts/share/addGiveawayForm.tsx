@@ -1,18 +1,13 @@
 import FormControl from "@components/common/FormControl";
 import RoundButton from "@components/common/RoundButton";
-import {
-	FypDropdown,
-	FypText,
-	FypDateRangePicker,
-} from "@components/common/base";
-import CustomRadio from "@components/common/customRadio";
-import { FansDivider } from "@components/controls";
+import { FypDropdown, FypText } from "@components/common/base";
+import DatePicker from "@components/common/datePicker";
 import { PreviewImageField } from "@components/posts/common";
 import { winnerOptions } from "@constants/common";
 import { timezones } from "@constants/timezones";
 import tw from "@lib/tailwind";
 import { RoundButtonType } from "@usertypes/commonEnums";
-import { IGiveawayForm, IPickerMedia, IDateRange } from "@usertypes/types";
+import { ICalendarDate, IGiveawayForm, IPickerMedia } from "@usertypes/types";
 import useDocumentPicker from "@utils/useDocumentPicker";
 import React, { FC, useState } from "react";
 import { View } from "react-native";
@@ -22,12 +17,11 @@ interface Props {
 	isSubmitted: boolean;
 	onChangeForm: (name: string, value: string | IPickerMedia) => void;
 	onSave: () => void;
-	handleChangeDuration: (value: IDateRange) => void;
+	handleChangeDate: (value: ICalendarDate) => void;
 }
 
 const AddGiveawayForm: FC<Props> = (props) => {
-	const { data, onChangeForm, isSubmitted, onSave, handleChangeDuration } =
-		props;
+	const { data, onChangeForm, isSubmitted, onSave, handleChangeDate } = props;
 	const { useImagePicker } = useDocumentPicker();
 	const [enableOption, setEnableOption] = useState("all");
 
@@ -80,17 +74,13 @@ const AddGiveawayForm: FC<Props> = (props) => {
 
 			<View style={tw.style("px-[18px] pb-[104px] md:px-0 md:pb-10")}>
 				<View style={tw.style("mb-[30px]")}>
-					<FypDateRangePicker
-						label="Duration"
-						value={{
-							startDate: data.startDate,
-							endDate: data.endDate,
-						}}
-						onChangeValue={handleChangeDuration}
+					<DatePicker
+						value={data.endDate}
+						onChangeValue={handleChangeDate}
 					/>
 				</View>
 
-				<View style={tw.style("mb-[30px]")}>
+				{/* <View style={tw.style("mb-[30px]")}> // TODO
 					<FypText
 						fontSize={17}
 						lineHeight={22}
@@ -109,7 +99,7 @@ const AddGiveawayForm: FC<Props> = (props) => {
 						hasError={isSubmitted && data.timezone === ""}
 						validateString="please select timezone."
 					/>
-				</View>
+				</View> */}
 
 				<View style={tw.style("mb-7")}>
 					<FypText

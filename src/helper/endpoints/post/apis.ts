@@ -7,26 +7,24 @@ import {
 	createPUTWithParams,
 } from "@helper/RequesterBase";
 import { IdParams } from "@usertypes/params";
-import { IPost, IRole, IStory } from "@usertypes/types";
+import { IPost, IRole } from "@usertypes/types";
 import {
 	AddPostCommentReqBody,
+	AnalyzeFansRespBody,
 	BookmarkIdsRespBody,
 	BookmarksRespBody,
 	CreatePostReportReqBody,
+	CreatePostReportRespBody,
+	FansUsersRespBody,
+	InvitationReqBody,
+	PaidPostPriceResBody,
 	PostArchiveReqBody,
 	PostFeedForProfileIdParams,
 	PostListRespBody,
-	PostReqBody,
-	RepliesRespBody,
-	StoriesRespBody,
-	StoryReqBody,
-	RoleReqBody,
-	AnalyzeFansRespBody,
-	InvitationReqBody,
-	FansUsersRespBody,
+	PostCreateReqBody,
 	PurchasePaidPostReqBody,
-	PaidPostPriceResBody,
-	CreatePostReportRespBody,
+	RepliesRespBody,
+	RoleReqBody,
 } from "./schemas";
 
 export const createRole = createPOST<RoleReqBody, IRole>("/roles", true);
@@ -40,7 +38,7 @@ export const deleteRole = createDELETEWithParams<IdParams, never, IdParams>(
 	true,
 );
 
-export const createPost = createPOST<PostReqBody, IPost>("/posts", true);
+export const createPost = createPOST<PostCreateReqBody, IPost>("/posts", true);
 export const getPosts = createGET<PostListRespBody>("/posts", true);
 export const getPostById = createGETWithParams<IPost, IdParams>(
 	"/posts/:id",
@@ -57,14 +55,6 @@ export const updatePostArchive = createPOST<PostArchiveReqBody, never>(
 );
 export const deletePostById = createDELETEWithParams<IdParams, never, IdParams>(
 	"/posts/:id",
-	true,
-);
-
-// story apis
-export const createStory = createPOST<StoryReqBody, IStory>("/stories", true);
-export const getStories = createGET<StoriesRespBody>("/stories", true);
-export const deleteStory = createDELETEWithParams<IdParams, never, IdParams>(
-	"/stories/:id",
 	true,
 );
 

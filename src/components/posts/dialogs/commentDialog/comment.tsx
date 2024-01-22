@@ -12,13 +12,13 @@ import {
 } from "@components/common/base";
 import { FansText, FansView, FansIconButton } from "@components/controls";
 import tw from "@lib/tailwind";
-import { IComment } from "@usertypes/types";
+import { IComment, IStoryReply } from "@usertypes/types";
 import { getAgoTime } from "@utils/common";
 import React, { FC, useState } from "react";
 import { Pressable, TouchableOpacity } from "react-native";
 
 interface Props {
-	data: IComment;
+	data: IComment | IStoryReply;
 	children?: React.ReactNode;
 	onClickReply: () => void;
 	onClickLike: () => void;
@@ -42,7 +42,10 @@ const Comment: FC<Props> = (props) => {
 		<FansView flexDirection="row">
 			<FansView width={34} height={34} position="relative">
 				<FypNullableView
-					visible={(data.profile?.activeStories?.length ?? 0) > 0}
+					visible={
+						"profile" in data &&
+						(data.profile?.activeStories?.length ?? 0) > 0
+					}
 				>
 					<RoundedBorderSvg
 						size={38}

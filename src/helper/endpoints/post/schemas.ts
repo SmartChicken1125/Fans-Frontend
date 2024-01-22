@@ -1,85 +1,125 @@
 import { PostType } from "@usertypes/commonEnums";
 import {
-	IPostAdvanced,
-	IBookmark,
-	IFundraiser,
-	IGiveaway,
-	IPaidPost,
-	IPoll,
-	IPost,
-	ISchedule,
-	IStory,
-	PostReportFlag,
 	IAnalyzeFans,
-	IFansUser,
-	PaginatedRespBody,
+	IBookmark,
 	IComment,
+	IFansUser,
+	IPost,
 	IProfile,
 	IUser,
+	PaginatedRespBody,
+	PostReportFlag,
 } from "@usertypes/types";
 
-export interface IPostReqPaidPost {
-	currency: string;
-	price: number;
-	thumbId: string;
+export interface PostAdvanced {
+	isHideLikeViewCount: boolean;
+	isTurnOffComment: boolean;
+	isPaidLabelDisclaimer: boolean;
 }
 
-export interface IPostReqFundraiser {
-	title: string;
-	caption: string;
+export interface PostLocation {
+	city: string;
+	country: string;
+	district: string;
+	isoCountryCode: string;
+	name: string;
+	postalCode: string;
+	region: string;
+	street: string;
+	subregion: string;
+	timezone: string;
+}
+
+export interface PaidPost {
 	price: number;
 	currency: string;
-	startDate: string;
+	thumbId?: string;
+	tiers?: string[];
+	roles?: string[];
+	users?: string[];
+}
+
+export interface FundraiserBody {
+	title: string;
+	caption?: string;
+	thumbId?: string;
+	price: number;
+	currency: string;
 	endDate: string;
-	timezone: string;
 	isXpAdd: boolean;
-	thumbId: string;
 }
 
-export interface IPostReqGiveaway {
+export interface GiveawayBody {
 	prize: string;
-	startDate: string;
+	thumbId?: string;
 	endDate: string;
-	timezone: string;
 	winnerCount: number;
-	thumbId: string;
+	roles?: string[];
 }
 
-export interface IPostReqPoll {
+export interface PollBody {
 	question: string;
-	caption: string;
+	caption?: string;
 	answers: string[];
-	thumbId: string;
-	startDate: string;
+	thumbId?: string;
 	endDate: string;
-	timezone: string;
+	isPublic: boolean;
+	roles?: string[];
 }
-export interface PostReqBody {
-	title: string;
+
+export interface ScheduleBody {
+	startDate: string;
+	endDate?: string;
+}
+
+export interface TaggedPeople {
+	userId: string;
+	pointX: number;
+	pointY: number;
+}
+
+export interface PostMediaTags {
+	userId: string;
+	pointX: number;
+	pointY: number;
+}
+
+export interface PostMedia {
+	postMediaId: string;
+	tags: PostMediaTags[];
+}
+
+export interface PostCreateReqBody {
+	title?: string;
 	type: PostType;
 	caption: string;
 	thumbId?: string;
-	mediaIds?: string[];
+	// video, image, audios can be string
+	// fundraiser will be FundrasierResource
+	// poll will be PollResource
+	postMedias?: PostMedia[];
 	text?: string;
+	taggedPeoples?: TaggedPeople[];
+	advanced?: PostAdvanced;
+	location?: string;
+
+	roles?: string[];
+	tiers?: string[];
+	users?: string[];
 	categories?: string[];
-	paidPost?: IPostReqPaidPost;
-	fundraiser?: IPostReqFundraiser;
-	giveaway?: IPostReqGiveaway;
-	poll?: IPostReqPoll;
-	schedule?: ISchedule;
-	advanced?: IPostAdvanced;
 	episodeNumber?: number;
 	description?: string;
-	isPrivate?: boolean;
-	isAudioLeveling?: boolean;
-	isNoiseReduction?: boolean;
-	taggedPeoples?: string[];
 	formIds?: string[];
-	location?: string;
-	roles?: string[];
-	users?: string[];
-	tiers?: string[];
+	isPrivate?: boolean;
+	isNoiseReduction?: boolean;
+	isAudioLeveling?: boolean;
+	paidPost?: PaidPost;
+	fundraiser?: FundraiserBody;
+	giveaway?: GiveawayBody;
+	poll?: PollBody;
+	schedule?: ScheduleBody;
 }
+
 export interface PostArchiveReqBody {
 	id: string;
 }
@@ -112,13 +152,6 @@ export interface PostListRespBody {
 
 export interface PostFeedForProfileIdParams {
 	userId: string;
-}
-
-export interface StoriesRespBody {
-	stories: IStory[];
-	page: number;
-	size: number;
-	total: number;
 }
 
 export interface CreatePostReportReqBody {

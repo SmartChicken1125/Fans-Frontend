@@ -190,6 +190,7 @@ const AgeVerificationFormScreen = (
 											setState(val as string)
 										}
 										placeholder="Select State / Province"
+										search
 									/>
 									<RoundTextInput
 										placeholder="Zip code"
