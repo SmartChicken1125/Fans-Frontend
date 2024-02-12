@@ -135,7 +135,7 @@ async function doUploadCFStream(
 ): Promise<IUploadedFile> {
 	const tus = await import("tus-js-client");
 
-	const resp = await tusUpload({} as never, { type }, undefined, {
+	const resp = await tusUpload({ usage }, { type }, undefined, {
 		"upload-length": file.size.toString(),
 	});
 	if (!resp.ok) {

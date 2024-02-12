@@ -9,6 +9,7 @@ import {
 	DurationType,
 	IconTypes,
 	MediaType,
+	MeetingStatusType,
 	PostStepTypes,
 	PostType,
 	PromotionType,
@@ -39,11 +40,15 @@ export interface IConversationMeta {
 	id: string;
 	name: string;
 	icon: string | null;
+	price: number;
 	otherParticipant?: Partial<IProfile> | null;
 	lastReadMessageId?: string;
 	lastMessage?: IMessage;
 	isBlocked: boolean;
 	isPinned: boolean;
+	earnings: number;
+	xpLevel: number;
+	unreadCount: number;
 }
 
 export enum UserType {
@@ -84,6 +89,19 @@ export const profileReportFlags = [
 ] as const;
 
 export type ProfileReportFlag = (typeof profileReportFlags)[number];
+
+export const MessageReportFlags = [
+	"ILLEGAL_CONTENT",
+	"UNDERAGE_CONTENT",
+	"GRAPHIC_VOILENCE_OR_GORE",
+	"HARASSMENT_OR_BULLYING",
+	"SELF_HARM_OR_SUICIDE_CONTENT",
+	"NON_CONSENSUAL_CONTENT",
+	"SPAM_OR_SCAM",
+	"INFRINGEMENT_OF_MY_COPYRIGHT",
+	"OTHER",
+] as const;
+export type MessageReportFlag = (typeof MessageReportFlags)[number];
 
 export interface StringIdParam {
 	id: string;
@@ -128,7 +146,7 @@ export interface IProfile {
 	previews: IProfilePreview[];
 	username?: string;
 	avatar?: string;
-	user?: IUser;
+	user?: IUserInfo;
 	roles: IRole[];
 	categories: ICategory[];
 	stories: IStory[];
@@ -139,6 +157,14 @@ export interface IProfile {
 	fanReferralShare?: number;
 	marketingContentLink?: string;
 	fanReferrals?: IFanReferral[];
+
+	hideTips?: boolean;
+	hideLikes?: boolean;
+	hideComments?: boolean;
+	explicitCommentFilter?: boolean;
+	isAllowedScreenshot?: boolean;
+	watermark?: boolean;
+	isDisplayShop: boolean;
 }
 
 export interface IOAuth2LinkedAccount {
@@ -177,16 +203,17 @@ export interface IUserInfo {
 export interface IUser {
 	id: string;
 	avatar?: string;
-	email: string;
-	username: string;
-	phonenumber?: string;
 	type: UserRoleTypes;
+	username: string;
 	displayName?: string;
+	phonenumber?: string;
+	email: string;
+	createdAt: string;
 	language?: LanguageType;
+	birthdate?: string;
 	gems?: number;
 	gemsAmount?: number;
 	payoutBalance?: number;
-	birthdate?: string;
 	isShowProfile?: boolean;
 }
 
@@ -213,15 +240,18 @@ export interface IPostAdvanced {
 }
 
 export interface ITaggedPeople {
-	postId: string;
-	userId: string;
-	user: IUserInfo;
+	// postId: string;
+	// userId: string;
+	// user: IUserInfo;
+	postMediaId: string;
+	tags: IUserTag[];
 }
 
 export interface Media {
 	id: string;
-	url?: string;
 	blurhash?: string;
+	type: string;
+	url?: string;
 }
 
 export interface IPost {
@@ -240,6 +270,7 @@ export interface IPost {
 	location?: string;
 	createdAt: string;
 	updatedAt: string;
+	schedule?: IPostSchedule;
 
 	username?: string;
 	bookmarkCount: number;
@@ -261,8 +292,8 @@ export interface IPost {
 }
 
 export interface AnalyticsIPost extends IPost {
-	earnings: number;
-	purchases: number;
+	earnings?: number;
+	purchases?: number;
 }
 
 export interface IPaidPostForm {
@@ -300,6 +331,7 @@ export interface IUserList {
 	title: string;
 	creators: IProfile[];
 	isActive: boolean;
+	enabled: boolean;
 	updatedAt: string;
 }
 
@@ -456,6 +488,7 @@ export interface ICategory {
 
 export interface IThumbImage {
 	id: string;
+	type: string;
 	url: string;
 	blurhash?: string;
 }
@@ -498,10 +531,12 @@ export interface IGiveawayForm {
 	cover: IPickerMedia;
 }
 
-export interface ISchedule {
+export interface IPostSchedule {
+	id: string;
+	postId: string;
 	startDate: string;
 	endDate: string;
-	timezone: string;
+	updatedAt: string;
 }
 
 export interface IPollAnswer {
@@ -525,6 +560,7 @@ export interface IPoll {
 }
 
 export interface IPollForm {
+	id: string;
 	question: string;
 	caption: string;
 	answers: string[];
@@ -561,7 +597,6 @@ export interface IPostForm {
 	uploadFiles: IUploadForm[];
 	isReleaseForm: boolean;
 	carouselIndex: number;
-	newUsertags: INewTaggedPeople[];
 	categoryForm: IPostCategoryForm;
 	paidPostAccess: IPaidPostAccessForm;
 	// Everyone can view
@@ -570,6 +605,7 @@ export interface IPostForm {
 	tiers: string[];
 	users: IFansUser[];
 	secondStep?: PostStepTypes;
+	// val
 }
 
 export interface IPaidPostAccessForm {
@@ -588,13 +624,14 @@ export interface IUserTag {
 	id: string;
 	userId?: string;
 	user?: IUserInfo;
-	position: number[];
+	pointX: number;
+	pointY: number;
 }
 
-export interface INewTaggedPeople {
-	uploadId: string; //mediaId
-	usertags: IUserTag[];
-}
+// export interface INewTaggedPeople {
+// 	postMediaId: string;
+// 	tags: IUserTag[];
+// }
 
 export interface IAudioDetail {
 	title: string;
@@ -609,6 +646,7 @@ export interface IMedia {
 	id: string;
 	type: MediaType;
 	url?: string;
+	thumbnail?: string;
 	blurhash?: string;
 	origin?: string;
 	updatedAt: string;
@@ -620,6 +658,7 @@ export interface IUpload {
 	userId: string;
 	type: MediaType;
 	url: string;
+	thumbnail?: string;
 	origin?: string;
 	completed: boolean;
 	updatedAt: string;
@@ -633,8 +672,10 @@ export interface IDateRangeResponse {
 export interface IPickerMedia {
 	id?: string;
 	uri: string;
+	url?: string;
 	isPicker: boolean;
 	name?: string;
+	type: MediaType;
 }
 
 export interface IStoryMedia {
@@ -653,12 +694,46 @@ export interface IStory {
 	profileId: string;
 	isHighlight: boolean;
 	isArchived: boolean;
-	medias: string[];
+	media: string;
 	likeCount: number;
 	commentCount: number;
 	updatedAt: string;
 	isLiked: boolean;
 	shareCount: number;
+	storyTags: IStoryTag[];
+	storyUrls: IStoryUrl[];
+	storyTexts: IStoryText[];
+}
+
+export interface IStoryUrl {
+	id: string;
+	storyId: string;
+	url: string;
+	pointX: number;
+	pointY: number;
+	updatedAt: string;
+}
+
+export interface IStoryTag {
+	id: string;
+	storyId: string;
+	creatorId: string;
+	creator: IProfile;
+	color: string;
+	pointX: number;
+	pointY: number;
+	updatedAt: string;
+}
+
+export interface IStoryText {
+	id: string;
+	storyId: string;
+	text: string;
+	color: string;
+	font: string;
+	pointX: number;
+	pointY: number;
+	updatedAt: string;
 }
 
 export interface IStoryComment {
@@ -786,9 +861,10 @@ export interface IBookmark {
 
 export const enum MessageType {
 	TEXT = 0,
-	IMAGE = 1,
+	MEDIA = 1,
 	TIP = 2,
 	PAID_POST = 3,
+	GIF = 4,
 }
 
 export const enum MessageChannelType {
@@ -803,7 +879,7 @@ export interface IMessage {
 	messageType: MessageType;
 	content: string;
 	emoji?: number;
-	images?: string[];
+	media?: IMedia[];
 	previewImages?: string;
 	value?: number;
 	status?: string;
@@ -1100,9 +1176,7 @@ export interface IVideoCallSetting {
 	contentPreferences: string[];
 	customContentPreferences: string;
 	meetingType: VideoCallWays;
-	meetingTitle: string;
 	meetingDescription: string;
-	customVideoOrdersEnabled: boolean;
 	vacationMode: boolean;
 	meetingDurations: IVideoCallDuration[];
 	notificationNewRequests: boolean;
@@ -1111,6 +1185,7 @@ export interface IVideoCallSetting {
 	notificationsByEmail: boolean;
 	notificationsByPhone: boolean;
 	videoCallsEnabled: boolean;
+	isAvailable: boolean;
 }
 
 export interface IProfileSettings {
@@ -1268,10 +1343,6 @@ export interface CreatorReferralLinkPerformance {
 	visitCount: number;
 }
 
-export interface IThemeMode {
-	mode: "light" | "dark";
-}
-
 export interface BeforeInstallPromptEvent extends Event {
 	prompt: () => Promise<void>;
 	userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
@@ -1318,3 +1389,44 @@ export interface ITimeframeInterval {
 }
 
 export type SortType = "Newest" | "Oldest";
+
+export interface IAvailableInterval {
+	duration: number;
+	startDate: string;
+}
+
+export interface IVideoCallMeeting {
+	id: string;
+	hostId: string;
+	startDate: string;
+	endDate: string;
+	status: MeetingStatusType;
+	price: {
+		currency: string;
+		amount: number;
+	};
+	topics: string;
+	attendees?: IVideoCallAttendant[];
+}
+
+export interface IVideoCallAttendant {
+	id: string;
+	type: UserRoleTypes;
+	avatar: string;
+	username: string;
+	displayName: string;
+	phonenumber?: string;
+	email?: string;
+	language: LanguageType;
+	birthdate: string;
+	verifiedAt: string;
+	createdAt: string;
+	updatedAt: string;
+	isShowProfile: boolean;
+}
+
+export interface IDatePickerVaildRange {
+	startDate?: Date;
+	endDate?: Date;
+	disabledDates?: Date[];
+}

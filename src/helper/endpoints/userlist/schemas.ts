@@ -9,6 +9,7 @@ export interface UserlistUpdateReqBody {
 	title?: string;
 	creators?: string[];
 	isActive?: boolean;
+	enabled?: boolean;
 }
 
 export type UserlistRespBody = IUserList & {

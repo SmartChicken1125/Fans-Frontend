@@ -14,8 +14,6 @@ interface Props {
 	categories: ICategory[];
 	onClickPostAction: (postId: string) => void;
 	onClickPostMessage?: (postId: string) => void;
-	onClickBookmark: (postId: string) => void;
-	onClickPostLike: (postId: string) => void;
 	needToSubscribe?: boolean;
 	subscription?: ISubscription;
 	onClickSubscribe?: () => void;
@@ -23,24 +21,24 @@ interface Props {
 	onChangeFilter: (val: string | SortType) => void;
 	onClickUnlock?: (post: IPost) => void;
 	onClickComment: (postId: string) => void;
+	updatePostCallback: (postId: string, data: Partial<IPost>) => void;
 }
 
 const PostsTabContents: FC<Props> = (props) => {
 	const {
 		onClickPostAction,
 		onClickPostMessage,
-		onClickBookmark,
 		posts,
 		needToSubscribe,
 		subscription,
 		onClickSubscribe,
 		categories,
-		onClickPostLike,
 		onChangeFilter,
 		filter,
 		onClickUnlock,
 		totalPostsCount,
 		onClickComment,
+		updatePostCallback,
 	} = props;
 
 	return (
@@ -118,8 +116,6 @@ const PostsTabContents: FC<Props> = (props) => {
 									onClickUnlock(post);
 								}
 							}}
-							onClickBookmark={() => onClickBookmark(post.id)}
-							onClickLike={() => onClickPostLike(post.id)}
 							onClickActionMenu={() => onClickPostAction(post.id)}
 							onClickMessage={
 								onClickPostMessage
@@ -127,6 +123,7 @@ const PostsTabContents: FC<Props> = (props) => {
 									: undefined
 							}
 							onClickComment={() => onClickComment(post.id)}
+							updatePostCallback={updatePostCallback}
 						/>
 						<FansDivider
 							style={tw.style("my-2 mx-[18px] md:mx-0 md:my-2.5")}

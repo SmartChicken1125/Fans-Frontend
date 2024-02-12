@@ -125,7 +125,7 @@ const HighlightSelectImagesScreen = (
 									<ImagePostChip
 										colSpan={3}
 										key={story.id}
-										uri={story.medias[0]}
+										uri={story.media}
 										onPress={() => onToggleStory(story)}
 										orderNumber={
 											selectedStories.findIndex(

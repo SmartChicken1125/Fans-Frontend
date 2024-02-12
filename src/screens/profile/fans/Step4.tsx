@@ -21,7 +21,8 @@ const Step4 = () => {
 
 	const { state, dispatch } = useAppContext();
 
-	const { meetingTitle, meetingDescription } = state.profile.settings.video;
+	const { meetingDescription } = state.profile.settings.video;
+	const meetingTitle = "";
 	const { video } = state.profile.settings;
 
 	const handleChangeField = async (name: string, val: string | number) => {

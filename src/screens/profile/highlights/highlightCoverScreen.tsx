@@ -137,6 +137,7 @@ const HighlightCoverScreen = (
 			setCover({
 				uri: highlightForm.cover,
 				isPicker: false,
+				type: MediaType.Image,
 			});
 			setName(highlightForm.title);
 		}

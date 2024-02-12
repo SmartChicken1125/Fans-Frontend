@@ -5,17 +5,14 @@ import SearchTextInput from "@components/common/searchTextInput";
 import { FansView } from "@components/controls";
 import { PostAnalyticsModal } from "@components/modals/shop";
 import { FilterButton } from "@components/posts/common";
-import { PostCommentDialog } from "@components/posts/dialogs";
-import PostCard from "@components/posts/postCard";
-import { useAppContext } from "@context/useAppContext";
 import {
-	getPaidPosts,
-	deletePostById,
-	setBookmark,
-	deleteBookmark,
-	unlikePostWithPostId,
-	likePostWithPostId,
-} from "@helper/endpoints/post/apis";
+	PostCommentDialog,
+	SendMessageDialog,
+} from "@components/posts/dialogs";
+import PostCard from "@components/posts/postCard";
+import { POST_REPORT_DIALOG_ID } from "@constants/modal";
+import { useAppContext, ModalActionType } from "@context/useAppContext";
+import { getPurchasedPosts } from "@helper/endpoints/post/apis";
 import { PostListRespBody } from "@helper/endpoints/post/schemas";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -23,7 +20,7 @@ import { useFeatureGates } from "@state/featureGates";
 import { IconTypes } from "@usertypes/commonEnums";
 import { ProfileNavigationStacks } from "@usertypes/navigations";
 import { IPostFilterQuery } from "@usertypes/params";
-import { ICardAction } from "@usertypes/types";
+import { ICardAction, IPost } from "@usertypes/types";
 import useClipboard from "@utils/useClipboard";
 import { createURL } from "expo-linking";
 import React, { useState, useEffect } from "react";
@@ -35,13 +32,13 @@ const PurchasesScreen = (
 	const { navigation } = props;
 	const featureGates = useFeatureGates();
 	const { copyString } = useClipboard();
-	const { state } = useAppContext();
+	const { state, dispatch } = useAppContext();
 	const { profile } = state;
 
 	const [selectedPostId, setSelectedPostId] = useState("");
 	const [searchQuery, setSearchQuery] = useState("");
 	const [inLoadingMore, setInLoadingMore] = useState(false);
-	const [paidPosts, setPaidPosts] = useState<PostListRespBody>({
+	const [posts, setPosts] = useState<PostListRespBody>({
 		posts: [],
 		page: 1,
 		size: 10,
@@ -50,6 +47,7 @@ const PurchasesScreen = (
 	const [openPostMenus, setOpenPostMenus] = useState(false);
 	const [openPostAnalytics, setOpenPostAnalytics] = useState(false);
 	const [openCommentModal, setOpenCommentModal] = useState(false);
+	const [openMessageDialog, setOpenMessageDialog] = useState(false);
 
 	const filterOptions = featureGates.has("2024_01-purchases-search-filter")
 		? ["Content Purchased", "Video calls", "Custom videos"]
@@ -59,109 +57,31 @@ const PurchasesScreen = (
 		navigation.goBack();
 	};
 
-	const fetchPaidPosts = async () => {
+	const fetchPurchasedPosts = async () => {
 		if (profile.userId === "0") {
 			return;
 		}
 		const filterObject: IPostFilterQuery = {
-			page: paidPosts.page,
+			page: posts.page,
 			size: 10,
 		};
-		const resp = await getPaidPosts(filterObject);
+		const resp = await getPurchasedPosts(filterObject);
 		setInLoadingMore(false);
 		if (resp.ok) {
-			setPaidPosts({
+			setPosts({
 				...resp.data,
 				posts:
 					resp.data.page === 1
 						? resp.data.posts
-						: [...paidPosts.posts, ...resp.data.posts],
+						: [...posts.posts, ...resp.data.posts],
 			});
 		}
-	};
-
-	const handleBookmark = async (id: string) => {
-		const post = paidPosts.posts.find((el) => el.id === id);
-		let respValue = {
-			isBookmarked: post?.isBookmarked,
-			bookmarkCount: post?.bookmarkCount,
-		};
-		if (post?.isBookmarked) {
-			const resp = await deleteBookmark(null, { id });
-			if (resp.ok) {
-				respValue = {
-					isBookmarked: resp.data.updatedPost.isBookmarked,
-					bookmarkCount: resp.data.updatedPost.bookmarkCount,
-				};
-			}
-		} else {
-			const resp = await setBookmark(null, { id });
-			if (resp.ok) {
-				respValue = {
-					isBookmarked: resp.data.updatedPost.isBookmarked,
-					bookmarkCount: resp.data.updatedPost.bookmarkCount,
-				};
-			}
-		}
-		setPaidPosts({
-			...paidPosts,
-			posts: paidPosts.posts.map((el) =>
-				el.id === id
-					? {
-							...el,
-							isBookmarked: respValue.isBookmarked ?? false,
-							bookmarkCount: respValue.bookmarkCount ?? 0,
-					  }
-					: el,
-			),
-		});
-	};
-
-	const handleLikePost = async (postId: string) => {
-		const post = paidPosts.posts.find((el) => el.id === postId);
-		let respValue = {
-			likeCount: post?.likeCount,
-			isLiked: post?.isLiked,
-		};
-		if (post?.isLiked) {
-			const resp = await unlikePostWithPostId(null, {
-				id: postId,
-			});
-			if (resp.ok) {
-				respValue = {
-					likeCount: resp.data.likeCount,
-					isLiked: resp.data.isLiked,
-				};
-			}
-		} else {
-			const resp = await likePostWithPostId(null, {
-				id: postId,
-			});
-			if (resp.ok) {
-				respValue = {
-					likeCount: resp.data.likeCount,
-					isLiked: resp.data.isLiked,
-				};
-			}
-		}
-		setPaidPosts({
-			...paidPosts,
-			posts: paidPosts.posts.map((el) =>
-				el.id === postId
-					? {
-							...el,
-							likeCount: respValue?.likeCount ?? 0,
-							isLiked: respValue.isLiked,
-					  }
-					: el,
-			),
-		});
 	};
 
 	const onCommentCallback = (postId: string, commentCounts: number) => {
-		setPaidPosts({
-			...paidPosts,
-			posts: paidPosts.posts.map((post) =>
+		setPosts({
+			...posts,
+			posts: posts.posts.map((post) =>
 				post.id === postId
 					? {
 							...post,
@@ -180,11 +100,11 @@ const PurchasesScreen = (
 				nativeEvent.contentOffset.y >=
 			nativeEvent.contentSize.height - paddingToBottom;
 		if (isScrollEnd && !inLoadingMore) {
-			if (paidPosts.total > 10 * paidPosts.page) {
+			if (posts.total > 10 * posts.page) {
 				setInLoadingMore(true);
-				setPaidPosts({
-					...paidPosts,
-					page: paidPosts.page + 1,
+				setPosts({
+					...posts,
+					page: posts.page + 1,
 				});
 			}
 		}
@@ -196,32 +116,24 @@ const PurchasesScreen = (
 		setOpenPostMenus(false);
 	};
 
-	const onShopViewAnalytics = () => {
+	const handleReportPost = () => {
 		setOpenPostMenus(false);
-		setOpenPostAnalytics(true);
+		dispatch.setModal({
+			type: ModalActionType.showModal,
+			data: {
+				id: POST_REPORT_DIALOG_ID,
+				show: true,
+				payload: { postId: selectedPostId },
+			},
+		});
 	};
 
-	const onShopHide = () => {
-		setOpenPostMenus(false);
+	const onClickMessage = (id: string) => {
+		setSelectedPostId(id);
+		setOpenMessageDialog(true);
 	};
 
-	const onShopDelete = async () => {
-		const resp = await deletePostById(
-			{ id: selectedPostId },
-			{ id: selectedPostId },
-		);
-		if (resp.ok) {
-			setPaidPosts({
-				...paidPosts,
-				posts: paidPosts.posts.filter(
-					(post) => post.id !== selectedPostId,
-				),
-			});
-		}
-		setOpenPostMenus(false);
-	};
-
-	const shopPostActions: ICardAction[] = [
+	const postActions: ICardAction[] = [
 		{
 			title: "Copy link",
 			iconType: IconTypes.Edit,
@@ -229,29 +141,32 @@ const PurchasesScreen = (
 			iconSize: 18,
 		},
 		{
-			title: "View analytics",
-			iconType: IconTypes.Statistics,
-			onClick: onShopViewAnalytics,
+			title: "Report post",
+			iconType: IconTypes.Report,
+			iconColor: "#eb2121",
+			onClick: handleReportPost,
 			iconSize: 18,
-		},
-		{
-			title: "Hide from shop",
-			iconType: IconTypes.EyeHide,
-			onClick: onShopHide,
-			iconSize: 18,
-		},
-		{
-			title: "Delete post",
-			iconType: IconTypes.Cancel,
-			iconColor: "fans-red",
-			onClick: onShopDelete,
 			labelClass: "text-fans-red",
 		},
 	];
 
+	const updatePostCallback = (postId: string, data: Partial<IPost>) => {
+		setPosts({
+			...posts,
+			posts: posts.posts.map((el) =>
+				el.id === postId
+					? {
+							...el,
+							...data,
+					  }
+					: el,
+			),
+		});
+	};
+
 	useEffect(() => {
-		if (profile.userId) fetchPaidPosts();
-	}, [profile.userId, paidPosts.page]);
+		if (profile.userId) fetchPurchasedPosts();
+	}, [profile.userId, posts.page]);
 
 	return (
 		<AppLayout
@@ -294,6 +209,7 @@ const PurchasesScreen = (
 							>
 								{filterOptions.map((el) => (
 									<FilterButton
+										key={el}
 										title={el}
 										onClick={() => {}}
 										isSelected={true}
@@ -301,17 +217,11 @@ const PurchasesScreen = (
 								))}
 							</FansView>
 							<FansView gap={18}>
-								{paidPosts.posts.map((post) => (
+								{posts.posts.map((post) => (
 									<PostCard
+										key={post.id}
 										data={post}
-										purchaseCard
 										onClickUnlock={() => {}}
-										onClickBookmark={() =>
-											handleBookmark(post.id)
-										}
-										onClickLike={() =>
-											handleLikePost(post.id)
-										}
 										onClickActionMenu={() => {
 											setSelectedPostId(post.id);
 											setOpenPostMenus(true);
@@ -320,6 +230,10 @@ const PurchasesScreen = (
 											setSelectedPostId(post.id);
 											setOpenCommentModal(true);
 										}}
+										updatePostCallback={updatePostCallback}
+										onClickMessage={() =>
+											onClickMessage(post.id)
+										}
 									/>
 								))}
 							</FansView>
@@ -330,7 +244,7 @@ const PurchasesScreen = (
 			<CardActions
 				open={openPostMenus}
 				onClose={() => setOpenPostMenus(false)}
-				actions={shopPostActions}
+				actions={postActions}
 			/>
 			<PostAnalyticsModal
 				visible={openPostAnalytics}
@@ -342,6 +256,14 @@ const PurchasesScreen = (
 				postId={selectedPostId}
 				onDismiss={() => setOpenCommentModal(false)}
 				onCallback={onCommentCallback}
+			/>
+			<SendMessageDialog
+				open={openMessageDialog}
+				onClose={() => setOpenMessageDialog(false)}
+				reciever={
+					posts.posts.find((post) => post.id === selectedPostId)
+						?.profile
+				}
 			/>
 		</AppLayout>
 	);

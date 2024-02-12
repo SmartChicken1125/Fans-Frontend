@@ -21,9 +21,11 @@ export interface IPostFilterQuery {
 	size: number;
 	sort?: SortType;
 	categoryId?: string;
+	schedule?: boolean;
 }
 export interface IMediaFilterQuery {
 	page: number;
 	size: number;
 	type?: MediaType | string;
+	sort?: "newest" | "latest";
 }

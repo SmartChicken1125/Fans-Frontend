@@ -276,7 +276,7 @@ const ControlButtons: FC<Props> = (props) => {
 					alignItems="center"
 					justifyContent="center"
 					style={tw.style(
-						"border-[3px] bg-fans-black-34 border-fans-[#583922] hidden md:flex",
+						"border-[3px] bg-fans-black-34 border-[#583922] hidden md:flex",
 					)}
 					pressableProps={{
 						onPress: () => setOpenDevicePopup(!openDevicePopup),

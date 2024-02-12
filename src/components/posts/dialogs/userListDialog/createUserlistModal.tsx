@@ -84,6 +84,10 @@ const CreateUserListModal: FC<Props> = (props) => {
 			setUserlistName(userlist.title);
 			setSelectedCreators(userlist.creators);
 			setQuery("");
+		} else {
+			setUserlistName("");
+			setSelectedCreators([]);
+			setQuery("");
 		}
 	}, [userlist]);
 

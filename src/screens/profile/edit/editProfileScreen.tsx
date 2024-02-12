@@ -628,7 +628,7 @@ const EditProfileScreen = (
 									}}
 								/>
 								<EditSubLink
-									title="Payout Setup"
+									title="Payouts"
 									onPress={() => {
 										navigation.navigate("GetPaid");
 									}}

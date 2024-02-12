@@ -22,7 +22,7 @@ const StepperButtons: React.FC<VideoStepperButtonsProps> = ({
 }) => {
 	const { state } = useAppContext();
 	const { video } = state.profile.settings;
-	const { meetingDurations = [], timeframes, meetingTitle } = video;
+	const { meetingDurations, timeframes } = video;
 
 	const getNextDisabled = () => {
 		switch (currentStep) {
@@ -30,12 +30,12 @@ const StepperButtons: React.FC<VideoStepperButtonsProps> = ({
 				return meetingDurations.length === 0;
 			case 1:
 				return timeframes.length < 3;
-			case 3:
-				return meetingTitle === "";
 			default:
 				return false;
 		}
 	};
+
+	console.log(video);
 
 	return (
 		<View>

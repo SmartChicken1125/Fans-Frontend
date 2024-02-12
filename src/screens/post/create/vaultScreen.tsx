@@ -1,15 +1,22 @@
-import { Camera1Svg, CheckSvg } from "@assets/svgs/common";
-import { FypNullableView, FypSvg, FypText } from "@components/common/base";
+import { Camera1Svg } from "@assets/svgs/common";
+import { FypSvg, FypText } from "@components/common/base";
 import CustomTopNavBar from "@components/common/customTopNavBar";
 import { FansIconButton, FansView } from "@components/controls";
 import { ImagePostChip } from "@components/posts/common";
+import { MediaItem } from "@components/profiles";
 import { defaultPostFormData } from "@constants/defaultFormData";
 import { PostsActionType, useAppContext } from "@context/useAppContext";
+import { getPostMedias } from "@helper/endpoints/media/apis";
+import { MediasRespBody } from "@helper/endpoints/media/schemas";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { MediaType } from "@usertypes/commonEnums";
 import { PostsNavigationStacks } from "@usertypes/navigations";
-import React, { useState } from "react";
-import { ScrollView } from "react-native";
+import { IMediaFilterQuery } from "@usertypes/params";
+import { IMedia } from "@usertypes/types";
+import { checkEnableMediasLoadingMore } from "@utils/common";
+import React, { useState, useEffect } from "react";
+import { ScrollView, NativeScrollEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const VaultScreen = (
@@ -19,11 +26,43 @@ const VaultScreen = (
 
 	const insets = useSafeAreaInsets();
 	const { state, dispatch } = useAppContext();
+	const { postForm } = state.posts;
 
-	const [inProgress, setInProgress] = useState(false);
-	const [mediaId, setMediaId] = useState(-1);
+	const [mediaSize, setMediaSize] = useState(0);
+	const [selectedMedias, setSelectedMedias] = useState<IMedia[]>([]);
+	const [inLoadingMore, setInLoadingMore] = useState<boolean>(false);
+	const [medias, setMedias] = useState<MediasRespBody>({
+		medias: [],
+		page: 1,
+		size: 10,
+		total: 0,
+		videoTotal: 0,
+		imageTotal: 0,
+	});
 
-	const handleNext = async () => {};
+	const handleNext = async () => {
+		if (selectedMedias.length === 0) {
+			return;
+		}
+		dispatch.setPosts({
+			type: PostsActionType.updatePostForm,
+			data: {
+				medias: selectedMedias.map((media) => ({
+					id: media.id,
+					uri: media.url ?? "",
+					isPicker: false,
+					type: selectedMedias[0].type,
+				})),
+				thumb: {
+					id: selectedMedias[0].id,
+					uri: selectedMedias[0].url ?? "",
+					isPicker: false,
+					type: selectedMedias[0].type,
+				},
+			},
+		});
+		navigation.navigate("Caption");
+	};
 
 	const handleCancel = () => {
 		dispatch.setPosts({
@@ -32,6 +71,72 @@ const VaultScreen = (
 		});
 		navigation.goBack();
 	};
+
+	const handleToggleMedias = (media: IMedia) => {
+		if (selectedMedias.find((el) => el.id === media.id)) {
+			setSelectedMedias(
+				selectedMedias.filter((el) => el.id !== media.id),
+			);
+		} else {
+			if (
+				selectedMedias.length > 0 &&
+				selectedMedias[0].type !== media.type
+			) {
+				return;
+			}
+			setSelectedMedias([...selectedMedias, media]);
+		}
+	};
+
+	const fetchMedias = async () => {
+		const filterObj: IMediaFilterQuery = {
+			page: medias.page,
+			size: 10,
+		};
+		const resp = await getPostMedias(filterObj);
+		setInLoadingMore(false);
+		if (resp.ok) {
+			setMedias({
+				...resp.data,
+				medias:
+					resp.data.page === 1
+						? resp.data.medias
+						: [...medias.medias, ...resp.data.medias],
+			});
+		}
+	};
+
+	const onScrollView = (nativeEvent: NativeScrollEvent) => {
+		const paddingToBottom = 20;
+		const isScrollEnd =
+			nativeEvent.layoutMeasurement.height +
+				nativeEvent.contentOffset.y >=
+			nativeEvent.contentSize.height - paddingToBottom;
+		if (isScrollEnd && !inLoadingMore) {
+			const enableLoadingMore = checkEnableMediasLoadingMore(
+				MediaType.All,
+				medias,
+			);
+			if (enableLoadingMore) {
+				setInLoadingMore(true);
+				setMedias({
+					...medias,
+					page: medias.page + 1,
+				});
+			}
+		}
+	};
+
+	useEffect(() => {
+		fetchMedias();
+	}, [medias.page]);
+
+	useEffect(() => {
+		const urls = postForm.medias.map((el) => el.uri);
+		setSelectedMedias(
+			medias.medias.filter((el) => !!urls.includes(el.url ?? "")),
+		);
+	}, [medias, postForm.medias]);
 
 	return (
 		<FansView
@@ -47,12 +152,15 @@ const VaultScreen = (
 				rightLabel="Next"
 				titleIcon="vault"
 				leftIcon="close"
-				loading={inProgress}
 			/>
 			<FansView flex="1" padding={{ b: insets.bottom }}>
 				<ImagePostChip
 					colSpan={1}
-					uri="media/81222749179879424/AKB71S4jTwFxmTmtnnoWKuUC1D4nfXfp.png"
+					uri={
+						selectedMedias.length > 0
+							? selectedMedias[0].url ?? ""
+							: ""
+					}
 					onPress={() => {}}
 				/>
 				<FansView
@@ -77,66 +185,44 @@ const VaultScreen = (
 					</FansIconButton>
 				</FansView>
 				<FansView flex="1">
-					<ScrollView>
-						<FansView flexDirection="row" flexWrap="wrap">
-							{[...Array(10)].map((el, index) => (
+					<ScrollView
+						onScroll={({ nativeEvent }) =>
+							onScrollView(nativeEvent)
+						}
+						scrollEventThrottle={16}
+						showsVerticalScrollIndicator
+						nestedScrollEnabled={true}
+					>
+						<FansView
+							flexDirection="row"
+							flexWrap="wrap"
+							onLayout={(e) =>
+								setMediaSize(e.nativeEvent.layout.width / 3 - 2)
+							}
+						>
+							{medias.medias.map((media) => (
 								<FansView
-									key={index}
+									key={media.id}
 									position="relative"
+									padding={1}
 									style={tw.style(
 										"w-1/3 bg-fans-white dark:bg-fans-black-1d",
 									)}
 								>
-									<ImagePostChip
-										colSpan={1}
-										uri="media/81222749179879424/AKB71S4jTwFxmTmtnnoWKuUC1D4nfXfp.png"
-										onPress={() => setMediaId(index)}
+									<MediaItem
+										data={media}
+										onPress={() =>
+											handleToggleMedias(media)
+										}
+										size={mediaSize}
+										showDate
+										selectable
+										selected={
+											!!selectedMedias.find(
+												(el) => el.id === media.id,
+											)
+										}
 									/>
-									<FansView
-										position="absolute"
-										width={{ xs: 46, md: 75 }}
-										height={{ xs: 15, md: 20 }}
-										borderRadius={20}
-										style={tw.style(
-											"bg-fans-black/50 top-3 left-3 md:top-5 md:left-5",
-										)}
-										alignItems="center"
-										justifyContent="center"
-									>
-										<FypText
-											fontSize={{ xs: 8, md: 14 }}
-											fontWeight={600}
-											lineHeight={{ xs: 11, md: 19 }}
-											style={tw.style("text-fans-white")}
-										>
-											5/24/23
-										</FypText>
-									</FansView>
-									<FansView
-										position="absolute"
-										width={{ xs: 20, md: 26 }}
-										height={{ xs: 20, md: 26 }}
-										borderRadius={26}
-										alignItems="center"
-										justifyContent="center"
-										style={tw.style(
-											"top-3 right-3 md:top-5 md:right-5",
-											mediaId === index
-												? "bg-fans-purple"
-												: "border border-fans-white bg-fans-black/50",
-										)}
-									>
-										<FypNullableView
-											visible={mediaId === index}
-										>
-											<FypSvg
-												svg={CheckSvg}
-												width={11}
-												height={8}
-												color="fans-white"
-											/>
-										</FypNullableView>
-									</FansView>
 								</FansView>
 							))}
 						</FansView>

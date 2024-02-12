@@ -1,14 +1,22 @@
 import {
-	HeartSvg,
-	CommentSvg,
 	BookmarkSvg,
+	CommentSvg,
+	FilledBookmarkSvg,
+	FilledHeartSvg,
+	HeartSvg,
 	PostMailSvg,
 	RoundedTipSvg,
-	FilledHeartSvg,
-	FilledBookmarkSvg,
+	ImageSvg,
+	RecordSvg,
+	LockSvg,
 } from "@assets/svgs/common";
-import { FypNullableView, FypText, FypSvg } from "@components/common/base";
-import { FansView } from "@components/controls";
+import {
+	FypNullableView,
+	FypSvg,
+	FypText,
+	FypLinearGradientView,
+} from "@components/common/base";
+import { FansDivider, FansView } from "@components/controls";
 import tw from "@lib/tailwind";
 import { PostType } from "@usertypes/commonEnums";
 import { IPost } from "@usertypes/types";
@@ -22,6 +30,7 @@ interface Props {
 	onClickComment: () => void;
 	onClickMessage?: () => void;
 	onClickSendTip: () => void;
+	onClickUnlock?: () => void;
 }
 
 const CardFooter: FC<Props> = (props) => {
@@ -32,16 +41,141 @@ const CardFooter: FC<Props> = (props) => {
 		onClickBookmark,
 		onClickMessage,
 		onClickSendTip,
+		onClickUnlock,
 	} = props;
 
 	return (
 		<FansView
-			style={tw.style(
-				"px-[18px] py-3 md:px-0 md:px-0",
-				data.isExclusive && "px-0",
-			)}
+			style={tw.style("px-[18px] md:px-0", data.isExclusive && "px-0")}
 		>
+			<FypNullableView visible={data.isPaidPost}>
+				<FansView padding={{ t: 14, b: 18 }} gap={16}>
+					<FansView
+						flexDirection="row"
+						alignItems="center"
+						justifyContent="between"
+						style={tw.style("px-[18px] md:px-0")}
+					>
+						<FansView
+							flexDirection="row"
+							alignItems="center"
+							gap={14}
+						>
+							<FypNullableView
+								visible={data.type === PostType.Photo}
+							>
+								<FansView
+									flexDirection="row"
+									alignItems="center"
+									gap={7}
+								>
+									<FypSvg
+										svg={ImageSvg}
+										width={14}
+										height={14}
+										color="fans-grey-48 dark:fans-grey-b1"
+									/>
+									<FypText
+										fontSize={17}
+										fontWeight={500}
+										lineHeight={22}
+										style={tw.style(
+											"text-fans-grey-48 dark:text-fans-grey-b1",
+										)}
+									>
+										{data.medias.length}
+									</FypText>
+								</FansView>
+							</FypNullableView>
+							<FypNullableView
+								visible={data.type === PostType.Video}
+							>
+								<FansView
+									flexDirection="row"
+									alignItems="center"
+									gap={7}
+								>
+									<FypSvg
+										svg={RecordSvg}
+										width={19}
+										height={12}
+										color="fans-grey-48 dark:fans-grey-b1"
+									/>
+									<FypText
+										fontSize={17}
+										fontWeight={500}
+										lineHeight={22}
+										style={tw.style(
+											"text-fans-grey-48 dark:text-fans-grey-b1",
+										)}
+									>
+										{data.medias.length}
+									</FypText>
+								</FansView>
+							</FypNullableView>
+						</FansView>
+
+						<FansView
+							flexDirection="row"
+							alignItems="center"
+							gap={7}
+						>
+							<FypText
+								fontSize={17}
+								lineHeight={22}
+								fontWeight={500}
+								style={tw.style(
+									"text-fans-grey-48 dark:text-fans-grey-b1",
+								)}
+							>
+								{data.isPaidOut
+									? `Unlocked for $${data.paidPost?.price}`
+									: `$${data.paidPost?.price}`}
+							</FypText>
+							<FypSvg
+								width={10}
+								height={13}
+								svg={LockSvg}
+								color="fans-grey-48 dark:fans-grey-b1"
+							/>
+						</FansView>
+					</FansView>
+
+					<FypNullableView visible={!data.isPaidOut}>
+						<FansView
+							height={42}
+							pressableProps={{
+								onPress: onClickUnlock,
+							}}
+						>
+							<FypLinearGradientView
+								colors={["#1D21E5", "#A854F5", "#D885FF"]}
+								start={[0, 1]}
+								end={[1, 0]}
+								height={42}
+								borderRadius={42}
+								alignItems="center"
+								justifyContent="center"
+							>
+								<FypText
+									fontSize={19}
+									fontWeight={700}
+									lineHeight={26}
+									style={tw.style("text-fans-white")}
+								>
+									{`Unlock for $${data.paidPost?.price}`}
+								</FypText>
+							</FypLinearGradientView>
+						</FansView>
+					</FypNullableView>
+				</FansView>
+				<FansDivider
+					style={tw.style("bg-fans-grey-f0 dark:bg-fans-grey-43")}
+				/>
+			</FypNullableView>
+
 			<FansView
+				padding={{ t: 14 }}
 				flexDirection="row"
 				alignItems="center"
 				justifyContent="between"
@@ -193,6 +327,7 @@ const CardFooter: FC<Props> = (props) => {
 					/>
 				</FansView>
 			</FansView>
+
 			<FypText
 				fontSize={16}
 				lineHeight={21}

@@ -26,4 +26,5 @@ export const defaultProfile: IProfile = {
 	roles: [],
 	categories: [],
 	stories: [],
+	isDisplayShop: false,
 };

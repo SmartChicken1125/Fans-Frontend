@@ -5,7 +5,7 @@ import { FansView, FansDivider } from "@components/controls";
 import { PreviewImageField } from "@components/posts/common";
 import tw from "@lib/tailwind";
 import { useFeatureGates } from "@state/featureGates";
-import { PostType } from "@usertypes/commonEnums";
+import { PostType, MediaType } from "@usertypes/commonEnums";
 import {
 	IPickerMedia,
 	IPostForm,
@@ -244,6 +244,7 @@ const PaidPostForm: FC<Props> = (props) => {
 						onChangeCoverImage({
 							uri: "",
 							isPicker: true,
+							type: MediaType.Image,
 						})
 					}
 				/>

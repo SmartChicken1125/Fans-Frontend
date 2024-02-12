@@ -34,7 +34,7 @@ const TaggedPeoplePopover: FC<Props> = (props) => {
 			]}
 		>
 			<View>
-				{taggedPeoples?.map((people) => (
+				{/* {taggedPeoples?.map((people) => (
 					<Pressable
 						key={people.userId}
 						onPress={() => onClickPeople(people.user)}
@@ -47,7 +47,7 @@ const TaggedPeoplePopover: FC<Props> = (props) => {
 							{people.user.username}
 						</FansText>
 					</Pressable>
-				))}
+				))} */}
 			</View>
 		</Popover>
 	);

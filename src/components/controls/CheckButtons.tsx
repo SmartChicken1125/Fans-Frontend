@@ -11,7 +11,7 @@ export const FansCheckButtons: FansCheckButtonsComponent = (props) => {
 			horizontal
 			style={tw.style(
 				"h-fans-checkbuttons",
-				"bg-fans-grey",
+				"bg-fans-grey dark:bg-fans-grey-43",
 				"px-[5px]",
 				"rounded-full",
 			)}

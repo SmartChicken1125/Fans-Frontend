@@ -2,15 +2,11 @@ import { FypModal, FypNullableView } from "@components/common/base";
 import { FansView } from "@components/controls";
 import { defaultPostFormData } from "@constants/defaultFormData";
 import { PostsAction } from "@context/reducer/postsReducer";
-import {
-	PostsActionType,
-	ProfileActionType,
-	useAppContext,
-} from "@context/useAppContext";
-import { createPost } from "@helper/endpoints/post/apis";
-import { createStory } from "@helper/endpoints/stories/apis";
+import { PostsActionType, useAppContext } from "@context/useAppContext";
+import { createPost, updatePostById } from "@helper/endpoints/post/apis";
 import tw from "@lib/tailwind";
 import {
+	ActionType,
 	IconTypes,
 	MediaType,
 	PostStepTypes,
@@ -23,7 +19,10 @@ import {
 	IPostForm,
 } from "@usertypes/types";
 import { getCreatePostData } from "@utils/posts";
-import useUploadFiles, { IUploadFileParam } from "@utils/useUploadFile";
+import useUploadFiles, {
+	IUploadFileParam,
+	IUploadedFile,
+} from "@utils/useUploadFile";
 import useUploadPostForm from "@utils/useUploadPostForm";
 import moment from "moment";
 import React, { useState } from "react";
@@ -52,6 +51,7 @@ import VaultScreen from "./vaultScreen";
 import ViewSettingScreen from "./viewSettingScreen";
 
 export const titleIcons = {
+	[PostType.Media]: IconTypes.Image,
 	[PostType.Photo]: IconTypes.Image,
 	[PostType.Video]: IconTypes.VideoCamera,
 	[PostType.Audio]: IconTypes.Music,
@@ -60,6 +60,8 @@ export const titleIcons = {
 	[PostType.Story]: IconTypes.Story,
 	[PostType.Text]: IconTypes.Text,
 	[PostType.Vault]: IconTypes.Vault,
+	[PostType.Products]: IconTypes.Text,
+	[PostType.GoLive]: IconTypes.Text,
 };
 
 const PostModal = () => {
@@ -68,7 +70,8 @@ const PostModal = () => {
 	const { state, dispatch } = useAppContext();
 
 	const { postForm } = state.posts;
-	const { roles, categories, stories, tiers } = state.profile;
+	const { roles, categories, stories, tiers, subscriptionType } =
+		state.profile;
 	const { visible, step } = state.posts.modal;
 
 	const [roleId, setRoleId] = useState("");
@@ -89,6 +92,7 @@ const PostModal = () => {
 			type: PostsActionType.updatePostModal,
 			data: {
 				visible: false,
+				step: PostStepTypes.Empty,
 			},
 		});
 	};
@@ -118,49 +122,25 @@ const PostModal = () => {
 	};
 
 	const createNewStory = async (medias: IPickerMedia[]) => {
-		setInProgress(true);
-		const uploaded = await uploadFiles(
-			medias
-				.filter((media) => media.isPicker)
-				.map((el) => ({ uri: el.uri, type: MediaType.Image })),
-		);
-		if (!uploaded.ok) {
-			Toast.show({
-				type: "error",
-				text1: uploaded.error?.message ?? "Failed to upload files",
-			});
-			return;
-		}
+		dispatch.setPosts({
+			type: PostsActionType.updatePostForm,
+			data: {
+				medias: medias,
+				secondStep: undefined,
+			},
+		});
 
-		const postBody = {
-			mediaIds: uploaded.data.map((sm) => sm.id),
-		};
-		const resp = await createStory(postBody);
-		setInProgress(false);
-		if (resp.ok) {
-			handleClearForm();
-			dispatch.setPosts({
-				type: PostsActionType.updateLiveModal,
-				data: {
-					visible: true,
-					postId: resp.data.id,
-				},
-			});
-			dispatch.setProfile({
-				type: ProfileActionType.updateProfile,
-				data: {
-					stories: [...stories, resp.data],
-				},
-			});
-		} else {
-			Toast.show({
-				type: "error",
-				text1: "Failed to create new story",
-			});
-		}
+		handleClose();
+
+		dispatch.setPosts({
+			type: PostsActionType.updateStoryModal,
+			data: {
+				visible: true,
+			},
+		});
 	};
 
-	const handleCreatePost = async () => {
+	const handleSubmit = async () => {
 		if (
 			postForm.medias.length === 0 &&
 			![PostType.Text, PostType.Fundraiser].includes(postForm.type)
@@ -171,6 +151,11 @@ const PostModal = () => {
 			});
 			return;
 		}
+
+		const action =
+			postForm.id === defaultPostFormData.id
+				? ActionType.Create
+				: ActionType.Update;
 
 		setInProgress(true);
 
@@ -222,61 +207,92 @@ const PostModal = () => {
 			? medias.findIndex((el) => el === postForm.giveaway.cover.uri)
 			: -1;
 
-		const mediaType =
-			postForm.type === PostType.Video
-				? MediaType.Video
-				: postForm.type === PostType.Audio
-				? MediaType.Audio
-				: MediaType.Image;
+		// const mediaType =
+		// 	postForm.type === PostType.Video
+		// 		? MediaType.Video
+		// 		: postForm.type === PostType.Audio
+		// 		? MediaType.Audio
+		// 		: MediaType.Image;
 
-		const files: IUploadFileParam[] = medias.map((uri) => ({
-			uri,
-			type: MediaType.Image,
-		}));
-		for (const idx of mediasIdx) {
-			files[idx].type = mediaType;
+		let uploadMedias: IUploadedFile[];
+
+		if (action === ActionType.Create) {
+			const mediaType = postForm.medias[0]?.type;
+
+			const files: IUploadFileParam[] = medias.map((uri) => ({
+				uri,
+				type: MediaType.Image,
+			}));
+			for (const idx of mediasIdx) {
+				files[idx].type = mediaType;
+			}
+			const uploadResp = await uploadFiles(files);
+			if (files.length > 0 && !uploadResp.ok) {
+				Toast.show({
+					type: "error",
+					text1: uploadResp.errorString ?? "Failed to upload files",
+				});
+				setInProgress(false);
+				return;
+			}
+			uploadMedias = uploadResp.data;
+		} else {
+			uploadMedias = postForm.medias.map((v) => ({
+				id: v.id ?? "",
+				url: v.url ?? "",
+			}));
 		}
 
-		const uploadResp = await uploadFiles(files);
-		if (files.length > 0 && !uploadResp.ok) {
-			Toast.show({
-				type: "error",
-				text1: uploadResp.errorString ?? "Failed to upload files",
-			});
-			setInProgress(false);
-			return;
-		}
-
-		const thumb = thumbIdx >= 0 ? uploadResp.data[thumbIdx].id : undefined;
+		const thumb = thumbIdx >= 0 ? uploadMedias[thumbIdx].id : undefined;
 		const paidPostThumb =
 			paidPostThumbIdx >= 0
-				? uploadResp.data[paidPostThumbIdx].id
+				? uploadMedias[paidPostThumbIdx].id
 				: undefined;
-		const mediaIds = mediasIdx.map((idx) => uploadResp.data[idx].id);
-		const formIds = uploadFilesIdx.map((idx) => uploadResp.data[idx].id);
+		const mediaIds = [
+			...postForm.medias
+				.filter((media) => !media.isPicker)
+				.map((el) => el.id ?? ""),
+			...mediasIdx.map((idx) => uploadMedias[idx].id),
+		];
+		const formIds = uploadFilesIdx.map((idx) => uploadMedias[idx].id);
 		const fundraiserCover =
 			fundraiserCoverIdx >= 0
-				? uploadResp.data[fundraiserCoverIdx].id
+				? uploadMedias[fundraiserCoverIdx].id
 				: undefined;
 		const pollCover =
-			pollCoverIdx >= 0 ? uploadResp.data[pollCoverIdx].id : undefined;
+			pollCoverIdx >= 0 ? uploadMedias[pollCoverIdx].id : undefined;
 		const giveawayCover =
 			giveawayCoverIdx >= 0
-				? uploadResp.data[giveawayCoverIdx].id
+				? uploadMedias[giveawayCoverIdx].id
 				: undefined;
 
-		const resp = await createPost(
-			getCreatePostData({
-				postForm,
-				thumbId: thumb,
-				mediaIds,
-				formIds,
-				paidPostThumbId: paidPostThumb,
-				fundraiserCover,
-				pollCover,
-				giveawayCover,
-			}),
-		);
+		const requestData = getCreatePostData({
+			postForm: {
+				...postForm,
+				taggedPeoples: postForm.taggedPeoples.map((tag) => ({
+					...tag,
+					postMediaId:
+						mediaIds[
+							postForm.medias.findIndex(
+								(media) => media.id === tag.postMediaId,
+							)
+						],
+				})),
+			},
+			thumbId: thumb,
+			mediaIds,
+			formIds,
+			paidPostThumbId: paidPostThumb,
+			fundraiserCover,
+			pollCover,
+			giveawayCover,
+		});
+
+		const resp =
+			action === ActionType.Create
+				? await createPost(requestData)
+				: await updatePostById(requestData, { id: postForm.id });
+		const selectedId = postForm.id;
 		setInProgress(false);
 		handleClearForm();
 		dispatch.setPosts({
@@ -287,8 +303,13 @@ const PostModal = () => {
 			dispatch.setPosts({
 				type: PostsActionType.updateLiveModal,
 				data: {
+					action,
 					visible: true,
-					postId: resp.data.id,
+					postId:
+						action === ActionType.Create
+							? resp.data.id
+							: selectedId,
+					schedule: resp.data.schedule,
 				},
 			});
 		} else {
@@ -417,7 +438,7 @@ const PostModal = () => {
 			});
 		}
 	};
-	console.log(postForm);
+
 	return (
 		<FypModal
 			visible={visible}
@@ -442,7 +463,8 @@ const PostModal = () => {
 			>
 				<FypNullableView
 					visible={
-						![PostType.Text, PostType.Vault].includes(postForm.type)
+						![PostType.Text].includes(postForm.type) &&
+						step !== PostStepTypes.Vault
 					}
 				>
 					<ThumbnailScreen
@@ -458,12 +480,14 @@ const PostModal = () => {
 						handleCancelUpload={cancelUpload}
 					/>
 				</FypNullableView>
-				<FypNullableView visible={postForm.type === PostType.Vault}>
+
+				<FypNullableView visible={step === PostStepTypes.Vault}>
 					<VaultScreen
 						data={postForm}
 						handlePrev={handleClearForm}
 						titleIcon={titleIcons[postForm.type]}
 						dispatch={dispatch}
+						handleChangeTab={handleChangeTab}
 					/>
 				</FypNullableView>
 
@@ -482,7 +506,8 @@ const PostModal = () => {
 						inProgress={inProgress}
 						progress={progress}
 						titleIcon={titleIcons[postForm.type]}
-						handleNext={handleCreatePost}
+						handleClearForm={handleClearForm}
+						handleNext={handleSubmit}
 						handleChangeTab={handleChangeTab}
 						handleUpdatePostForm={handleUpdatePostForm}
 					/>
@@ -514,6 +539,7 @@ const PostModal = () => {
 						inProgress={inProgress}
 						roles={roles}
 						tiers={tiers}
+						subscriptionType={subscriptionType}
 						handleChangeTab={handleChangeTab}
 						handleChangeRole={(roleId) => {
 							setRoleId(roleId);

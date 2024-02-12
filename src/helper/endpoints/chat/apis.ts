@@ -7,18 +7,20 @@ import {
 } from "@helper/RequesterBase";
 import { IMessage } from "@usertypes/types";
 import {
+	ChatAutomatedMessageWelcomeReqBody,
+	ChatAutomatedMessageWelcomeRespBody,
 	ChatConversationByUserRespBody,
 	ChatConversationMessagesPostReqBody,
 	ChatConversationMessagesRespBody,
+	ChatDeleteMessageIdParams,
 	ChatFansListRespBody,
 	ChatIdParams,
-	ChatDeleteMessageIdParams,
-	ChatUserIdParams,
-	ChatWSInfoRespBody,
 	ChatNoteReqBody,
 	ChatNoteRespBody,
-	ChatAutomatedMessageWelcomeReqBody,
-	ChatAutomatedMessageWelcomeRespBody,
+	ChatUserIdParams,
+	ChatWSInfoRespBody,
+	CreateMessageReportReqBody,
+	MediasRespBody,
 } from "./schemas";
 
 export const getWSInfo = createGET<ChatWSInfoRespBody>("/chat/ws-info", false);
@@ -75,3 +77,13 @@ export const deleteInbox = createDELETEWithParams<ChatIdParams>(
 	"/chat/conversations/:id/delete",
 	true,
 );
+
+export const createMessageReport = createPOST<CreateMessageReportReqBody>(
+	"/chat/message/report",
+	true,
+);
+
+export const getChannelMedias = createGETWithParams<
+	MediasRespBody,
+	ChatIdParams
+>("/chat/conversation/:id/medias", true);

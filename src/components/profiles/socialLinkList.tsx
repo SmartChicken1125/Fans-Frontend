@@ -16,7 +16,7 @@ const SocialLinkList: FC<Props> = (props) => {
 	const { data, onClickLink } = props;
 
 	return (
-		<FansView margin={{ b: 24 }}>
+		<FansView>
 			<FypNullableView
 				visible={data.filter((el) => el.url !== "").length > 0}
 			>

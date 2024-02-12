@@ -8,7 +8,7 @@ import {
 	FansIconButton,
 } from "@components/controls";
 import { ProfileActionType, useAppContext } from "@context/useAppContext";
-import { updateVideoCallSettings } from "@helper/endpoints/settings/apis";
+import { updateVideoCallSettings } from "@helper/endpoints/videoCalls/apis";
 import tw from "@lib/tailwind";
 import useClipboard from "@utils/useClipboard";
 import React, { FC, useState } from "react";

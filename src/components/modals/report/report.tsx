@@ -6,17 +6,12 @@ import { FansModal3 } from "@components/controls/Modal";
 import tw from "@lib/tailwind";
 import { RoundButtonType } from "@usertypes/commonEnums";
 import { IFansModal } from "@usertypes/components";
-import React, { FC } from "react";
-import { View, Text, Image } from "react-native";
-import { Modal, Portal, IconButton } from "react-native-paper";
-
-interface Props {
-	visible: boolean;
-	handleClose: () => void;
-}
+import React from "react";
+import { View } from "react-native";
+import { IconButton } from "react-native-paper";
 
 const ReportModal: IFansModal = (props) => {
-	const { onClose: handleClose } = props;
+	const { onClose: handleClose, username, onSubmit } = props;
 
 	return (
 		<FansModal3 width={{ lg: 741 }} {...props}>
@@ -61,8 +56,14 @@ const ReportModal: IFansModal = (props) => {
 					or messaging you by blocking them, which will also disable
 					their tweets and notifications from appearing to you
 				</FansText>
-				<RoundButton variant={RoundButtonType.OUTLINE} color="#F00">
-					Block @MokuFinance
+				<RoundButton
+					variant={RoundButtonType.OUTLINE}
+					color="#F00"
+					onPress={() => {
+						onSubmit();
+					}}
+				>
+					Block @{username}
 				</RoundButton>
 			</View>
 		</FansModal3>

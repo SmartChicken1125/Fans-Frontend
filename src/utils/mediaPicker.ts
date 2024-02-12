@@ -5,6 +5,7 @@ export enum MediaTypeOptions {
 	Images = "Images",
 	Videos = "Videos",
 	Audio = "Audio",
+	Media = "Media",
 }
 
 const MediaTypeInput = {
@@ -13,6 +14,7 @@ const MediaTypeInput = {
 	[MediaTypeOptions.Images]: "image/*",
 	[MediaTypeOptions.Videos]: "video/mp4,video/quicktime,video/x-m4v,video/*",
 	[MediaTypeOptions.Audio]: "audio/mpeg,audio/mp3,audio/mp4,audio/aac",
+	[MediaTypeOptions.Media]: "image/*,video/*",
 };
 
 export interface MediaPickerOptions {
@@ -23,7 +25,7 @@ export interface MediaPickerOptions {
 
 export interface MediaPickerResult {
 	canceled: boolean;
-	files: string[];
+	files: { url: string; type: string }[];
 }
 
 export const blobMap = new Map<string, Blob>();
@@ -72,7 +74,7 @@ export async function openMediaPicker(
 				const files = Array.from(input.files).map((f) => {
 					const url = URL.createObjectURL(f);
 					blobMap.set(url, f);
-					return url;
+					return { url: url, type: f.type };
 				});
 
 				resolve({

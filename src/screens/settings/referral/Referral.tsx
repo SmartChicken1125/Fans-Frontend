@@ -40,6 +40,7 @@ import {
 	FansVerticalDivider,
 	FansView,
 } from "@components/controls";
+import { formatPrice } from "@helper/Utils";
 import tw from "@lib/tailwind";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useFeatureGates } from "@state/featureGates";
@@ -402,7 +403,7 @@ const ReferralScreen = () => {
 									</FansText>
 									<FansText color="purple-a8" fontSize={16}>
 										<FansText fontFamily="inter-medium">
-											${total}
+											{formatPrice(total)}
 										</FansText>{" "}
 										total
 									</FansText>

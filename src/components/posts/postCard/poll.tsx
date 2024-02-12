@@ -1,20 +1,22 @@
 import { PollSvg } from "@assets/svgs/common";
 import { FypText, FypSvg, FypNullableView } from "@components/common/base";
 import { FansView } from "@components/controls";
+import { createPollVote } from "@helper/endpoints/post/apis";
 import tw from "@lib/tailwind";
 import { IPost, IPollAnswer } from "@usertypes/types";
 import { getAgoTime } from "@utils/common";
 import React, { FC, useState, useEffect } from "react";
+import Toast from "react-native-toast-message";
 
 interface PollAnswerProps {
 	showPercent: boolean;
 	voteCounts: number;
-	setShowPercent: (val: boolean) => void;
+	onPressAnswer: () => void;
 	answer: IPollAnswer;
 }
 
 const PollAnswer: FC<PollAnswerProps> = (props) => {
-	const { answer, setShowPercent, voteCounts, showPercent } = props;
+	const { answer, onPressAnswer, voteCounts, showPercent } = props;
 	const percent =
 		voteCounts === 0
 			? 0
@@ -34,7 +36,7 @@ const PollAnswer: FC<PollAnswerProps> = (props) => {
 				"border border-fans-grey-de dark:text-fans-grey-50",
 			)}
 			pressableProps={{
-				onPress: () => setShowPercent(!showPercent),
+				onPress: onPressAnswer,
 			}}
 		>
 			<FypText
@@ -60,8 +62,8 @@ const PollAnswer: FC<PollAnswerProps> = (props) => {
 				<FansView
 					position="absolute"
 					height={42}
-					top={-1}
-					left={-1}
+					top={0}
+					left={0}
 					borderRadius={42}
 					style={tw.style("bg-fans-purple", `w-${percent}/100`)}
 				></FansView>
@@ -72,15 +74,36 @@ const PollAnswer: FC<PollAnswerProps> = (props) => {
 
 interface Props {
 	data: IPost;
+	handleUpdatePost: (postId: string, data: Partial<IPost>) => void;
 }
 
 const Poll: FC<Props> = (props) => {
-	const { data } = props;
+	const { data, handleUpdatePost } = props;
 	const { poll } = data;
 
 	const [voteCounts, setVoteCounts] = useState(0);
 
 	const [showPercent, setShowPercent] = useState(false);
+
+	const onPressAnswer = async (answerId: string) => {
+		if (poll) {
+			const resp = await createPollVote({
+				pollId: poll?.id ?? "",
+				answerId: answerId,
+			});
+			setShowPercent(true);
+			if (resp.ok) {
+				handleUpdatePost(data.id, {
+					poll: { ...poll, answers: resp.data.answers },
+				});
+			} else {
+				Toast.show({
+					type: "error",
+					text1: resp.data.message,
+				});
+			}
+		}
+	};
 
 	useEffect(() => {
 		let sum = 0;
@@ -98,7 +121,7 @@ const Poll: FC<Props> = (props) => {
 						key={index}
 						answer={answer}
 						voteCounts={voteCounts}
-						setShowPercent={setShowPercent}
+						onPressAnswer={() => onPressAnswer(answer.id)}
 						showPercent={showPercent}
 					/>
 				))}

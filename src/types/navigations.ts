@@ -5,7 +5,7 @@ export type ChatNativeStackParams = {
 	Camera: undefined;
 	Chat: { id: string } | undefined;
 	FanAnalysis: undefined;
-	Gallery: undefined;
+	Gallery: { id: string } | undefined;
 	Messages: undefined;
 	MessageSelect: undefined;
 	NewMessage: undefined;
@@ -13,6 +13,7 @@ export type ChatNativeStackParams = {
 	SendMessage: undefined;
 	ShareNote: undefined;
 	Notes: undefined;
+	Purchases: { id: string } | undefined;
 };
 export type ChatNativeStackScreens = keyof ChatNativeStackParams;
 export type ChatNativeStackScreenProps<T extends ChatNativeStackScreens> =
@@ -271,12 +272,14 @@ export type PostsNavigationStacks = {
 	OrderVideoCallScreen: undefined;
 	Vault: undefined;
 	NewTier: undefined;
+	Story: undefined;
+	StoryEdit: undefined;
 };
 
 export type StoriesNavigationStacks = {
-	Highlight: { highlightId: string; userId: string };
-	Creator: { userId: string };
-	Profile: { userId: string };
+	Highlight: { highlightId: string; userId: string; storyId?: string };
+	Creator: { userId: string; storyId: string };
+	Profile: { userId: string; storyId: string };
 };
 
 export type PlaylistNavigationStacks = {
@@ -354,6 +357,6 @@ export type VaultNavigationStacks = {
 };
 
 export type VideoCallStackParams = {
-	Creator: undefined;
-	Fan: undefined;
+	Creator: { id: string };
+	Fan: { id: string };
 };

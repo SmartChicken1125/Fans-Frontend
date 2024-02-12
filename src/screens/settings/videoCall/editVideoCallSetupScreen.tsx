@@ -2,6 +2,7 @@ import { FypNullableView, FypText } from "@components/common/base";
 import { FansScreen2, FansView } from "@components/controls";
 import SettingsNavigationHeader from "@components/screens/settings/SettingsNavigationHeader";
 import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
+import { useAppContext } from "@context/useAppContext";
 import tw from "@lib/tailwind";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SettingsVideoCallSetupNativeStackParams } from "@usertypes/navigations";
@@ -10,6 +11,7 @@ import React, { useState } from "react";
 import { FlatList } from "react-native";
 import ActiveOrdersForm from "./activeOrdersForm";
 import PastOrdersForm from "./pastOrdersForm";
+import PendingAcceptanceForm from "./pendingAcceptanceForm";
 import RefundedOrdersForm from "./refundedOrdersForm";
 import SettingsForm from "./settingsForm";
 
@@ -35,13 +37,22 @@ const SettingsVideoCallSetupNativeStack = () => {
 	);
 };
 
-const tabs = ["Settings", "Active orders", "Past orders", "Refunded orders"];
+const tabs = [
+	"Settings",
+	"Pending acceptance",
+	"Active orders",
+	"Past orders",
+	"Refunded orders",
+];
 
 const EditVideoCallSetupContentView = () => {
+	const { state } = useAppContext();
+	const { video } = state.profile.settings;
 	const [tab, setTab] = useState(tabs[0]);
 	return (
 		<FansScreen2>
 			<FansView
+				flex="1"
 				style={tw.style(
 					"w-full md:max-w-[674px] md:mx-auto",
 					"pt-6 md:pt-[46px]",
@@ -60,9 +71,20 @@ const EditVideoCallSetupContentView = () => {
 								margin={{ r: 5 }}
 								borderRadius={40}
 								pressableProps={{
-									onPress: () => setTab(item),
+									onPress: () => {
+										if (
+											video.videoCallsEnabled ||
+											item === "Settings"
+										) {
+											setTab(item);
+										}
+									},
 								}}
 								style={tw.style(
+									!video.videoCallsEnabled &&
+										item !== "Settings"
+										? "opacity-35"
+										: "",
 									tab === item
 										? "bg-fans-purple"
 										: "bg-fans-grey-f0 dark:bg-fans-grey-43",
@@ -83,9 +105,12 @@ const EditVideoCallSetupContentView = () => {
 						)}
 					/>
 				</FansView>
-				<FansView style={tw.style("pb-10 md:pb-15")}>
+				<FansView style={tw.style("pb-10 md:pb-15")} flex="1">
 					<FypNullableView visible={tab === "Settings"}>
 						<SettingsForm handleNext={() => setTab(tabs[1])} />
+					</FypNullableView>
+					<FypNullableView visible={tab === "Pending acceptance"}>
+						<PendingAcceptanceForm />
 					</FypNullableView>
 					<FypNullableView visible={tab === "Active orders"}>
 						<ActiveOrdersForm />

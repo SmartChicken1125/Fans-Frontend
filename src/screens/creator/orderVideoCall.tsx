@@ -15,6 +15,7 @@ import { MoneyGuarantee } from "@components/chat/videoCalls";
 import AvatarWithStatus from "@components/common/AvatarWithStatus";
 import { ContentPreferencesList } from "@components/common/ContentPreferencesList";
 import FormControl from "@components/common/FormControl";
+import RoundButton from "@components/common/RoundButton";
 import {
 	FypDropdown,
 	FypLinearGradientView,
@@ -28,19 +29,24 @@ import AppLayout from "@components/common/layout";
 import PaymentMethodDropdown from "@components/common/paymentMethodDropdown";
 import { FansView, FansDivider, FansIconButton } from "@components/controls";
 import { AddPaymentCardDialog } from "@components/profiles";
+import { AgeConfirmDialog } from "@components/videoCall";
+import { testPaymentToken } from "@constants/common";
 import { defaultVideoCallDurationFormData } from "@constants/defaultFormData";
 import { timezones } from "@constants/timezones";
 import { defaultProfileStateData } from "@context/state/profileState";
 import { useAppContext } from "@context/useAppContext";
 import { cdnURL } from "@helper/Utils";
 import { getCreatorProfileByLink } from "@helper/endpoints/profile/apis";
+import { getPaymentMethods } from "@helper/endpoints/subscriptions/apis";
 import {
 	getProfileVideoCallSettings,
-	getVideoCallTimeframes,
-} from "@helper/endpoints/settings/apis";
-import { getPaymentMethods } from "@helper/endpoints/subscriptions/apis";
+	getAvailableIntervals,
+	getVideoCallMeetingPrice,
+	createVideoCallMeeting,
+} from "@helper/endpoints/videoCalls/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useFeatureGates } from "@state/featureGates";
 import { CreatorProfileNavigationStacks } from "@usertypes/navigations";
 import {
 	IProfile,
@@ -48,14 +54,13 @@ import {
 	IVideoCallSetting,
 	ICalendarDate,
 	IPaymentMethod,
-	ITimeframeInterval,
+	IAvailableInterval,
 } from "@usertypes/types";
 import { useBlankLink } from "@utils/useBlankLink";
-import { Video } from "expo-av";
 import { createURL } from "expo-linking";
 import { useRouter } from "expo-router";
 import moment from "moment";
-import React, { FC, useEffect, useState, useCallback } from "react";
+import React, { FC, useEffect, useState, useCallback, useRef } from "react";
 import { Image, ScrollView } from "react-native";
 import { DatePickerModal } from "react-native-paper-dates";
 import Toast from "react-native-toast-message";
@@ -117,11 +122,12 @@ const ChatWithUsBlock = () => {
 
 interface TimeCellProps {
 	selected: boolean;
+	interval: IAvailableInterval;
 	onSelect: () => void;
 }
 
 const TimeCell: FC<TimeCellProps> = (props) => {
-	const { selected, onSelect } = props;
+	const { selected, onSelect, interval } = props;
 	return (
 		<FansView
 			width="full"
@@ -141,10 +147,16 @@ const TimeCell: FC<TimeCellProps> = (props) => {
 			}}
 		>
 			<FypText fontSize={17} fontWeight={600} lineHeight={22}>
-				10:15 - 10:30
+				{moment(interval.startDate).format("HH:mm") +
+					" - " +
+					moment(interval.startDate)
+						.add(interval.duration, "minute")
+						.format("HH:mm")}
 			</FypText>
 			<FypText fontSize={17} fontWeight={600} lineHeight={22}>
-				PM
+				{moment(interval.startDate)
+					.add(interval.duration, "minute")
+					.format("A")}
 			</FypText>
 		</FansView>
 	);
@@ -153,21 +165,36 @@ const TimeCell: FC<TimeCellProps> = (props) => {
 interface IScheduleForm {
 	date: ICalendarDate;
 	timezone: string;
+	startDate: string;
 }
 
 interface ScheduleFormProps {
 	collapsed: boolean;
 	formData: IScheduleForm;
-	timeframes: ITimeframeInterval[];
+	intervals: IAvailableInterval[];
 	onChangeData: (name: string, val: ICalendarDate | string) => void;
 }
 
 const ScheduleForm: FC<ScheduleFormProps> = (props) => {
-	const { collapsed, formData, onChangeData, timeframes } = props;
+	const {
+		collapsed,
+		formData,
+		onChangeData,
+		intervals: weeklyIntervals,
+	} = props;
 
+	const intervals = weeklyIntervals.filter(
+		(el) =>
+			el.startDate.split("T")[0] ===
+			formData.date?.toJSON().split("T")[0],
+	);
+
+	const [showMore, setShowMore] = useState(false);
 	const [openDatePicker, setOpenDatePicker] = useState(false);
 
-	const handleShowMore = () => {};
+	const handleShowMore = () => {
+		setShowMore(!showMore);
+	};
 
 	const onDismissSingle = useCallback(() => {
 		setOpenDatePicker(false);
@@ -189,23 +216,6 @@ const ScheduleForm: FC<ScheduleFormProps> = (props) => {
 		onChangeData("date", moment(formData.date).add(-1, "d").toDate());
 	};
 
-	const getTimeOptions = () => {
-		const weekday = moment(formData.date).weekday();
-		const dayTimeFrames = timeframes
-			.filter((el) => el.day === weekday)
-			.sort((d1, d2) =>
-				d1.startTime > d2.startTime
-					? 1
-					: d1.startTime < d2.startTime
-					? -1
-					: 0,
-			);
-	};
-
-	useEffect(() => {
-		getTimeOptions();
-	}, [formData.date]);
-
 	return (
 		<FypCollapsible collapsed={collapsed}>
 			<FansView margin={{ b: 30 }}>
@@ -220,7 +230,10 @@ const ScheduleForm: FC<ScheduleFormProps> = (props) => {
 						Time Zone
 					</FypText>
 					<FypDropdown
-						data={timezones}
+						data={timezones.map((tz) => ({
+							data: tz.value,
+							label: tz.label,
+						}))}
 						value={formData.timezone}
 						onSelect={(val) =>
 							onChangeData("timezone", val as string)
@@ -314,40 +327,61 @@ const ScheduleForm: FC<ScheduleFormProps> = (props) => {
 					<FansView
 						flexDirection="row"
 						flexWrap="wrap"
-						style={tw.style("gap-x-[14px] gap-y-4")}
+						style={tw.style("mx-[-7px] gap-y-4")}
 					>
-						<FansView flex="1">
-							<TimeCell selected onSelect={() => {}} />
-						</FansView>
-						<FansView flex="1">
-							<TimeCell selected={false} onSelect={() => {}} />
-						</FansView>
+						{intervals
+							.filter(
+								(el, index) =>
+									index < (showMore ? intervals.length : 10),
+							)
+							.map((interval) => (
+								<FansView
+									style={tw.style("w-1/2")}
+									padding={{ x: 7 }}
+									key={interval.startDate}
+								>
+									<TimeCell
+										interval={interval}
+										selected={
+											interval.startDate ===
+											formData.startDate
+										}
+										onSelect={() =>
+											onChangeData(
+												"startDate",
+												interval.startDate,
+											)
+										}
+									/>
+								</FansView>
+							))}
 					</FansView>
 				</FansView>
-
-				<FansView
-					flexDirection="row"
-					alignItems="center"
-					gap={15}
-					justifyContent="center"
-					pressableProps={{
-						onPress: handleShowMore,
-					}}
-				>
-					<FypSvg
-						svg={PlusSvg}
-						width={9}
-						height={9}
-						color="fans-purple"
-					/>
-					<FypText
-						fontSize={17}
-						fontWeight={600}
-						style={tw.style("text-fans-purple")}
+				{intervals.length > 10 ? (
+					<FansView
+						flexDirection="row"
+						alignItems="center"
+						gap={15}
+						justifyContent="center"
+						pressableProps={{
+							onPress: handleShowMore,
+						}}
 					>
-						Show more
-					</FypText>
-				</FansView>
+						<FypSvg
+							svg={PlusSvg}
+							width={9}
+							height={9}
+							color="fans-purple"
+						/>
+						<FypText
+							fontSize={17}
+							fontWeight={600}
+							style={tw.style("text-fans-purple")}
+						>
+							{showMore ? "Show less" : "Show more"}
+						</FypText>
+					</FansView>
+				) : null}
 			</FansView>
 			<DatePickerModal
 				locale="en"
@@ -372,34 +406,82 @@ const OrderVideoCallScreen = (
 	const { state, dispatch } = useAppContext();
 	const { creatorUsername: username } = state.common;
 	const [openLink] = useBlankLink();
+	const featureGates = useFeatureGates();
+
+	const scrollRef = useRef<ScrollView>(null);
 
 	const [profile, setProfile] = useState<IProfile>(defaultProfileStateData);
 	const [settings, setSettings] = useState<IVideoCallSetting>();
 	const [paymentMethods, setPaymentMethods] = useState<IPaymentMethod[]>([]);
-	const [timeframes, setTimeframes] = useState<ITimeframeInterval[]>([]);
 	const [callTimeType, setCallTimeType] = useState<ICallTimeType>("now");
 	const [duration, setDuration] = useState<IVideoCallDuration>(
 		defaultVideoCallDurationFormData,
 	);
-	const [payment, setPayment] = useState("");
-	const [topic, setTopic] = useState("");
+	const [payment, setPayment] = useState(testPaymentToken);
+	const [topics, setTopics] = useState("");
 	const [scheduleForm, setScheduleForm] = useState<IScheduleForm>({
 		date: new Date(),
 		timezone: "",
+		startDate: "",
 	});
 	const [openPaymentModal, setOpenPaymentModal] = useState(false);
+	const [intervalDateParams, setIntervalDateParams] = useState<{
+		after: Date;
+		before: Date;
+	}>({
+		after: moment(new Date()).add(-1, "d").toDate(),
+		before: moment(new Date()).add(5, "d").toDate(),
+	});
+	const [availableIntervals, setAvailableIntervals] = useState<
+		IAvailableInterval[]
+	>([]);
+	const [formPositionY, setFormPositionY] = useState(0);
+	const [openAgeVerifyModal, setOpenAgeVerifyModal] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [price, setPrice] = useState(0);
+	const [platformFee, setPlatformFee] = useState(0);
+	const [vatFee, setVatFee] = useState(0);
+	const [total, setTotal] = useState(0);
 
 	const timeOptions = [
 		{ data: "now", label: "Right now" },
 		{ data: "schedule", label: "Schedule" },
 	];
 
+	useEffect(() => {
+		const getVideoCallMeetingPriceData = async () => {
+			if (!duration) return;
+
+			const postbody = {
+				hostId: profile.id,
+				startDate:
+					callTimeType === "now" ? "now" : scheduleForm.startDate,
+				duration: duration.length,
+				customerPaymentProfileId: payment,
+				topics: topics,
+			};
+
+			const videoCallMeetingPriceData =
+				await getVideoCallMeetingPrice(postbody);
+			if (videoCallMeetingPriceData.ok) {
+				setPrice(videoCallMeetingPriceData.data.amount);
+				setPlatformFee(videoCallMeetingPriceData.data.platformFee);
+				setVatFee(videoCallMeetingPriceData.data.vatFee);
+				setTotal(videoCallMeetingPriceData.data.totalAmount);
+			}
+		};
+
+		getVideoCallMeetingPriceData();
+	}, [callTimeType, scheduleForm, duration, payment, topics]);
+
 	const handlePressTerms = () => {
 		const url = createURL(`/terms`);
 		openLink(url);
 	};
 
-	const handlePressOrderCall = () => {};
+	const handlePressOrderCall = () => {
+		scrollRef.current?.scrollTo({ y: formPositionY, animated: true });
+	};
 
 	const handleChangeScheduleForm = (
 		name: string,
@@ -409,6 +491,21 @@ const OrderVideoCallScreen = (
 			...scheduleForm,
 			[name]: val,
 		});
+		if (name === "date") {
+			const scheduleDate = val as ICalendarDate;
+			if (
+				scheduleDate &&
+				(scheduleDate <
+					moment(intervalDateParams.after).add(1, "d").toDate() ||
+					scheduleDate >
+						moment(intervalDateParams.before).add(-1, "d").toDate())
+			) {
+				setIntervalDateParams({
+					after: moment(scheduleDate).add(-1, "d").toDate(),
+					before: moment(scheduleDate).add(5, "d").toDate(),
+				});
+			}
+		}
 	};
 
 	const handleAddPaymentMethod = () => {
@@ -424,6 +521,12 @@ const OrderVideoCallScreen = (
 					d1.length > d2.length ? 1 : d1.length < d2.length ? -1 : 0,
 				),
 			});
+			if (
+				resp.data.sexualContentAllowed &&
+				state.profile.user?.ageVerifyStatus !== "APPROVED"
+			) {
+				setOpenAgeVerifyModal(true);
+			}
 		}
 	};
 
@@ -448,17 +551,67 @@ const OrderVideoCallScreen = (
 		}
 	};
 
-	const fetchTimeframes = async () => {
-		const resp = await getVideoCallTimeframes();
+	const fetchAvailabilities = async () => {
+		if (duration.length === 0) {
+			return;
+		}
+		const params = {
+			creatorId: profile.id,
+			duration: duration.length,
+			after: intervalDateParams.after,
+			before: intervalDateParams.before,
+		};
+		const resp = await getAvailableIntervals(params);
 		if (resp.ok) {
-			setTimeframes(resp.data);
+			setAvailableIntervals(resp.data.intervals);
+		} else {
+			setAvailableIntervals([]);
+		}
+	};
+
+	const handleCreateMeeting = async () => {
+		if (duration.length === 0) {
+			Toast.show({
+				type: "error",
+				text1: "Please select duration.",
+			});
+			return;
+		}
+		if (callTimeType === "schedule" && scheduleForm.startDate === "") {
+			Toast.show({
+				type: "error",
+				text1: "Please select time.",
+			});
+			return;
+		}
+		setIsLoading(true);
+		const postbody = {
+			hostId: profile.id,
+			startDate: callTimeType === "now" ? "now" : scheduleForm.startDate,
+			duration: duration.length,
+			customerPaymentProfileId: payment,
+			topics: topics,
+		};
+
+		const resp = await createVideoCallMeeting(postbody);
+		setIsLoading(false);
+		if (resp.ok) {
+			Toast.show({
+				type: "success",
+				text1: "Succssfuly created!",
+			});
+			router.back();
+		} else {
+			Toast.show({
+				type: "error",
+				text1: resp.data.message,
+			});
 		}
 	};
 
 	useEffect(() => {
 		fetchProfileData();
 		getPaymentMethodsData();
-		fetchTimeframes();
 	}, [username]);
 
 	useEffect(() => {
@@ -467,13 +620,25 @@ const OrderVideoCallScreen = (
 		}
 	}, [profile.id]);
 
+	useEffect(() => {
+		if (profile.id === "0" || duration.length === 0) {
+			return;
+		}
+		fetchAvailabilities();
+	}, [
+		profile.id,
+		duration.length,
+		intervalDateParams.after,
+		intervalDateParams.before,
+	]);
+
 	return (
 		<AppLayout
 			title={`${profile.displayName} | FYP.Fans`}
 			description={profile.bio}
 		>
 			<FansView flex="1" position="relative">
-				<ScrollView style={tw.style("flex-1")}>
+				<ScrollView style={tw.style("flex-1")} ref={scrollRef}>
 					<FansView flexDirection="row" flex="1">
 						<FansView
 							flex="1"
@@ -607,25 +772,30 @@ const OrderVideoCallScreen = (
 												alignItems="center"
 												gap={32}
 											>
-												<FansView
-													flexDirection="row"
-													alignItems="center"
-													gap={6}
-												>
-													<FypSvg
-														svg={Clock1Svg}
-														width={19}
-														height={19}
-														color="fans-purple"
-													/>
-													<FypText
-														fontSize={15}
-														lineHeight={21}
-														fontWeight={600}
+												{featureGates.has(
+													"2024_01-available-text-in-video-call-page",
+												) ? (
+													<FansView
+														flexDirection="row"
+														alignItems="center"
+														gap={6}
 													>
-														24 HR AVAILABLE
-													</FypText>
-												</FansView>
+														<FypSvg
+															svg={Clock1Svg}
+															width={19}
+															height={19}
+															color="fans-purple"
+														/>
+														<FypText
+															fontSize={15}
+															lineHeight={21}
+															fontWeight={600}
+														>
+															24 HR AVAILABLE
+														</FypText>
+													</FansView>
+												) : null}
+
 												<FansView
 													flexDirection="row"
 													alignItems="center"
@@ -652,65 +822,6 @@ const OrderVideoCallScreen = (
 								<FansView
 									style={tw.style("px-[18px] md:px-0 pb-10")}
 								>
-									<FansView
-										padding={{ y: 18, x: 18 }}
-										borderRadius={15}
-										style={tw.style("bg-fans-purple")}
-										gap={14}
-									>
-										<FypText
-											fontSize={16}
-											lineHeight={21}
-											textAlign="center"
-											style={tw.style("text-white")}
-										>
-											<FypSvg
-												svg={OutlinedInfoSvg}
-												width={15}
-												height={15}
-												color="fans-white"
-											/>
-											{"  "}
-											We need to verify you’re 18 or
-											older. Please allow access to your
-											camera
-										</FypText>
-										<FansView
-											width={170}
-											height={42}
-											borderRadius={42}
-											justifyContent="center"
-											style={tw.style(
-												"bg-fans-white mx-auto",
-											)}
-										>
-											<FypText
-												fontSize={19}
-												lineHeight={26}
-												fontWeight={700}
-												textAlign="center"
-												style={tw.style(
-													"text-fans-purple",
-												)}
-											>
-												Verify
-											</FypText>
-										</FansView>
-									</FansView>
-									<FansView
-										height={{ xs: 234, md: 436 }}
-										position="relative"
-										style={tw.style(
-											"mt-[26px] md:mt-[30px] mb-7 md:mb-8",
-										)}
-									>
-										<Video
-											source={require("@assets/video/video-1.mp4")}
-											style={tw.style(
-												"w-full h-full rounded-[7px]",
-											)}
-										/>
-									</FansView>
 									<FypText
 										fontWeight={600}
 										fontSize={17}
@@ -744,6 +855,11 @@ const OrderVideoCallScreen = (
 										fontWeight={600}
 										fontSize={19}
 										margin={{ b: 10 }}
+										onLayout={(e) =>
+											setFormPositionY(
+												e.nativeEvent.layout.y,
+											)
+										}
 									>
 										Make your order
 									</FypText>
@@ -754,9 +870,7 @@ const OrderVideoCallScreen = (
 											"mb-[26px]",
 										)}
 									>
-										Order a video call with me, just pick
-										the date and time you prefer. Can’t wait
-										to meet you! We’ll have fun!
+										{`Order a video call with ${profile.displayName}. Simply pick a date, time, and duration to continue.`}
 									</FypText>
 									<FypText
 										fontWeight={600}
@@ -844,14 +958,14 @@ const OrderVideoCallScreen = (
 										collapsed={callTimeType === "now"}
 										formData={scheduleForm}
 										onChangeData={handleChangeScheduleForm}
-										timeframes={timeframes}
+										intervals={availableIntervals}
 									/>
 
 									<FansView margin={{ b: 30 }}>
 										<FormControl
 											label="Describe call topics (optional)"
-											value={topic}
-											onChangeText={setTopic}
+											value={topics}
+											onChangeText={setTopics}
 											placeholder="Describe topics for your video call..."
 											isTextArea
 											maxLength={1000}
@@ -890,7 +1004,8 @@ const OrderVideoCallScreen = (
 												"text-fans-grey-70 dark:text-fans-grey-b1",
 											)}
 										>
-											$15.00 USD + $1.50 Platform fee
+											${price} + ${platformFee} platform
+											fee + ${vatFee} VAT
 										</FypText>
 										<FypText
 											fontSize={21}
@@ -898,7 +1013,7 @@ const OrderVideoCallScreen = (
 											lineHeight={28}
 											margin={{ b: 18 }}
 										>
-											$16.50
+											${total}
 										</FypText>
 										<FansView flexDirection="row">
 											<FansView
@@ -957,23 +1072,15 @@ const OrderVideoCallScreen = (
 											}
 										/>
 									</FansView>
-									<FansView
-										height={42}
-										borderRadius={42}
-										alignItems="center"
-										justifyContent="center"
-										margin={{ b: 18 }}
-										style={tw.style("bg-fans-purple")}
-									>
-										<FypText
-											fontSize={19}
-											lineHeight={26}
-											fontWeight={700}
-											style={tw.style("text-fans-white")}
+									<FansView margin={{ b: 18 }}>
+										<RoundButton
+											loading={isLoading}
+											onPress={handleCreateMeeting}
 										>
-											Pay $16.50
-										</FypText>
+											Pay ${total}
+										</RoundButton>
 									</FansView>
+
 									<FypText
 										fontSize={12}
 										lineHeight={21}
@@ -1045,6 +1152,14 @@ const OrderVideoCallScreen = (
 				visible={openPaymentModal}
 				handleClose={() => setOpenPaymentModal(false)}
 				handleToggleModal={setOpenPaymentModal}
+			/>
+			<AgeConfirmDialog
+				visible={openAgeVerifyModal}
+				handleLeave={() => {
+					setOpenAgeVerifyModal(false);
+					router.back();
+				}}
+				handleVerify={() => setOpenAgeVerifyModal(false)}
 			/>
 		</AppLayout>
 	);

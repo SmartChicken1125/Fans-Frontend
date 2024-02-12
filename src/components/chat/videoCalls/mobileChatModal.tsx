@@ -12,10 +12,11 @@ interface Props {
 	open: boolean;
 	handleClose: () => void;
 	profile: IProfile;
+	chatId: string;
 }
 
 const MobileChatModal: FC<Props> = (props) => {
-	const { open, handleClose, profile } = props;
+	const { open, handleClose, profile, chatId } = props;
 
 	const positionY = useSharedValue(0);
 
@@ -30,11 +31,7 @@ const MobileChatModal: FC<Props> = (props) => {
 		});
 
 	return (
-		<Modal
-			transparent
-			visible={open}
-			style={tw.style("bg-fans-transparent")}
-		>
+		<Modal transparent visible={open} style={tw.style("bg-transparent")}>
 			<FansView
 				width="full"
 				height="full"
@@ -76,7 +73,7 @@ const MobileChatModal: FC<Props> = (props) => {
 							Chat
 						</FypText>
 						<FansView flex="1" padding={{ x: 18, b: 40 }}>
-							<ChatSection profile={profile} />
+							<ChatSection profile={profile} chatId={chatId} />
 						</FansView>
 					</FansView>
 				</FansView>

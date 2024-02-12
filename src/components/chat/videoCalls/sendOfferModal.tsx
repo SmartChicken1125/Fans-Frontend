@@ -110,7 +110,7 @@ const RequestTimeScreen: FC<RequestTimeScreenProps> = (props) => {
 				size={30}
 				style={tw.style("absolute left-[5px] top-2")}
 				onPress={handleBack}
-				backgroundColor="bg-fans-transparent"
+				backgroundColor="bg-transparent"
 			>
 				<FypSvg
 					svg={ChevronLeftSvg}
@@ -243,7 +243,7 @@ const SendTributeFeeScreen: FC<SendTributeFeeScreenProps> = (props) => {
 				size={30}
 				style={tw.style("absolute left-[5px] top-2")}
 				onPress={handleBack}
-				backgroundColor="bg-fans-transparent"
+				backgroundColor="bg-transparent"
 			>
 				<FypSvg
 					svg={ChevronLeftSvg}

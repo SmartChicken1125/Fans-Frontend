@@ -1,9 +1,10 @@
 import { defaultPostFormData } from "@constants/defaultFormData";
 import {
-	IPostModal,
-	IPostsState,
 	ILiveModal,
 	IMediaModal,
+	IPostModal,
+	IPostsState,
+	IStoryModal,
 } from "@context/state/postsState";
 import { ICategory, IPost, IPostForm } from "@usertypes/types";
 
@@ -14,6 +15,7 @@ export enum PostsActionType {
 	updatePosts,
 	updatePost,
 	updatePostModal,
+	updateStoryModal,
 	updateLiveModal,
 	updateMediaModal,
 }
@@ -25,6 +27,7 @@ export type PostsAction =
 	| { type: PostsActionType.updatePosts; data: IPost[] }
 	| { type: PostsActionType.updatePost; data: { post: IPost } }
 	| { type: PostsActionType.updatePostModal; data: Partial<IPostModal> }
+	| { type: PostsActionType.updateStoryModal; data: Partial<IStoryModal> }
 	| { type: PostsActionType.updateLiveModal; data: Partial<ILiveModal> }
 	| { type: PostsActionType.updateMediaModal; data: Partial<IMediaModal> };
 
@@ -75,6 +78,11 @@ export function PostReducer(
 			return {
 				...state,
 				modal: { ...state.modal, ...data },
+			};
+		case PostsActionType.updateStoryModal:
+			return {
+				...state,
+				storyModal: { ...state.storyModal, ...data },
 			};
 		case PostsActionType.updateLiveModal:
 			return {

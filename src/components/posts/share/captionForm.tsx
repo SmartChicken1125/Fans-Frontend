@@ -52,12 +52,13 @@ interface Props {
 	caption: string;
 	onChangeCaption: (val: string) => void;
 	onNavigateLink: (link: IPostPropertyLink) => void;
+	onPointerLeave?: () => void;
 }
 
 const CaptionForm: FC<Props> = (props) => {
-	const { data, caption, onChangeCaption, onNavigateLink } = props;
+	const { data, caption, onChangeCaption, onNavigateLink, onPointerLeave } =
+		props;
 	const featureGates = useFeatureGates();
-	const [value, setValue] = useState("");
 
 	const getPropertyLinks = () => {
 		let _postPropertyLinks = postPropertyLinks;
@@ -98,10 +99,6 @@ const CaptionForm: FC<Props> = (props) => {
 				return _postPropertyLinks;
 		}
 	};
-
-	useEffect(() => {
-		setValue(caption);
-	}, [caption]);
 
 	return (
 		<FansView>
@@ -156,14 +153,14 @@ const CaptionForm: FC<Props> = (props) => {
 					</FansView>
 				) : (
 					<RoundTextInput
-						value={value}
-						onChangeText={(val) => setValue(val)}
+						value={caption}
+						onChangeText={(val) => onChangeCaption(val)}
 						placeholder="Write a caption..."
 						multiline
 						numberOfLines={4}
 						maxLength={1000}
 						customStyles="py-3 px-5 rounded-[7px] h-[128px]"
-						onPointerLeave={() => onChangeCaption(value)}
+						onPointerLeave={onPointerLeave}
 					/>
 				)}
 
@@ -189,7 +186,6 @@ const CaptionForm: FC<Props> = (props) => {
 						key={link.title}
 						title={link.title}
 						onPress={() => {
-							onChangeCaption(value);
 							onNavigateLink(link);
 						}}
 					/>

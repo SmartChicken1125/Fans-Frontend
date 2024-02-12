@@ -3,6 +3,7 @@ import {
 	PictureSvg,
 	PinSvg,
 	ReadSvg,
+	TipSvg,
 	VideoRecordSvg,
 	WarningSvg,
 } from "@assets/svgs/common";
@@ -13,7 +14,7 @@ import { useAppContext } from "@context/useAppContext";
 import tw from "@lib/tailwind";
 import { UserRoleTypes } from "@usertypes/commonEnums";
 import { Colors } from "@usertypes/enums";
-import { IConversationMeta } from "@usertypes/types";
+import { IConversationMeta, MessageType } from "@usertypes/types";
 import { formatRelativeDateTime } from "@utils/dateTime";
 import React, { Fragment, memo } from "react";
 import { View } from "react-native";
@@ -27,6 +28,7 @@ const enum IconType {
 	Picture,
 	Read,
 	Video,
+	Tip,
 }
 
 const InboxIcon = memo((props: { type: IconType }) => {
@@ -83,12 +85,32 @@ const InboxIcon = memo((props: { type: IconType }) => {
 				<FansGap width={5.8} />
 			</Fragment>
 		);
+	else if (props.type === IconType.Tip)
+		return (
+			<>
+				<FansSvg
+					width={15.23}
+					height={7.84}
+					svg={TipSvg}
+					color1="purple"
+				/>
+				<FansGap width={6.2} />
+			</>
+		);
 });
 
 const Inbox = (props: InboxProps) => {
 	const { data } = props;
-	const { icon, isBlocked, isPinned, name, lastMessage, lastReadMessageId } =
-		data;
+	const {
+		icon,
+		isBlocked,
+		isPinned,
+		name,
+		lastMessage,
+		lastReadMessageId,
+		earnings,
+		unreadCount,
+	} = data;
 
 	const { state } = useAppContext();
 	const { userInfo } = state.user;
@@ -123,6 +145,24 @@ const Inbox = (props: InboxProps) => {
 						>
 							{name}
 						</FansText>
+						{unread && (
+							<FansView
+								style={tw.style(
+									"bg-fans-purple",
+									"px-[7px]",
+									"py-[1px]",
+									"rounded-full",
+								)}
+							>
+								<FansText
+									color="white"
+									fontFamily="inter-semibold"
+									fontSize={14}
+								>
+									{unreadCount}
+								</FansText>
+							</FansView>
+						)}
 						{isBlocked && (
 							<WarningSvg size={14} color={Colors.Red} />
 						)}
@@ -150,7 +190,11 @@ const Inbox = (props: InboxProps) => {
 							/>
 						</View>
 					</View>
-					<FansView alignItems="center" flexDirection="row">
+					<FansView
+						alignItems="center"
+						flexDirection="row"
+						style={tw.style("mt-[10px]")}
+					>
 						<FansView width={0} grow>
 							<FansText
 								fontFamily={
@@ -162,10 +206,21 @@ const Inbox = (props: InboxProps) => {
 									"text-fans-grey-70 dark:text-fans-grey-b1",
 								)}
 							>
+								<InboxIcon
+									type={
+										lastMessage?.messageType ===
+										MessageType.MEDIA
+											? IconType.Picture
+											: lastMessage?.messageType ===
+											  MessageType.TIP
+											? IconType.Tip
+											: IconType.Read
+									}
+								/>
 								{lastMessage?.content}
 							</FansText>
 						</FansView>
-						{/* {isCreator && price && price !== 0 && (
+						{isCreator && earnings && earnings !== 0 && (
 							<FansView
 								style={tw.style(
 									"bg-fans-green/10",
@@ -174,14 +229,14 @@ const Inbox = (props: InboxProps) => {
 								borderRadius="full"
 							>
 								<FansText
-									color1="green"
-									fontFamily1="inter-semibold"
+									color="green"
+									fontFamily="inter-semibold"
 									fontSize={14}
 								>
-									${price}
+									${earnings}
 								</FansText>
 							</FansView>
-						)} */}
+						)}
 					</FansView>
 				</View>
 			</View>

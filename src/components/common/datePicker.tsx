@@ -1,18 +1,19 @@
 import { FansText } from "@components/controls";
 import tw from "@lib/tailwind";
-import { ICalendarDate } from "@usertypes/types";
+import { ICalendarDate, IDatePickerVaildRange } from "@usertypes/types";
+import moment from "moment";
 import React, { FC, useCallback, useState } from "react";
 import { Pressable, View } from "react-native";
 import { DatePickerModal } from "react-native-paper-dates";
-
 interface Props {
 	value: ICalendarDate;
 	onChangeValue: (val: ICalendarDate) => void;
 	hasError?: boolean;
+	validRange?: IDatePickerVaildRange;
 }
 
 const DatePicker: FC<Props> = (props) => {
-	const { value, onChangeValue, hasError } = props;
+	const { value, onChangeValue, hasError, ..._props } = props;
 	const [open, setOpen] = useState(false);
 
 	const onDismissSingle = useCallback(() => {
@@ -26,6 +27,7 @@ const DatePicker: FC<Props> = (props) => {
 		},
 		[setOpen, onChangeValue],
 	);
+
 	return (
 		<View>
 			<Pressable
@@ -41,7 +43,9 @@ const DatePicker: FC<Props> = (props) => {
 					lineHeight={24}
 					style={tw.style("text-fans-grey-70 dark:text-white")}
 				>
-					{value ? `${value.toJSON().split("T")[0]}` : "MM/DD/YYYY"}
+					{value
+						? `${moment(value).format("YYYY-MM-DD")}`
+						: "MM/DD/YYYY"}
 				</FansText>
 			</Pressable>
 			<DatePickerModal
@@ -51,6 +55,7 @@ const DatePicker: FC<Props> = (props) => {
 				onDismiss={onDismissSingle}
 				date={value}
 				onConfirm={onConfirmSingle}
+				{..._props}
 			/>
 		</View>
 	);

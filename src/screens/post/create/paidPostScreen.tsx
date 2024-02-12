@@ -1,6 +1,7 @@
 import CustomTopNavBar from "@components/common/customTopNavBar";
 import { FansView } from "@components/controls";
 import { PaidPostForm } from "@components/posts/share";
+import { defaultPickerMedia } from "@constants/common";
 import { PostsAction } from "@context/reducer/postsReducer";
 import { useAppContext, PostsActionType } from "@context/useAppContext";
 import tw from "@lib/tailwind";
@@ -23,10 +24,7 @@ const PaidPostScreen = (
 
 	const [price, setPrice] = useState("");
 	const [isSubmitted, setIsSubmitted] = useState(false);
-	const [coverImg, setCoverImg] = useState<IPickerMedia>({
-		uri: "",
-		isPicker: false,
-	});
+	const [coverImg, setCoverImg] = useState<IPickerMedia>(defaultPickerMedia);
 
 	const handleUpdatePostForm = (data: Partial<IPostForm>) => {
 		dispatch.setPosts({

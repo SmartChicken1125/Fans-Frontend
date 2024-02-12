@@ -47,6 +47,7 @@ module.exports = {
 				"fans-purple-6a": "#6a1de5",
 				"fans-purple-76": "#7642EF",
 				"fans-purple-84": "#8447F1",
+				"fans-purple-f1": "#F1E2FF",
 				"fans-green": "#4DCC36",
 				"fans-green-4d": "#4DCC36",
 				"fans-green-65": "#65D072",

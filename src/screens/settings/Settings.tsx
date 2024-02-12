@@ -228,9 +228,11 @@ export const SettingsScreenContent = () => {
 							icon={PrivacySvg}
 							isActive={
 								segments[0] === "(tabs)" &&
-								segments[1] === "privacy"
+								segments[1] === "privacy-safety"
 							}
-							onPress={() => handleMenuItemPress("/privacy")}
+							onPress={() =>
+								handleMenuItemPress("/privacy-safety")
+							}
 						/>
 					)}
 				</>
@@ -345,7 +347,7 @@ export const SettingsScreenContent = () => {
 					)}
 				/>
 				<Item
-					text="Report creator"
+					text="Report abuse"
 					icon={WarningSvg}
 					isActive={
 						segments[0] === "(tabs)" &&

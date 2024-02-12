@@ -20,7 +20,7 @@ export const defaultForm = {
 		hours: 0,
 		minutes: 0,
 	},
-	timezone: "GMT +0:00",
+	timezone: "",
 };
 
 interface Props {

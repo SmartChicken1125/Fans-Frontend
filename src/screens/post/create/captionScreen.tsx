@@ -4,15 +4,23 @@ import UploadProgress from "@components/posts/common/uploadProgress";
 import { CaptionForm } from "@components/posts/share";
 import { defaultPostFormData } from "@constants/defaultFormData";
 import { PostsActionType, useAppContext } from "@context/useAppContext";
-import { createPost } from "@helper/endpoints/post/apis";
+import { createPost, updatePostById } from "@helper/endpoints/post/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { MediaType, PostStepTypes, PostType } from "@usertypes/commonEnums";
+import {
+	ActionType,
+	MediaType,
+	PostStepTypes,
+	PostType,
+} from "@usertypes/commonEnums";
 import { PostsNavigationStacks } from "@usertypes/navigations";
 import { getCreatePostData, getPostTitleIcon } from "@utils/posts";
-import useUploadFiles, { IUploadFileParam } from "@utils/useUploadFile";
+import useUploadFiles, {
+	IUploadFileParam,
+	IUploadedFile,
+} from "@utils/useUploadFile";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
@@ -30,14 +38,21 @@ const CaptionScreen = (
 	const { state, dispatch } = useAppContext();
 	const { postForm } = state.posts;
 	const [inProgress, setInProgress] = useState(false);
+	const [caption, setCaption] = useState("");
 
-	const handleCreate = async () => {
+	const handleSubmit = async () => {
 		if (postForm.medias.length === 0 && postForm.type !== PostType.Text) {
 			Toast.show({
 				type: "error",
 				text1: "Require at least one media",
 			});
 		}
+
+		const action =
+			postForm.id === defaultPostFormData.id
+				? ActionType.Create
+				: ActionType.Update;
+
 		setInProgress(true);
 
 		const medias = [
@@ -88,61 +103,92 @@ const CaptionScreen = (
 			? medias.findIndex((el) => el === postForm.giveaway.cover.uri)
 			: -1;
 
-		const mediaType =
-			postForm.type === PostType.Video
-				? MediaType.Video
-				: postForm.type === PostType.Audio
-				? MediaType.Audio
-				: MediaType.Image;
+		// const mediaType =
+		// 	postForm.type === PostType.Video
+		// 		? MediaType.Video
+		// 		: postForm.type === PostType.Audio
+		// 		? MediaType.Audio
+		// 		: MediaType.Image;
+		let uploadMedias: IUploadedFile[];
 
-		const files: IUploadFileParam[] = medias.map((uri) => ({
-			uri,
-			type: MediaType.Image,
-		}));
-		for (const idx of mediasIdx) {
-			files[idx].type = mediaType;
+		if (action === ActionType.Create) {
+			const mediaType = postForm.medias[0].type;
+
+			const files: IUploadFileParam[] = medias.map((uri) => ({
+				uri,
+				type: MediaType.Image,
+			}));
+			for (const idx of mediasIdx) {
+				files[idx].type = mediaType;
+			}
+			const uploadResp = await uploadFiles(files);
+			if (files.length > 0 && !uploadResp.ok) {
+				Toast.show({
+					type: "error",
+					text1: uploadResp.errorString ?? "Failed to upload files",
+				});
+				setInProgress(false);
+				return;
+			}
+			uploadMedias = uploadResp.data;
+		} else {
+			uploadMedias = postForm.medias.map((v) => ({
+				id: v.id ?? "",
+				url: v.url ?? "",
+			}));
 		}
 
-		const uploadResp = await uploadFiles(files);
-		if (files.length > 0 && !uploadResp.ok) {
-			Toast.show({
-				type: "error",
-				text1: uploadResp.errorString ?? "Failed to upload files",
-			});
-			setInProgress(false);
-			return;
-		}
-
-		const thumb = thumbIdx >= 0 ? uploadResp.data[thumbIdx].id : undefined;
+		const thumb = thumbIdx >= 0 ? uploadMedias[thumbIdx].id : undefined;
 		const paidPostThumb =
 			paidPostThumbIdx >= 0
-				? uploadResp.data[paidPostThumbIdx].id
+				? uploadMedias[paidPostThumbIdx].id
 				: undefined;
-		const mediaIds = mediasIdx.map((idx) => uploadResp.data[idx].id);
-		const formIds = uploadFilesIdx.map((idx) => uploadResp.data[idx].id);
+		const mediaIds = [
+			...postForm.medias
+				.filter((media) => !media.isPicker)
+				.map((el) => el.id ?? ""),
+			...mediasIdx.map((idx) => uploadMedias[idx].id),
+		];
+		const formIds = uploadFilesIdx.map((idx) => uploadMedias[idx].id);
 		const fundraiserCover =
 			fundraiserCoverIdx >= 0
-				? uploadResp.data[fundraiserCoverIdx].id
+				? uploadMedias[fundraiserCoverIdx].id
 				: undefined;
 		const pollCover =
-			pollCoverIdx >= 0 ? uploadResp.data[pollCoverIdx].id : undefined;
+			pollCoverIdx >= 0 ? uploadMedias[pollCoverIdx].id : undefined;
 		const giveawayCover =
 			giveawayCoverIdx >= 0
-				? uploadResp.data[giveawayCoverIdx].id
+				? uploadMedias[giveawayCoverIdx].id
 				: undefined;
 
-		const resp = await createPost(
-			getCreatePostData({
-				postForm,
-				thumbId: thumb,
-				mediaIds,
-				formIds,
-				paidPostThumbId: paidPostThumb,
-				fundraiserCover,
-				pollCover,
-				giveawayCover,
-			}),
-		);
+		const requestData = getCreatePostData({
+			postForm: {
+				...postForm,
+				caption: caption,
+				taggedPeoples: postForm.taggedPeoples.map((tag) => ({
+					...tag,
+					postMediaId:
+						mediaIds[
+							postForm.medias.findIndex(
+								(media) => media.id === tag.postMediaId,
+							)
+						],
+				})),
+			},
+			thumbId: thumb,
+			mediaIds,
+			formIds,
+			paidPostThumbId: paidPostThumb,
+			fundraiserCover,
+			pollCover,
+			giveawayCover,
+		});
+
+		const resp =
+			action === ActionType.Create
+				? await createPost(requestData)
+				: await updatePostById(requestData, { id: postForm.id });
+		const selectedId = postForm.id;
 
 		setInProgress(false);
 
@@ -155,8 +201,13 @@ const CaptionScreen = (
 			dispatch.setPosts({
 				type: PostsActionType.updateLiveModal,
 				data: {
+					action,
 					visible: true,
-					postId: resp.data.id,
+					postId:
+						action === ActionType.Create
+							? resp.data.id
+							: selectedId,
+					schedule: resp.data.schedule,
 				},
 			});
 
@@ -177,6 +228,12 @@ const CaptionScreen = (
 	};
 
 	const onNavigateLink = (stepType: PostStepTypes) => {
+		dispatch.setPosts({
+			type: PostsActionType.updatePostForm,
+			data: {
+				caption: caption,
+			},
+		});
 		switch (stepType) {
 			case PostStepTypes.ViewSetting:
 				return navigation.navigate("ViewSetting");
@@ -204,13 +261,12 @@ const CaptionScreen = (
 	};
 
 	const onChangeCaption = (val: string) => {
-		dispatch.setPosts({
-			type: PostsActionType.updatePostForm,
-			data: {
-				caption: val,
-			},
-		});
+		setCaption(val);
 	};
+
+	useEffect(() => {
+		setCaption(postForm.caption);
+	}, [postForm.caption]);
 
 	return (
 		<FansView
@@ -222,7 +278,7 @@ const CaptionScreen = (
 			<CustomTopNavBar
 				title="New post"
 				onClickLeft={handleCancel}
-				onClickRight={handleCreate}
+				onClickRight={handleSubmit}
 				rightLabel="Share"
 				titleIcon={getPostTitleIcon(postForm.type)}
 				loading={inProgress}
@@ -239,7 +295,7 @@ const CaptionScreen = (
 				>
 					<CaptionForm
 						data={postForm}
-						caption={postForm.caption}
+						caption={caption}
 						onChangeCaption={onChangeCaption}
 						onNavigateLink={(link) => onNavigateLink(link.stepType)}
 					/>

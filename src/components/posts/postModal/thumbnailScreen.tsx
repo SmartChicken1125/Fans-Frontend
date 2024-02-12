@@ -1,8 +1,14 @@
-import { TransformSvg } from "@assets/svgs/common";
+import { Photos1Svg, TransformSvg } from "@assets/svgs/common";
 import RoundButton from "@components/common/RoundButton";
 import { FypNullableView, FypVideo } from "@components/common/base";
 import { ImageEditor } from "@components/common/imageEditor/imageEditor";
-import { FansIconButton } from "@components/controls/IconButton";
+import {
+	FansGap,
+	FansIconButton,
+	FansSvg,
+	FansText,
+	FansView,
+} from "@components/controls";
 import { AudioItem } from "@components/posts/common";
 import { IAppDispatch } from "@context/appContext";
 import { PostsActionType } from "@context/reducer/postsReducer";
@@ -10,6 +16,7 @@ import { cdnURL } from "@helper/Utils";
 import tw from "@lib/tailwind";
 import {
 	IconTypes,
+	MediaType,
 	PostStepTypes,
 	PostType,
 	ResizeMode,
@@ -17,7 +24,7 @@ import {
 import { IPickerMedia, IPostForm } from "@usertypes/types";
 import useDocumentPicker from "@utils/useDocumentPicker";
 import React, { FC, useEffect, useState } from "react";
-import { Image, View } from "react-native";
+import { Image, TouchableOpacity } from "react-native";
 import Animated, {
 	useAnimatedStyle,
 	useSharedValue,
@@ -62,7 +69,7 @@ const ThumbnailScreen: FC<Props> = (props) => {
 	const carouselSize = tw.prefixMatch("xl") ? 670 : 600;
 	const offset = useSharedValue(carouselIndex);
 
-	const { useVideoPicker, useAudioPicker, useImagePicker } =
+	const { useVideoPicker, useAudioPicker, useImagePicker, useMediaPicker } =
 		useDocumentPicker();
 
 	const carouselStyles = useAnimatedStyle(() => {
@@ -114,8 +121,22 @@ const ThumbnailScreen: FC<Props> = (props) => {
 		}
 	};
 
+	const handleOpenMediaPicker = async () => {
+		const result = await useMediaPicker();
+		if (result.ok) {
+			setPickerMedias(result.data);
+		} else {
+			Toast.show({
+				type: "error",
+				text1: result?.message ?? "",
+			});
+		}
+	};
+
 	const handleClickPicker = () => {
-		if (type === PostType.Audio) {
+		if (type === PostType.Media) {
+			handleOpenMediaPicker();
+		} else if (type === PostType.Audio) {
 			handleOpenAudioPicker();
 		} else if (type === PostType.Video) {
 			handleOpenVideoPicker();
@@ -189,8 +210,10 @@ const ThumbnailScreen: FC<Props> = (props) => {
 		offset.value = carouselIndex;
 	}, [carouselIndex]);
 
+	console.log(pickerMedias);
+
 	return (
-		<View
+		<FansView
 			style={tw.style(
 				step === PostStepTypes.Thumbnail
 					? "relative"
@@ -200,9 +223,9 @@ const ThumbnailScreen: FC<Props> = (props) => {
 			<FypNullableView visible={step === PostStepTypes.Thumbnail}>
 				<ModalHeader
 					title={
-						data.type === PostType.Story ? "New Story" : "New post"
+						data.type === PostType.Story ? "New story" : "New post"
 					}
-					rightLabel={type === PostType.Story ? "Publish" : "Next"}
+					rightLabel="Next"
 					onClickRight={handleSubmit}
 					onClickLeft={handlePrev}
 					titleIcon={titleIcon}
@@ -210,14 +233,14 @@ const ThumbnailScreen: FC<Props> = (props) => {
 				/>
 			</FypNullableView>
 
-			<View
+			<FansView
 				style={tw.style(
 					step === PostStepTypes.Thumbnail
 						? "py-5"
 						: "hidden md:flex",
 				)}
 			>
-				<View
+				<FansView
 					style={tw.style(
 						"w-150 xl:w-[670px] h-150 xl:h-[670px] mx-auto",
 					)}
@@ -235,66 +258,100 @@ const ThumbnailScreen: FC<Props> = (props) => {
 						}
 					>
 						<FypNullableView visible={pickerMedias.length === 0}>
-							<View
-								style={tw.style(
-									"h-full items-center justify-center",
-								)}
+							<FansView
+								alignItems="center"
+								justifyContent="center"
+								height="full"
 							>
-								<Image
-									source={require("@assets/images/common/photos.png")}
-									style={{
-										width: 92,
-										height: 84.33,
-									}}
-								/>
-								<View style={tw.style("w-70 mt-5")}>
+								<TouchableOpacity onPress={handleClickPicker}>
+									<FansView
+										style={tw.style(
+											"h-[162px] w-70",
+											"border border-fans-grey-dark border-dashed rounded-[7px]",
+											"flex justify-center items-center",
+										)}
+									>
+										<FansSvg
+											width={77.44}
+											height={70.96}
+											svg={Photos1Svg}
+										/>
+										<FansGap height={13.3} />
+										<FansText
+											style={tw.style("text-[17px]")}
+										>
+											Drop image here or{" "}
+											<FansText
+												style={tw.style(
+													"font-inter-semibold",
+													"text-[17px] text-fans-purple",
+												)}
+											>
+												browse
+											</FansText>
+										</FansText>
+									</FansView>
+								</TouchableOpacity>
+								<FansView style={tw.style("w-70 mt-5")}>
 									<RoundButton onPress={handleClickPicker}>
 										Pick from computer
 									</RoundButton>
-								</View>
-							</View>
+								</FansView>
+							</FansView>
 						</FypNullableView>
+						{pickerMedias.length > 0 && (
+							<FypNullableView visible={pickerMedias.length > 0}>
+								<FansView width="full" height="full">
+									<FypNullableView
+										visible={
+											(type === PostType.Media &&
+												pickerMedias[0].type ===
+													MediaType.Image) ||
+											type === PostType.Photo ||
+											type === PostType.Story
+										}
+									>
+										<Image
+											source={{
+												uri: cdnURL(
+													pickerMedias[0]?.uri,
+												),
+											}}
+											style={[tw.style("w-full h-full")]}
+											resizeMode="cover"
+										/>
+									</FypNullableView>
 
-						<FypNullableView visible={pickerMedias.length > 0}>
-							<View style={[tw.style("w-full h-full")]}>
-								<FypNullableView
-									visible={
-										type === PostType.Photo ||
-										type === PostType.Story
-									}
-								>
-									<Image
-										source={{
-											uri: cdnURL(pickerMedias[0]?.uri),
-										}}
-										style={[tw.style("w-full h-full")]}
-										resizeMode="cover"
-									/>
-								</FypNullableView>
-
-								<FypNullableView
-									visible={type === PostType.Video}
-								>
-									<FypVideo
-										source={{
-											uri:
-												cdnURL(pickerMedias[0]?.uri) ??
-												"",
-										}}
-										resizeMode={ResizeMode.CONTAIN}
-										style={[tw.style("w-full h-full")]}
-									/>
-								</FypNullableView>
-								<FypNullableView
-									visible={type === PostType.Audio}
-								>
-									<AudioItem
-										data={pickerMedias[0]}
-										onDelete={() => setPickerMedias([])}
-									/>
-								</FypNullableView>
-							</View>
-						</FypNullableView>
+									<FypNullableView
+										visible={
+											(type === PostType.Media &&
+												pickerMedias[0].type ===
+													MediaType.Video) ||
+											type === PostType.Video
+										}
+									>
+										<FypVideo
+											source={{
+												uri:
+													cdnURL(
+														pickerMedias[0]?.uri,
+													) ?? "",
+											}}
+											resizeMode={ResizeMode.CONTAIN}
+											style={[tw.style("w-full h-full")]}
+										/>
+									</FypNullableView>
+									<FypNullableView
+										visible={type === PostType.Audio}
+									>
+										<AudioItem
+											data={pickerMedias[0]}
+											onDelete={() => setPickerMedias([])}
+										/>
+									</FypNullableView>
+								</FansView>
+							</FypNullableView>
+						)}
 					</FypNullableView>
 
 					<FypNullableView
@@ -303,9 +360,12 @@ const ThumbnailScreen: FC<Props> = (props) => {
 						}
 					>
 						<FypNullableView visible={!openImageEditor}>
-							<View
+							<FansView
+								position="relative"
+								width="full"
+								height="full"
 								style={[
-									tw.style("w-full h-full mx-auto relative"),
+									tw.style("mx-auto"),
 									{ overflow: "hidden" },
 									{
 										borderBottomLeftRadius: 15,
@@ -323,25 +383,26 @@ const ThumbnailScreen: FC<Props> = (props) => {
 											carouselStyles,
 										]}
 									>
-										{pickerMedias.map((el, index) => (
-											<View
+										{pickerMedias.map((media, index) => (
+											<FansView
 												key={index}
+												width={carouselSize}
+												height={carouselSize}
 												style={[
 													tw.style("bg-fans-black"),
-													{
-														width: carouselSize,
-														height: carouselSize,
-													},
 												]}
 											>
 												<FypNullableView
 													visible={
-														type === PostType.Photo
+														media.type ===
+														MediaType.Image
 													}
 												>
 													<Image
 														source={{
-															uri: cdnURL(el.uri),
+															uri: cdnURL(
+																media.uri,
+															),
 														}}
 														style={[
 															tw.style(
@@ -357,12 +418,15 @@ const ThumbnailScreen: FC<Props> = (props) => {
 
 												<FypNullableView
 													visible={
-														type === PostType.Video
+														media.type ===
+														MediaType.Video
 													}
 												>
 													<FypVideo
 														source={{
-															uri: cdnURL(el.uri),
+															uri: cdnURL(
+																media.uri,
+															),
 														}}
 														style={[
 															tw.style(
@@ -377,7 +441,7 @@ const ThumbnailScreen: FC<Props> = (props) => {
 														}
 													/>
 												</FypNullableView>
-											</View>
+											</FansView>
 										))}
 									</Animated.View>
 								</FypNullableView>
@@ -385,9 +449,9 @@ const ThumbnailScreen: FC<Props> = (props) => {
 								<FypNullableView
 									visible={type === PostType.Audio}
 								>
-									<View style={tw.style("px-8 pt-5")}>
+									<FansView padding={{ x: 40, t: 20 }}>
 										<AudioItem data={pickerMedias[0]} />
-									</View>
+									</FansView>
 								</FypNullableView>
 								<AddResourceBar
 									data={data}
@@ -407,10 +471,10 @@ const ThumbnailScreen: FC<Props> = (props) => {
 										<TransformSvg color="#fff" size={18} />
 									</FansIconButton>
 								</FypNullableView>
-							</View>
+							</FansView>
 						</FypNullableView>
 						<FypNullableView visible={openImageEditor}>
-							<View style={tw.style("w-full h-full")}>
+							<FansView width="full" height="full">
 								<ImageEditor
 									visible={openImageEditor}
 									onCloseEditor={() =>
@@ -429,12 +493,12 @@ const ThumbnailScreen: FC<Props> = (props) => {
 										handleImageEditingComplete(result.uri);
 									}}
 								/>
-							</View>
+							</FansView>
 						</FypNullableView>
 					</FypNullableView>
-				</View>
-			</View>
-		</View>
+				</FansView>
+			</FansView>
+		</FansView>
 	);
 };
 

@@ -27,6 +27,7 @@ import MessageSelectScreen from "./MessageSelect";
 import MessagesScreen, { MessagesScreenContent } from "./Messages";
 import NewMessageScreen from "./NewMessage";
 import PinnedMessagesScreen from "./PinnedMessages";
+import PurchasesScreen from "./PurchasesScreen";
 import { SelectChat } from "./SelectChat";
 import SendMessageScreen from "./SendMessage";
 import ShareNoteScreen from "./ShareNote";
@@ -86,6 +87,10 @@ const ChatNavigator = (props: { isMobile: boolean }) => {
 			<ChatNativeStack.Screen
 				name="PinnedMessages"
 				component={PinnedMessagesScreen}
+			/>
+			<ChatNativeStack.Screen
+				name="Purchases"
+				component={PurchasesScreen}
 			/>
 			<ChatNativeStack.Screen
 				name="SendMessage"

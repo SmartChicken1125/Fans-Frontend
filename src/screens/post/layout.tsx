@@ -13,6 +13,7 @@ import {
 	LocationScreen,
 	NewCategoryScreen,
 	NewTextPostScreen,
+	NewTierScreen,
 	PaidPostAccessScreen,
 	PaidPostScreen,
 	PollScreen,
@@ -21,10 +22,11 @@ import {
 	TagPeopleScreen,
 	TagPeopleSearchScreen,
 	ThumbnailScreen,
-	ViewSettingScreen,
 	VaultScreen,
-	NewTierScreen,
+	ViewSettingScreen,
 } from "./create";
+import StoryEditScreen from "./create/storyEditScreen";
+import StoryScreen from "./create/storyScreen";
 import PostsHomeScreen from "./postsHomeScreen";
 
 const Stack = createNativeStackNavigator<PostsNavigationStacks>();
@@ -56,6 +58,21 @@ const Layout = () => {
 			<Stack.Screen
 				name="Text"
 				component={NewTextPostScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+
+			<Stack.Screen
+				name="Story"
+				component={StoryScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<Stack.Screen
+				name="StoryEdit"
+				component={StoryEditScreen}
 				options={{
 					headerShown: false,
 				}}

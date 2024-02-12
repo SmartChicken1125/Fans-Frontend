@@ -8,18 +8,18 @@ import { Avatar } from "react-native-paper";
 
 interface Props {
 	data: IUserList;
-	onChangeActive: (val: boolean) => void;
+	onChangeEnable: (val: boolean) => void;
 	onEidtUserList: (id: string) => void;
 }
 
 const UserList: FC<Props> = (props) => {
-	const { data, onChangeActive, onEidtUserList } = props;
+	const { data, onChangeEnable, onEidtUserList } = props;
 
 	return (
 		<FansView flexDirection="row" alignItems="center" height={78}>
 			<FypSwitch
-				value={data.isActive}
-				onValueChange={(val) => onChangeActive(val)}
+				value={data.enabled}
+				onValueChange={(val) => onChangeEnable(val)}
 			/>
 			<FansView
 				margin={{ l: 20 }}

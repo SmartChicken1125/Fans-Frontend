@@ -8,6 +8,7 @@ import {
 	FypSwitch,
 } from "@components/common/base";
 import { PreviewImageField } from "@components/posts/common";
+import { defaultPickerMedia } from "@constants/common";
 import { timezones } from "@constants/timezones";
 import tw from "@lib/tailwind";
 import { RoundButtonType } from "@usertypes/commonEnums";
@@ -50,7 +51,7 @@ const FundraiserForm: FC<Props> = (props) => {
 	};
 
 	const handleCancelCover = () => {
-		handleChangeForm("cover", { uri: "", isPicker: true });
+		handleChangeForm("cover", defaultPickerMedia);
 	};
 
 	return (
@@ -98,7 +99,7 @@ const FundraiserForm: FC<Props> = (props) => {
 				label="Cover image (optional)"
 				style="mb-[34px]"
 				onChangeImage={onChangeImage}
-				data={formData.cover ?? { uri: "", isPicker: true }}
+				data={formData.cover ?? defaultPickerMedia}
 				onCancel={handleCancelCover}
 			/>
 
@@ -151,7 +152,10 @@ const FundraiserForm: FC<Props> = (props) => {
 						Time Zone
 					</FypText>
 					<FypDropdown
-						data={timezones}
+						data={timezones.map((tz) => ({
+							data: tz.value,
+							label: tz.label,
+						}))}
 						value={formData.timezone}
 						onSelect={(val) =>
 							handleChangeForm("timezone", val as string)

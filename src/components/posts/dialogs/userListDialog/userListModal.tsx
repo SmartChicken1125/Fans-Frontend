@@ -9,8 +9,12 @@ import {
 	createUserlist,
 	getSubscribedProfiles,
 	updateUserlist,
+	getUserlists,
 } from "@helper/endpoints/userlist/apis";
-import { SubscribedProfilesRespBody } from "@helper/endpoints/userlist/schemas";
+import {
+	SubscribedProfilesRespBody,
+	UserlistsRespBody,
+} from "@helper/endpoints/userlist/schemas";
 import tw from "@lib/tailwind";
 import { RoundButtonType } from "@usertypes/commonEnums";
 import { IUserList } from "@usertypes/types";
@@ -22,12 +26,15 @@ import UserList from "./userList";
 
 interface PinStepContentsProps {
 	usersLists: IUserList[];
-	onToggleUserListActive: (id: string, val: boolean) => void;
+	onChangeUserListEnable: (id: string, val: boolean) => void;
 	onEditUserList: (id: string) => void;
+	onScrollView: (nativeEvent: NativeScrollEvent) => void;
 }
 
 export const PinStepContents: FC<PinStepContentsProps> = (props) => {
-	const { usersLists, onToggleUserListActive, onEditUserList } = props;
+	const { usersLists, onChangeUserListEnable, onEditUserList, onScrollView } =
+		props;
+
 	return (
 		<FansView padding={{ b: 24, x: 18 }}>
 			<FypText
@@ -42,18 +49,24 @@ export const PinStepContents: FC<PinStepContentsProps> = (props) => {
 			</FypText>
 
 			<FansView margin={{ b: 13 }}>
-				{usersLists.map((userList) => (
-					<Fragment key={userList.id}>
-						<UserList
-							data={userList}
-							onChangeActive={(val) =>
-								onToggleUserListActive(userList.id, val)
-							}
-							onEidtUserList={onEditUserList}
-						/>
-						<FansDivider />
-					</Fragment>
-				))}
+				<ScrollView
+					showsVerticalScrollIndicator={true}
+					onScroll={({ nativeEvent }) => onScrollView(nativeEvent)}
+					scrollEventThrottle={30}
+				>
+					{usersLists.map((userList) => (
+						<Fragment key={userList.id}>
+							<UserList
+								data={userList}
+								onChangeEnable={(val) =>
+									onChangeUserListEnable(userList.id, val)
+								}
+								onEidtUserList={onEditUserList}
+							/>
+							<FansDivider />
+						</Fragment>
+					))}
+				</ScrollView>
 			</FansView>
 
 			<RoundButton
@@ -340,31 +353,85 @@ export const FormContents: FC<FormContentsProps> = (props) => {
 interface Props {
 	open: boolean;
 	onClose: () => void;
-	usersLists: IUserList[];
-	onChangeUserListActive: (userListId: string, active: boolean) => void;
 }
 
 const UserListModal: FC<Props> = (props) => {
-	const { open, onClose, usersLists, onChangeUserListActive } = props;
+	const { open, onClose } = props;
 
 	const [userListId, setUserListId] = useState("");
 	const [step, setStep] = useState<"pin" | "form">("pin");
+	const [isLoading, setIsLoading] = useState(false);
+	const [userLists, setUserLists] = useState<UserlistsRespBody>({
+		userlists: [],
+		page: 1,
+		size: 10,
+		total: 0,
+	});
+
+	const getUserLists = async () => {
+		const resp = await getUserlists();
+		if (resp.ok) {
+			setUserLists(resp.data);
+		}
+	};
+
+	const onScrollView = (nativeEvent: NativeScrollEvent) => {
+		const paddingToBottom = 20;
+		const isScrollEnd =
+			nativeEvent.layoutMeasurement.height +
+				nativeEvent.contentOffset.y >=
+			nativeEvent.contentSize.height - paddingToBottom;
+		if (isScrollEnd && !isLoading) {
+			if (userLists.total > 10 * userLists.page) {
+				setIsLoading(true);
+				setUserLists({
+					...userLists,
+					page: userLists.page + 1,
+				});
+			}
+		}
+	};
+
+	const onChangeUserListEnable = async (
+		userListId: string,
+		enabled: boolean,
+	) => {
+		const resp = await updateUserlist(
+			{ enabled: enabled },
+			{ id: userListId },
+		);
+		if (resp.ok) {
+			setUserLists({
+				...userLists,
+				userlists: userLists.userlists.map((userlist) =>
+					userlist.id === userListId
+						? { ...userlist, enabled: enabled }
+						: userlist,
+				),
+			});
+		}
+	};
 
 	useEffect(() => {
 		setStep("pin");
 		setUserListId("");
 	}, [open]);
 
+	useEffect(() => {
+		getUserLists();
+	}, [userLists.page, open]);
+
 	return (
 		<BottomSheetWrapper open={open} onClose={onClose}>
 			{step === "pin" ? (
 				<PinStepContents
-					usersLists={usersLists}
-					onToggleUserListActive={onChangeUserListActive}
+					usersLists={userLists.userlists}
+					onChangeUserListEnable={onChangeUserListEnable}
 					onEditUserList={(id) => {
 						setUserListId(id);
 						setStep("form");
 					}}
+					onScrollView={onScrollView}
 				/>
 			) : (
 				<FormContents
@@ -372,7 +439,7 @@ const UserListModal: FC<Props> = (props) => {
 						setStep("pin");
 						setUserListId("");
 					}}
-					userList={usersLists.find(
+					userList={userLists.userlists.find(
 						(userlist) => userlist.id === userListId,
 					)}
 					onClose={onClose}

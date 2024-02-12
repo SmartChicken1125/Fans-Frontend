@@ -27,6 +27,7 @@ const StoriesLayout = () => {
 				initialParams={{
 					highlightId: params.highlightId as string,
 					userId: params.userId as string,
+					storyId: params.storyId as string,
 				}}
 			/>
 			<Stack.Screen
@@ -37,6 +38,7 @@ const StoriesLayout = () => {
 				}}
 				initialParams={{
 					userId: params.userId as string,
+					storyId: params.storyId as string,
 				}}
 			/>
 			<Stack.Screen
@@ -47,6 +49,7 @@ const StoriesLayout = () => {
 				}}
 				initialParams={{
 					userId: params.userId as string,
+					storyId: params.storyId as string,
 				}}
 			/>
 		</Stack.Navigator>

@@ -1,14 +1,11 @@
 import { PlusSvg } from "@assets/svgs/common";
 import FormControl from "@components/common/FormControl";
-import { FypText } from "@components/common/base";
+import { FypText, FypSvg } from "@components/common/base";
 import CustomTopNavBar from "@components/common/customTopNavBar";
 import AppLayout, { LayoutContentsContainer } from "@components/common/layout";
+import { FansView } from "@components/controls";
 import { ImagePostChip } from "@components/posts/common";
-import {
-	PostsActionType,
-	ProfileActionType,
-	useAppContext,
-} from "@context/useAppContext";
+import { ProfileActionType, useAppContext } from "@context/useAppContext";
 import { getCategory, updateCategory } from "@helper/endpoints/categories/apis";
 import { getPostFeedForProfile } from "@helper/endpoints/post/apis";
 import tw from "@lib/tailwind";
@@ -17,7 +14,7 @@ import { PostType } from "@usertypes/commonEnums";
 import { ProfileNavigationStacks } from "@usertypes/navigations";
 import { IPost } from "@usertypes/types";
 import React, { useEffect, useState } from "react";
-import { Pressable, ScrollView, View } from "react-native";
+import { ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
@@ -118,7 +115,7 @@ const EditCategoryScreen = (
 			title="Edit Profile | FYP.Fans"
 			description="FYP.Fans allows creators to make an income doing what they love!"
 		>
-			<View style={tw.style("flex-1")}>
+			<FansView flex="1">
 				<ScrollView style={tw.style("flex-1")}>
 					<LayoutContentsContainer>
 						<CustomTopNavBar
@@ -128,15 +125,8 @@ const EditCategoryScreen = (
 							rightLabel="Done"
 							loading={inProgress}
 						/>
-						<View
-							style={[
-								tw.style("pt-6"),
-								{
-									paddingBottom: insets.bottom + 35,
-								},
-							]}
-						>
-							<View style={tw.style("px-[18px]")}>
+						<FansView padding={{ t: 24, b: insets.bottom + 35 }}>
+							<FansView padding={{ x: 18 }}>
 								<FormControl
 									label="Category name"
 									value={name}
@@ -146,12 +136,14 @@ const EditCategoryScreen = (
 									validateString="Name must be mandatory"
 									maxLength={50}
 								/>
-							</View>
+							</FansView>
 
-							<View
-								style={tw.style(
-									"flex-row items-center justify-between mt-8 mb-[18px] px-[18px]",
-								)}
+							<FansView
+								flexDirection="row"
+								alignItems="center"
+								justifyContent="between"
+								margin={{ b: 18, t: 32 }}
+								padding={{ x: 18 }}
 							>
 								<FypText
 									fontSize={17}
@@ -160,28 +152,32 @@ const EditCategoryScreen = (
 								>
 									Posts
 								</FypText>
-								<Pressable
-									style={tw.style("flex-row items-center")}
-									onPress={onClickAddMore}
+								<FansView
+									flexDirection="row"
+									alignItems="center"
+									gap={4}
+									pressableProps={{
+										onPress: onClickAddMore,
+									}}
 								>
-									<PlusSvg
+									<FypSvg
+										svg={PlusSvg}
 										width={12}
 										height={12}
-										color="#a854f5"
+										color="fans-purple"
 									/>
 									<FypText
 										fontSize={17}
 										lineHeight={22}
 										fontWeight={600}
-										margin={{ b: 8 }}
 										style={tw.style("text-fans-purple")}
 									>
 										Add more
 									</FypText>
-								</Pressable>
-							</View>
+								</FansView>
+							</FansView>
 
-							<View style={tw.style("flex-row flex-wrap")}>
+							<FansView flexDirection="row" flexWrap="wrap">
 								{posts.map((post) => (
 									<ImagePostChip
 										colSpan={3}
@@ -197,11 +193,11 @@ const EditCategoryScreen = (
 										isVideo={post.type === PostType.Video}
 									/>
 								))}
-							</View>
-						</View>
+							</FansView>
+						</FansView>
 					</LayoutContentsContainer>
 				</ScrollView>
-			</View>
+			</FansView>
 		</AppLayout>
 	);
 };

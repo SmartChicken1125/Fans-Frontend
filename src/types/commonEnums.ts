@@ -67,13 +67,16 @@ export enum HttpMethods {
 }
 
 export enum PostType {
-	Photo = "Photo",
+	Story = "Story",
+	Media = "Media",
+	Products = "Products",
+	GoLive = "GoLive",
 	Audio = "Audio",
-	Video = "Video",
 	Text = "Text",
 	Poll = "Poll",
+	Photo = "Photo",
+	Video = "Video",
 	Fundraiser = "Fundraiser",
-	Story = "Story",
 	Vault = "Vault",
 }
 
@@ -199,6 +202,13 @@ export enum SubscribeActionType {
 
 export enum ReportType {
 	UNDERAGE_USER = "UNDERAGE_USER",
+	ILLEGAL_CONTENT = "ILLEGAL_CONTENT",
+	IMPERSONATION_OR_IDENTITY_THEFT = "IMPERSONATION_OR_IDENTITY_THEFT",
+	PROMOTING_HATE_SPEECH_OR_DISCRIMINATION = "PROMOTING_HATE_SPEECH_OR_DISCRIMINATION",
+	PROMOTING_DANGEROUS_BEHAVIORS = "PROMOTING_DANGEROUS_BEHAVIORS",
+	INVOLVED_IN_SPAN_OR_SCAM_ACTIVITIES = "INVOLVED_IN_SPAN_OR_SCAM_ACTIVITIES",
+	INFRINGEMENT_OF_MY_COPYRIGHT = "INFRINGEMENT_OF_MY_COPYRIGHT",
+	OTHER = "OTHER",
 }
 
 export enum PaymentMethodType {
@@ -235,4 +245,23 @@ export enum ProfileViewType {
 	Creator = "Creator",
 	Members = "Members",
 	Public = "Public",
+}
+
+export enum MeetingStatusType {
+	Pending = "Pending",
+	Accepted = "Accepted",
+	Declined = "Declined",
+	Cancelled = "Cancelled",
+}
+
+export enum VideoCallOrderCardType {
+	Pending = "Pending",
+	Accepted = "Accepted",
+	Now = "Now",
+	Past = "Past",
+	Refunded = "Refunded",
+}
+export enum ActionType {
+	Create = "Create",
+	Update = "Update",
 }

@@ -11,12 +11,10 @@ import AppLayout, {
 import Tabs from "@components/common/tabs";
 import {
 	FansDivider,
-	FansGap,
 	FansIconButton,
 	FansText,
 	FansView,
 } from "@components/controls";
-import { PostAnalyticsModal } from "@components/modals/shop";
 import { StoryCell } from "@components/posts/common";
 import {
 	CreatorPostActions,
@@ -38,6 +36,8 @@ import {
 	SubscriptionPart,
 	TierJoinDialog,
 	TopActions,
+	ShopTabContents,
+	BookVideoCallCard,
 } from "@components/profiles";
 import { JoinProgramCard } from "@components/refer";
 import {
@@ -58,15 +58,13 @@ import { getOrCreateConversation } from "@helper/endpoints/chat/apis";
 import { getPostMediasByUserId } from "@helper/endpoints/media/apis";
 import { MediasRespBody } from "@helper/endpoints/media/schemas";
 import {
-	deleteBookmark,
 	getPostById,
 	getPostFeedForProfile,
-	likePostWithPostId,
-	setBookmark,
-	unlikePostWithPostId,
+	getCreatorsPaidPosts,
 } from "@helper/endpoints/post/apis";
 import { PostListRespBody } from "@helper/endpoints/post/schemas";
 import { getCreatorProfileByLink } from "@helper/endpoints/profile/apis";
+import { getProfileVideoCallSettings } from "@helper/endpoints/videoCalls/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { authAtom } from "@state/auth";
@@ -100,7 +98,6 @@ import { NativeScrollEvent, ScrollView } from "react-native";
 import { Button } from "react-native-paper";
 import Toast from "react-native-toast-message";
 import { useRecoilValue } from "recoil";
-import BookVideoCall from "./BookVideoCall";
 
 const defaultPosts = {
 	posts: [],
@@ -134,6 +131,7 @@ const ProfileScreen = (
 	const [posts, setPosts] = useState<PostListRespBody>(defaultPosts);
 	const [playlists, setPlaylists] = useState<IPlayList[]>([]);
 	const [hasAccess, setHasAccess] = useState(false);
+	const [paidPosts, setPaidPosts] = useState<PostListRespBody>(defaultPosts);
 
 	const [tab, setTab] = useState("post");
 	const [highlights, setHighlights] = useState<IHighlight[]>([]);
@@ -146,9 +144,11 @@ const ProfileScreen = (
 	const [inLoadingMore, setInLoadingMore] = useState<{
 		post: Boolean;
 		media: boolean;
+		paidPosts: boolean;
 	}>({
 		post: false,
 		media: false,
+		paidPosts: false,
 	});
 	const [filter, setFilter] = useState<{
 		post: SortType | string;
@@ -164,7 +164,7 @@ const ProfileScreen = (
 	const [openCommentModal, setOpenCommentModal] = useState(false);
 	const [openAvatarModal, setOpenAvatarModal] = useState(false);
 	const [openShopPostMenus, setOpenShopPostMenus] = useState(false);
-	const [openPostAnalytics, setOpenPostAnalytics] = useState(false);
+	const [isAvailableVideoCall, setIsAvailableVideoCall] = useState(false);
 
 	const handleOpenGemModal = () => {
 		dispatch.setCommon({
@@ -188,7 +188,7 @@ const ProfileScreen = (
 	};
 
 	const fetchPosts = async () => {
-		if (!profile) return;
+		if (profile.id === "0") return;
 
 		const filterObject: IPostFilterQuery = {
 			page: posts.page,
@@ -228,6 +228,15 @@ const ProfileScreen = (
 		setMedias(defaultMedias);
 	};
 
+	const fetchVideoCallSettings = async (profileId: string) => {
+		const resp = await getProfileVideoCallSettings({ id: profileId });
+		if (resp.ok) {
+			setIsAvailableVideoCall(resp.data.isAvailable);
+		} else {
+			setIsAvailableVideoCall(false);
+		}
+	};
+
 	const fetchProfileData = async () => {
 		const resp = await getCreatorProfileByLink({
 			profileLink: username as string,
@@ -239,53 +248,13 @@ const ProfileScreen = (
 			setHasAccess(resp.data.hasAccess);
 			fetchPosts();
 			fetchMedias();
+			fetchVideoCallSettings(resp.data.id);
 		} else {
 			initState();
 			Toast.show({
 				type: "error",
 				text1: resp.data.message,
 			});
-		}
-	};
-
-	const onClickBookmark = async (id: string) => {
-		const post = posts.posts.find((el) => el.id === id);
-		if (post?.isBookmarked) {
-			const resp = await deleteBookmark(null, { id });
-			if (resp.ok) {
-				setPosts({
-					...posts,
-					posts: posts.posts.map((el) =>
-						el.id === id
-							? {
-									...el,
-									isBookmarked:
-										resp.data.updatedPost.isBookmarked,
-									bookmarkCount:
-										resp.data.updatedPost.bookmarkCount,
-							  }
-							: el,
-					),
-				});
-			}
-		} else {
-			const resp = await setBookmark(null, { id });
-			if (resp.ok) {
-				setPosts({
-					...posts,
-					posts: posts.posts.map((el) =>
-						el.id === id
-							? {
-									...el,
-									isBookmarked:
-										resp.data.updatedPost.isBookmarked,
-									bookmarkCount:
-										resp.data.updatedPost.bookmarkCount,
-							  }
-							: el,
-					),
-				});
-			}
 		}
 	};
 
@@ -376,44 +345,33 @@ const ProfileScreen = (
 
 	const onClickAddToList = () => {};
 
-	const handleLikePost = async (postId: string) => {
-		const post = posts.posts.find((el) => el.id === postId);
-		if (post?.isLiked) {
-			const resp = await unlikePostWithPostId(null, {
-				id: postId,
+	const fetchPaidPosts = async () => {
+		if (profile.userId === "0") {
+			return;
+		}
+		const filterObject: IPostFilterQuery = {
+			page: paidPosts.page,
+			size: 10,
+		};
+		const resp = await getCreatorsPaidPosts(
+			{
+				userId: profile.userId,
+			},
+			filterObject,
+		);
+
+		setInLoadingMore({
+			...inLoadingMore,
+			paidPosts: false,
+		});
+		if (resp.ok) {
+			setPaidPosts({
+				...resp.data,
+				posts:
+					resp.data.page === 1
+						? resp.data.posts
+						: [...paidPosts.posts, ...resp.data.posts],
 			});
-			if (resp.ok) {
-				setPosts({
-					...posts,
-					posts: posts.posts.map((el) =>
-						el.id === postId
-							? {
-									...el,
-									likeCount: resp.data.likeCount,
-									isLiked: resp.data.isLiked,
-							  }
-							: el,
-					),
-				});
-			}
-		} else {
-			const resp = await likePostWithPostId(null, {
-				id: postId,
-			});
-			if (resp.ok) {
-				setPosts({
-					...posts,
-					posts: posts.posts.map((el) =>
-						el.id === postId
-							? {
-									...el,
-									likeCount: resp.data.likeCount,
-									isLiked: resp.data.isLiked,
-							  }
-							: el,
-					),
-				});
-			}
 		}
 	};
 
@@ -455,6 +413,18 @@ const ProfileScreen = (
 				});
 			}
 		}
+		if (isScrollEnd && !inLoadingMore.paidPosts && tab === "shop") {
+			if (paidPosts.total > 10 * paidPosts.page) {
+				setInLoadingMore({
+					...inLoadingMore,
+					paidPosts: true,
+				});
+				setPaidPosts({
+					...paidPosts,
+					page: paidPosts.page + 1,
+				});
+			}
+		}
 	};
 
 	const profileActions: ICardAction[] = [
@@ -492,6 +462,9 @@ const ProfileScreen = (
 	};
 
 	const fetchMedias = async () => {
+		if (profile.id === "0") {
+			return;
+		}
 		const filterObj: IMediaFilterQuery = {
 			page: medias.page,
 			size: 10,
@@ -673,20 +646,7 @@ const ProfileScreen = (
 		setOpenPostActions(true);
 	};
 
-	const onShipCopyLink = () => {
-		setOpenShopPostMenus(false);
-	};
-
-	const onShopViewAnalytics = () => {
-		setOpenShopPostMenus(false);
-		setOpenPostAnalytics(true);
-	};
-
-	const onShopHide = () => {
-		setOpenShopPostMenus(false);
-	};
-
-	const onShopDelete = () => {
+	const onShopCopyLink = () => {
 		setOpenShopPostMenus(false);
 	};
 
@@ -694,29 +654,24 @@ const ProfileScreen = (
 		{
 			title: "Copy link",
 			iconType: IconTypes.Edit,
-			onClick: onShipCopyLink,
+			onClick: onShopCopyLink,
 			iconSize: 18,
-		},
-		{
-			title: "View analytics",
-			iconType: IconTypes.Statistics,
-			onClick: onShopViewAnalytics,
-			iconSize: 18,
-		},
-		{
-			title: "Hide from shop",
-			iconType: IconTypes.EyeHide,
-			onClick: onShopHide,
-			iconSize: 18,
-		},
-		{
-			title: "Delete post",
-			iconType: IconTypes.Cancel,
-			iconColor: "fans-red",
-			onClick: onShopDelete,
-			labelClass: "text-fans-red",
 		},
 	];
+
+	const updatePostCallback = (postId: string, data: Partial<IPost>) => {
+		setPosts({
+			...posts,
+			posts: posts.posts.map((el) =>
+				el.id === postId
+					? {
+							...el,
+							...data,
+					  }
+					: el,
+			),
+		});
+	};
 
 	useEffect(() => {
 		initState();
@@ -726,20 +681,26 @@ const ProfileScreen = (
 	}, [username]);
 
 	useEffect(() => {
-		if ((profile?.userId ?? "0") !== "0") {
+		if (profile.id !== "0") {
 			fetchPosts();
 		} else {
 			setPosts(defaultPosts);
 		}
-	}, [profile?.userId, filter.post, posts.page]);
+	}, [profile.userId, filter.post, posts.page]);
 
 	useEffect(() => {
-		if ((profile?.userId ?? "0") !== "0") {
+		if (profile.id !== "0") {
 			fetchMedias();
 		} else {
 			setMedias(defaultMedias);
 		}
-	}, [profile?.userId, medias.page, filter.media]);
+	}, [profile.userId, medias.page, filter.media]);
+
+	useEffect(() => {
+		if (profile.userId !== "0") {
+			fetchPaidPosts();
+		}
+	}, [profile.userId, paidPosts.page]);
 
 	return (
 		<AppLayout
@@ -939,27 +900,35 @@ const ProfileScreen = (
 														onClickSocialLink
 													}
 												/>
-												<FansGap height={20} />
 												<FansDivider
 													color="fans-grey-f0"
 													style={tw.style(
-														"my-[13.5px]",
+														"my-[14px]",
 													)}
 												/>
-												<FansGap height={20} />
-												{featureGates.has(
-													"2023_10-video-calls",
-												) && (
-													<BookVideoCall
-														username={
-															profile.displayName ||
-															""
-														}
-														onClick={
-															onBookVideoCall
-														}
-													/>
-												)}
+												<FypNullableView
+													visible={
+														isAvailableVideoCall &&
+														featureGates.has(
+															"2023_10-video-calls",
+														)
+													}
+												>
+													<FansView
+														margin={{ b: 14 }}
+													>
+														<BookVideoCallCard
+															username={
+																profile.displayName ||
+																""
+															}
+															onClick={
+																onBookVideoCall
+															}
+														/>
+													</FansView>
+												</FypNullableView>
+
 												<FansView
 													style={tw.style(
 														hasAccess && "hidden",
@@ -1051,9 +1020,11 @@ const ProfileScreen = (
 														{
 															data: "shop",
 															label: "SHOP",
-															hide: !featureGates.has(
-																"2023_12-shop-tab-on-creators-profile",
-															),
+															hide:
+																!profile.isDisplayShop ||
+																!featureGates.has(
+																	"2023_12-shop-tab-on-creators-profile",
+																),
 														},
 														{
 															data: "playlists",
@@ -1097,11 +1068,6 @@ const ProfileScreen = (
 														onClickPostAction={
 															onClickPostAction
 														}
-														onClickBookmark={(
-															id,
-														) => {
-															onClickBookmark(id);
-														}}
 														onClickPostMessage={(
 															id,
 														) => {
@@ -1112,9 +1078,6 @@ const ProfileScreen = (
 																true,
 															);
 														}}
-														onClickPostLike={
-															handleLikePost
-														}
 														onClickUnlock={
 															onClickPostUnlock
 														}
@@ -1128,6 +1091,9 @@ const ProfileScreen = (
 																true,
 															);
 														}}
+														updatePostCallback={
+															updatePostCallback
+														}
 													/>
 												)}
 												{tab === "media" && (
@@ -1177,17 +1143,38 @@ const ProfileScreen = (
 														}
 													/>
 												)}
-												{/* {tab === "shop" && (
-													<ShopTabContents
-														onPressPostMenu={(
-															postId,
-														) =>
-															setOpenShopPostMenus(
-																true,
-															)
-														}
-													/>
-												)} */}
+												{tab === "shop" &&
+													profile.isDisplayShop && (
+														<ShopTabContents
+															posts={
+																paidPosts.posts
+															}
+															profile={profile}
+															onPressPostMenu={(
+																postId,
+															) => {
+																setSelectedPostId(
+																	postId,
+																);
+																setOpenShopPostMenus(
+																	true,
+																);
+															}}
+															updatePostCallback={
+																updatePostCallback
+															}
+															onClickComment={(
+																id,
+															) => {
+																setSelectedPostId(
+																	id,
+																);
+																setOpenCommentModal(
+																	true,
+																);
+															}}
+														/>
+													)}
 											</FansView>
 										</FansView>
 
@@ -1263,6 +1250,7 @@ const ProfileScreen = (
 				onPostAdvancedCallback={onPostAdvancedCallback}
 				onPinCallback={onPinCallback}
 				onArchivePostCallback={onArchivePostCallback}
+				onEditPostCallback={() => {}}
 			/>
 			<ProfilePictureDialog
 				visible={openAvatarModal}
@@ -1273,11 +1261,6 @@ const ProfileScreen = (
 				open={openShopPostMenus}
 				onClose={() => setOpenShopPostMenus(false)}
 				actions={shopPostActions}
-			/>
-			<PostAnalyticsModal
-				visible={openPostAnalytics}
-				onDismiss={() => setOpenPostAnalytics(false)}
-				handleOpenMessage={() => {}}
 			/>
 		</AppLayout>
 	);

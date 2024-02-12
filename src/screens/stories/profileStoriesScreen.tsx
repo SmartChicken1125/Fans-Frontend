@@ -10,6 +10,7 @@ import {
 	StoryFunctionButtons,
 	StoryLayout,
 } from "@components/stories";
+import { defaultProfileData } from "@constants/common";
 import { CommonActionType, useAppContext } from "@context/useAppContext";
 import { getProfileById } from "@helper/endpoints/profile/apis";
 import { storyLike, unlikeStoryById } from "@helper/endpoints/stories/apis";
@@ -28,21 +29,28 @@ const ProfileStoriesScreen = (
 	props: NativeStackScreenProps<StoriesNavigationStacks, "Profile">,
 ) => {
 	const router = useRouter();
-	const { userId } = props.route.params;
+	const { userId, storyId } = props.route.params;
 	const { state, dispatch } = useAppContext();
 	const { copyString } = useClipboard();
 
-	const [profile, setProfile] = useState<IProfile>();
+	const [profile, setProfile] = useState<IProfile>(defaultProfileData);
 	const [stories, setStories] = useState<IStory[]>([]);
 	const [storyIndex, setStoryIndex] = useState(0);
 	const [openAction, setOpenAction] = useState(false);
 
 	const [openShare, setOpenShare] = useState(false);
 	const [openCommentModal, setOpenCommentModal] = useState(false);
-	const [storyId, setStoryId] = useState("");
 
 	const onChangeStoryIndex = (index: number) => {
 		setStoryIndex(index);
+		router.push({
+			pathname: "stories",
+			params: {
+				screen: "Profile",
+				userId: profile.userId,
+				storyId: stories[index].id,
+			},
+		});
 	};
 
 	const onClickTip = () => {
@@ -56,7 +64,6 @@ const ProfileStoriesScreen = (
 	};
 
 	const onClickComment = () => {
-		setStoryId(stories[storyIndex].id);
 		setOpenCommentModal(true);
 	};
 
@@ -108,6 +115,14 @@ const ProfileStoriesScreen = (
 			onClickClose();
 		} else {
 			setStoryIndex(storyIndex - 1);
+			router.push({
+				pathname: "stories",
+				params: {
+					screen: "Profile",
+					userId: profile.userId,
+					storyId: stories[storyIndex - 1].id,
+				},
+			});
 		}
 	};
 
@@ -116,6 +131,14 @@ const ProfileStoriesScreen = (
 			return;
 		}
 		setStoryIndex(storyIndex + 1);
+		router.push({
+			pathname: "stories",
+			params: {
+				screen: "Profile",
+				userId: profile.userId,
+				storyId: stories[storyIndex + 1].id,
+			},
+		});
 	};
 
 	const onClickClose = () => {
@@ -152,6 +175,9 @@ const ProfileStoriesScreen = (
 		if (resp.ok) {
 			setProfile(resp.data);
 			setStories(resp.data.stories);
+			setStoryIndex(
+				resp.data.stories.findIndex((story) => story.id === storyId),
+			);
 		}
 	};
 
@@ -172,6 +198,11 @@ const ProfileStoriesScreen = (
 		if (state.profile && state.profile.userId === userId) {
 			setProfile(state.profile);
 			setStories(state.profile.stories);
+			setStoryIndex(
+				state.profile.stories.findIndex(
+					(story) => story.id === storyId,
+				),
+			);
 		} else {
 			fetProfileData();
 		}

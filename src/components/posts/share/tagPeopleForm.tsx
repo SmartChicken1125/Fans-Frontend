@@ -24,7 +24,7 @@ import { Video } from "expo-av";
 import React, { FC, useState, useEffect } from "react";
 import { Image } from "react-native";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
-import DragableUserTag from "./dragableUserTag";
+import DraggableUserTag from "./draggableUserTag";
 import FixedUsersTag from "./fixedUsersTag";
 import UploadDocument from "./uploadDocument";
 
@@ -49,7 +49,7 @@ const TagPeopleForm: FC<Props> = (props) => {
 		onCreateNewTagUser,
 	} = props;
 	const [openLink] = useBlankLink();
-	const { carouselIndex, medias, newUsertags } = postForm;
+	const { carouselIndex, medias, taggedPeoples } = postForm;
 	const [mediaSize, setMediaSize] = useState(0);
 	const [media, setMedia] = useState<IPickerMedia | null>();
 	const [userTags, setUserTags] = useState<IUserTag[]>([]);
@@ -61,19 +61,22 @@ const TagPeopleForm: FC<Props> = (props) => {
 		const positionY =
 			postForm.type === PostType.Video ? 0 : e.y / mediaSize;
 
-		let _newUsertags = newUsertags;
+		let _newUsertags = taggedPeoples;
 		if (
-			newUsertags.find((newUsertag) => newUsertag.uploadId === uploadId)
+			taggedPeoples.find(
+				(newUsertag) => newUsertag.postMediaId === uploadId,
+			)
 		) {
-			_newUsertags = _newUsertags.map((newUsertag) =>
-				newUsertag.uploadId === uploadId
+			_newUsertags = taggedPeoples.map((newUsertag) =>
+				newUsertag.postMediaId === uploadId
 					? {
 							...newUsertag,
-							usertags: [
-								...newUsertag.usertags,
+							tags: [
+								...newUsertag.tags,
 								{
 									id: `${new Date().getTime()}`,
-									position: [positionX, positionY],
+									pointX: positionX,
+									pointY: positionY,
 								},
 							],
 					  }
@@ -83,11 +86,12 @@ const TagPeopleForm: FC<Props> = (props) => {
 			_newUsertags = [
 				..._newUsertags,
 				{
-					uploadId: uploadId,
-					usertags: [
+					postMediaId: uploadId,
+					tags: [
 						{
 							id: `${new Date().getTime()}`,
-							position: [positionX, positionY],
+							pointX: positionX,
+							pointY: positionY,
 						},
 					],
 				},
@@ -96,7 +100,7 @@ const TagPeopleForm: FC<Props> = (props) => {
 		dispatch.setPosts({
 			type: PostsActionType.updatePostForm,
 			data: {
-				newUsertags: _newUsertags,
+				taggedPeoples: _newUsertags,
 			},
 		});
 		onCreateNewTagUser();
@@ -113,11 +117,11 @@ const TagPeopleForm: FC<Props> = (props) => {
 		dispatch.setPosts({
 			type: PostsActionType.updatePostForm,
 			data: {
-				newUsertags: newUsertags.map((_usertags) =>
-					_usertags.uploadId === medias[carouselIndex].id
+				taggedPeoples: taggedPeoples.map((_usertags) =>
+					_usertags.postMediaId === medias[carouselIndex].id
 						? {
 								..._usertags,
-								usertags: _usertags.usertags.filter(
+								tags: _usertags.tags.filter(
 									(_tag) => _tag.id !== userTagId,
 								),
 						  }
@@ -140,11 +144,11 @@ const TagPeopleForm: FC<Props> = (props) => {
 		dispatch.setPosts({
 			type: PostsActionType.updatePostForm,
 			data: {
-				newUsertags: newUsertags.map((_usertags) =>
-					_usertags.uploadId === medias[carouselIndex].id
+				taggedPeoples: taggedPeoples.map((_usertags) =>
+					_usertags.postMediaId === medias[carouselIndex].id
 						? {
 								..._usertags,
-								usertags: updatedUsertags,
+								tags: updatedUsertags,
 						  }
 						: _usertags,
 				),
@@ -156,16 +160,17 @@ const TagPeopleForm: FC<Props> = (props) => {
 		if (medias.length > 0) {
 			setMedia(medias[carouselIndex]);
 			setUserTags(
-				newUsertags.find(
+				taggedPeoples.find(
 					(usertags) =>
-						usertags.uploadId === medias[carouselIndex].id,
-				)?.usertags ?? [],
+						usertags.postMediaId === medias[carouselIndex].id,
+				)?.tags ?? [],
 			);
 		} else {
 			setMedia(null);
 		}
-	}, [carouselIndex, newUsertags]);
+	}, [carouselIndex, taggedPeoples, medias]);
 	console.log(postForm);
+	console.log(`carousel index = ${carouselIndex}`);
 	return (
 		<FansView>
 			<FansView
@@ -181,7 +186,7 @@ const TagPeopleForm: FC<Props> = (props) => {
 							position="relative"
 						>
 							<FypNullableView
-								visible={postForm.type === PostType.Photo}
+								visible={media?.type === MediaType.Image}
 							>
 								<Image
 									source={{ uri: media?.uri }}
@@ -189,7 +194,7 @@ const TagPeopleForm: FC<Props> = (props) => {
 								/>
 							</FypNullableView>
 							<FypNullableView
-								visible={postForm.type === PostType.Video}
+								visible={media?.type === MediaType.Video}
 							>
 								<Video
 									source={{
@@ -240,15 +245,15 @@ const TagPeopleForm: FC<Props> = (props) => {
 				<FypNullableView
 					visible={
 						userTags.length > 0 &&
-						postForm.type === PostType.Photo &&
+						media?.type === MediaType.Image &&
 						mediaSize !== 0
 					}
 				>
 					{userTags.map((userTag) => (
-						<DragableUserTag
+						<DraggableUserTag
 							key={`${userTag.id}`}
 							visible={true}
-							usertag={userTag}
+							userTag={userTag}
 							mediaSize={[mediaSize, mediaSize]}
 							onRemove={() => onRemoveTag(userTag.id)}
 							onUpdate={(position) =>
@@ -259,7 +264,7 @@ const TagPeopleForm: FC<Props> = (props) => {
 				</FypNullableView>
 				<FypNullableView
 					visible={
-						userTags.length > 0 && postForm.type === PostType.Video
+						userTags.length > 0 && media?.type === MediaType.Video
 					}
 				>
 					<FixedUsersTag

@@ -7,6 +7,7 @@ import CustomTopNavBar from "@components/common/customTopNavBar";
 import FileDropzone from "@components/common/fileDropzone";
 import AppLayout, { LayoutContentsContainer } from "@components/common/layout";
 import { TierPerk } from "@components/profiles";
+import { defaultPickerMedia } from "@constants/common";
 import { defaultTierFormData } from "@constants/defaultFormData";
 import { ProfileActionType, useAppContext } from "@context/useAppContext";
 import { cdnURL } from "@helper/Utils";
@@ -40,10 +41,7 @@ const TierScreen = (
 	const [inProgress, setInProgress] = useState(false);
 	const [tierForm, setTierForm] =
 		useState<ISubscriptionTier>(defaultTierFormData);
-	const [coverImg, setCoverImg] = useState<IPickerMedia>({
-		uri: "",
-		isPicker: false,
-	});
+	const [coverImg, setCoverImg] = useState<IPickerMedia>(defaultPickerMedia);
 	const [isSubmitted, setIsSubmitted] = useState(false);
 
 	const onChange = (name: string, value: string) => {
@@ -207,6 +205,7 @@ const TierScreen = (
 				setCoverImg({
 					uri: tier.cover,
 					isPicker: false,
+					type: MediaType.Image,
 				});
 			} else {
 				setTierForm(defaultTierFormData);

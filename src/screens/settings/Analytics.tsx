@@ -61,7 +61,7 @@ import {
 	PostSheet,
 	TransactionSheet,
 } from "@components/sheet/settings/analytics";
-import { emptyProfileData } from "@constants/common";
+import { defaultProfileData } from "@constants/common";
 import { useAppContext } from "@context/useAppContext";
 import {
 	AnalyticsIPost,
@@ -137,7 +137,7 @@ const SettingsAnalyticsNativeStack = () => {
 		>
 			<Stack.Screen
 				name="Analytics"
-				component={AnalyticsConstentView}
+				component={AnalyticsConstantView}
 				options={{
 					title: "Analytics",
 				}}
@@ -202,7 +202,7 @@ const PromotionalCampaigns = (props: PromotionalCampaignsProps) => {
 
 	const items = [
 		{
-			url: "fyp.fans/janelove/compagin1",
+			url: "fyp.fans/janelove/campaign1",
 			time: "2023-09-05T23:39:10.318Z",
 			revenue: 1500,
 			share: 20,
@@ -210,7 +210,7 @@ const PromotionalCampaigns = (props: PromotionalCampaignsProps) => {
 			cursor: 1750,
 		},
 		{
-			url: "fyp.fans/janelove/compagin1",
+			url: "fyp.fans/janelove/campaign1",
 			time: "2023-09-05T23:39:10.318Z",
 			revenue: 1500,
 			share: 20,
@@ -218,7 +218,7 @@ const PromotionalCampaigns = (props: PromotionalCampaignsProps) => {
 			cursor: 1750,
 		},
 		{
-			url: "fyp.fans/janelove/compagin1",
+			url: "fyp.fans/janelove/campaign1",
 			time: "2023-09-05T23:39:10.318Z",
 			revenue: 1500,
 			share: 20,
@@ -226,7 +226,7 @@ const PromotionalCampaigns = (props: PromotionalCampaignsProps) => {
 			cursor: 1750,
 		},
 		{
-			url: "fyp.fans/janelove/compagin1",
+			url: "fyp.fans/janelove/campaign1",
 			time: "2023-09-05T23:39:10.318Z",
 			revenue: 1500,
 			share: 20,
@@ -664,7 +664,7 @@ const Subscribers = () => {
 				open={openMessageDialog}
 				onClose={() => setOpenMessageDialog(false)}
 				reciever={{
-					...emptyProfileData,
+					...defaultProfileData,
 					userId: subscriber?.userId ?? "",
 					displayName: subscriber?.username ?? "",
 					avatar: subscriber?.avatar,
@@ -892,12 +892,13 @@ const Posts = () => {
 			{
 				id: "1",
 				profileId: "0",
-				profile: emptyProfileData,
+				profile: defaultProfileData,
 				title: "Loving my new outfit! You can see later.",
 				type: PostType.Photo,
 				caption: "",
 				thumb: {
 					id: "0",
+					type: "",
 					url: "",
 				},
 				medias: [],
@@ -919,12 +920,13 @@ const Posts = () => {
 			{
 				id: "2",
 				profileId: "0",
-				profile: emptyProfileData,
+				profile: defaultProfileData,
 				title: "Loving my new outfit! You can see later.",
 				type: PostType.Photo,
 				caption: "",
 				thumb: {
 					id: "0",
+					type: "",
 					url: "",
 				},
 				medias: [],
@@ -946,12 +948,13 @@ const Posts = () => {
 			{
 				id: "3",
 				profileId: "0",
-				profile: emptyProfileData,
+				profile: defaultProfileData,
 				title: "Loving my new outfit! You can see later.",
 				type: PostType.Photo,
 				caption: "",
 				thumb: {
 					id: "0",
+					type: "",
 					url: "",
 				},
 				medias: [],
@@ -973,12 +976,13 @@ const Posts = () => {
 			{
 				id: "4",
 				profileId: "0",
-				profile: emptyProfileData,
+				profile: defaultProfileData,
 				title: "Loving my new outfit! You can see later.",
 				type: PostType.Photo,
 				caption: "",
 				thumb: {
 					id: "0",
+					type: "",
 					url: "",
 				},
 				medias: [],
@@ -1000,12 +1004,13 @@ const Posts = () => {
 			{
 				id: "5",
 				profileId: "0",
-				profile: emptyProfileData,
+				profile: defaultProfileData,
 				title: "Loving my new outfit! You can see later.",
 				type: PostType.Photo,
 				caption: "",
 				thumb: {
 					id: "0",
+					type: "",
 					url: "",
 				},
 				medias: [],
@@ -1767,7 +1772,7 @@ const ShopContent = ({ isScrollEnd }: { isScrollEnd: boolean }) => {
 	);
 };
 
-const AnalyticsConstentView = () => {
+const AnalyticsConstantView = () => {
 	const { state } = useAppContext();
 	const { userInfo } = state.user;
 	const featureGates = useFeatureGates();

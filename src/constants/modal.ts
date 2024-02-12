@@ -1,5 +1,6 @@
 export const POST_REPORT_DIALOG_ID = "post-report-dialog";
 export const PROFILE_REPORT_DIALOG_ID = "profile-report-dialog";
+export const MESSAGE_REPORT_DIALOG_ID = "chat-report-dialog";
 export const SEND_MESSAGE_SUCCESS_MODAL_ID = "send-message-success-modal";
 export const BLOCK_CREATOR_MODAL_ID = "block-creator-modal";
 export const SUBSCRIBE_LOGIN_DIALOG_ID = "subscribe-login-dialog";
@@ -12,3 +13,4 @@ export const FAIR_TRANSACTION_DIALOG_ID = "fair-transaction-dialog";
 export const ANIMATION_LOADING_DIALOG_ID = "animation-loading-dialog";
 export const PWA_INSTALL_DIALOG_ID = "pwa-install-dialog";
 export const DELETE_ACCOUNT_SUCCESS_DIALOG_ID = "delete-account-success-dialog";
+export const PENDING_ORDERS_DIALOG_ID = "pending-orders-dialog";

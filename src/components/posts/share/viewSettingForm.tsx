@@ -4,7 +4,7 @@ import CustomRadio from "@components/common/customRadio";
 import { FansDivider, FansText, FansView } from "@components/controls";
 import { SelectableUserListItem } from "@components/posts/common";
 import tw from "@lib/tailwind";
-import { useFeatureGates } from "@state/featureGates";
+import { SubscriptionTypes } from "@usertypes/commonEnums";
 import {
 	IRole,
 	ISubscriptionTier,
@@ -19,6 +19,7 @@ import PaymentFansForm from "./paymentFansForm";
 interface Props {
 	roles: IRole[];
 	viewType: IPostFormViewType;
+	subscriptionType: SubscriptionTypes;
 	onChangeViewType: (val: IPostFormViewType) => void;
 	onCreateRole: () => void;
 	onEditRole: (roleId: string) => void;
@@ -49,8 +50,8 @@ const ViewSettingForm: FC<Props> = (props) => {
 		fanUsers,
 		onAddFanUsers,
 		onRemoveFanUser,
+		subscriptionType,
 	} = props;
-	const featureGates = useFeatureGates();
 
 	const [showSearchForm, setShowSearchForm] = useState(false);
 
@@ -88,7 +89,7 @@ const ViewSettingForm: FC<Props> = (props) => {
 
 					<FansDivider />
 
-					{featureGates.has("2024_01-new-exclusive-post") ? (
+					{subscriptionType === SubscriptionTypes.Tier ? (
 						<Fragment>
 							<FansView padding={{ y: 16 }}>
 								<CustomRadio
@@ -110,13 +111,7 @@ const ViewSettingForm: FC<Props> = (props) => {
 							alignItems="center"
 						>
 							<CustomRadio
-								label={
-									featureGates.has(
-										"2024_01-new-exclusive-post",
-									)
-										? "XP levels"
-										: "Exclusive (Loyal fans)"
-								}
+								label="Exclusive (Loyal fans)"
 								checked={viewType === "XPLevels"}
 								onPress={() => onChangeViewType("XPLevels")}
 							/>
@@ -144,15 +139,14 @@ const ViewSettingForm: FC<Props> = (props) => {
 					</FansView>
 
 					<FansDivider />
-					{featureGates.has("2024_01-new-exclusive-post") ? (
-						<FansView padding={{ y: 16 }}>
-							<CustomRadio
-								label="Specific fans"
-								checked={viewType === "SpecificFans"}
-								onPress={() => onChangeViewType("SpecificFans")}
-							/>
-						</FansView>
-					) : null}
+
+					<FansView padding={{ y: 16 }}>
+						<CustomRadio
+							label="Specific fans"
+							checked={viewType === "SpecificFans"}
+							onPress={() => onChangeViewType("SpecificFans")}
+						/>
+					</FansView>
 
 					<ManageRolesForm
 						collapsed={viewType !== "XPLevels"}

@@ -1,6 +1,6 @@
 import { PostType, SubscriptionTypes } from "@usertypes/commonEnums";
 import { IUserList, IPost, IPaymentMethod } from "@usertypes/types";
-import { defaultStoryFeeds } from "./storyFeed";
+import { testStoryFeeds } from "./storyFeed";
 
 export const usersData = [
 	{
@@ -40,17 +40,19 @@ export const postsData: IPost[] = [
 	{
 		id: "119569554403528704",
 		profileId: "81230809917599744",
-		profile: defaultStoryFeeds[0],
+		profile: testStoryFeeds[0],
 		title: "",
 		type: PostType.Photo,
 		caption: "aaa",
 		thumb: {
 			id: "119569537614692352",
+			type: "Image",
 			url: "media/AEA7XtzLqAFiRkuxzSOibvSLmFdYrHBYMShfP9n09Oc",
 		},
 		medias: [
 			{
 				id: "119569537614692352",
+				type: "Image",
 				url: "media/AEA7XtzLqAFiRkuxzSOibvSLmFdYrHBYMShfP9n09Oc",
 			},
 		],
@@ -204,8 +206,10 @@ export const usersListData: IUserList[] = [
 				roles: [],
 				categories: [],
 				stories: [],
+				isDisplayShop: false,
 			},
 		],
+		enabled: true,
 	},
 ];
 

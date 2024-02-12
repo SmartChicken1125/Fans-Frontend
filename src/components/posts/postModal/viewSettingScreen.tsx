@@ -1,7 +1,7 @@
 import { IAppDispatch } from "@context/appContext";
 import { ProfileActionType } from "@context/useAppContext";
 import { deleteRole } from "@helper/endpoints/role/apis";
-import { PostStepTypes } from "@usertypes/commonEnums";
+import { PostStepTypes, SubscriptionTypes } from "@usertypes/commonEnums";
 import {
 	IPostForm,
 	IRole,
@@ -20,6 +20,7 @@ interface Props {
 	data: IPostForm;
 	roles: IRole[];
 	tiers: ISubscriptionTier[];
+	subscriptionType: SubscriptionTypes;
 	handleChangeTab: (tab: PostStepTypes) => void;
 	handleChangeRole: (roleId: string) => void;
 	handleUpdatePostForm: (data: Partial<IPostForm>) => void;
@@ -41,6 +42,7 @@ const ViewSettingScreen: FC<Props> = (props) => {
 		setInProgress,
 		dispatch,
 		setPrevScreen,
+		subscriptionType,
 	} = props;
 	const { viewType } = data;
 	const [localRoles, setLocalRoles] = useState<IRole[]>([]);
@@ -201,6 +203,7 @@ const ViewSettingScreen: FC<Props> = (props) => {
 				<ViewSettingForm
 					roles={localRoles}
 					viewType={viewType}
+					subscriptionType={subscriptionType}
 					onChangeViewType={onChangeViewType}
 					onCreateRole={onCreateRole}
 					onEditRole={handleChangeRole}

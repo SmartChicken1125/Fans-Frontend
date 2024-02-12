@@ -6,7 +6,6 @@ import {
 	ListSvg,
 	Note2Svg,
 	OutlinedPinSvg,
-	StarCheckSvg,
 	UnNotificationSvg,
 	WarningSvg,
 } from "@assets/svgs/common";
@@ -15,19 +14,30 @@ import { FypSvg } from "@components/common/base";
 import {
 	FansDivider,
 	FansGap,
-	FansImage,
 	FansSheet,
 	FansText,
 	FansView,
 } from "@components/controls";
+import { useAppContext } from "@context/useAppContext";
 import tw from "@lib/tailwind";
+import { UserRoleTypes } from "@usertypes/commonEnums";
 import { IFansSheet } from "@usertypes/components";
 import { IConversationMeta } from "@usertypes/types";
+import useClipboard from "@utils/useClipboard";
+import { createURL } from "expo-linking";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 const ProfileSheet: IFansSheet<IConversationMeta> = (props) => {
 	const { visible, data, onClose: trigClose, onSubmit: trigSubmit } = props;
+
+	const { state } = useAppContext();
+	const { userInfo } = state.user;
+	const { type } = userInfo;
+
+	const isCreator = type === UserRoleTypes.Creator;
+
+	const { copyString } = useClipboard();
 
 	const handlePressMedia = () => {
 		trigClose();
@@ -42,6 +52,11 @@ const ProfileSheet: IFansSheet<IConversationMeta> = (props) => {
 	const handlePressPinned = () => {
 		trigClose();
 		trigSubmit("Pinned");
+	};
+
+	const handlePressBlock = () => {
+		trigClose();
+		trigSubmit("Block");
 	};
 
 	return (
@@ -74,6 +89,44 @@ const ProfileSheet: IFansSheet<IConversationMeta> = (props) => {
 					>
 						@{data?.name}
 					</Text>
+					<FansGap height={8} />
+					{isCreator && (
+						<View
+							style={tw.style("flex-row gap-[5px] items-center")}
+						>
+							<FansText
+								color="grey-70"
+								fontFamily="inter-semibold"
+								fontSize={16}
+							>
+								Level {data?.xpLevel}
+							</FansText>
+							<FansGap width={6.5} />
+							<FansText
+								color="grey-70"
+								fontFamily="inter-semibold"
+								fontSize={16}
+							>
+								•
+							</FansText>
+							<FansGap width={5.8} />
+							<FansView
+								style={tw.style(
+									"bg-fans-green/10",
+									"px-[7px] py-[1px]",
+								)}
+								borderRadius="full"
+							>
+								<FansText
+									color="green"
+									fontFamily="inter-semibold"
+									fontSize={14}
+								>
+									${data?.earnings}
+								</FansText>
+							</FansView>
+						</View>
+					)}
 					<FansGap height={24} />
 					<View style={tw.style("flex-row gap-[40px] items-center")}>
 						{[
@@ -165,6 +218,14 @@ const ProfileSheet: IFansSheet<IConversationMeta> = (props) => {
 							/>
 						),
 						text: "Copy profile link",
+						onPress: async () => {
+							if (data?.otherParticipant?.profileLink) {
+								const url = createURL(
+									`${data.otherParticipant.profileLink}`,
+								);
+								await copyString(url);
+							}
+						},
 					},
 					{
 						icon: (
@@ -209,6 +270,7 @@ const ProfileSheet: IFansSheet<IConversationMeta> = (props) => {
 						),
 						text: "Block",
 						textColor: "text-fans-red",
+						onPress: handlePressBlock,
 					},
 					{
 						icon: (
@@ -220,22 +282,24 @@ const ProfileSheet: IFansSheet<IConversationMeta> = (props) => {
 						textColor: "text-fans-red",
 					},
 				].map((item, index) => {
-					const { icon, text, textColor } = item;
+					const { icon, text, textColor, onPress } = item;
 					return (
-						<FansView
-							key={text}
-							style={tw.style(
-								"h-[52px]",
-								"flex-row gap-[20px] items-center",
-							)}
-						>
-							{icon}
-							<FansText
-								style={tw.style("text-[18px]", textColor)}
+						<TouchableOpacity key={text} onPress={onPress}>
+							<FansView
+								key={text}
+								style={tw.style(
+									"h-[52px]",
+									"flex-row gap-[20px] items-center",
+								)}
 							>
-								{text}
-							</FansText>
-						</FansView>
+								{icon}
+								<FansText
+									style={tw.style("text-[18px]", textColor)}
+								>
+									{text}
+								</FansText>
+							</FansView>
+						</TouchableOpacity>
 					);
 				})}
 			</FansView>

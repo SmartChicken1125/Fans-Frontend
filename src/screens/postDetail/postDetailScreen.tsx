@@ -8,14 +8,7 @@ import {
 import PostCard from "@components/posts/postCard";
 import { POST_REPORT_DIALOG_ID } from "@constants/modal";
 import { ModalActionType, useAppContext } from "@context/useAppContext";
-import {
-	deleteBookmark,
-	getPostById,
-	hidePostFromFeed,
-	likePostWithPostId,
-	setBookmark,
-	unlikePostWithPostId,
-} from "@helper/endpoints/post/apis";
+import { getPostById, hidePostFromFeed } from "@helper/endpoints/post/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { IconTypes } from "@usertypes/commonEnums";
@@ -43,73 +36,6 @@ const PostDetailScreen = (
 	const [openMessageDialog, setOpenMessageDialog] = useState(false);
 	const [openActionMenu, setOpenActionMenu] = useState(false);
 	const [openCommentModal, setOpenCommentModal] = useState(false);
-
-	const onClickBookmark = async (postId: string) => {
-		if (post) {
-			setPost({
-				...post,
-				bookmarkCount: post.isBookmarked
-					? post.bookmarkCount - 1
-					: post.bookmarkCount + 1,
-				isBookmarked: !post.isBookmarked,
-			});
-		}
-
-		if (post?.isBookmarked) {
-			const resp = await deleteBookmark(null, { id: postId });
-			if (resp.ok) {
-				setPost({
-					...post,
-					bookmarkCount: resp.data.updatedPost.bookmarkCount,
-					isBookmarked: resp.data.updatedPost.isBookmarked,
-				});
-			}
-		} else {
-			const resp = await setBookmark(null, { id: postId });
-			if (resp.ok) {
-				setPost({
-					...post!,
-					bookmarkCount: resp.data.updatedPost.bookmarkCount,
-					isBookmarked: resp.data.updatedPost.isBookmarked,
-				});
-			}
-		}
-	};
-
-	const onChangeLike = async (id: string) => {
-		if (post) {
-			setPost({
-				...post,
-				likeCount: post.isLiked
-					? post.likeCount - 1
-					: post.likeCount + 1,
-				isLiked: !post.isLiked,
-			});
-			if (post?.isLiked) {
-				const resp = await unlikePostWithPostId(null, {
-					id: id,
-				});
-				if (resp.ok) {
-					setPost({
-						...post,
-						likeCount: resp.data.likeCount,
-						isLiked: resp.data.isLiked,
-					});
-				}
-			} else {
-				const resp = await likePostWithPostId(null, {
-					id: id,
-				});
-				if (resp.ok) {
-					setPost({
-						...post,
-						likeCount: resp.data.likeCount,
-						isLiked: resp.data.isLiked,
-					});
-				}
-			}
-		}
-	};
 
 	const onClickPostActionMenu = (id: string) => {
 		setOpenActionMenu(true);
@@ -220,6 +146,10 @@ const PostDetailScreen = (
 		},
 	];
 
+	const updatePostCallback = (postId: string, data: Partial<IPost>) => {
+		if (post) setPost({ ...post, ...data });
+	};
+
 	useEffect(() => {
 		getPostDetail();
 	}, []);
@@ -245,12 +175,6 @@ const PostDetailScreen = (
 								{post ? (
 									<PostCard
 										data={post}
-										onClickBookmark={() =>
-											onClickBookmark(post.id)
-										}
-										onClickLike={() =>
-											onChangeLike(post.id)
-										}
 										onClickActionMenu={() =>
 											onClickPostActionMenu(post.id)
 										}
@@ -260,6 +184,7 @@ const PostDetailScreen = (
 										onClickComment={() => {
 											setOpenCommentModal(true);
 										}}
+										updatePostCallback={updatePostCallback}
 									/>
 								) : null}
 							</View>

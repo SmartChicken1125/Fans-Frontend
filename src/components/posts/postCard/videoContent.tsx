@@ -1,18 +1,18 @@
 import {
-	FypNullableView,
 	FypCarousel,
+	FypNullableView,
+	FypText,
 	FypVideo,
 } from "@components/common/base";
 import FansCarousel from "@components/common/carousel";
 import { FansView } from "@components/controls";
 import { cdnURL } from "@helper/Utils";
 import tw from "@lib/tailwind";
-import { ResizeMode, MediaType } from "@usertypes/commonEnums";
+import { MediaType, ResizeMode } from "@usertypes/commonEnums";
 import { IFypPostContent } from "@usertypes/components";
 import { isDesktop } from "@utils/global";
 import React, { useState } from "react";
 import TaggedPeople from "./taggedPeople";
-import TaggedPeoplePopover from "./taggedPeoplePopover";
 
 const VideoContent: IFypPostContent = (props) => {
 	const { data } = props;
@@ -50,6 +50,11 @@ const VideoContent: IFypPostContent = (props) => {
 							}))}
 							showBadge
 							useButtons
+							watermark={
+								props.data.profile.watermark === true
+									? `fyp.fans/${props.data.profile.profileLink}`
+									: undefined
+							}
 						/>
 					) : (
 						<FypCarousel
@@ -72,6 +77,15 @@ const VideoContent: IFypPostContent = (props) => {
 										style={[tw.style("w-full h-full")]}
 										resizeMode={ResizeMode.CONTAIN}
 									/>
+									<FypText
+										fontSize={17}
+										color="white"
+										style={tw.style(
+											"right-[17px] bottom-[20px] absolute",
+										)}
+									>
+										{`fyp.fans/${props.data.profile.profileLink}`}
+									</FypText>
 								</FansView>
 							)}
 						/>

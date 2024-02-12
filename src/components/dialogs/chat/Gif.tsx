@@ -14,12 +14,25 @@ import { Gif, Grid } from "@giphy/react-components";
 import tw from "@lib/tailwind";
 import { Colors } from "@usertypes/enums";
 import React, { FC, useState } from "react";
-import { ScrollView, View } from "react-native";
+import {
+	ActivityIndicator,
+	ScrollView,
+	TouchableOpacity,
+	View,
+} from "react-native";
 
 interface Props {
 	open: boolean;
 	onClose: () => void;
 	onGifSelect: (gif: IGif) => void;
+}
+
+function Spinner() {
+	return (
+		<View style={tw.style("flex items-center justify-center")}>
+			<ActivityIndicator size="large" color={tw.color("fans-purple")} />
+		</View>
+	);
 }
 
 const GifSheet: FC<Props> = (props) => {
@@ -47,21 +60,20 @@ const GifSheet: FC<Props> = (props) => {
 	return (
 		<BottomSheetWrapper open={open} onClose={onClose}>
 			<View
-				style={tw.style("h-[600px]", "flex gap-[10px]")}
+				style={tw.style("h-[600px] flex gap-[10px]")}
 				onLayout={(event) => {
 					const { width } = event.nativeEvent.layout;
 					setWidth(width);
 				}}
 			>
 				<View style={tw.style("flex-row items-center")}>
-					<View style={tw.style("grow", "pl-[20px]")}>
-						<ChevronLeftSvg
-							size={13}
-							color={Colors.Grey}
-							onPress={onClose}
-						/>
-					</View>
-					<View style={tw.style("flex items-center", "grow")}>
+					<TouchableOpacity
+						style={tw.style("grow pl-[20px]")}
+						onPress={onClose}
+					>
+						<ChevronLeftSvg size={13} color={Colors.Grey} />
+					</TouchableOpacity>
+					<View style={tw.style("flex items-center grow")}>
 						<View
 							style={tw.style("flex-row gap-[10px] items-center")}
 						>
@@ -100,6 +112,7 @@ const GifSheet: FC<Props> = (props) => {
 							columns={2}
 							gutter={1}
 							noLink={true}
+							loader={Spinner}
 							hideAttribution={true}
 							onGifClick={(gif) => setGif(gif)}
 							fetchGifs={fetchGifs}

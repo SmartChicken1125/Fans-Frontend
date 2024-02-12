@@ -1,5 +1,3 @@
-export { default as JoinVideoCallModal } from "./joinVideoCallModal";
-export { default as VideoCallModal } from "./videoCallModal";
 export { default as MoneyGuarantee } from "./moneyGuarantee";
 export { default as RejoinVideoCallCard } from "./rejoinVideoCallCard";
 export { default as TopNavbar } from "./topNavbar";

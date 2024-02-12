@@ -54,6 +54,7 @@ const ScheduleForm: FC<Props> = (props) => {
 					value={data.startDate}
 					onChangeValue={(val) => onChangeField("startDate", val)}
 					hasError={isSubmitted && !data.startDate}
+					validRange={{ startDate: new Date() }}
 				/>
 			</View>
 
@@ -84,7 +85,10 @@ const ScheduleForm: FC<Props> = (props) => {
 					Time Zone
 				</FansText>
 				<FypDropdown
-					data={timezones}
+					data={timezones.map((tz) => ({
+						data: tz.value,
+						label: tz.label,
+					}))}
 					value={data.timezone}
 					onSelect={(val) => onChangeField("timezone", val as string)}
 					hasError={isSubmitted && data.timezone === ""}

@@ -98,7 +98,7 @@ const GradientHeader: FC<Props> = (props) => {
 					>
 						{creator?.displayName}
 					</FypText>
-					{stories.length > 0 ? (
+					{stories.length > 0 && stories[storyIndex] ? (
 						<FypText
 							fontSize={14}
 							lineHeight={21}

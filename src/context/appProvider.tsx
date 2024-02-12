@@ -5,7 +5,7 @@ import {
 	getProfile,
 	getSuggestedProfiles,
 } from "@helper/endpoints/profile/apis";
-import { getVideoCallSettings } from "@helper/endpoints/settings/apis";
+import { getVideoCallSettings } from "@helper/endpoints/videoCalls/apis";
 import tw from "@lib/tailwind";
 import { AuthState, authAtom, authStateAtom } from "@state/auth";
 import { useRefreshNotifications } from "@state/notifications";

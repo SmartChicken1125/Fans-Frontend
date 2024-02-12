@@ -34,3 +34,5 @@ export { default as TierJoinDialog } from "./tierJoinDialog";
 export { default as TierPerk } from "./tierPerk";
 export { default as TopActions } from "./topActions";
 export { default as WelcomeModal } from "./welcomeModal";
+export { default as MediaItem } from "./mediaItem";
+export { default as BookVideoCallCard } from "./bookVideoCallCard";

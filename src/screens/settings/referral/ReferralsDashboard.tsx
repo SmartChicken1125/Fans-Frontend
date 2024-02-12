@@ -22,6 +22,7 @@ import { CreateLinkModal } from "@components/modals/settings/referrals";
 import { Transaction } from "@components/payment";
 import { CreatorCard1 } from "@components/refer/CreatorCard";
 import { CreateLinkSheet } from "@components/sheet/referrals";
+import { formatPrice } from "@helper/Utils";
 import tw from "@lib/tailwind";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useFeatureGates } from "@state/featureGates";
@@ -221,7 +222,7 @@ const ReferralsDashboardScreen = () =>
 											fontFamily="inter-semibold"
 											fontSize={23}
 										>
-											${balance.toLocaleString()}
+											{formatPrice(balance)}
 										</FansText>
 									</FansView>
 								</FansView>
@@ -256,7 +257,7 @@ const ReferralsDashboardScreen = () =>
 										fontFamily="inter-semibold"
 										fontSize={45}
 									>
-										${balance.toLocaleString()}
+										{formatPrice(balance)}
 									</FansText>
 									<FansGap height={24.3} />
 									<FansButton3

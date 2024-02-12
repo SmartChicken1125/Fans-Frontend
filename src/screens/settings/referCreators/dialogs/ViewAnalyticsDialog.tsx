@@ -9,6 +9,7 @@ import {
 } from "@components/controls";
 import { LineChart } from "@components/screens/settings/analytics";
 import { CommonActionType, useAppContext } from "@context/useAppContext";
+import { formatPrice } from "@helper/Utils";
 import {
 	getCreatorReferralCreators,
 	getCreatorReferralTotalEarning,
@@ -295,7 +296,7 @@ const ViewAnalyticsDialog = (props: { referral: CreatorReferral }) => {
 
 		fetchEarningsAnalytics();
 		fetchCreators();
-	}, [duration]);
+	}, [duration, props.referral.code]);
 
 	return (
 		<BottomSheetWrapper
@@ -360,7 +361,7 @@ const ViewAnalyticsDialog = (props: { referral: CreatorReferral }) => {
 								fontFamily="inter-medium"
 								fontSize={34}
 							>
-								${earnings}
+								{formatPrice(earnings)}
 							</FansText>
 
 							<FansGap height={26} />

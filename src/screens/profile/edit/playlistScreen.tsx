@@ -6,6 +6,7 @@ import AppLayout, { LayoutContentsContainer } from "@components/common/layout";
 import SearchTextInput from "@components/common/searchTextInput";
 import { ImagePostChip, PreviewImageField } from "@components/posts/common";
 import { FilterButton } from "@components/profiles";
+import { defaultPickerMedia } from "@constants/common";
 import { ProfileActionType, useAppContext } from "@context/useAppContext";
 import { getPostFeedForProfile } from "@helper/endpoints/post/apis";
 import {
@@ -50,10 +51,7 @@ const PlaylistScreen = (
 	const [allPosts, setAllPosts] = useState<IPost[]>([]);
 	const [posts, setPosts] = useState<IPost[]>([]);
 	const [isSubmitted, setIsSubmitted] = useState(false);
-	const [coverImg, setCoverImg] = useState<IPickerMedia>({
-		uri: "",
-		isPicker: false,
-	});
+	const [coverImg, setCoverImg] = useState<IPickerMedia>(defaultPickerMedia);
 	const [inProgress, setInProgress] = useState(false);
 
 	const handleChangeImage = async () => {
@@ -104,6 +102,7 @@ const PlaylistScreen = (
 			setCoverImg({
 				uri: resp.data.thumb,
 				isPicker: false,
+				type: MediaType.Image,
 			});
 		}
 		dispatch.setHideLoading();
@@ -304,10 +303,7 @@ const PlaylistScreen = (
 									onChangeImage={handleChangeImage}
 									sizeRate={0.65}
 									onCancel={() =>
-										setCoverImg({
-											uri: "",
-											isPicker: true,
-										})
+										setCoverImg(defaultPickerMedia)
 									}
 								/>
 							</View>

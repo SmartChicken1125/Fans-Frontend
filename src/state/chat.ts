@@ -29,6 +29,29 @@ export const chatUnreadCountSelector = selector({
 	},
 });
 
+export const setInboxFiltered = (
+	current: IChatInboxState,
+	filter: "all" | "unread",
+) => {
+	let filtered = [...current.data.values()];
+	if (filter === "unread") {
+		filtered = filtered.filter((conversation) =>
+			conversation.lastMessage
+				? conversation.lastMessage.id !== conversation.lastReadMessageId
+				: false,
+		);
+	}
+
+	filtered.sort((b, a) =>
+		(a.lastMessage?.id ?? a.id).localeCompare(b.lastMessage?.id ?? b.id),
+	);
+
+	setRecoil(chatInboxAtom, (prevState) => ({
+		...prevState,
+		sorted: filtered,
+	}));
+};
+
 export function updateInboxSetter(
 	current: IChatInboxState,
 	newMeta: IConversationMeta,

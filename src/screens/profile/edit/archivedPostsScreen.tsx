@@ -329,9 +329,7 @@ const ArchivedPostsScreen = (
 										>
 											<Image
 												source={{
-													uri: cdnURL(
-														story.medias[0],
-													),
+													uri: cdnURL(story.media),
 												}}
 												style={tw.style(
 													"w-full h-full",

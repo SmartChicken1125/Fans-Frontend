@@ -5,5 +5,6 @@ declare module "react-native" {
 
 	interface ViewStyle {
 		cursor?: string;
+		filter?: string;
 	}
 }

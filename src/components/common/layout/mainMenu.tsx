@@ -67,6 +67,13 @@ const MainMenu: FC<Props> = (props) => {
 		});
 	};
 
+	const onPressPayouts = () => {
+		router.push({
+			pathname: "/profile",
+			params: { screen: "GetPaid" },
+		});
+	};
+
 	const onPressSupport = useCallback(() => {
 		onClose();
 		openLink("https://support.fyp.fans/hc/en-us");
@@ -122,15 +129,8 @@ const MainMenu: FC<Props> = (props) => {
 						title="Collections"
 						onPress={onPressCollections}
 					/>
-					{featureGates.has("2023_12-purchased-posts") && (
-						<MenuItem
-							title="Purchases"
-							onPress={onPressPurchases}
-						/>
-					)}
-					{featureGates.has("2024_01-new-vault-design") && (
-						<MenuItem title="Vault" onPress={onPressVault} />
-					)}
+					<MenuItem title="Purchases" onPress={onPressPurchases} />
+					<MenuItem title="Vault" onPress={onPressVault} />
 					{featureGates.has("2023_12-fans-referral") && isCreator && (
 						<MenuItem
 							title={"Referral Program"}
@@ -141,6 +141,7 @@ const MainMenu: FC<Props> = (props) => {
 							}
 						/>
 					)}
+					<MenuItem title="Payouts" onPress={onPressPayouts} />
 					<MenuItem title="Settings" onPress={onPressSettings} />
 					<FansDivider />
 					<MenuItem title="Your cards" onPress={onPressYourCard} />

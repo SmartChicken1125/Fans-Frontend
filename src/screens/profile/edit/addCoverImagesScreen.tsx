@@ -81,7 +81,13 @@ const AddCoverImagesScreen = (
 	};
 
 	useEffect(() => {
-		setImages(cover.map((el) => ({ uri: el, isPicker: false })));
+		setImages(
+			cover.map((el) => ({
+				uri: el,
+				isPicker: false,
+				type: MediaType.Image,
+			})),
+		);
 	}, [cover]);
 
 	return (

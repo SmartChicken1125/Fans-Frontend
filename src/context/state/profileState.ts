@@ -49,7 +49,7 @@ export const defaultProfileStateData: IProfileState = {
 	tiers: [],
 	roles: [],
 	categories: [],
-
+	isDisplayShop: false,
 	posts: [],
 	playlists: [],
 	medias: [],

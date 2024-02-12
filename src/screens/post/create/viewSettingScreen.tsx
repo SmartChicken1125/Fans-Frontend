@@ -24,7 +24,7 @@ const ViewSettingScreen = (
 
 	const { state, dispatch } = useAppContext();
 	const { postForm } = state.posts;
-	const { roles, tiers } = state.profile;
+	const { roles, tiers, subscriptionType } = state.profile;
 
 	const [localRoles, setLocalRoles] = useState<IRole[]>([]);
 	const [tierIds, setTierIds] = useState<string[]>([]);
@@ -223,6 +223,7 @@ const ViewSettingScreen = (
 					<ViewSettingForm
 						roles={localRoles}
 						viewType={postForm.viewType}
+						subscriptionType={subscriptionType}
 						onChangeViewType={onChangeViewType}
 						onCreateRole={hanldeCreateRole}
 						onEditRole={handleEditRole}

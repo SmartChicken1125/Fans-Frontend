@@ -1,11 +1,9 @@
-import { IdParams } from "@usertypes/params";
 import {
+	createGET,
 	createGETWithParams,
-	createPOSTWithParams,
+	createPOST,
 	createPUT,
 	createPUTWithParams,
-	createGET,
-	createPOST,
 } from "./../../RequesterBase";
 import {
 	ApplicationIconReqBody,

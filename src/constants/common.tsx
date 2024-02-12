@@ -7,17 +7,24 @@ import {
 	PostType,
 	PromotionType,
 	SubscriptionTypes,
+	MediaType,
+	UserRoleTypes,
 } from "@usertypes/commonEnums";
 import { IFypDropdownItem } from "@usertypes/components";
 import {
 	IAnalyzeFans,
 	IBadgeTier,
+	IPickerMedia,
 	IPost,
 	IProfile,
 	IProfileSettings,
+	IVideoCallAttendant,
 	VideoCallWays,
+	LanguageType,
 } from "@usertypes/types";
 import { SocialMediaTypes } from "./socialMediaTypes";
+
+export const testPaymentToken = "c43ccca2-abd8-41df-be3d-c5ac3f0f84cb";
 
 export const promotionCampaignOptions = [
 	{
@@ -384,17 +391,16 @@ export const defaultProfileSettings: IProfileSettings = {
 		contentPreferences: [],
 		customContentPreferences: "",
 		meetingType: VideoCallWays.TwoWay,
-		meetingTitle: "Default Meeting Title",
 		meetingDescription: "Default Meeting Description",
 		notificationNewRequests: true,
 		notificationCancellations: true,
 		notificationReminders: true,
 		notificationsByEmail: true,
 		notificationsByPhone: true,
-		customVideoOrdersEnabled: false,
 		vacationMode: false,
 		meetingDurations: [],
 		videoCallsEnabled: false,
+		isAvailable: false,
 	},
 	cameo: {
 		pricesDuration: [],
@@ -601,7 +607,7 @@ export const documentTypes: IFypDropdownItem[] = [
 	},
 ];
 
-export const emptyProfileData: IProfile = {
+export const defaultProfileData: IProfile = {
 	id: "0",
 	userId: "0",
 	displayName: "",
@@ -626,17 +632,19 @@ export const emptyProfileData: IProfile = {
 	roles: [],
 	categories: [],
 	stories: [],
+	isDisplayShop: false,
 };
 
 export const emptyPostData: IPost = {
 	id: "0",
 	profileId: "0",
-	profile: emptyProfileData,
+	profile: defaultProfileData,
 	title: "",
 	type: PostType.Audio,
 	caption: "",
 	thumb: {
 		id: "0",
+		type: "",
 		url: "",
 	},
 	medias: [],
@@ -710,3 +718,24 @@ export const videoCallPriceOptions = [
 		label: "2 hours",
 	},
 ];
+
+export const defaultPickerMedia: IPickerMedia = {
+	id: "",
+	isPicker: true,
+	type: MediaType.Image,
+	uri: "",
+};
+
+export const defaultVideoCallAttendant: IVideoCallAttendant = {
+	id: "0",
+	type: UserRoleTypes.Creator,
+	avatar: "",
+	username: "",
+	displayName: "",
+	language: "English",
+	birthdate: "",
+	verifiedAt: "",
+	createdAt: "",
+	updatedAt: "",
+	isShowProfile: false,
+};

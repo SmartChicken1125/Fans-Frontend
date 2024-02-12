@@ -2823,6 +2823,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@dinero.js/calculator-number@npm:2.0.0-alpha.14":
+  version: 2.0.0-alpha.14
+  resolution: "@dinero.js/calculator-number@npm:2.0.0-alpha.14"
+  dependencies:
+    "@dinero.js/core": "npm:2.0.0-alpha.14"
+  checksum: 5ed9cfa0728a6f4794d51bd8d2ba171d62990a591fe0da7e811bce555fc884ea33e6171e5776e524ab84cf3e70aab6040ca23d36e5af26f218734fb861ddbc7d
+  languageName: node
+  linkType: hard
+
+"@dinero.js/core@npm:2.0.0-alpha.14":
+  version: 2.0.0-alpha.14
+  resolution: "@dinero.js/core@npm:2.0.0-alpha.14"
+  dependencies:
+    "@dinero.js/currencies": "npm:2.0.0-alpha.14"
+  checksum: 0cb74e26d5e701543e45e0d1941574c8392ec67c7834bcbaf86cd5fa338d0577e79eeed952a7565429d5c63e68dc07f6ce98b9c897336aa4e857b23160012fe6
+  languageName: node
+  linkType: hard
+
+"@dinero.js/currencies@npm:2.0.0-alpha.14":
+  version: 2.0.0-alpha.14
+  resolution: "@dinero.js/currencies@npm:2.0.0-alpha.14"
+  checksum: 593c2a16dd1dad4664a5ed418363024a01dd5fcf33fde71e88600fe5dd82d6cf600d3224183d27681aebcea2c3e090c93395c9ff02c8840107bad81450a8ece4
+  languageName: node
+  linkType: hard
+
 "@egjs/hammerjs@npm:^2.0.17":
   version: 2.0.17
   resolution: "@egjs/hammerjs@npm:2.0.17"
@@ -3877,6 +3902,7 @@ __metadata:
     "@gorhom/bottom-sheet": "npm:^4.5.1"
     "@r0b0t3d/react-native-swipeable": "npm:^0.1.1"
     "@react-native-async-storage/async-storage": "npm:1.18.2"
+    "@react-native-camera-roll/camera-roll": "npm:^7.4.0"
     "@react-native-community/blur": "npm:^4.3.2"
     "@react-native-community/datetimepicker": "npm:^7.4.0"
     "@react-native-community/slider": "npm:4.4.2"
@@ -3911,6 +3937,7 @@ __metadata:
     clsx: "npm:^1.2.1"
     country-state-city: "npm:^3.2.0"
     dashjs: "npm:^4.7.2"
+    dinero.js: "npm:^2.0.0-alpha.14"
     eas-cli: "npm:^5.2.0"
     easy-swipe-view: "npm:^1.1.15"
     eslint: "npm:^8.49.0"
@@ -3966,7 +3993,7 @@ __metadata:
     react-native: "npm:^0.72.4"
     react-native-circular-progress: "npm:^1.3.9"
     react-native-collapsible: "npm:^1.6.1"
-    react-native-confirmation-code-field: "npm:^7.3.1"
+    react-native-confirmation-code-field: "patch:react-native-confirmation-code-field@npm%3A7.3.1#~/.yarn/patches/react-native-confirmation-code-field-npm-7.3.1-f064ff06c1.patch"
     react-native-dotenv: "npm:^3.4.9"
     react-native-dropdown-picker: "npm:^5.4.6"
     react-native-easy-swipe-list: "npm:^0.0.2"
@@ -4622,6 +4649,15 @@ __metadata:
   peerDependencies:
     react-native: ^0.0.0-0 || 0.60 - 0.72 || 1000.0.0
   checksum: 3830828c608c9bdc36e147f7b8ff8632368eb8c97ee6f8dc30629a6ba802b99e5307202d86fe5ec37affcef225f82e331be6723921b91d500b935006da2e25ac
+  languageName: node
+  linkType: hard
+
+"@react-native-camera-roll/camera-roll@npm:^7.4.0":
+  version: 7.4.0
+  resolution: "@react-native-camera-roll/camera-roll@npm:7.4.0"
+  peerDependencies:
+    react-native: ">=0.59"
+  checksum: 98e6a99bb8a93e711b8e420235558b99f0f51b21277ad89ac227519e90f2f01056d00ebeabf4539228b03cc93b0b6420b0e432977b274c348bedc153c88d9814
   languageName: node
   linkType: hard
 
@@ -9170,6 +9206,17 @@ __metadata:
   version: 1.2.2
   resolution: "didyoumean@npm:1.2.2"
   checksum: de7f11b6a0c8c61018629b7f405bb9746d6e994ce87c1a4b7655c3c718442dc69037a3d46d804950604fd9cbe85c074f7b224a119fc1bda851690a74540c6cf8
+  languageName: node
+  linkType: hard
+
+"dinero.js@npm:^2.0.0-alpha.14":
+  version: 2.0.0-alpha.14
+  resolution: "dinero.js@npm:2.0.0-alpha.14"
+  dependencies:
+    "@dinero.js/calculator-number": "npm:2.0.0-alpha.14"
+    "@dinero.js/core": "npm:2.0.0-alpha.14"
+    "@dinero.js/currencies": "npm:2.0.0-alpha.14"
+  checksum: fa93bd1b79c3ef30ea3a263dee4ae909614c9807196ee38a2a57b8bd09921b06c8eab44af42f9bb1a1f13089f5981f0a4c563bdec9b00de12b7a6508af8e2a01
   languageName: node
   linkType: hard
 
@@ -17271,7 +17318,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-confirmation-code-field@npm:^7.3.1":
+"react-native-confirmation-code-field@npm:7.3.1":
   version: 7.3.1
   resolution: "react-native-confirmation-code-field@npm:7.3.1"
   peerDependencies:
@@ -17283,6 +17330,21 @@ __metadata:
     react-native:
       optional: true
   checksum: b24b0bc942fe9220e9805a3ef1b110c1cfcfb797b1015e4476a45a127b06222a747c69552a0a0d8bcb6258373f310a2901ade2f559d64f26afc7e95a4ac92800
+  languageName: node
+  linkType: hard
+
+"react-native-confirmation-code-field@patch:react-native-confirmation-code-field@npm%3A7.3.1#~/.yarn/patches/react-native-confirmation-code-field-npm-7.3.1-f064ff06c1.patch":
+  version: 7.3.1
+  resolution: "react-native-confirmation-code-field@patch:react-native-confirmation-code-field@npm%3A7.3.1#~/.yarn/patches/react-native-confirmation-code-field-npm-7.3.1-f064ff06c1.patch::version=7.3.1&hash=93d711"
+  peerDependencies:
+    react: ">=16.4.0"
+    react-native: ">=0.64.0"
+  peerDependenciesMeta:
+    react:
+      optional: true
+    react-native:
+      optional: true
+  checksum: bbaffe5bcdd9e538f7113695e23fe8e819eb6da396769133984bc41ca1cdaf7475c2a22cb186765d1731e0ba00bb6b6b6507671054013b628282906865413ef5
   languageName: node
   linkType: hard
 

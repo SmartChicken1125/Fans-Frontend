@@ -13,7 +13,7 @@ import { FansDivider } from "@components/controls";
 import { PollAnswer, PreviewImageField } from "@components/posts/common";
 import { timezones } from "@constants/timezones";
 import tw from "@lib/tailwind";
-import { RoundButtonType } from "@usertypes/commonEnums";
+import { RoundButtonType, MediaType } from "@usertypes/commonEnums";
 import { ICalendarDate, IPickerMedia, IPollForm } from "@usertypes/types";
 import useDocumentPicker from "@utils/useDocumentPicker";
 import React, { FC } from "react";
@@ -144,9 +144,19 @@ const PollForm: FC<Props> = (props) => {
 				label="Preview image (optional)"
 				style="mb-[34px]"
 				onChangeImage={onChangeImage}
-				data={formData.cover ?? { uri: "", isPicker: true }}
+				data={
+					formData.cover ?? {
+						uri: "",
+						isPicker: true,
+						type: MediaType.Image,
+					}
+				}
 				onCancel={() =>
-					onChangeField("cover", { uri: "", isPicker: true })
+					onChangeField("cover", {
+						uri: "",
+						isPicker: true,
+						type: MediaType.Image,
+					})
 				}
 			/>
 

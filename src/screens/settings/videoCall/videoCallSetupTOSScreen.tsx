@@ -1,14 +1,14 @@
-import { ChatSvg } from "@assets/svgs/common";
+import { ChatSvg, VideoCall2Svg, ChevronLeft1Svg } from "@assets/svgs/common";
 import { FaqImage } from "@assets/svgs/images";
 import RoundButton from "@components/common/RoundButton";
-import { FypText, FypVideo } from "@components/common/base";
 import {
-	FansDivider,
-	FansGap,
-	FansImage2,
-	FansText,
-	FansView,
-} from "@components/controls";
+	FypText,
+	FypVideo,
+	FypLinearGradientView,
+	FypButton2,
+	FypSvg,
+} from "@components/common/base";
+import { FansGap, FansView } from "@components/controls";
 import SettingsNavigationHeader from "@components/screens/settings/SettingsNavigationHeader";
 import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
 import tw from "@lib/tailwind";
@@ -22,8 +22,10 @@ import { SettingsVideoCallSetupNativeStackParams } from "@usertypes/navigations"
 import { useBlankLink } from "@utils/useBlankLink";
 import { useNavigation, useRouter } from "expo-router";
 import React from "react";
-import { ScrollView } from "react-native";
+import { ScrollView, Dimensions } from "react-native";
 import VideoCallSetupScreen from "./videoCallSetupScreen";
+
+const dimensions = Dimensions.get("window");
 
 const Stack =
 	createNativeStackNavigator<SettingsVideoCallSetupNativeStackParams>();
@@ -46,7 +48,78 @@ const SettingsVideoCallSetupNativeStack = () => {
 			<Stack.Screen
 				name="VideoCallSetupTOS"
 				component={VideoCallSetupTOSContentView}
-				options={{ title: "Set up video calls" }}
+				options={{
+					title: "Set up video calls",
+					header: (props) => {
+						const { navigation, options } = props;
+						const { title } = options;
+
+						const handlePress = () => {
+							if (navigation.canGoBack()) {
+								navigation.goBack();
+							} else {
+								if (router.canGoBack()) {
+									router.back();
+								} else {
+									router.replace("/posts");
+								}
+							}
+						};
+
+						return (
+							<FansView style={tw.style("overflow-hidden")}>
+								<FypLinearGradientView
+									colors={["#1D21E5", "#5F17D3", "#A854F5"]}
+									start={[1, 0]}
+									end={[0, 1]}
+									style={{
+										width: "100%",
+										height: tw.prefixMatch("lg")
+											? 733
+											: 320 +
+											  (dimensions.width - 36) * 0.65,
+										position: "absolute",
+									}}
+								/>
+
+								<FansView
+									height={{ xs: 64, lg: 103 }}
+									alignItems="center"
+									border={{ b: 1 }}
+									borderColor="grey-f0"
+									flexDirection="row"
+									padding={{ x: 24 }}
+								>
+									<FansView
+										touchableOpacityProps={{
+											onPress: handlePress,
+										}}
+										width={40}
+										height={40}
+										padding={{ x: 4, y: 12 }}
+									>
+										<FypSvg
+											width={8}
+											height={16}
+											svg={ChevronLeft1Svg}
+											color="fans-white"
+										/>
+									</FansView>
+									<FansGap viewStyle={{ flex: "1" }} />
+									<FypText
+										fontWeight={600}
+										fontSize={19}
+										style={tw.style("text-fans-white")}
+									>
+										{title}
+									</FypText>
+									<FansGap viewStyle={{ flex: "1" }} />
+									<FansGap width={40} />
+								</FansView>
+							</FansView>
+						);
+					},
+				}}
 			/>
 		</Stack.Navigator>
 	);
@@ -57,6 +130,7 @@ const VideoCallSetupTOSContentView = () => {
 		useNavigation<
 			NativeStackNavigationProp<SettingsVideoCallSetupNativeStackParams>
 		>();
+
 	const [openLink] = useBlankLink();
 	const handlePressChat = () => {
 		openLink("https://support.fyp.fans/");
@@ -65,10 +139,11 @@ const VideoCallSetupTOSContentView = () => {
 	return (
 		<ScrollView>
 			<FansView style={tw.style("bg-fans-white dark:bg-fans-black-1d")}>
-				<FansView
-					style={tw.style(
-						"bg-fans-purple-f6 dark:bg-fans-purple-47 pb-[116px] md:pb-0",
-					)}
+				<FypLinearGradientView
+					colors={["#1D21E5", "#5F17D3", "#A854F5"]}
+					start={[1, 0]}
+					end={[0, 1]}
+					style={tw.style("pb-[116px] md:pb-0")}
 				>
 					<FansView
 						style={tw.style(
@@ -78,53 +153,62 @@ const VideoCallSetupTOSContentView = () => {
 						)}
 					>
 						<FansView alignItems="center">
-							<FansImage2
-								width={58.75}
-								height={68.35}
-								source={require("@assets/images/refer-creators-tip.png")}
+							<FypSvg
+								svg={VideoCall2Svg}
+								width={82}
+								height={99}
+								color="fans-white"
 							/>
 							<FansGap height={11.2} />
 							<FypText
 								fontWeight={600}
 								textAlign="center"
 								fontSize={23}
+								style={tw.style("text-fans-white")}
 							>
 								Enable Video Calls: Connect More, Earn More!
 							</FypText>
 							<FansGap height={15} />
-							<FansText
-								fontFamily="inter-regular"
+							<FypText
 								fontSize={16}
-								style={tw.style("text-center")}
+								textAlign="center"
+								style={tw.style("text-fans-white")}
 							>
 								As a creator, you have complete control over
 								your availability, the interactions you’re
 								comfortable with, and the pricing per call
 								duration.
-							</FansText>
+							</FypText>
 							<FansGap height={12} />
-							<FansText
-								fontFamily="inter-regular"
+							<FypText
 								fontSize={16}
-								style={tw.style("text-center")}
+								textAlign="center"
+								style={tw.style("text-fans-white")}
 							>
 								With the flexibility to accept calls when you’re
 								free, this platform enables a more intimate
 								connection with your fans, allowing you to
 								maximize your earnings while sharing memorable
 								moments.
-							</FansText>
+							</FypText>
 							<FansGap height={35.7} />
 						</FansView>
-						<RoundButton
-							onPress={() =>
-								navigation.navigate("VideoCallSetup")
-							}
+						<FansView
+							style={tw.style("max-w-[268px] mx-auto w-full")}
 						>
-							Set up video calls
-						</RoundButton>
+							<FypButton2
+								style={tw.style("bg-fans-white")}
+								textStyle={tw.style("text-fans-black")}
+								pressableProps={{
+									onPress: () =>
+										navigation.navigate("VideoCallSetup"),
+								}}
+							>
+								Set up video calls
+							</FypButton2>
+						</FansView>
 					</FansView>
-				</FansView>
+				</FypLinearGradientView>
 				<FansView
 					style={tw.style(
 						"px-[18px] md:px-0 md:max-w-[670px] mx-auto pb-10",
@@ -133,7 +217,7 @@ const VideoCallSetupTOSContentView = () => {
 				>
 					<FansView
 						height={{ xs: 234, md: 436 }}
-						style={tw.style("md:mt-10")}
+						style={tw.style("md:mt-10 mb-[34px]")}
 					>
 						<FypVideo
 							id="set-up-video-call-video"
@@ -148,9 +232,6 @@ const VideoCallSetupTOSContentView = () => {
 							resizeMode={ResizeMode.CONTAIN}
 						/>
 					</FansView>
-					<FansDivider
-						style={tw.style("mt-10 md:mt-[75px] mb-[34px]")}
-					/>
 					<FansView alignItems="center" margin={{ b: 16 }}>
 						<FaqImage size={108} />
 					</FansView>

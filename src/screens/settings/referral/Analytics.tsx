@@ -24,6 +24,7 @@ import {
 import { RemoveModal } from "@components/modals/settings/referral";
 import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
 import { ITransaction } from "@helper/CommonAPISchemas";
+import { formatPrice } from "@helper/Utils";
 import tw from "@lib/tailwind";
 import { useFeatureGates } from "@state/featureGates";
 import { Colors } from "@usertypes/enums";
@@ -232,7 +233,7 @@ const LinkPerformance = (props: PromotionalCampaignsProps) => {
 										fontFamily="inter-semibold"
 										fontSize={14}
 									>
-										REVENUE ${revenue.toLocaleString()}
+										REVENUE {formatPrice(revenue)}
 									</FansText>
 								</FansView>
 								<FansView
@@ -615,7 +616,7 @@ const Transactions = () => {
 											fontFamily="inter-semibold"
 											fontSize={14}
 										>
-											${total}
+											{formatPrice(total)}
 										</FansText>
 									</FansView>
 									<FansText

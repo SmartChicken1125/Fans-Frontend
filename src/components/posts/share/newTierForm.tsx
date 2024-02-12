@@ -6,6 +6,7 @@ import { FypSvg, FypText } from "@components/common/base";
 import FileDropzone from "@components/common/fileDropzone";
 import { FansView } from "@components/controls";
 import { TierPerk } from "@components/profiles";
+import { defaultPickerMedia } from "@constants/common";
 import { defaultTierFormData } from "@constants/defaultFormData";
 import { cdnURL } from "@helper/Utils";
 import { createTier } from "@helper/endpoints/profile/apis";
@@ -29,10 +30,7 @@ const NewTierForm: FC<Props> = (props) => {
 
 	const [tierForm, setTierForm] =
 		useState<ISubscriptionTier>(defaultTierFormData);
-	const [coverImg, setCoverImg] = useState<IPickerMedia>({
-		uri: "",
-		isPicker: false,
-	});
+	const [coverImg, setCoverImg] = useState<IPickerMedia>(defaultPickerMedia);
 	const [isSubmitted, setIsSubmitted] = useState(false);
 	const [inProgress, setInProgress] = useState(false);
 

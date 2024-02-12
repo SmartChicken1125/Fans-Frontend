@@ -1,13 +1,7 @@
-import { Trash2Svg } from "@assets/svgs/common";
+import { Trash2Svg, ChevronDown5Svg } from "@assets/svgs/common";
 import RoundButton from "@components/common/RoundButton";
-import {
-	FypDropdown,
-	FypSvg,
-	FypText,
-	FypNullableView,
-} from "@components/common/base";
+import { FypDropdown, FypSvg, FypText } from "@components/common/base";
 import { FansView, FansDivider, FansIconButton } from "@components/controls";
-import { defaultVideoCallTimeframeFormData } from "@constants/defaultFormData";
 import { timezones } from "@constants/timezones";
 import { ProfileActionType, useAppContext } from "@context/useAppContext";
 import {
@@ -21,14 +15,19 @@ import {
 	deleteVideoCallInterval,
 	updateVideoCallSettings,
 	updateVideoCallInterval,
-} from "@helper/endpoints/settings/apis";
+} from "@helper/endpoints/videoCalls/apis";
 import tw from "@lib/tailwind";
 import { RoundButtonType } from "@usertypes/commonEnums";
-import { ISelectData, ITimeframeInterval } from "@usertypes/types";
+import {
+	ISelectData,
+	ITimeframeInterval,
+	IHoursAndMinutes,
+} from "@usertypes/types";
 import React, { FC, useState, useEffect, Fragment } from "react";
+import { TimePickerModal } from "react-native-paper-dates";
 import Toast from "react-native-toast-message";
 
-const minutesBefore = ["1", "5", "10", "15"];
+const minutesBefore = ["1", "5", "10", "15", "45", "60"];
 
 const initialDays = [
 	"Sunday",
@@ -40,42 +39,190 @@ const initialDays = [
 	"Saturday",
 ];
 
+interface IExtendInterval extends ITimeframeInterval {
+	isNew?: boolean;
+}
+
+interface TimeButtonProps {
+	value: string;
+	onPress: () => void;
+}
+
+const TimeButton: FC<TimeButtonProps> = (props) => {
+	const { value, onPress } = props;
+	return (
+		<FansView
+			height={42}
+			borderRadius={42}
+			padding={{ x: 20 }}
+			flexDirection="row"
+			alignItems="center"
+			style={[
+				tw.style("border border-fans-grey-70 dark:border-fans-grey-b1"),
+			]}
+			pressableProps={{
+				onPress: onPress,
+			}}
+		>
+			<FansView flex="1">
+				<FypText
+					fontSize={18}
+					lineHeight={26}
+					numberOfLines={1}
+					style={tw.style("text-fans-black dark:text-fans-white")}
+				>
+					{value === "" ? `Select Time` : value}
+				</FypText>
+			</FansView>
+			<FypSvg
+				width={13}
+				height={13}
+				svg={ChevronDown5Svg}
+				color="fans-grey-70"
+			/>
+		</FansView>
+	);
+};
+
 interface IntervalTimeframeProps {
 	day: number;
-	timeframes: ITimeframeInterval[];
+	timeframes: IExtendInterval[];
 	onSubmitCallback: () => void;
+	setTimeframes: (timeframes: IExtendInterval[]) => void;
 }
 
 const IntervalTimeframe: FC<IntervalTimeframeProps> = (props) => {
-	const { day, timeframes, onSubmitCallback } = props;
+	const { day, timeframes, onSubmitCallback, setTimeframes } = props;
 
 	const intervals = generateTimeFrames(10);
 
 	const filteredObjects = timeframes.filter((obj) => obj.day === day);
-	const [isLoading, setIsLoading] = useState(false);
-	const [showNewForm, setShowNewForm] = useState(false);
-	const [formData, setFormData] = useState(defaultVideoCallTimeframeFormData);
-	const [isSubmitted, setIsSubmitted] = useState(false);
+	const [openTimePicker, setOpenTimerPicker] = useState(false);
+	const [editTime, setEditTime] = useState<{
+		intervalId: string;
+		fieldName: string;
+		value: string;
+		hours: number;
+		minutes: number;
+	}>({
+		intervalId: "",
+		fieldName: "",
+		value: "",
+		hours: 0,
+		minutes: 0,
+	});
+
+	const handleConfirmTime = async (hoursAndMinutes: IHoursAndMinutes) => {
+		const interval = timeframes.find((el) => el.id === editTime.intervalId);
+		if (!interval) {
+			return;
+		}
+		const timeString = `${hoursAndMinutes.hours
+			.toString()
+			.padStart(2, "0")}:${hoursAndMinutes.minutes
+			.toString()
+			.padStart(2, "0")}`;
+		setOpenTimerPicker(false);
+		if (interval.isNew) {
+			if (editTime.fieldName === "startTime") {
+				setTimeframes(
+					timeframes.map((el) =>
+						el.id === editTime.intervalId
+							? {
+									...el,
+									startTime: timeString,
+							  }
+							: el,
+					),
+				);
+			} else {
+				setTimeframes(
+					timeframes.map((el) =>
+						el.id === editTime.intervalId
+							? {
+									...el,
+									length: getIntervalLength(
+										el.startTime,
+										timeString,
+									),
+							  }
+							: el,
+					),
+				);
+				const resp = await createVideoCallInterval({
+					startTime: interval.startTime,
+					length: getIntervalLength(interval.startTime, timeString),
+					day: day,
+				});
+				if (resp.ok) {
+					onSubmitCallback();
+				} else {
+					Toast.show({
+						type: "error",
+						text1: resp.data.message,
+					});
+				}
+			}
+		} else {
+			if (editTime.fieldName === "startTime") {
+				const newLength = getIntervalLength(
+					timeString,
+					getIntervalEndTime(interval.startTime, interval.length),
+				);
+				handleUpdate(
+					{ ...interval, startTime: timeString, length: newLength },
+					editTime.intervalId,
+				);
+			} else {
+				if (interval) {
+					const newLength = getIntervalLength(
+						interval.startTime,
+						timeString,
+					);
+					handleUpdate(
+						{ ...interval, length: newLength },
+						editTime.intervalId,
+					);
+				}
+			}
+		}
+	};
+
+	const onPressTimeButton = (
+		intervalId: string,
+		fieldName: string,
+		value: string,
+	) => {
+		setEditTime({
+			intervalId,
+			fieldName,
+			value,
+			hours: value === "" ? 0 : parseInt(value.slice(0, 2)),
+			minutes: value === "" ? 0 : parseInt(value.slice(3, 5)),
+		});
+		setOpenTimerPicker(true);
+	};
 
 	const handleCreate = async () => {
-		if (!showNewForm) {
-			setShowNewForm(true);
-		} else {
-			setIsSubmitted(true);
-			if (formData.startTime === "" || formData.endTime === "") {
-				return;
-			}
-			setIsLoading(true);
-			const resp = await createVideoCallInterval({
-				startTime: formData.startTime,
-				length: getIntervalLength(formData.startTime, formData.endTime),
+		setTimeframes([
+			...timeframes,
+			{
+				id: new Date().getTime().toString(),
+				startTime: "",
+				length: 0,
 				day: day,
-			});
-			setIsSubmitted(false);
-			setIsLoading(false);
+				isNew: true,
+			},
+		]);
+	};
+
+	const handleDelete = async (id: string) => {
+		const interval = timeframes.find((el) => el.id === id);
+		if (interval?.isNew) {
+			setTimeframes(timeframes.filter((el) => el.id !== id));
+		} else {
+			const resp = await deleteVideoCallInterval({ id }, { id });
 			if (resp.ok) {
-				setShowNewForm(false);
-				setFormData(defaultVideoCallTimeframeFormData);
 				onSubmitCallback();
 			} else {
 				Toast.show({
@@ -83,18 +230,6 @@ const IntervalTimeframe: FC<IntervalTimeframeProps> = (props) => {
 					text1: resp.data.message,
 				});
 			}
-		}
-	};
-
-	const handleDelete = async (id: string) => {
-		const resp = await deleteVideoCallInterval({ id }, { id });
-		if (resp.ok) {
-			onSubmitCallback();
-		} else {
-			Toast.show({
-				type: "error",
-				text1: resp.data.message,
-			});
 		}
 	};
 
@@ -116,33 +251,6 @@ const IntervalTimeframe: FC<IntervalTimeframeProps> = (props) => {
 		}
 	};
 
-	const handleChangeStartTime = (value: string, intervalId: string) => {
-		const interval = filteredObjects.find((el) => el.id === intervalId);
-		if (interval) {
-			const newLength = getIntervalLength(
-				value,
-				getIntervalEndTime(interval.startTime, interval.length),
-			);
-			handleUpdate(
-				{ ...interval, startTime: value, length: newLength },
-				intervalId,
-			);
-		}
-	};
-
-	const handleChangeEndTime = (value: string, intervalId: string) => {
-		const interval = filteredObjects.find((el) => el.id === intervalId);
-		if (interval) {
-			const newLength = getIntervalLength(interval.startTime, value);
-			handleUpdate({ ...interval, length: newLength }, intervalId);
-		}
-	};
-
-	useEffect(() => {
-		setIsSubmitted(false);
-		setFormData(defaultVideoCallTimeframeFormData);
-	}, []);
-
 	return (
 		<FansView>
 			<FansView>
@@ -159,36 +267,37 @@ const IntervalTimeframe: FC<IntervalTimeframeProps> = (props) => {
 								gap={{ xs: 7, md: 14 }}
 							>
 								<FansView flex="1">
-									<FypDropdown
-										data={intervals.map((el) => ({
-											label: el,
-											data: el,
-										}))}
+									<TimeButton
 										value={interval.startTime.slice(0, 5)}
-										search={false}
-										onSelect={(val) =>
-											handleChangeStartTime(
-												val as string,
+										onPress={() =>
+											onPressTimeButton(
 												interval.id,
+												"startTime",
+												interval.startTime,
 											)
 										}
 									/>
 								</FansView>
 								<FansView flex="1">
-									<FypDropdown
-										data={intervals.map((el) => ({
-											label: el,
-											data: el,
-										}))}
-										value={getIntervalEndTime(
-											interval.startTime,
-											interval.length,
-										)}
-										search={false}
-										onSelect={(val) =>
-											handleChangeEndTime(
-												val as string,
+									<TimeButton
+										value={
+											interval.length === 0
+												? ""
+												: getIntervalEndTime(
+														interval.startTime,
+														interval.length,
+												  )
+										}
+										onPress={() =>
+											onPressTimeButton(
 												interval.id,
+												"endTime",
+												interval.length === 0
+													? ""
+													: getIntervalEndTime(
+															interval.startTime,
+															interval.length,
+													  ),
 											)
 										}
 									/>
@@ -217,73 +326,23 @@ const IntervalTimeframe: FC<IntervalTimeframeProps> = (props) => {
 				))}
 			</FansView>
 
-			<FypNullableView visible={showNewForm}>
-				<FansDivider style={tw.style("my-[18px] md:my-4")} />
-				<FansView
-					flexDirection="row"
-					alignItems="center"
-					gap={{ xs: 17, md: 42 }}
-				>
-					<FansView
-						flex="1"
-						flexDirection="row"
-						gap={{ xs: 7, md: 14 }}
-					>
-						<FansView flex="1">
-							<FypDropdown
-								data={intervals.map((el) => ({
-									label: el,
-									data: el,
-								}))}
-								value={formData.startTime}
-								search={false}
-								onSelect={(val) =>
-									setFormData({
-										...formData,
-										startTime: val as string,
-									})
-								}
-								hasError={
-									isSubmitted && formData.startTime === ""
-								}
-							/>
-						</FansView>
-						<FansView flex="1">
-							<FypDropdown
-								data={intervals.map((el) => ({
-									label: el,
-									data: el,
-								}))}
-								value={formData.endTime}
-								search={false}
-								onSelect={(val) =>
-									setFormData({
-										...formData,
-										endTime: val as string,
-									})
-								}
-								hasError={
-									isSubmitted && formData.endTime === ""
-								}
-							/>
-						</FansView>
-					</FansView>
-
-					<FansView width={34}></FansView>
-				</FansView>
-			</FypNullableView>
-
 			{intervals.length !== filteredObjects.length ? (
 				<FansView margin={{ t: 10 }}>
 					<RoundButton
 						variant={RoundButtonType.OUTLINE_PRIMARY}
 						onPress={handleCreate}
-						loading={isLoading}
 					>
-						{showNewForm ? "Save new interval" : "Add new interval"}
+						Add new interval
 					</RoundButton>
 				</FansView>
 			) : null}
+			<TimePickerModal
+				visible={openTimePicker}
+				onDismiss={() => setOpenTimerPicker(false)}
+				onConfirm={handleConfirmTime}
+				hours={editTime.hours}
+				minutes={editTime.minutes}
+			/>
 		</FansView>
 	);
 };
@@ -293,7 +352,7 @@ const TimeframeForm = () => {
 
 	const { timeZone, bufferBetweenCalls } = state.profile.settings.video;
 
-	const [timeframes, setTimeframes] = useState<ITimeframeInterval[]>([]);
+	const [timeframes, setTimeframes] = useState<IExtendInterval[]>([]);
 
 	const fetchTimeframes = async () => {
 		const resp = await getVideoCallTimeframes();
@@ -347,6 +406,7 @@ const TimeframeForm = () => {
 	useEffect(() => {
 		fetchTimeframes();
 	}, []);
+
 	return (
 		<FansView>
 			<FansView margin={{ b: 34 }}>
@@ -358,7 +418,10 @@ const TimeframeForm = () => {
 					Time Zone
 				</FypText>
 				<FypDropdown
-					data={timezones}
+					data={timezones.map((tz) => ({
+						data: tz.value,
+						label: tz.label,
+					}))}
 					value={timeZone}
 					onSelect={(val) => handleChangeField("timeZone", val)}
 				/>
@@ -386,6 +449,7 @@ const TimeframeForm = () => {
 								day={index}
 								timeframes={timeframes}
 								onSubmitCallback={fetchTimeframes}
+								setTimeframes={setTimeframes}
 							/>
 						</FansView>
 					))}

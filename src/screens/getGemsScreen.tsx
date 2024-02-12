@@ -481,7 +481,11 @@ const GetGemsScreen = () => {
 
 	const handlePay = () => {
 		setSubmitted(true);
-		if (otherAmount && parseFloat(amount ?? "0") > 1000) {
+		if (otherAmount && parseFloat(amount ?? "0") > 200) {
+			Toast.show({
+				type: "error",
+				text1: "Error: Transactions must be below $200",
+			});
 			return;
 		}
 
@@ -824,6 +828,17 @@ const GetGemsScreen = () => {
 											</View>
 										</View>
 									)}
+									<View style={tw.style("mb-8")}>
+										<FormControl
+											label="Street"
+											value={address}
+											onChangeText={(val: string) =>
+												setAddress(val)
+											}
+											placeholder="Street"
+											styles="flex-1"
+										/>
+									</View>
 									<View
 										style={tw.style(
 											"flex-row justify-between gap-x-[14px] mb-8",
@@ -849,17 +864,7 @@ const GetGemsScreen = () => {
 											styles="flex-1"
 										/>
 									</View>
-									<View style={tw.style("mb-8")}>
-										<FormControl
-											label="Street"
-											value={address}
-											onChangeText={(val: string) =>
-												setAddress(val)
-											}
-											placeholder="Street"
-											styles="flex-1"
-										/>
-									</View>
+
 									<NotificationBox style={tw.style("mb-10")}>
 										<FansText
 											style={tw.style(

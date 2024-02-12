@@ -87,10 +87,10 @@ interface FaqItemProps {
 
 export const FaqItem: FC<FaqItemProps> = (props) => {
 	const { question, children } = props;
-	const [collapsed, setCollapsed] = useState(true);
+	const [collapsed, setCollapsed] = useState(false);
 	return (
 		<FansView>
-			<Pressable onPress={() => setCollapsed(!collapsed)}>
+			<Pressable>
 				<FansView position="relative" padding={{ l: 18 }}>
 					<FansSvg
 						size={12.6}

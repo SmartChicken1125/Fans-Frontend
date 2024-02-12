@@ -1,12 +1,7 @@
 import { FypStepper, FypText } from "@components/common/base";
-import {
-	FansGap,
-	FansHorizontalDivider,
-	FansScreen2,
-	FansView,
-} from "@components/controls";
+import { FansGap, FansScreen2, FansView } from "@components/controls";
 import { useAppContext, ProfileActionType } from "@context/useAppContext";
-import { updateVideoCallSettings } from "@helper/endpoints/settings/apis";
+import { updateVideoCallSettings } from "@helper/endpoints/videoCalls/apis";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { View } from "react-native";
@@ -68,13 +63,8 @@ const VideoCallSetupScreen = () => {
 
 	return (
 		<FansScreen2 contentStyle={{ maxWidth: 670 }}>
-			<FansHorizontalDivider />
 			<FansView style={{ marginTop: 20 }}>
-				<FypStepper
-					currentStep={currentStep}
-					steps={steps}
-					setCurrentStep={setCurrentStep}
-				/>
+				<FypStepper currentStep={currentStep} steps={steps} />
 			</FansView>
 			<View>
 				{steps[currentStep] === "Prices" ? (

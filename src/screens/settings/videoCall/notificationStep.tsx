@@ -7,7 +7,7 @@ import {
 	FansView,
 } from "@components/controls";
 import { ProfileActionType, useAppContext } from "@context/useAppContext";
-import { updateVideoCallSettings } from "@helper/endpoints/settings/apis";
+import { updateVideoCallSettings } from "@helper/endpoints/videoCalls/apis";
 import React from "react";
 import Toast from "react-native-toast-message";
 

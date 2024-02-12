@@ -52,13 +52,13 @@ const CoverImage: FC<Props> = (props) => {
 			/> */}
 			<FansIconButton
 				backgroundColor="bg-fans-grey-f0 dark:bg-fans-grey-43"
-				style={tw.style("absolute top-[10px] right-[10px] hidden")}
+				style={tw.style("absolute top-[10px] right-[10px]")}
 				onPress={onClickTrash}
 			>
 				<FypSvg
 					svg={TrashSvg}
-					width={11.87}
-					height={14.76}
+					width={12}
+					height={15}
 					color="fans-red"
 				/>
 			</FansIconButton>

@@ -8,6 +8,7 @@ import {
 } from "@helper/RequesterBase";
 import { IdParams } from "@usertypes/params";
 import {
+	LinkPreviewRespBody,
 	StoriesRespBody,
 	StoryCreateReqBody,
 	StoryFeedRespBody,
@@ -60,5 +61,10 @@ export const shareStoryById = createPOSTWithParams<
 
 export const hideFeedStoryById = createPOSTWithParams<null, never, IdParams>(
 	"/stories/hide-feed/:id",
+	true,
+);
+
+export const getLinkPreview = createGET<LinkPreviewRespBody>(
+	"/stories/preview",
 	true,
 );

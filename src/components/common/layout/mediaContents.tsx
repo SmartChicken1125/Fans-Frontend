@@ -3,13 +3,11 @@ import { FypNullableView, FypSvg, FypText } from "@components/common/base";
 import { FansView } from "@components/controls";
 import { MediaDialog } from "@components/posts/dialogs";
 import { CommonActionType, useAppContext } from "@context/useAppContext";
-import { cdnURL } from "@helper/Utils";
+import { cdnURL, urlOrBlurHash } from "@helper/Utils";
 import { getPostMediasByUserId } from "@helper/endpoints/media/apis";
 import { getCreatorProfileByLink } from "@helper/endpoints/profile/apis";
 import tw from "@lib/tailwind";
 import { MediaType } from "@usertypes/commonEnums";
-import { ResizeMode, Video } from "expo-av";
-import { Image as ExpoImage } from "expo-image";
 import { useLocalSearchParams, useSegments } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Image } from "react-native";
@@ -103,99 +101,42 @@ const MediaContents = () => {
 								onPress: () => handleClickMedia(media.id),
 							}}
 						>
-							{media.type === MediaType.Image ? (
-								<>
-									{media.blurhash ? (
-										<ExpoImage
-											source={media.blurhash}
-											style={tw.style(
-												`w-full border border-fans-white dark:border-fans-black-1d h-full`,
-												index === 0
-													? "rounded-tl-[15px]"
-													: "",
-												index === 2
-													? "rounded-tr-[15px]"
-													: "",
-												index === 3
-													? "rounded-bl-[15px]"
-													: "",
-												index === 5
-													? "rounded-br-[15px]"
-													: "",
-											)}
-											contentFit="cover"
-										/>
-									) : (
-										<Image
-											source={{
-												uri: cdnURL(media.url),
-											}}
-											style={tw.style(
-												`w-full border border-fans-white dark:border-fans-black-1d h-full`,
-												index === 0
-													? "rounded-tl-[15px]"
-													: "",
-												index === 2
-													? "rounded-tr-[15px]"
-													: "",
-												index === 3
-													? "rounded-bl-[15px]"
-													: "",
-												index === 5
-													? "rounded-br-[15px]"
-													: "",
-											)}
-											resizeMode="cover"
-										/>
+							{media.type === MediaType.Image && (
+								<Image
+									source={{
+										uri: urlOrBlurHash(
+											cdnURL(media.url),
+											media.blurhash,
+										),
+									}}
+									style={tw.style(
+										`w-full border border-fans-white dark:border-fans-black-1d h-full`,
+										index === 0 ? "rounded-tl-[15px]" : "",
+										index === 2 ? "rounded-tr-[15px]" : "",
+										index === 3 ? "rounded-bl-[15px]" : "",
+										index === 5 ? "rounded-br-[15px]" : "",
 									)}
-								</>
-							) : (
-								<>
-									{media.blurhash ? (
-										<ExpoImage
-											source={media.blurhash}
-											style={tw.style(
-												`w-full border border-fans-white dark:border-fans-black-1d h-full`,
-												index === 0
-													? "rounded-tl-[15px]"
-													: "",
-												index === 2
-													? "rounded-tr-[15px]"
-													: "",
-												index === 3
-													? "rounded-bl-[15px]"
-													: "",
-												index === 5
-													? "rounded-br-[15px]"
-													: "",
-											)}
-											contentFit="cover"
-										/>
-									) : (
-										<Video
-											source={{
-												uri: cdnURL(media.url) ?? "",
-											}}
-											resizeMode={ResizeMode.CONTAIN}
-											shouldPlay={false}
-											style={tw.style(
-												`w-full border border-fans-white dark:border-fans-black-1d h-full`,
-												index === 0
-													? "rounded-tl-[15px]"
-													: "",
-												index === 2
-													? "rounded-tr-[15px]"
-													: "",
-												index === 3
-													? "rounded-bl-[15px]"
-													: "",
-												index === 5
-													? "rounded-br-[15px]"
-													: "",
-											)}
-										/>
+									resizeMode="cover"
+								/>
+							)}
+
+							{media.type === MediaType.Video && (
+								<Image
+									source={{
+										uri: urlOrBlurHash(
+											cdnURL(media.thumbnail),
+											media.blurhash,
+										),
+									}}
+									style={tw.style(
+										`w-full border border-fans-white dark:border-fans-black-1d h-full`,
+										index === 0 ? "rounded-tl-[15px]" : "",
+										index === 2 ? "rounded-tr-[15px]" : "",
+										index === 3 ? "rounded-bl-[15px]" : "",
+										index === 5 ? "rounded-br-[15px]" : "",
 									)}
-								</>
+									resizeMode="cover"
+								/>
 							)}
 							<FypNullableView
 								visible={media.type === MediaType.Video}

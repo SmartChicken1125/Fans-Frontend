@@ -5,9 +5,9 @@ import { useAppContext, PostsActionType } from "@context/useAppContext";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { PostsNavigationStacks } from "@usertypes/navigations";
-import { ITaggedPeople, IUploadForm } from "@usertypes/types";
+import { IUploadForm } from "@usertypes/types";
 import { getDocumentAsync } from "expo-document-picker";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
@@ -21,16 +21,9 @@ const TagPeopleScreen = (
 	const { state, dispatch } = useAppContext();
 	const { postForm } = state.posts;
 
-	const [_taggedPeople, setTaggedPeople] = useState<ITaggedPeople[]>([]);
 	const [files, setFiles] = useState<IUploadForm[]>([]);
 
 	const onClickInviteNewUser = () => {
-		dispatch.setPosts({
-			type: PostsActionType.updatePostForm,
-			data: {
-				taggedPeoples: _taggedPeople,
-			},
-		});
 		navigation.navigate("Invite");
 	};
 
@@ -77,10 +70,6 @@ const TagPeopleScreen = (
 	const onCreateNewTagUser = () => {
 		navigation.navigate("TagPeopleSearch");
 	};
-
-	useEffect(() => {
-		setTaggedPeople(postForm.taggedPeoples ?? []);
-	}, [postForm.taggedPeoples]);
 
 	return (
 		<FansView

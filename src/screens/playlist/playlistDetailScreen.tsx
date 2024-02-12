@@ -13,12 +13,6 @@ import { POST_REPORT_DIALOG_ID } from "@constants/modal";
 import { ModalActionType, useAppContext } from "@context/useAppContext";
 import { cdnURL } from "@helper/Utils";
 import {
-	deleteBookmark,
-	likePostWithPostId,
-	setBookmark,
-	unlikePostWithPostId,
-} from "@helper/endpoints/post/apis";
-import {
 	deletePlaylist,
 	getPlaylistById,
 } from "@helper/endpoints/profile/apis";
@@ -58,67 +52,6 @@ const PlaylistDetailScreen = (
 		setPosts(posts.filter((post) => post.caption.includes(val)));
 	};
 
-	const onClickBookmark = async (postId: string) => {
-		const post = posts.find((el) => el.id === postId);
-		if (post?.isBookmarked) {
-			const resp = await deleteBookmark(null, { id: postId });
-			if (resp.ok) {
-				setPosts(
-					posts.map((el) =>
-						el.id === postId ? resp.data.updatedPost : el,
-					),
-				);
-			}
-		} else {
-			const resp = await setBookmark(null, { id: postId });
-			if (resp.ok) {
-				setPosts(
-					posts.map((el) =>
-						el.id === postId ? resp.data.updatedPost : el,
-					),
-				);
-			}
-		}
-	};
-
-	const handleLikePost = async (postId: string) => {
-		const post = posts.find((el) => el.id === postId);
-		if (post?.isLiked) {
-			const resp = await unlikePostWithPostId(null, {
-				id: postId,
-			});
-			if (resp.ok) {
-				setPosts(
-					posts.map((el) =>
-						el.id === postId
-							? {
-									...el,
-									likeCount: resp.data.likeCount,
-									isLiked: resp.data.isLiked,
-							  }
-							: el,
-					),
-				);
-			}
-		} else {
-			const resp = await likePostWithPostId(null, {
-				id: postId,
-			});
-			if (resp.ok) {
-				setPosts(
-					posts.map((el) =>
-						el.id === postId
-							? {
-									...el,
-									likeCount: resp.data.likeCount,
-									isLiked: resp.data.isLiked,
-							  }
-							: el,
-					),
-				);
-			}
-		}
-	};
 	const onClickPostMessage = (postId: string) => {
 		setSelectedPostId(id);
 		setOpenMessageDialog(true);
@@ -209,6 +142,14 @@ const PlaylistDetailScreen = (
 			labelClass: "text-fans-red",
 		},
 	];
+
+	const updatePostCallback = (postId: string, data: Partial<IPost>) => {
+		setPosts(
+			posts.map((post) =>
+				post.id === postId ? { ...post, ...data } : post,
+			),
+		);
+	};
 
 	useEffect(() => {
 		if (id) {
@@ -357,16 +298,6 @@ const PlaylistDetailScreen = (
 													<PostCard
 														key={post.id}
 														data={post}
-														onClickBookmark={() => {
-															onClickBookmark(
-																post.id,
-															);
-														}}
-														onClickLike={() =>
-															handleLikePost(
-																post.id,
-															)
-														}
 														onClickActionMenu={() =>
 															onClickPostAction(
 																post.id,
@@ -385,6 +316,9 @@ const PlaylistDetailScreen = (
 																true,
 															);
 														}}
+														updatePostCallback={
+															updatePostCallback
+														}
 													/>
 												))}
 											</View>

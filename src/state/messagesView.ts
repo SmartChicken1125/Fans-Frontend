@@ -8,6 +8,17 @@ import { IMessage, MessageType } from "@usertypes/types";
 import { IUploadedFile } from "@utils/useUploadFile";
 import { useCallback, useEffect, useState } from "react";
 
+export interface IGifMessageContent {
+	source: "tenor" | "giphy";
+	id: string;
+}
+
+export interface ISendOptions {
+	message?: string;
+	uploadedFiles?: IUploadedFile[];
+	gif?: IGifMessageContent;
+}
+
 enum MessageViewState {
 	Uninitialized,
 	Loading,
@@ -140,7 +151,7 @@ export class MessageView implements MessageViewData {
 			{
 				content: "",
 				uploadIds: uploadedFiles.map((f) => f.id),
-				messageType: MessageType.IMAGE,
+				messageType: MessageType.MEDIA,
 				parentId: this.replyToMessage?.id,
 			},
 			{
@@ -153,6 +164,41 @@ export class MessageView implements MessageViewData {
 		}
 
 		this.acceptMessage(resp.data);
+	}
+
+	async sendGifMessage(gif: IGifMessageContent) {
+		const resp = await createTextMessage(
+			{
+				content: JSON.stringify(gif),
+				messageType: MessageType.GIF,
+				parentId: this.replyToMessage?.id,
+			},
+			{
+				id: this.channelId,
+			},
+		);
+
+		if (!resp.ok) {
+			return;
+		}
+
+		this.acceptMessage(resp.data);
+	}
+
+	async sendMessage(options: ISendOptions) {
+		const { message, uploadedFiles, gif } = options;
+
+		if (uploadedFiles && uploadedFiles.length > 0) {
+			await this.sendImageMessage(uploadedFiles);
+		}
+
+		if (message && message.length > 0) {
+			await this.sendTextMessage(message);
+		}
+
+		if (gif) {
+			await this.sendGifMessage(gif);
+		}
 	}
 
 	async deleteMessageById(messageId: string) {

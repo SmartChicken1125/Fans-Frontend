@@ -31,6 +31,10 @@ export interface PresignedUrlRespBody extends IUpload {
 	presignedUrl: string;
 }
 
+export interface TusUploadReqBody {
+	usage?: string;
+}
+
 export interface TusUploadRespBody extends IUpload {
 	uploadUrl: string;
 }

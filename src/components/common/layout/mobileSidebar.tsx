@@ -563,43 +563,39 @@ const MobileSidebar: FC = () => {
 						}
 						onPress={() => onNavigate("/bookmarks")}
 					/>
-					{featureGates.has("2023_12-purchased-posts") && (
-						<MenuItem
-							title="Purchases"
-							onPress={() => {
-								onClose();
-								router.replace({
-									pathname: "profile",
-									params: { screen: "Purchases" },
-								});
-							}}
-							icon={
-								<FypSvg
-									svg={ShopSvg}
-									width={19}
-									height={24}
-									color="fans-black dark:fans-white"
-								/>
-							}
-						/>
-					)}
-					{featureGates.has("2024_01-new-vault-design") && (
-						<MenuItem
-							title="Vault"
-							onPress={() => {
-								onClose();
-								router.replace("/vault");
-							}}
-							icon={
-								<FypSvg
-									svg={VaultSvg}
-									width={25}
-									height={21}
-									color="fans-black dark:fans-white"
-								/>
-							}
-						/>
-					)}
+					<MenuItem
+						title="Purchases"
+						onPress={() => {
+							onClose();
+							router.replace({
+								pathname: "profile",
+								params: { screen: "Purchases" },
+							});
+						}}
+						icon={
+							<FypSvg
+								svg={ShopSvg}
+								width={19}
+								height={24}
+								color="fans-black dark:fans-white"
+							/>
+						}
+					/>
+					<MenuItem
+						title="Vault"
+						onPress={() => {
+							onClose();
+							router.replace("/vault");
+						}}
+						icon={
+							<FypSvg
+								svg={VaultSvg}
+								width={25}
+								height={21}
+								color="fans-black dark:fans-white"
+							/>
+						}
+					/>
 					{featureGates.has("2023_11-referral-links") &&
 						isCreator && (
 							<MenuItem
@@ -694,7 +690,10 @@ const MobileSidebar: FC = () => {
 						onPress={onLogout}
 					/>
 
-					<MembershipSection profiles={profiles.profiles} />
+					<MembershipSection
+						profiles={profiles.profiles}
+						onPressCallback={onClose}
+					/>
 					<LightDarkSwitch toggleTheme={toggleTheme} />
 				</ScrollView>
 

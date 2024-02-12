@@ -18,7 +18,7 @@ interface Props {
 
 const TagPeopleSearchForm: FC<Props> = (props) => {
 	const { postForm, dispatch, onSaveCallback } = props;
-	const { carouselIndex, newUsertags, medias } = postForm;
+	const { carouselIndex, taggedPeoples, medias } = postForm;
 	const [isLoading, setIsLoading] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [users, setUsers] = useState<UsersRespBody>({
@@ -78,11 +78,11 @@ const TagPeopleSearchForm: FC<Props> = (props) => {
 		dispatch.setPosts({
 			type: PostsActionType.updatePostForm,
 			data: {
-				newUsertags: newUsertags.map((userTag) =>
-					userTag.uploadId === uploadId
+				taggedPeoples: taggedPeoples.map((userTag) =>
+					userTag.postMediaId === uploadId
 						? {
 								...userTag,
-								usertags: userTag.usertags.map((tag) =>
+								tags: userTag.tags.map((tag) =>
 									tag.user
 										? tag
 										: {

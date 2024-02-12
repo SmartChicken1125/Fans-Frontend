@@ -1,3 +1,4 @@
+import { defaultPickerMedia } from "@constants/common";
 import { PostStepTypes } from "@usertypes/commonEnums";
 import {
 	IPostForm,
@@ -31,10 +32,7 @@ const PaidPostScreen: FC<Props> = (props) => {
 
 	const [price, setPrice] = useState("");
 	const [isSubmitted, setIsSubmitted] = useState(false);
-	const [coverImg, setCoverImg] = useState<IPickerMedia>({
-		uri: "",
-		isPicker: false,
-	});
+	const [coverImg, setCoverImg] = useState<IPickerMedia>(defaultPickerMedia);
 
 	const handlePressAccess = () => {
 		handleUpdatePostForm({

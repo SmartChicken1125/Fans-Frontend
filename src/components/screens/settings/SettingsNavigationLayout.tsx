@@ -4,6 +4,7 @@ import {
 	FansVerticalDivider,
 	FansView,
 } from "@components/controls";
+import { PostTypesDialog } from "@components/posts/dialogs";
 import tw from "@lib/tailwind";
 import { NavigationContainer } from "@react-navigation/native";
 import { SettingsScreenContent } from "@screens/settings/Settings";
@@ -27,7 +28,10 @@ const SettingsNavigationLayout = (navigator: ReactNode) => {
 			</FansView>
 		</FansScreen2>
 	) : (
-		<NavigationContainer independent>{navigator}</NavigationContainer>
+		<NavigationContainer independent>
+			{navigator}
+			<PostTypesDialog />
+		</NavigationContainer>
 	);
 };
 

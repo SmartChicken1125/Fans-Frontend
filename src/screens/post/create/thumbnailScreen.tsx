@@ -10,15 +10,10 @@ import ImageEditorModal from "@components/common/imageEditor/imageEditorModal";
 import { FansIconButton, FansText, FansView } from "@components/controls";
 import { AudioItem, ImagePostChip } from "@components/posts/common";
 import { defaultPostFormData } from "@constants/defaultFormData";
-import {
-	PostsActionType,
-	ProfileActionType,
-	useAppContext,
-} from "@context/useAppContext";
-import { createStory } from "@helper/endpoints/stories/apis";
+import { PostsActionType, useAppContext } from "@context/useAppContext";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { MediaType, PostStepTypes, PostType } from "@usertypes/commonEnums";
+import { PostStepTypes, PostType } from "@usertypes/commonEnums";
 import { PostsNavigationStacks } from "@usertypes/navigations";
 import { IPickerMedia } from "@usertypes/types";
 import { getPostTitleIcon } from "@utils/posts";
@@ -52,58 +47,6 @@ const ThumbnailScreen = (
 	const [openImageEditor, setOpenImageEditor] = useState(false);
 	const [editingImageId, setEditingEditId] = useState("");
 
-	const createNewStory = async () => {
-		setInProgress(true);
-		let uploadedUrls: { id: string; url: string }[] = [];
-		if (medias.length > 0) {
-			const resp = await uploadFiles(
-				medias.map((m) => ({ uri: m.uri, type: MediaType.Image })),
-			);
-
-			if (resp?.ok) {
-				uploadedUrls = resp.data;
-			} else {
-				Toast.show({
-					type: "error",
-					text1: "Failed to upload videos",
-				});
-			}
-		}
-		const postBody = {
-			mediaIds: uploadedUrls.map((el) => el.id),
-		};
-		const resp = await createStory(postBody);
-		setInProgress(false);
-		if (resp.ok) {
-			dispatch.setProfile({
-				type: ProfileActionType.updateProfile,
-				data: {
-					stories: [...stories, resp.data],
-				},
-			});
-			router.push({
-				pathname: "profile",
-				params: { screen: "Profile" },
-			});
-			dispatch.setPosts({
-				type: PostsActionType.initPostForm,
-				data: defaultPostFormData,
-			});
-			dispatch.setPosts({
-				type: PostsActionType.updateLiveModal,
-				data: {
-					visible: true,
-					postId: resp.data.id,
-				},
-			});
-		} else {
-			Toast.show({
-				type: "error",
-				text1: "Failed to create new story",
-			});
-		}
-	};
-
 	const handleNext = async () => {
 		if (selectedMedias.length === 0) {
 			return;
@@ -116,8 +59,6 @@ const ThumbnailScreen = (
 				},
 			});
 			navigation.navigate("AudioDetail");
-		} else if (postForm.type === PostType.Story) {
-			createNewStory();
 		} else {
 			if (postForm.type === PostType.Video) {
 				dispatch.setPosts({
@@ -238,13 +179,11 @@ const ThumbnailScreen = (
 		>
 			<CustomTopNavBar
 				title={
-					postForm.type === PostType.Story ? "New Story" : "New post"
+					postForm.type === PostType.Story ? "New story" : "New post"
 				}
 				onClickLeft={handleCancel}
 				onClickRight={handleNext}
-				rightLabel={
-					postForm.type === PostType.Story ? "Publish" : "Next"
-				}
+				rightLabel="Next"
 				titleIcon={getPostTitleIcon(postForm.type)}
 				leftIcon="close"
 				loading={inProgress}

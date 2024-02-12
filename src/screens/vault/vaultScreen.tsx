@@ -1,44 +1,77 @@
-import {
-	CheckSvg,
-	SortDescSvg,
-	SortAscSvg,
-	OutlinedPlusSvg,
-	TrashSvg,
-	DownloadSvg,
-} from "@assets/svgs/common";
+import { OutlinedPlusSvg, TrashSvg, DownloadSvg } from "@assets/svgs/common";
 import {
 	FypText,
 	FypSvg,
 	FypHorizontalScrollView2,
-	FypNullableView,
+	FypSortButton,
 } from "@components/common/base";
 import { FansView, FansIconButton } from "@components/controls";
-import { ImagePostChip } from "@components/posts/common";
-import FilterButton from "@components/profiles/filterButton";
+import { FilterButton, MediaItem } from "@components/profiles";
 import { defaultPostFormData } from "@constants/defaultFormData";
 import { useAppContext, PostsActionType } from "@context/useAppContext";
+import { getPostMedias } from "@helper/endpoints/media/apis";
+import { MediasRespBody } from "@helper/endpoints/media/schemas";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { PostStepTypes, PostType } from "@usertypes/commonEnums";
+import { useFeatureGates } from "@state/featureGates";
+import { PostStepTypes, PostType, MediaType } from "@usertypes/commonEnums";
 import { VaultNavigationStacks } from "@usertypes/navigations";
-import React, { useState } from "react";
-import { ScrollView } from "react-native";
-import Animated, { PinwheelIn, PinwheelOut } from "react-native-reanimated";
+import { IMediaFilterQuery } from "@usertypes/params";
+import { SortType } from "@usertypes/types";
+import { checkEnableMediasLoadingMore } from "@utils/common";
+import React, { useState, useEffect } from "react";
+import { ScrollView, NativeScrollEvent, Dimensions } from "react-native";
+
+const { width: windowWidth } = Dimensions.get("window");
 
 const VaultScreen = (
 	props: NativeStackScreenProps<VaultNavigationStacks, "Home">,
 ) => {
-	const { dispatch } = useAppContext();
-	const [orderBy, setOrderBy] = useState("newest");
-	const [filter, setFilter] = useState("All");
-	const [mediaId, setMediaId] = useState(-1);
+	const featureGates = useFeatureGates();
+	const { state, dispatch } = useAppContext();
+	const { profile } = state;
+	const [orderBy, setOrderBy] = useState<SortType>("Newest");
+	const [filter, setFilter] = useState<MediaType>(MediaType.All);
+	const [selectedMediaIds, setSelectedMediaIds] = useState<string[]>([]);
+	const [inLoadingMore, setInLoadingMore] = useState<boolean>(false);
+	const [medias, setMedias] = useState<MediasRespBody>({
+		medias: [],
+		page: 1,
+		size: 10,
+		total: 0,
+		videoTotal: 0,
+		imageTotal: 0,
+	});
+
+	const handleToggleMedias = (id: string) => {
+		if (selectedMediaIds.includes(id)) {
+			setSelectedMediaIds(selectedMediaIds.filter((el) => el !== id));
+		} else {
+			setSelectedMediaIds([...selectedMediaIds, id]);
+		}
+	};
 
 	const handlePressNewPost = () => {
+		const selectedMedias = medias.medias.filter((media) =>
+			selectedMediaIds.includes(media.id),
+		);
 		dispatch.setPosts({
 			type: PostsActionType.updatePostForm,
 			data: {
 				...defaultPostFormData,
 				type: PostType.Vault,
+				medias: selectedMedias.map((media) => ({
+					id: media.id,
+					uri: media.url ?? "",
+					isPicker: false,
+					type: selectedMedias[0].type,
+				})),
+				thumb: {
+					id: selectedMedias[0].id,
+					uri: selectedMedias[0].url ?? "",
+					isPicker: false,
+					type: selectedMedias[0].type,
+				},
 			},
 		});
 		dispatch.setPosts({
@@ -49,6 +82,63 @@ const VaultScreen = (
 			},
 		});
 	};
+
+	const handleFilter = (val: MediaType) => {
+		setFilter(val);
+		setMedias({
+			...medias,
+			page: 1,
+		});
+	};
+
+	const fetchMedias = async () => {
+		const filterObj: IMediaFilterQuery = {
+			page: medias.page,
+			size: 10,
+			sort: orderBy === "Newest" ? "newest" : "latest",
+		};
+		if (filter !== MediaType.All) {
+			filterObj.type = filter;
+		}
+		const resp = await getPostMedias(filterObj);
+		setInLoadingMore(false);
+		if (resp.ok) {
+			setMedias({
+				...resp.data,
+				medias:
+					resp.data.page === 1
+						? resp.data.medias
+						: [...medias.medias, ...resp.data.medias],
+			});
+		}
+	};
+
+	const onScrollView = (nativeEvent: NativeScrollEvent) => {
+		const paddingToBottom = 20;
+		const isScrollEnd =
+			nativeEvent.layoutMeasurement.height +
+				nativeEvent.contentOffset.y >=
+			nativeEvent.contentSize.height - paddingToBottom;
+		if (isScrollEnd && !inLoadingMore) {
+			const enableLoadingMore = checkEnableMediasLoadingMore(
+				filter,
+				medias,
+			);
+			if (enableLoadingMore) {
+				setInLoadingMore(true);
+				setMedias({
+					...medias,
+					page: medias.page + 1,
+				});
+			}
+		}
+	};
+
+	useEffect(() => {
+		if (profile.userId !== "0") {
+			fetchMedias();
+		}
+	}, [profile.userId, medias.page, filter, orderBy]);
 
 	return (
 		<FansView
@@ -63,114 +153,63 @@ const VaultScreen = (
 				style={tw.style("w-full max-w-[674px] mx-auto")}
 				padding={{ b: 108 }}
 			>
-				<FansView
-					flexDirection="row"
-					alignItems="center"
-					gap={13.2}
-					pressableProps={{
-						onPress: () =>
-							setOrderBy(
-								orderBy === "newest" ? "oldest" : "newest",
-							),
-					}}
-					margin={{ b: 30 }}
-				>
-					<FypSvg
-						width={16.76}
-						height={14.05}
-						svg={orderBy === "oldest" ? SortAscSvg : SortDescSvg}
-						color="fans-grey-70 dark:fans-grey-b1"
-					/>
-					<Animated.View entering={PinwheelIn} exiting={PinwheelOut}>
-						<FypText
-							fontWeight={500}
-							fontSize={17}
-							style={tw.style(
-								"text-fans-grey-70 dark:text-fans-grey-b1",
-							)}
-						>
-							{orderBy === "newest"
-								? "Newest first"
-								: "Oldest first"}
-						</FypText>
-					</Animated.View>
+				<FansView margin={{ b: 30 }}>
+					<FypSortButton value={orderBy} handleToggle={setOrderBy} />
 				</FansView>
 				<FypHorizontalScrollView2>
 					<FansView flexDirection="row" gap={5}>
-						{["All", "Photo", "Video", "Audio"].map((el) => (
-							<FilterButton
-								title={el}
-								selected={filter === el}
-								onClick={() => setFilter(el)}
-								key={el}
-							/>
-						))}
+						{[MediaType.All, MediaType.Image, MediaType.Video].map(
+							(el) => (
+								<FilterButton
+									title={el}
+									selected={filter === el}
+									onClick={() => handleFilter(el)}
+									key={el}
+								/>
+							),
+						)}
 					</FansView>
 				</FypHorizontalScrollView2>
 				<FansView
 					flex="1"
 					style={tw.style("mx-[-18px] md:mx-0 mt-[22px] md:mt-10")}
 				>
-					<ScrollView>
+					<ScrollView
+						onScroll={({ nativeEvent }) =>
+							onScrollView(nativeEvent)
+						}
+						scrollEventThrottle={16}
+						showsVerticalScrollIndicator
+						nestedScrollEnabled={true}
+					>
 						<FansView flexDirection="row" flexWrap="wrap">
-							{[...Array(10)].map((el, index) => (
+							{medias.medias.map((media) => (
 								<FansView
-									key={index}
+									key={media.id}
 									position="relative"
+									padding={1}
 									style={tw.style(
 										"w-1/3 bg-fans-white dark:bg-fans-black-1d",
 									)}
 								>
-									<ImagePostChip
-										colSpan={1}
-										uri="media/81222749179879424/AKB71S4jTwFxmTmtnnoWKuUC1D4nfXfp.png"
-										onPress={() => setMediaId(index)}
+									<MediaItem
+										data={media}
+										onPress={() =>
+											handleToggleMedias(media.id)
+										}
+										size={
+											(tw.prefixMatch("md")
+												? 674
+												: windowWidth) /
+												3 -
+											2
+										}
+										showDate
+										selectable
+										selected={selectedMediaIds.includes(
+											media.id,
+										)}
 									/>
-									<FansView
-										position="absolute"
-										width={{ xs: 46, md: 75 }}
-										height={{ xs: 15, md: 20 }}
-										borderRadius={20}
-										style={tw.style(
-											"bg-fans-black/50 top-3 left-3 md:top-5 md:left-5",
-										)}
-										alignItems="center"
-										justifyContent="center"
-									>
-										<FypText
-											fontSize={{ xs: 8, md: 14 }}
-											fontWeight={600}
-											lineHeight={{ xs: 11, md: 19 }}
-											style={tw.style("text-fans-white")}
-										>
-											5/24/23
-										</FypText>
-									</FansView>
-									<FansView
-										position="absolute"
-										width={{ xs: 20, md: 26 }}
-										height={{ xs: 20, md: 26 }}
-										borderRadius={26}
-										alignItems="center"
-										justifyContent="center"
-										style={tw.style(
-											"top-3 right-3 md:top-5 md:right-5",
-											mediaId === index
-												? "bg-fans-purple"
-												: "border border-fans-white bg-fans-black/50",
-										)}
-									>
-										<FypNullableView
-											visible={mediaId === index}
-										>
-											<FypSvg
-												svg={CheckSvg}
-												width={11}
-												height={8}
-												color="fans-white"
-											/>
-										</FypNullableView>
-									</FansView>
 								</FansView>
 							))}
 						</FansView>
@@ -229,7 +268,15 @@ const VaultScreen = (
 							"absolute left-0 top-[10px]",
 						)}
 					>
-						2/50
+						{filter === MediaType.All
+							? `${medias.medias.length}/${medias.total}`
+							: ""}
+						{filter === MediaType.Image
+							? `${medias.medias.length}/${medias.imageTotal}`
+							: ""}
+						{filter === MediaType.Video
+							? `${medias.medias.length}/${medias.videoTotal}`
+							: ""}
 					</FypText>
 					<FansView
 						flexDirection="row"
@@ -237,17 +284,20 @@ const VaultScreen = (
 						position="absolute"
 						right={0}
 					>
-						<FansIconButton
-							size={34}
-							backgroundColor="bg-fans-grey-f0 dark:bg-fans-grey-43"
-						>
-							<FypSvg
-								svg={TrashSvg}
-								width={12}
-								height={15}
-								color="fans-red"
-							/>
-						</FansIconButton>
+						{featureGates.has("2024_02-delete-vault-medias") ? (
+							<FansIconButton
+								size={34}
+								backgroundColor="bg-fans-grey-f0 dark:bg-fans-grey-43"
+							>
+								<FypSvg
+									svg={TrashSvg}
+									width={12}
+									height={15}
+									color="fans-red"
+								/>
+							</FansIconButton>
+						) : null}
+
 						<FansIconButton
 							size={34}
 							backgroundColor="bg-fans-grey-f0 dark:bg-fans-grey-43"

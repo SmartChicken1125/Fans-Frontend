@@ -1,6 +1,7 @@
 import { Block3Svg, ChevronDownSvg, UserSvg } from "@assets/svgs/common";
 import ClickSvg from "@assets/svgs/common/Click";
 import { FansGap, FansSvg, FansText, FansView } from "@components/controls";
+import { formatPrice } from "@helper/Utils";
 import { deleteReferralLink } from "@helper/endpoints/referral/apis";
 import { CreatorReferralLinkPerformance } from "@usertypes/types";
 import React, { FC, useState } from "react";
@@ -56,7 +57,7 @@ const LinkItem: FC<{
 							fontSize={16}
 							color="green-4d"
 						>
-							REVENUE ${amount.toLocaleString()}
+							REVENUE {formatPrice(amount)}
 						</FansText>
 					</FansView>
 

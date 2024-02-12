@@ -1,3 +1,4 @@
+import { defaultPickerMedia } from "@constants/common";
 import { defaultAudioDetail } from "@constants/defaultFormData";
 import { IAppDispatch } from "@context/appContext";
 import { PostsActionType } from "@context/reducer/postsReducer";
@@ -23,11 +24,7 @@ const AudioDetailScreen: FC<Props> = (props) => {
 
 	const [formData, setFormData] = useState<IAudioDetail>(defaultAudioDetail);
 	const [isSubmitted, setIsSubmitted] = useState(false);
-	const [coverImg, setCoverImg] = useState<IPickerMedia>({
-		id: "0",
-		uri: "",
-		isPicker: false,
-	});
+	const [coverImg, setCoverImg] = useState<IPickerMedia>(defaultPickerMedia);
 
 	const onChangeFormData = (name: string, value: string | boolean) => {
 		setFormData({
@@ -79,7 +76,7 @@ const AudioDetailScreen: FC<Props> = (props) => {
 					onChangeFormData={onChangeFormData}
 					onChangeImage={onChangeImage}
 					onDeletePreview={() => {
-						setCoverImg({ uri: "", isPicker: true });
+						setCoverImg(defaultPickerMedia);
 					}}
 				/>
 			</ScreenWrapper>

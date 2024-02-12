@@ -11,6 +11,7 @@ import {
 	MediaTypeParam,
 	MediasRespBody,
 	PresignedUrlRespBody,
+	TusUploadReqBody,
 	TusUploadRespBody,
 } from "./schemas";
 
@@ -40,7 +41,7 @@ export const generatePresignedUrl = createPOSTWithParams<
 >("/media/generate-presigned-url/:type", true);
 
 export const tusUpload = createPOSTWithParams<
-	never,
+	TusUploadReqBody,
 	TusUploadRespBody,
 	MediaTypeParam
 >("/media/tus/:type", true);

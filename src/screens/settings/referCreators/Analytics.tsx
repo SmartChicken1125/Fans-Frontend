@@ -13,6 +13,7 @@ import { BanModal } from "@components/modals";
 import { Transaction } from "@components/payment";
 import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
 import { LineChart } from "@components/screens/settings/analytics";
+import { formatPrice } from "@helper/Utils";
 import {
 	getCreatorReferralCreators,
 	getCreatorReferralLinkPerformance,
@@ -566,7 +567,7 @@ const Earnings = () => {
 				Earnings
 			</FansText>
 			<FansText color="green-4d" fontFamily="inter-medium" fontSize={34}>
-				${earnings}
+				{formatPrice(earnings)}
 			</FansText>
 
 			<FansGap height={28} />

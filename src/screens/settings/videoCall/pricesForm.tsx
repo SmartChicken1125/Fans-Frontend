@@ -1,7 +1,13 @@
+import { TrashSvg } from "@assets/svgs/common";
 import RoundButton from "@components/common/RoundButton";
 import RoundTextInput from "@components/common/RoundTextInput";
-import { FypText, FypDropdown, FypNullableView } from "@components/common/base";
-import { FansDivider, FansSwitch, FansView } from "@components/controls";
+import {
+	FypText,
+	FypDropdown,
+	FypNullableView,
+	FypSvg,
+} from "@components/common/base";
+import { FansDivider, FansView, FansIconButton } from "@components/controls";
 import { videoCallPriceOptions } from "@constants/common";
 import { defaultVideoCallDurationFormData } from "@constants/defaultFormData";
 import { ProfileActionType, useAppContext } from "@context/useAppContext";
@@ -9,22 +15,28 @@ import {
 	getVideoCallDurations,
 	createVideoCallDuration,
 	updateVideoCallDuration,
-} from "@helper/endpoints/settings/apis";
+	deleteVideoCallDuration,
+} from "@helper/endpoints/videoCalls/apis";
 import tw from "@lib/tailwind";
 import { RoundButtonType } from "@usertypes/commonEnums";
 import { IVideoCallDuration } from "@usertypes/types";
 import React, { useEffect, useState } from "react";
 import Toast from "react-native-toast-message";
 
+interface IExtendedVideoCallDuration extends IVideoCallDuration {
+	isNew?: boolean;
+}
+
 interface LineProps {
-	duration: IVideoCallDuration;
-	onChange: (duration: IVideoCallDuration) => void;
+	duration: IExtendedVideoCallDuration;
+	onChange: (duration: IExtendedVideoCallDuration) => void;
+	onDelete: () => void;
 }
 
 const Line: React.FC<LineProps> = (props) => {
-	const { duration, onChange } = props;
+	const { duration, onChange, onDelete } = props;
 	const [localPriceItem, setLocalPriceItem] =
-		useState<IVideoCallDuration>(duration);
+		useState<IExtendedVideoCallDuration>(duration);
 
 	const onChangePrice = (text: string, property: string) => {
 		const numericValue = text.replace(/[^0-9]/g, "");
@@ -32,13 +44,21 @@ const Line: React.FC<LineProps> = (props) => {
 	};
 
 	const handleChangeMinutes = (minues: string) => {
-		onChange({ ...localPriceItem, length: parseInt(minues) });
+		if (localPriceItem.price !== 0) {
+			onChange({ ...localPriceItem, length: parseInt(minues) });
+		}
 		setLocalPriceItem({ ...localPriceItem, length: parseInt(minues) });
 	};
 
 	const handleBlur = () => {
-		if (localPriceItem.price !== duration.price) {
-			onChange(localPriceItem);
+		if (localPriceItem.isNew) {
+			if (localPriceItem.price !== 0 && localPriceItem.length !== 0) {
+				onChange(localPriceItem);
+			}
+		} else {
+			if (localPriceItem.price !== duration.price) {
+				onChange(localPriceItem);
+			}
 		}
 	};
 
@@ -50,17 +70,21 @@ const Line: React.FC<LineProps> = (props) => {
 		<FansView
 			alignItems="center"
 			flexDirection="row"
-			gap={{ xs: 12, md: 36 }}
+			gap={{ xs: 18, md: 42 }}
 		>
 			<FansView flexDirection="row" gap={{ xs: 9, md: 14 }} flex="1">
-				<FansView flex="1">
+				<FansView style={tw.style("flex-0.65 md:flex-1")}>
 					<FypDropdown
 						data={videoCallPriceOptions}
 						value={localPriceItem.length.toString()}
 						onSelect={(val) => handleChangeMinutes(val as string)}
+						placeholder="Select Duration"
 					/>
 				</FansView>
-				<FansView flex="1" position="relative">
+				<FansView
+					position="relative"
+					style={tw.style("flex-0.35 md:flex-1")}
+				>
 					<FypText
 						fontSize={14}
 						lineHeight={19}
@@ -82,17 +106,18 @@ const Line: React.FC<LineProps> = (props) => {
 					/>
 				</FansView>
 			</FansView>
-			{duration.id === "0" ? (
-				<FansView width={40}></FansView>
-			) : (
-				<FansSwitch
-					value={duration.isEnabled}
-					onValueChange={(value: boolean) =>
-						onChange({ ...duration, isEnabled: value })
-					}
-					justifyContent="justify-end"
+			<FansIconButton
+				size={34}
+				backgroundColor="bg-fans-grey-f0 dark:bg-fans-grey-43"
+				onPress={onDelete}
+			>
+				<FypSvg
+					svg={TrashSvg}
+					width={12}
+					height={15}
+					color="fans-red"
 				/>
-			)}
+			</FansIconButton>
 		</FansView>
 	);
 };
@@ -100,11 +125,8 @@ const Line: React.FC<LineProps> = (props) => {
 const PricesForm = () => {
 	const { state, dispatch } = useAppContext();
 
-	const [isLoading, setIsLoading] = useState(false);
-	const [durations, setDurations] = useState<IVideoCallDuration[]>([]);
-	const [showNewForm, setShowNewForm] = useState(false);
-	const [formData, setFormData] = useState<IVideoCallDuration>(
-		defaultVideoCallDurationFormData,
+	const [durations, setDurations] = useState<IExtendedVideoCallDuration[]>(
+		[],
 	);
 
 	const fetchVideoCallDurations = async () => {
@@ -125,37 +147,49 @@ const PricesForm = () => {
 		}
 	};
 
-	const handleUpdate = async (duration: IVideoCallDuration) => {
+	const handleUpdate = async (duration: IExtendedVideoCallDuration) => {
 		const { id, ...postbody } = duration;
-		const resp = await updateVideoCallDuration(postbody, {
-			id: id,
-		});
-		if (resp.ok) {
-			setDurations(durations.map((el) => (el.id === id ? duration : el)));
-		} else {
+		if (duration.price > 200) {
 			Toast.show({
 				type: "error",
-				text1: resp.data.message,
+				text1: "Price must be below $200",
 			});
+			return;
 		}
-	};
-
-	const handleAddDuration = async () => {
-		if (!showNewForm) {
-			setShowNewForm(true);
-		} else {
-			setIsLoading(true);
+		if (duration.isNew) {
 			const resp = await createVideoCallDuration({
-				price: formData.price,
-				length: formData.length,
+				price: duration.price,
+				length: duration.length,
 				currency: "usd",
 				isEnabled: true,
 			});
-			setIsLoading(false);
 			if (resp.ok) {
 				fetchVideoCallDurations();
-				setShowNewForm(false);
-				setFormData(defaultVideoCallDurationFormData);
+			} else {
+				Toast.show({
+					type: "error",
+					text1: resp.data.message,
+				});
+			}
+		} else {
+			const resp = await updateVideoCallDuration(postbody, {
+				id: id,
+			});
+			if (resp.ok) {
+				setDurations(
+					durations.map((el) => (el.id === id ? duration : el)),
+				);
+				dispatch.setProfile({
+					type: ProfileActionType.updateSettings,
+					data: {
+						video: {
+							...state.profile.settings.video,
+							meetingDurations: durations.map((el) =>
+								el.id === id ? duration : el,
+							),
+						},
+					},
+				});
 			} else {
 				Toast.show({
 					type: "error",
@@ -165,8 +199,46 @@ const PricesForm = () => {
 		}
 	};
 
+	const handleAddDuration = async () => {
+		setDurations([
+			...durations,
+			{
+				...defaultVideoCallDurationFormData,
+				id: new Date().getTime().toString(),
+				isNew: true,
+			},
+		]);
+	};
+
+	const handleDelete = async (id: string) => {
+		const duration = durations.find((el) => el.id === id);
+		if (!duration?.isNew) {
+			const resp = await deleteVideoCallDuration({ id: id }, { id: id });
+			if (resp.ok) {
+				setDurations(durations.filter((el) => el.id !== id));
+				dispatch.setProfile({
+					type: ProfileActionType.updateSettings,
+					data: {
+						video: {
+							...state.profile.settings.video,
+							meetingDurations: durations.filter(
+								(el) => el.id !== id,
+							),
+						},
+					},
+				});
+			} else {
+				Toast.show({
+					type: "error",
+					text1: resp.data.message,
+				});
+			}
+		} else {
+			setDurations(durations.filter((el) => el.id !== id));
+		}
+	};
+
 	useEffect(() => {
-		setFormData(defaultVideoCallDurationFormData);
 		fetchVideoCallDurations();
 	}, []);
 
@@ -174,18 +246,16 @@ const PricesForm = () => {
 		<FansView>
 			{durations.map((duration, index) => (
 				<FansView key={index}>
-					<Line duration={duration} onChange={handleUpdate} />
+					<Line
+						duration={duration}
+						onChange={handleUpdate}
+						onDelete={() => handleDelete(duration.id)}
+					/>
 					{index !== durations.length - 1 ? (
 						<FansDivider style={tw.style("my-[18px] md:my-4")} />
 					) : null}
 				</FansView>
 			))}
-			<FypNullableView visible={showNewForm}>
-				<FansView>
-					<FansDivider style={tw.style("my-[18px] md:my-4")} />
-					<Line duration={formData} onChange={setFormData} />
-				</FansView>
-			</FypNullableView>
 
 			<FypNullableView
 				visible={videoCallPriceOptions.length !== durations.length}
@@ -194,9 +264,8 @@ const PricesForm = () => {
 					<RoundButton
 						variant={RoundButtonType.OUTLINE_PRIMARY}
 						onPress={handleAddDuration}
-						loading={isLoading}
 					>
-						{showNewForm ? "Save duration" : "Add duration"}
+						Add duration
 					</RoundButton>
 				</FansView>
 			</FypNullableView>

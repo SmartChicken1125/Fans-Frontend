@@ -95,10 +95,7 @@ const PaymentsScreen = (
 	const handlePressPurchaseGems = () => router.push("/get-gems?gems=1000");
 
 	const getPaymentHistoryData = async () => {
-		const paymentHistoryData = await getUserTransactions(
-			{},
-			{ search, page },
-		);
+		const paymentHistoryData = await getUserTransactions({ search, page });
 		if (paymentHistoryData.ok) {
 			setPaymentHistory(paymentHistoryData.data.transactions);
 			setPages(paymentHistoryData.data.pages);

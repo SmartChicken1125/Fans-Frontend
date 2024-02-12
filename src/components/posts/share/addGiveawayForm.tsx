@@ -3,7 +3,7 @@ import RoundButton from "@components/common/RoundButton";
 import { FypDropdown, FypText } from "@components/common/base";
 import DatePicker from "@components/common/datePicker";
 import { PreviewImageField } from "@components/posts/common";
-import { winnerOptions } from "@constants/common";
+import { winnerOptions, defaultPickerMedia } from "@constants/common";
 import { timezones } from "@constants/timezones";
 import tw from "@lib/tailwind";
 import { RoundButtonType } from "@usertypes/commonEnums";
@@ -67,9 +67,7 @@ const AddGiveawayForm: FC<Props> = (props) => {
 				style="mb-[34px]"
 				onChangeImage={onChangeImage}
 				data={data.cover}
-				onCancel={() =>
-					onChangeForm("cover", { uri: "", isPicker: true })
-				}
+				onCancel={() => onChangeForm("cover", defaultPickerMedia)}
 			/>
 
 			<View style={tw.style("px-[18px] pb-[104px] md:px-0 md:pb-10")}>

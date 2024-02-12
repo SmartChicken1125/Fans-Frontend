@@ -1,3 +1,4 @@
+import { MediaType } from "@usertypes/commonEnums";
 import { IPickerMedia } from "@usertypes/types";
 import { MediaTypeOptions, openMediaPicker } from "./mediaPicker";
 
@@ -18,10 +19,11 @@ const useDocumentPicker = () => {
 			if (!result.canceled) {
 				return {
 					ok: true,
-					data: result.files.map((asset, index) => ({
+					data: result.files.map((value, index) => ({
 						id: `${new Date().getTime()}-${index}`,
-						uri: asset,
+						uri: value.url,
 						isPicker: true,
+						type: MediaType.Audio,
 					})),
 				};
 			} else {
@@ -50,10 +52,11 @@ const useDocumentPicker = () => {
 			if (!result.canceled) {
 				return {
 					ok: true,
-					data: result.files.map((asset, index) => ({
+					data: result.files.map((value, index) => ({
 						id: `${new Date().getTime()}-${index}`,
-						uri: asset,
+						uri: value.url,
 						isPicker: true,
+						type: MediaType.Video,
 					})),
 				};
 			} else {
@@ -82,10 +85,46 @@ const useDocumentPicker = () => {
 			if (!result.canceled) {
 				return {
 					ok: true,
-					data: result.files.map((asset, index) => ({
+					data: result.files.map((value, index) => ({
 						id: `${new Date().getTime()}-${index}`,
-						uri: asset,
+						uri: value.url,
 						isPicker: true,
+						type: MediaType.Image,
+					})),
+				};
+			} else {
+				return {
+					ok: false,
+					data: [],
+					message: "Failed to read file.",
+				};
+			}
+		} catch (error) {
+			return {
+				ok: false,
+				data: [],
+				message: error as string,
+			};
+		}
+	}
+
+	async function useMediaPicker(multiple?: boolean): Promise<IPickerResult> {
+		try {
+			const result = await openMediaPicker({
+				mediaTypes: MediaTypeOptions.Media,
+				allowsMultipleSelection: multiple,
+			});
+
+			if (!result.canceled) {
+				return {
+					ok: true,
+					data: result.files.map((value, index) => ({
+						id: `${new Date().getTime()}-${index}`,
+						uri: value.url,
+						isPicker: true,
+						type: value.type.startsWith("image")
+							? MediaType.Image
+							: MediaType.Video,
 					})),
 				};
 			} else {
@@ -106,8 +145,9 @@ const useDocumentPicker = () => {
 
 	return {
 		useAudioPicker,
-		useVideoPicker,
 		useImagePicker,
+		useMediaPicker,
+		useVideoPicker,
 	};
 };
 

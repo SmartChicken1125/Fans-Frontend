@@ -7,7 +7,7 @@ import {
 	createPUTWithParams,
 } from "@helper/RequesterBase";
 import { IdParams } from "@usertypes/params";
-import { IPost, IRole } from "@usertypes/types";
+import { IPost, IRole, IPoll } from "@usertypes/types";
 import {
 	AddPostCommentReqBody,
 	AnalyzeFansRespBody,
@@ -19,12 +19,14 @@ import {
 	InvitationReqBody,
 	PaidPostPriceResBody,
 	PostArchiveReqBody,
+	PostCreateReqBody,
 	PostFeedForProfileIdParams,
 	PostListRespBody,
-	PostCreateReqBody,
 	PurchasePaidPostReqBody,
 	RepliesRespBody,
 	RoleReqBody,
+	PollVoteReqBody,
+	PostUpdateReqBody,
 } from "./schemas";
 
 export const createRole = createPOST<RoleReqBody, IRole>("/roles", true);
@@ -45,7 +47,7 @@ export const getPostById = createGETWithParams<IPost, IdParams>(
 	true,
 );
 export const updatePostById = createPUTWithParams<
-	Partial<IPost>,
+	PostUpdateReqBody,
 	never,
 	IdParams
 >("/posts/:id", true);
@@ -175,3 +177,18 @@ export const getPurchasedPosts = createGET<PostListRespBody>(
 	"/post/paid-post/purchased",
 	true,
 );
+
+export const createPollVote = createPOST<PollVoteReqBody, IPoll>(
+	"/post/poll/vote",
+	true,
+);
+
+export const hidePaidPostByIId = createPUTWithParams<null, never, IdParams>(
+	"/posts/hide/:id",
+	true,
+);
+
+export const getCreatorsPaidPosts = createGETWithParams<
+	PostListRespBody,
+	PostFeedForProfileIdParams
+>("/post/paid-post/feed/:userId", true);

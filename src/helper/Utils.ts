@@ -1,4 +1,13 @@
+import { USD } from "@dinero.js/currencies";
 import { CDN_URL } from "@env";
+import {
+	Currency,
+	dinero,
+	hasSubUnits,
+	toDecimal,
+	toSnapshot,
+} from "dinero.js";
+import { decodeToDataURL } from "./BlurHash";
 
 type cdnURLType = {
 	(path: string): string;
@@ -60,4 +69,37 @@ export function atoburl(data: string): string {
 
 export function hasFlags(field: number, flags: number): boolean {
 	return (field & flags) === flags;
+}
+
+export function formatPrice(price: number): string {
+	const dineroObject = dinero({ amount: price, currency: USD });
+
+	function transformer({
+		value,
+		currency,
+	}: {
+		value: string;
+		currency: Currency<number>;
+	}) {
+		const { scale } = toSnapshot(dineroObject);
+		const minimumFractionDigits = hasSubUnits(dineroObject) ? scale : 0;
+
+		return Number(value).toLocaleString("en-US", {
+			style: "currency",
+			currency: currency.code,
+			maximumFractionDigits: scale,
+			minimumFractionDigits,
+		});
+	}
+
+	return toDecimal(dineroObject, transformer);
+}
+
+export function urlOrBlurHash(
+	url: string | undefined,
+	blurHash: string | undefined,
+): string | undefined {
+	if (url) return url;
+	if (blurHash) return decodeToDataURL(blurHash);
+	return undefined;
 }

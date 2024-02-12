@@ -33,7 +33,7 @@ const CreatorStoriesScreen = (
 	props: NativeStackScreenProps<StoriesNavigationStacks, "Creator">,
 ) => {
 	const { route } = props;
-	const { userId } = route.params;
+	const { userId, storyId: paramStoryId } = route.params;
 	const router = useRouter();
 	const { copyString } = useClipboard();
 	const { state, dispatch } = useAppContext();
@@ -49,7 +49,6 @@ const CreatorStoriesScreen = (
 	const [openShare, setOpenShare] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [openCommentModal, setOpenCommentModal] = useState(false);
-	const [storyId, setStoryId] = useState("");
 
 	const isOwner = creator?.userId === state.profile.userId;
 
@@ -68,7 +67,6 @@ const CreatorStoriesScreen = (
 	};
 
 	const onClickComment = () => {
-		setStoryId(stories[storyIndex].id);
 		setOpenCommentModal(true);
 	};
 
@@ -128,20 +126,25 @@ const CreatorStoriesScreen = (
 			if (creatorIndex === 0) {
 				onClickClose();
 			} else {
-				// setCreator(creators[creatorIndex - 1]);
-				// setCreatorIndex(creatorIndex - 1);
-				// setStories(creators[creatorIndex - 1].stories);
-				// setStoryIndex(0);
 				router.replace({
 					pathname: "stories",
 					params: {
 						screen: "Creator",
 						userId: creators[creatorIndex - 1].userId,
+						storyId: creators[creatorIndex - 1].stories[0].id,
 					},
 				});
 			}
 		} else {
 			setStoryIndex(storyIndex - 1);
+			router.replace({
+				pathname: "stories",
+				params: {
+					screen: "Creator",
+					userId: creators[creatorIndex].userId,
+					storyId: stories[storyIndex - 1].id,
+				},
+			});
 		}
 	};
 
@@ -150,20 +153,25 @@ const CreatorStoriesScreen = (
 			if (creatorIndex === creators.length - 1) {
 				onClickClose();
 			} else {
-				// setCreator(creators[creatorIndex + 1]);
-				// setCreatorIndex(creatorIndex + 1);
-				// setStories(creators[creatorIndex + 1].stories);
-				// setStoryIndex(0);
 				router.replace({
 					pathname: "stories",
 					params: {
 						screen: "Creator",
 						userId: creators[creatorIndex + 1].userId,
+						storyId: creators[creatorIndex + 1].stories[0].id,
 					},
 				});
 			}
 		} else {
 			setStoryIndex(storyIndex + 1);
+			router.replace({
+				pathname: "stories",
+				params: {
+					screen: "Creator",
+					userId: creators[creatorIndex].userId,
+					storyId: stories[storyIndex + 1].id,
+				},
+			});
 		}
 	};
 
@@ -174,6 +182,7 @@ const CreatorStoriesScreen = (
 			queryParams: {
 				userId: creator?.userId,
 				screen: "Profile",
+				storyId: paramStoryId ?? stories[storyIndex].id,
 			},
 		});
 		await copyString(url);
@@ -237,10 +246,16 @@ const CreatorStoriesScreen = (
 
 	useEffect(() => {
 		if (creators.length > 0) {
-			setStoryIndex(0);
 			setCreator(creators.find((el) => el.userId === userId));
-			setStories(
-				creators.find((el) => el.userId === userId)?.stories ?? [],
+			const creatorStories =
+				creators.find((el) => el.userId === userId)?.stories ?? [];
+			setStories(creatorStories);
+			setStoryIndex(
+				paramStoryId
+					? creatorStories.findIndex(
+							(story) => story.id === paramStoryId,
+					  )
+					: 0,
 			);
 			setCreatorIndex(
 				creators.findIndex((user) => user.userId === userId),
@@ -375,7 +390,7 @@ const CreatorStoriesScreen = (
 				onCopyLink={onCopyStory}
 			/>
 			<StoryCommentDialog
-				storyId={storyId}
+				storyId={paramStoryId ?? stories[storyIndex]?.id}
 				visible={openCommentModal}
 				onDismiss={() => setOpenCommentModal(false)}
 				onCallback={commentCallback}

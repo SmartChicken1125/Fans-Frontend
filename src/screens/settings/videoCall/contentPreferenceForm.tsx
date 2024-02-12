@@ -18,7 +18,7 @@ import { ProfileActionType, useAppContext } from "@context/useAppContext";
 import {
 	updateVideoCallSettings,
 	getVideoCallSettings,
-} from "@helper/endpoints/settings/apis";
+} from "@helper/endpoints/videoCalls/apis";
 import tw from "@lib/tailwind";
 import { VideoCallWays } from "@usertypes/types";
 import React, { FC, useState, useEffect } from "react";

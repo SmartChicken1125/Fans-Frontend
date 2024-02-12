@@ -58,14 +58,11 @@ import { hasFlags } from "@helper/Utils";
 import { getPostMedias } from "@helper/endpoints/media/apis";
 import { MediasRespBody } from "@helper/endpoints/media/schemas";
 import {
-	deleteBookmark,
 	deletePostById,
 	getPaidPosts,
 	getPostById,
 	getPostFeedForProfile,
-	likePostWithPostId,
-	setBookmark,
-	unlikePostWithPostId,
+	hidePaidPostByIId,
 } from "@helper/endpoints/post/apis";
 import { PostListRespBody } from "@helper/endpoints/post/schemas";
 import {
@@ -73,11 +70,13 @@ import {
 	deleteTier,
 	getHighlightById,
 	getPlaylists,
+	updateMyProfile,
 } from "@helper/endpoints/profile/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFeatureGates } from "@state/featureGates";
 import {
+	ActionType,
 	IconTypes,
 	MediaType,
 	PostStepTypes,
@@ -95,6 +94,7 @@ import {
 	ProfileFlags,
 } from "@usertypes/types";
 import { checkEnableMediasLoadingMore } from "@utils/common";
+import { post2PostFormData } from "@utils/posts";
 import { getBirthdayString } from "@utils/stringHelper";
 import { useBlankLink } from "@utils/useBlankLink";
 import useClipboard from "@utils/useClipboard";
@@ -168,6 +168,7 @@ const CreatorProfileScreen = (
 	const [openAvatarModal, setOpenAvatarModal] = useState(false);
 	const [openShopPostMenus, setOpenShopPostMenus] = useState(false);
 	const [openPostAnalytics, setOpenPostAnalytics] = useState(false);
+	const [openPostPurchased, setOpenPostPurchased] = useState(false);
 
 	const onCreateNewPost = () => {
 		if (postFormStep === PostStepTypes.Empty) {
@@ -203,6 +204,7 @@ const CreatorProfileScreen = (
 					screen: "Highlight",
 					highlightId: highlight.id,
 					userId: profile.userId,
+					storyId: highlight.stories[0].id,
 				},
 			});
 		}
@@ -233,77 +235,6 @@ const CreatorProfileScreen = (
 			});
 		}
 		dispatch.setHideLoading();
-	};
-
-	const onClickBookmark = async (id: string) => {
-		const post =
-			posts.posts.find((el) => el.id === id) ??
-			paidPosts.posts.find((el) => el.id === id);
-		if (post?.isBookmarked) {
-			const resp = await deleteBookmark(null, { id });
-			if (resp.ok) {
-				setPosts({
-					...posts,
-					posts: posts.posts.map((el) =>
-						el.id === id
-							? {
-									...el,
-									isBookmarked:
-										resp.data.updatedPost.isBookmarked,
-									bookmarkCount:
-										resp.data.updatedPost.bookmarkCount,
-							  }
-							: el,
-					),
-				});
-				setPaidPosts({
-					...paidPosts,
-					posts: paidPosts.posts.map((el) =>
-						el.id === id
-							? {
-									...el,
-									isBookmarked:
-										resp.data.updatedPost.isBookmarked,
-									bookmarkCount:
-										resp.data.updatedPost.bookmarkCount,
-							  }
-							: el,
-					),
-				});
-			}
-		} else {
-			const resp = await setBookmark(null, { id });
-			if (resp.ok) {
-				setPosts({
-					...posts,
-					posts: posts.posts.map((el) =>
-						el.id === id
-							? {
-									...el,
-									isBookmarked:
-										resp.data.updatedPost.isBookmarked,
-									bookmarkCount:
-										resp.data.updatedPost.bookmarkCount,
-							  }
-							: el,
-					),
-				});
-				setPaidPosts({
-					...paidPosts,
-					posts: paidPosts.posts.map((el) =>
-						el.id === id
-							? {
-									...el,
-									isBookmarked:
-										resp.data.updatedPost.isBookmarked,
-									bookmarkCount:
-										resp.data.updatedPost.bookmarkCount,
-							  }
-							: el,
-					),
-				});
-			}
-		}
 	};
 
 	const fetchPlaylists = async () => {
@@ -393,73 +324,6 @@ const CreatorProfileScreen = (
 			posts: posts.posts.filter((post) => post.id !== selectedPostId),
 		});
 		await dispatch.fetchProfile();
-	};
-
-	const handleLikePost = async (postId: string) => {
-		const post =
-			posts.posts.find((el) => el.id === postId) ??
-			paidPosts.posts.find((el) => el.id === postId);
-		if (post?.isLiked) {
-			const resp = await unlikePostWithPostId(null, {
-				id: postId,
-			});
-			if (resp.ok) {
-				setPosts({
-					...posts,
-					posts: posts.posts.map((el) =>
-						el.id === postId
-							? {
-									...el,
-									likeCount: resp.data.likeCount,
-									isLiked: resp.data.isLiked,
-							  }
-							: el,
-					),
-				});
-				setPaidPosts({
-					...paidPosts,
-					posts: paidPosts.posts.map((el) =>
-						el.id === postId
-							? {
-									...el,
-									likeCount: resp.data.likeCount,
-									isLiked: resp.data.isLiked,
-							  }
-							: el,
-					),
-				});
-			}
-		} else {
-			const resp = await likePostWithPostId(null, {
-				id: postId,
-			});
-			if (resp.ok) {
-				setPosts({
-					...posts,
-					posts: posts.posts.map((el) =>
-						el.id === postId
-							? {
-									...el,
-									likeCount: resp.data.likeCount,
-									isLiked: resp.data.isLiked,
-							  }
-							: el,
-					),
-				});
-				setPaidPosts({
-					...paidPosts,
-					posts: paidPosts.posts.map((el) =>
-						el.id === postId
-							? {
-									...el,
-									likeCount: resp.data.likeCount,
-									isLiked: resp.data.isLiked,
-							  }
-							: el,
-					),
-				});
-			}
-		}
 	};
 
 	const onClickSocialLink = (url: string) => {
@@ -603,6 +467,7 @@ const CreatorProfileScreen = (
 				params: {
 					screen: "Profile",
 					userId: profile.userId,
+					storyId: profile.stories[0].id,
 				},
 			});
 		} else {
@@ -673,6 +538,30 @@ const CreatorProfileScreen = (
 		});
 	};
 
+	const onEditPostCallback = () => {
+		setOpenPostActions(false);
+		// dispatch.setCommon({
+		// 	type: CommonActionType.toggleNewPostTypesModal,
+		// 	data: true,
+		// });
+
+		const focusedPost = posts.posts.find((el) => el.id === selectedPostId);
+		if (!focusedPost) return;
+
+		dispatch.setPosts({
+			type: PostsActionType.updatePostForm,
+			data: post2PostFormData(focusedPost),
+		});
+
+		dispatch.setPosts({
+			type: PostsActionType.updatePostModal,
+			data: {
+				visible: true,
+				step: PostStepTypes.Caption,
+			},
+		});
+	};
+
 	const onPinCallback = (post: IPost) => {
 		const focusedPost = posts.posts.find((el) => el.id === post.id) || post;
 		setOpenPostActions(false);
@@ -723,14 +612,27 @@ const CreatorProfileScreen = (
 		});
 	};
 
-	const postLiveModalCallback = async (postId: string) => {
+	const postLiveModalCallback = async (
+		postId: string,
+		action: ActionType,
+	) => {
 		if (tw.prefixMatch("md")) {
 			const resp = await getPostById({ id: postId });
-			if (resp.ok && resp.data.isPosted) {
+			if (action === ActionType.Create && resp.ok && resp.data.isPosted) {
 				setPosts({
 					...posts,
 					total: posts.total + 1,
 					posts: [resp.data, ...posts.posts],
+				});
+			} else if (action === ActionType.Update && resp.ok) {
+				const newPosts = posts.posts;
+				const position = posts.posts.findIndex(
+					(el) => el.id === postId,
+				);
+				newPosts.splice(position, 1, resp.data);
+				setPosts({
+					...posts,
+					posts: [...newPosts],
 				});
 			}
 		} else {
@@ -765,7 +667,21 @@ const CreatorProfileScreen = (
 		setOpenPostAnalytics(true);
 	};
 
-	const onShopHide = () => {
+	const onShopHide = async () => {
+		const resp = await hidePaidPostByIId(null, { id: selectedPostId });
+		if (resp.ok) {
+			setPaidPosts({
+				...paidPosts,
+				posts: paidPosts.posts.filter(
+					(post) => post.id !== selectedPostId,
+				),
+			});
+		} else {
+			Toast.show({
+				type: "error",
+				text1: resp.data.message,
+			});
+		}
 		setOpenShopPostMenus(false);
 	};
 
@@ -801,6 +717,7 @@ const CreatorProfileScreen = (
 			iconType: IconTypes.Statistics,
 			onClick: onShopViewAnalytics,
 			iconSize: 18,
+			hide: !featureGates.has("2024_02-shop-analytics"),
 		},
 		{
 			title: "Hide from shop",
@@ -816,6 +733,48 @@ const CreatorProfileScreen = (
 			labelClass: "text-fans-red",
 		},
 	];
+
+	const updatePostCallback = (postId: string, data: Partial<IPost>) => {
+		setPosts({
+			...posts,
+			posts: posts.posts.map((el) =>
+				el.id === postId
+					? {
+							...el,
+							...data,
+					  }
+					: el,
+			),
+		});
+		setPaidPosts({
+			...paidPosts,
+			posts: paidPosts.posts.map((el) =>
+				el.id === postId
+					? {
+							...el,
+							...data,
+					  }
+					: el,
+			),
+		});
+	};
+
+	const handleUpdateDisplayShop = async (val: boolean) => {
+		const resp = await updateMyProfile({ isDisplayShop: val });
+		if (resp.ok) {
+			dispatch.setProfile({
+				type: ProfileActionType.updateProfile,
+				data: {
+					isDisplayShop: val,
+				},
+			});
+		} else {
+			Toast.show({
+				type: "error",
+				text1: resp.data.message,
+			});
+		}
+	};
 
 	useEffect(() => {
 		if (profile.userId) {
@@ -1049,10 +1008,13 @@ const CreatorProfileScreen = (
 									likes={profile.likeCount}
 								/>
 							</FansView>
-							<SocialLinkList
-								data={socialLinks}
-								onClickLink={onClickSocialLink}
-							/>
+							<FansView margin={{ b: 24 }}>
+								<SocialLinkList
+									data={socialLinks}
+									onClickLink={onClickSocialLink}
+								/>
+							</FansView>
+
 							<FansView
 								margin={{ b: 24 }}
 								style={tw.style(
@@ -1164,14 +1126,11 @@ const CreatorProfileScreen = (
 										setSelectedPostId(id);
 										setOpenPostActions(true);
 									}}
-									onClickBookmark={(id) => {
-										onClickBookmark(id);
-									}}
-									onClickPostLike={handleLikePost}
 									onClickComment={(id) => {
 										setSelectedPostId(id);
 										setOpenCommentModal(true);
 									}}
+									updatePostCallback={updatePostCallback}
 								/>
 							)}
 							{tab === "media" && (
@@ -1205,16 +1164,27 @@ const CreatorProfileScreen = (
 							)}
 							{tab === "shop" && (
 								<ShopTabContents
+									profile={profile}
 									posts={paidPosts.posts}
 									onPressPostMenu={(postId) => {
 										setSelectedPostId(postId);
 										setOpenShopPostMenus(true);
 									}}
-									onClickBookmark={onClickBookmark}
-									onClickPostLike={handleLikePost}
 									onClickComment={(postId) => {
 										setSelectedPostId(postId);
 										setOpenCommentModal(true);
+									}}
+									updatePostCallback={updatePostCallback}
+									onToggleDisplayShop={
+										handleUpdateDisplayShop
+									}
+									onViewGraph={(postId) => {
+										setSelectedPostId(postId);
+										setOpenPostAnalytics(true);
+									}}
+									onViewPurchased={(postId) => {
+										setSelectedPostId(postId);
+										setOpenPostPurchased(true);
 									}}
 								/>
 							)}
@@ -1236,6 +1206,7 @@ const CreatorProfileScreen = (
 				onPinCallback={onPinCallback}
 				onArchivePostCallback={onArchivePostCallback}
 				onTrashCallback={onTrashCallback}
+				onEditPostCallback={onEditPostCallback}
 			/>
 
 			<ShareDialog open={openShare} onClose={() => setOpenShare(false)} />
@@ -1264,9 +1235,16 @@ const CreatorProfileScreen = (
 				actions={shopPostActions}
 			/>
 			<PostAnalyticsModal
-				visible={openPostAnalytics}
-				onDismiss={() => setOpenPostAnalytics(false)}
+				visible={openPostAnalytics || openPostPurchased}
+				showFans={openPostPurchased}
+				onDismiss={() => {
+					setOpenPostAnalytics(false);
+					setOpenPostPurchased(false);
+				}}
 				handleOpenMessage={() => {}}
+				post={paidPosts.posts.find(
+					(post) => post.id === selectedPostId,
+				)}
 			/>
 		</AppLayout>
 	);

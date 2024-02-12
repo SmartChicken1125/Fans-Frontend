@@ -366,6 +366,7 @@ export interface FansModalProps
 		Pick<FansViewProps, "width" | "height"> {
 	modalStyle?: Pick<FansViewProps, "alignItems" | "padding">;
 	code?: string;
+	username?: string;
 	onClose: () => void;
 	onSubmit: (value?: string) => void;
 }

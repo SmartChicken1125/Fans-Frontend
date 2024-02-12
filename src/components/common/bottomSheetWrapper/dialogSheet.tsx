@@ -48,7 +48,7 @@ const DialogSheet: FC<Props> = (props) => {
 				visible={open}
 				onDismiss={onClose}
 				style={tw.style(
-					"px-0 mx-0 mb-0 mt-auto w-full md:my-auto md:mx-auto md:max-w-100",
+					"px-0 mx-0 mb-0 mt-auto w-full md:my-auto md:mx-auto md:max-w-100 overflow-hidden bg-transparent",
 					dialogWrapperStyle,
 				)}
 			>
@@ -65,9 +65,7 @@ const DialogSheet: FC<Props> = (props) => {
 				>
 					<FypNullableView visible={!hideTopLine}>
 						<GestureDetector gesture={panGesture}>
-							<Pressable
-								style={tw.style("pt-4 md:pt-5 cursor-pointer")}
-							>
+							<Pressable style={tw.style("pt-4 md:pt-5")}>
 								<View
 									style={tw.style(
 										"w-[38px] h-1 bg-[rgba(112,112,112,0.4)] rounded-[4px] mx-auto mb-[18px] md:rounded-t-[15px] md:rounded-b-[15px]",

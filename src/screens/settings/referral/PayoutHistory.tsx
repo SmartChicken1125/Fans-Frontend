@@ -9,6 +9,7 @@ import {
 	FansText,
 	FansView,
 } from "@components/controls";
+import { formatPrice } from "@helper/Utils";
 import tw from "@lib/tailwind";
 import { useFeatureGates } from "@state/featureGates";
 import { RoundButtonType } from "@usertypes/commonEnums";
@@ -81,7 +82,7 @@ const PaymentHistorySheet: IFansSheet = (props) => {
 								fontFamily="inter-semibold"
 								fontSize={14}
 							>
-								${total}
+								{formatPrice(total)}
 							</FansText>
 						</FansView>
 						<FansGap height={6} />

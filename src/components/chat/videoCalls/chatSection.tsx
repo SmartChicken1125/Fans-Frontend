@@ -2,23 +2,20 @@ import ChatItem from "@components/chat/ChatItem";
 import { FansView } from "@components/controls";
 import tw from "@lib/tailwind";
 import { chatInboxAtom } from "@state/chat";
-import { useMessageView } from "@state/messagesView";
+import { ISendOptions, useMessageView } from "@state/messagesView";
 import { IMessage, IProfile } from "@usertypes/types";
-import { IUploadedFile } from "@utils/useUploadFile";
-import { useLocalSearchParams } from "expo-router";
-import React, { FC, useState, useRef } from "react";
+import React, { FC, useRef, useState } from "react";
 import { Animated as ReAnimated, VirtualizedList } from "react-native";
 import { useRecoilValue } from "recoil";
-import ChatInput from "./chatInput";
+import MessageInput from "../MessageInput";
 
 interface Props {
+	chatId: string;
 	profile: IProfile;
 }
 
 const ChatSection: FC<Props> = (props) => {
-	const { profile } = props;
-	const { id } = useLocalSearchParams();
-	const chatId = (id as string) ?? "0";
+	const { profile, chatId } = props;
 
 	const listMessages = useRef<VirtualizedList<IMessage> | null>(null);
 	const [imageViewModalData, setImageViewModalData] = useState<
@@ -34,16 +31,8 @@ const ChatSection: FC<Props> = (props) => {
 		setImageViewModalData({ data, index });
 	};
 
-	const handleSend = async (
-		message: string,
-		uploadedFiles: IUploadedFile[],
-	) => {
-		if (uploadedFiles.length > 0) {
-			await messagesView?.sendImageMessage(uploadedFiles);
-		}
-		if (message.length !== 0) {
-			await messagesView?.sendTextMessage(message);
-		}
+	const handleSend = async (options: ISendOptions) => {
+		await messagesView?.sendMessage(options);
 
 		animatedValue.setValue(37);
 		ReAnimated.timing(animatedValue, {
@@ -61,6 +50,16 @@ const ChatSection: FC<Props> = (props) => {
 		messagesView?.scrolledToTop();
 	};
 
+	const handleDeleteMessage = (message: IMessage) => {
+		messagesView?.deleteMessageById(message.id);
+	};
+
+	const handleReplyMessage = (message: IMessage) => {
+		messagesView?.setReplyToMessage(message);
+	};
+
+	const handleReportMessage = (message: IMessage) => {};
+
 	return (
 		<FansView flex="1">
 			<FansView height={0} grow>
@@ -74,7 +73,10 @@ const ChatSection: FC<Props> = (props) => {
 							animatedValue={animatedValue}
 							handleActivatedDoubleTapMessage={() => {}}
 							handleActivatedTapMessage={() => {}}
-							onPressImage={handlePressImage}
+							onPressMedia={handlePressImage}
+							onDeleteMessage={handleDeleteMessage}
+							onReplyMessage={handleReplyMessage}
+							onReportMessage={handleReportMessage}
 						/>
 					)}
 					style={tw.style("pt-5")}
@@ -90,7 +92,7 @@ const ChatSection: FC<Props> = (props) => {
 				/>
 			</FansView>
 			{conversation ? (
-				<ChatInput
+				<MessageInput
 					onSend={handleSend}
 					creator={conversation.otherParticipant}
 				/>

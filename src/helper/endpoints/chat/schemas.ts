@@ -2,9 +2,11 @@
 // frontend: helper/endpoints/chat/schemas.ts
 // backend: web/routes/chat/schemas.ts
 import {
+	MessageReportFlag,
 	IConversationMeta,
 	IMessage,
 	MessageType,
+	IMedia,
 } from "@helper/CommonAPISchemas";
 
 export interface ChatPaginatedQuery {
@@ -103,4 +105,26 @@ export interface ChatAutomatedMessageWelcomeRespBody {
 	text: string;
 	image?: string;
 	enabled: boolean;
+}
+
+export interface CreateMessageReportReqBody {
+	messageId: string;
+	reportFlag: MessageReportFlag;
+	reason?: string;
+}
+
+export interface MediasRespBody {
+	medias: IMedia[];
+	page: number;
+	size: number;
+	total: number;
+	videoTotal?: number;
+	imageTotal?: number;
+	hasAccess: boolean;
+}
+
+export interface ChannelMediaPageQuery {
+	page: number;
+	size: number;
+	type?: string;
 }

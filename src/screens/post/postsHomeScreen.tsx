@@ -5,6 +5,7 @@ import {
 	FypNullableView,
 	FypSvg,
 	FypText,
+	FypButton2,
 } from "@components/common/base";
 import CardActions from "@components/common/cardActions";
 import AppLayout, { LayoutContentsContainer } from "@components/common/layout";
@@ -27,7 +28,10 @@ import PostCard from "@components/posts/postCard";
 import SuggestProfiles from "@components/posts/suggestProfiles";
 import { PwaInstallCard } from "@components/pwa";
 import { defaultPostFormData } from "@constants/defaultFormData";
-import { POST_REPORT_DIALOG_ID } from "@constants/modal";
+import {
+	POST_REPORT_DIALOG_ID,
+	PENDING_ORDERS_DIALOG_ID,
+} from "@constants/modal";
 import {
 	CommonActionType,
 	ModalActionType,
@@ -36,22 +40,19 @@ import {
 	useAppContext,
 } from "@context/useAppContext";
 import {
-	deleteBookmark,
 	getPostById,
 	getPostFeedForHomepage,
 	hidePostFromFeed,
-	likePostWithPostId,
-	setBookmark,
-	unlikePostWithPostId,
 } from "@helper/endpoints/post/apis";
 import { PostListRespBody } from "@helper/endpoints/post/schemas";
 import { getStoriesFeed } from "@helper/endpoints/stories/apis";
-import { getUserlists, updateUserlist } from "@helper/endpoints/userlist/apis";
+import { getUserlists } from "@helper/endpoints/userlist/apis";
 import { UserlistsRespBody } from "@helper/endpoints/userlist/schemas";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFeatureGates } from "@state/featureGates";
 import {
+	ActionType,
 	IconTypes,
 	PostStepTypes,
 	PostType,
@@ -73,6 +74,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
+import PinchImage from "./pinchImage";
 
 const PostsHomeScreen = (
 	props: NativeStackScreenProps<PostsNavigationStacks, "Home">,
@@ -111,7 +113,7 @@ const PostsHomeScreen = (
 		size: 10,
 		total: 0,
 	});
-	const [userListId, setUserListId] = useState<string>("all");
+	const [userListId, setUserListId] = useState<string>("");
 
 	const featureGates = useFeatureGates();
 
@@ -176,86 +178,6 @@ const PostsHomeScreen = (
 		}
 	};
 
-	const onChangeLike = async (id: string) => {
-		const post = posts.posts.find((el) => el.id === id);
-		if (post?.isLiked) {
-			const resp = await unlikePostWithPostId(null, {
-				id: id,
-			});
-			if (resp.ok) {
-				setPosts({
-					...posts,
-					posts: posts.posts.map((el) =>
-						el.id === id
-							? {
-									...el,
-									likeCount: resp.data.likeCount,
-									isLiked: resp.data.isLiked,
-							  }
-							: el,
-					),
-				});
-			}
-		} else {
-			const resp = await likePostWithPostId(null, { id: id });
-			if (resp.ok) {
-				setPosts({
-					...posts,
-					posts: posts.posts.map((el) =>
-						el.id === id
-							? {
-									...el,
-									likeCount: resp.data.likeCount,
-									isLiked: resp.data.isLiked,
-							  }
-							: el,
-					),
-				});
-			}
-		}
-	};
-
-	const onClickBookmark = async (id: string) => {
-		const post = posts.posts.find((el) => el.id === id);
-		if (post?.isBookmarked) {
-			const resp = await deleteBookmark(null, { id });
-			if (resp.ok) {
-				setPosts({
-					...posts,
-					posts: posts.posts.map((el) =>
-						el.id === id
-							? {
-									...el,
-									isBookmarked:
-										resp.data.updatedPost.isBookmarked,
-									bookmarkCount:
-										resp.data.updatedPost.bookmarkCount,
-							  }
-							: el,
-					),
-				});
-			}
-		} else {
-			const resp = await setBookmark(null, { id });
-			if (resp.ok) {
-				setPosts({
-					...posts,
-					posts: posts.posts.map((el) =>
-						el.id === id
-							? {
-									...el,
-									isBookmarked:
-										resp.data.updatedPost.isBookmarked,
-									bookmarkCount:
-										resp.data.updatedPost.bookmarkCount,
-							  }
-							: el,
-					),
-				});
-			}
-		}
-	};
-
 	const onClickMessage = (id: string) => {
 		setSelectedPostId(id);
 		setOpenMessageDialog(true);
@@ -264,30 +186,6 @@ const PostsHomeScreen = (
 	const onClickPostActionMenu = (id: string) => {
 		setSelectedPostId(id);
 		setOpenPostActions(true);
-	};
-
-	const onChangeUserListActive = async (
-		userListId: string,
-		active: boolean,
-	) => {
-		const resp = await updateUserlist(
-			{ isActive: active },
-			{ id: userListId },
-		);
-		if (resp.ok) {
-			setUserLists({
-				...userLists,
-				userlists: userLists.userlists.map((userlist) =>
-					userlist.id === userListId
-						? {
-								...userlist,
-								isActive: active,
-						  }
-						: userlist,
-				),
-			});
-		}
-		// setOpenCreatingUsers(false);
 	};
 
 	const onCreateNewPost = () => {
@@ -377,6 +275,10 @@ const PostsHomeScreen = (
 	};
 
 	const onSelectUserList = (val: string) => {
+		setPosts({
+			...posts,
+			page: 1,
+		});
 		setUserListId(val);
 	};
 
@@ -385,7 +287,7 @@ const PostsHomeScreen = (
 	};
 
 	const getUserLists = async () => {
-		const resp = await getUserlists();
+		const resp = await getUserlists({ enabled: true });
 		if (resp.ok) {
 			setUserLists(resp.data);
 		}
@@ -433,19 +335,46 @@ const PostsHomeScreen = (
 		});
 	};
 
-	const postLiveModalCallback = async (postId: string) => {
+	const postLiveModalCallback = async (
+		postId: string,
+		action: ActionType,
+	) => {
 		if (tw.prefixMatch("md")) {
 			const resp = await getPostById({ id: postId });
-			if (resp.ok && resp.data.isPosted) {
+			if (action === ActionType.Create && resp.ok && resp.data.isPosted) {
 				setPosts({
 					...posts,
 					total: posts.total + 1,
 					posts: [resp.data, ...posts.posts],
 				});
+			} else if (action === ActionType.Update && resp.ok) {
+				const newPosts = posts.posts;
+				const position = posts.posts.findIndex(
+					(el) => el.id === postId,
+				);
+				newPosts.splice(position, 1, resp.data);
+				setPosts({
+					...posts,
+					posts: [...newPosts],
+				});
 			}
 		} else {
 			getPostFeeds();
 		}
+	};
+
+	const updatePostCallback = (postId: string, data: Partial<IPost>) => {
+		setPosts({
+			...posts,
+			posts: posts.posts.map((el) =>
+				el.id === postId
+					? {
+							...el,
+							...data,
+					  }
+					: el,
+			),
+		});
 	};
 
 	const postActions: ICardAction[] = [
@@ -539,8 +468,33 @@ const PostsHomeScreen = (
 							{featureGates.has(
 								"2024_01-rejoin-active-video-call",
 							) ? (
-								<FansView margin={{ t: 20 }}>
+								<FansView
+									margin={{ t: 20 }}
+									style={tw.style("px-[18px] md:px-0")}
+								>
 									<RejoinVideoCallCard />
+								</FansView>
+							) : null}
+							{featureGates.has(
+								"2024_01-pending-orders-modal",
+							) ? (
+								<FansView margin={{ y: 20 }}>
+									<FypButton2
+										style={tw.style("bg-fans-purple")}
+										textStyle={tw.style("text-fans-white")}
+										pressableProps={{
+											onPress: () =>
+												dispatch.setModal({
+													type: ModalActionType.showModal,
+													data: {
+														id: PENDING_ORDERS_DIALOG_ID,
+														show: true,
+													},
+												}),
+										}}
+									>
+										Open Pending Orders Modal
+									</FypButton2>
 								</FansView>
 							) : null}
 							<FypHorizontalScrollView
@@ -627,8 +581,8 @@ const PostsHomeScreen = (
 								>
 									<FilterButton
 										title="All"
-										onClick={() => onSelectUserList("all")}
-										isSelected={userListId === "all"}
+										onClick={() => onSelectUserList("")}
+										isSelected={userListId === ""}
 									/>
 									{userLists.userlists.map((userList) => (
 										<FilterButton
@@ -673,12 +627,6 @@ const PostsHomeScreen = (
 									<Fragment key={post.id}>
 										<PostCard
 											data={post}
-											onClickBookmark={() =>
-												onClickBookmark(post.id)
-											}
-											onClickLike={() =>
-												onChangeLike(post.id)
-											}
 											onClickActionMenu={() =>
 												onClickPostActionMenu(post.id)
 											}
@@ -692,6 +640,9 @@ const PostsHomeScreen = (
 												setSelectedPostId(post.id);
 												setOpenCommentModal(true);
 											}}
+											updatePostCallback={
+												updatePostCallback
+											}
 										/>
 										<FansDivider
 											style={tw.style(
@@ -760,6 +711,9 @@ const PostsHomeScreen = (
 									</View>
 								)}
 							</View>
+							{featureGates.has("2024_02-test-pinch-gesture") ? (
+								<PinchImage />
+							) : null}
 						</View>
 					</LayoutContentsContainer>
 				</ScrollView>
@@ -779,8 +733,6 @@ const PostsHomeScreen = (
 					setOpenCreatingUsers(false);
 					getUserLists();
 				}}
-				usersLists={userLists.userlists}
-				onChangeUserListActive={onChangeUserListActive}
 			/>
 
 			<CardActions
@@ -797,7 +749,7 @@ const PostsHomeScreen = (
 				onCallback={onCommentCallback}
 			/>
 			<PostLiveDialog closeCallback={postLiveModalCallback} />
-			{/* <PendingOrdersModal /> */}
+			<PendingOrdersModal />
 		</AppLayout>
 	);
 };

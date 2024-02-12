@@ -25,6 +25,7 @@ import {
 	CreateProfileReportReqBody,
 	CreateSubscriptionReqBody,
 	CreatorProfileRespBody,
+	GetBlockedUsersRespBody,
 	GetProfilesRespBody,
 	HighlightReqBody,
 	HighlightRespBody,
@@ -39,11 +40,12 @@ import {
 	ProfilePreviewReqBody,
 	ProfileReqBody,
 	ProfilesRespBody,
+	SearchUsersToBlockRespBody,
 	SocialLinksRespBody,
 	SuggestedProfilesRespBody,
 	TierReqBody,
-	TransactionReqQueryParams,
 	TransactionRespBody,
+	UpdateProfilePreviewRespBody,
 	UpdateSocialLinksReqBody,
 } from "./schemas";
 
@@ -78,10 +80,10 @@ export const updateSocialLinks = createPOST<
 	UpdateSocialLinksReqBody,
 	SocialLinksRespBody
 >("/profiles/social-link", true);
-export const updateProfilePreview = createPUT<ProfilePreviewReqBody, never>(
-	"/profiles/me/preview",
-	true,
-);
+export const updateProfilePreview = createPUT<
+	ProfilePreviewReqBody,
+	UpdateProfilePreviewRespBody
+>("/profiles/me/preview", true);
 
 // subscriptions
 export const createSubscription = createPOST<
@@ -221,10 +223,10 @@ export const getLocations = createGET<LocationsRespBody>(
 	true,
 );
 
-export const getUserTransactions = createGETWithParams<
-	TransactionRespBody,
-	TransactionReqQueryParams
->("/profile/payments/user-transactions", true);
+export const getUserTransactions = createGET<TransactionRespBody>(
+	"/profile/payments/user-transactions",
+	true,
+);
 
 export const blockProfile = createPOSTWithParams<unknown, unknown, IdParams>(
 	"/profiles/block/:id",
@@ -284,5 +286,25 @@ export const popupStatus = createGET<PopupStatusRespBody>(
 
 export const searchCreators = createGET<ProfilesRespBody>(
 	"/profiles/search",
+	true,
+);
+
+export const getBlockedUsers = createGET<GetBlockedUsersRespBody>(
+	"/profile/block-user",
+	true,
+);
+
+export const blockUser = createPOSTWithParams<unknown, unknown, IdParams>(
+	"/profile/block-user/:id",
+	true,
+);
+
+export const unblockUser = createDELETEWithParams<unknown, unknown, IdParams>(
+	"/profile/block-user/:id",
+	true,
+);
+
+export const searchUsersToBlock = createGET<SearchUsersToBlockRespBody>(
+	"/profile/block-user/search-user",
 	true,
 );

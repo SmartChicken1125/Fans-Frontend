@@ -1,10 +1,11 @@
 import { ReportType } from "@usertypes/commonEnums";
-import { IUserInfo, ISubscriber, ITransactionCreator } from "@usertypes/types";
+import { ISubscriber, ITransactionCreator, IUserInfo } from "@usertypes/types";
 
 export type CreateReportReqBody = {
 	userId: string;
 	flag: ReportType;
 	reason: string;
+	image?: string;
 };
 
 export interface EarningsReqBody {

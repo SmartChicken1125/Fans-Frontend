@@ -1,15 +1,13 @@
-import { FypNullableView, FypVideo } from "@components/common/base";
-import { FansView } from "@components/controls";
-import { cdnURL } from "@helper/Utils";
+import { FypNullableView, FypText, FypVideo } from "@components/common/base";
+import { cdnURL, urlOrBlurHash } from "@helper/Utils";
 import tw from "@lib/tailwind";
 import { MediaType, ResizeMode } from "@usertypes/commonEnums";
-import { Image as EImage } from "expo-image";
-import React, { FC, useState, useEffect } from "react";
-import { View, Platform, Pressable, Image } from "react-native";
+import React, { FC, useEffect, useId, useState } from "react";
+import { Image, Platform, Pressable, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
-	useSharedValue,
 	useAnimatedStyle,
+	useSharedValue,
 	withSpring,
 } from "react-native-reanimated";
 import Carousel from "react-native-reanimated-carousel";
@@ -27,6 +25,71 @@ interface Props {
 	showBadge?: boolean;
 	defaultIndex?: number;
 	useButtons?: boolean;
+	watermark?: string;
+}
+
+function MediaElement({
+	id,
+	item,
+	index,
+	resizeMode,
+	watermark,
+	setImageWidth,
+	setImageHeight,
+	rightPadding,
+	bottomPadding,
+}: {
+	id: string;
+	item: { url?: string; blurhash?: string; mediaType: MediaType };
+	index: number;
+	resizeMode: ResizeMode;
+	watermark?: string;
+	setImageWidth: (width: number) => void;
+	setImageHeight: (height: number) => void;
+	rightPadding: number;
+	bottomPadding: number;
+}) {
+	return (
+		<>
+			{item.mediaType === MediaType.Image && (
+				<Image
+					source={{
+						uri: urlOrBlurHash(cdnURL(item.url), item.blurhash),
+					}}
+					style={tw.style("w-full h-full", { pointerEvents: "none" })}
+					resizeMode={resizeMode}
+					onLoad={(event) => {
+						if (!event.nativeEvent.source) return;
+						setImageWidth(event.nativeEvent.source.width);
+						setImageHeight(event.nativeEvent.source.height);
+					}}
+				/>
+			)}
+			{item.mediaType === MediaType.Video && (
+				<FypVideo
+					id={`${id}-${index}`}
+					source={{
+						uri: cdnURL(item.url) ?? "",
+					}}
+					style={[tw.style("w-full h-full")]}
+					resizeMode={resizeMode}
+				/>
+			)}
+
+			{watermark && (
+				<FypText
+					fontSize={17}
+					color="white"
+					style={tw.style(
+						`right-[${rightPadding}px] bottom-[${bottomPadding}px] absolute`,
+						{ pointerEvents: "none" },
+					)}
+				>
+					{watermark}
+				</FypText>
+			)}
+		</>
+	);
 }
 
 const FansCarousel: FC<Props> = (props) => {
@@ -40,10 +103,12 @@ const FansCarousel: FC<Props> = (props) => {
 		showBadge,
 		defaultIndex = 0,
 		useButtons,
+		watermark,
 	} = props;
 	const [imgIndex, setImgIndex] = useState(0);
 	const offset = useSharedValue(0);
 	const positionX = useSharedValue(0);
+	const fallbackId = useId();
 
 	const carouselStyles = useAnimatedStyle(() => {
 		return {
@@ -106,6 +171,43 @@ const FansCarousel: FC<Props> = (props) => {
 		offset.value = defaultIndex;
 	}, [defaultIndex]);
 
+	const [rightPadding, setRightPadding] = useState(17);
+	const [bottomPadding, setBottomPadding] = useState(20);
+	const [imageWidth, setImageWidth] = useState(0);
+	const [imageHeight, setImageHeight] = useState(0);
+
+	useEffect(() => {
+		if (resizeMode !== ResizeMode.CONTAIN) return;
+		if (
+			!(
+				resizeMode === ResizeMode.CONTAIN &&
+				imageWidth > 0 &&
+				imageHeight > 0
+			)
+		)
+			return;
+
+		if (imageWidth / imageHeight > width / height) {
+			setRightPadding(17);
+			setBottomPadding(
+				20 +
+					Math.trunc(
+						(height - (width * imageHeight) / imageWidth) / 2,
+					),
+			);
+		} else {
+			setRightPadding(
+				17 +
+					Math.trunc(
+						(width - (height * imageWidth) / imageHeight) / 2,
+					),
+			);
+			setBottomPadding(20);
+		}
+	}, [imageWidth, imageHeight, width, height]);
+
+	useEffect(() => {}, [rightPadding, bottomPadding]);
+
 	return (
 		<View>
 			<FypNullableView visible={Platform.OS === "web" && !useButtons}>
@@ -123,33 +225,22 @@ const FansCarousel: FC<Props> = (props) => {
 									carouselStyles,
 								]}
 							>
-								{medias.map((el, index) => (
+								{medias.map((item, index) => (
 									<View
 										key={index}
 										style={{ width: width, height: height }}
 									>
-										{el.mediaType === MediaType.Image ? (
-											<EImage
-												source={{
-													uri: cdnURL(el.url),
-												}}
-												style={[
-													tw.style("w-full h-full"),
-												]}
-												resizeMode={resizeMode}
-											/>
-										) : (
-											<FypVideo
-												id={`${id}-${index}`}
-												source={{
-													uri: cdnURL(el.url) ?? "",
-												}}
-												style={[
-													tw.style("w-full h-full"),
-												]}
-												resizeMode={resizeMode}
-											/>
-										)}
+										<MediaElement
+											id={id ?? fallbackId}
+											item={item}
+											index={index}
+											resizeMode={resizeMode}
+											watermark={watermark}
+											setImageWidth={setImageWidth}
+											setImageHeight={setImageHeight}
+											rightPadding={rightPadding}
+											bottomPadding={bottomPadding}
+										/>
 									</View>
 								))}
 							</Animated.View>
@@ -184,29 +275,22 @@ const FansCarousel: FC<Props> = (props) => {
 									}
 								}}
 							>
-								{item.mediaType === MediaType.Image ? (
-									<EImage
-										source={{
-											uri: cdnURL(item.url),
-										}}
-										style={[
-											tw.style("w-full h-full"),
-											{
-												pointerEvents: "none",
-											},
-										]}
+								<View
+									key={index}
+									style={{ width: width, height: height }}
+								>
+									<MediaElement
+										id={id ?? fallbackId}
+										item={item}
+										index={index}
 										resizeMode={resizeMode}
+										watermark={watermark}
+										setImageWidth={setImageWidth}
+										setImageHeight={setImageHeight}
+										rightPadding={rightPadding}
+										bottomPadding={bottomPadding}
 									/>
-								) : (
-									<FypVideo
-										id={`${id}-${index}`}
-										source={{
-											uri: cdnURL(item.url) ?? "",
-										}}
-										style={[tw.style("w-full h-full")]}
-										resizeMode={resizeMode}
-									/>
-								)}
+								</View>
 							</Pressable>
 						))}
 					</Animated.View>
@@ -253,23 +337,17 @@ const FansCarousel: FC<Props> = (props) => {
 								}}
 								key={index}
 							>
-								{item.mediaType === MediaType.Image ? (
-									<EImage
-										source={{
-											uri: cdnURL(item.url),
-										}}
-										style={[tw.style("w-full h-full")]}
-										resizeMode={resizeMode}
-									/>
-								) : (
-									<FypVideo
-										id={`${id}-${index}`}
-										source={{
-											uri: cdnURL(item.url) ?? "",
-										}}
-										resizeMode={resizeMode}
-									/>
-								)}
+								<MediaElement
+									id={id ?? fallbackId}
+									item={item}
+									index={index}
+									resizeMode={resizeMode}
+									watermark={watermark}
+									setImageWidth={setImageWidth}
+									setImageHeight={setImageHeight}
+									rightPadding={rightPadding}
+									bottomPadding={bottomPadding}
+								/>
 							</Pressable>
 						);
 					}}

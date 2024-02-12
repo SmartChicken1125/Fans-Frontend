@@ -50,6 +50,7 @@ export const colors: ThemeColors = {
 		green: "green-29",
 		"red-eb": "red-eb",
 		black: "white",
+		"grey-48": "grey-b1",
 		"grey-70": "grey-b1",
 		"grey-b1": "grey-70",
 		"grey-de": "grey-50",

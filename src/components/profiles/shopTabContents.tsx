@@ -2,22 +2,25 @@ import {
 	PlaySvg,
 	PlusSvg,
 	PushNotificationSvg,
-	SortAscSvg,
-	SortDescSvg,
 	StarCheckSvg,
 } from "@assets/svgs/common";
-import { FypSvg, FypSwitch, FypText } from "@components/common/base";
+import {
+	FypNullableView,
+	FypSvg,
+	FypSwitch,
+	FypText,
+	FypSortButton,
+} from "@components/common/base";
 import { FansDivider, FansView } from "@components/controls";
 import PostCard from "@components/posts/postCard";
 import { defaultPostFormData } from "@constants/defaultFormData";
 import { PostsActionType, useAppContext } from "@context/useAppContext";
 import tw from "@lib/tailwind";
 import { PostStepTypes, PostType } from "@usertypes/commonEnums";
-import { IPost } from "@usertypes/types";
+import { IPost, IProfile, SortType } from "@usertypes/types";
 import useDocumentPicker from "@utils/useDocumentPicker";
 import { useRouter } from "expo-router";
 import React, { FC, useState } from "react";
-import Animated, { PinwheelIn, PinwheelOut } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 
 interface DescriptionItemProps {
@@ -135,118 +138,99 @@ export const StartSellingContents = () => {
 
 interface ShopContentsProps {
 	posts: IPost[];
+	isDisplayShop: boolean;
 	onPressPostMenu: (postId: string) => void;
 	onPressAddNew: () => void;
-	onClickBookmark: (postId: string) => void;
-	onClickPostLike: (postId: string) => void;
 	onClickComment: (postId: string) => void;
 	onClickPostMessage?: (postId: string) => void;
+	updatePostCallback: (postId: string, data: Partial<IPost>) => void;
+	onToggleDisplayShop?: (val: boolean) => void;
+	onViewGraph?: (postId: string) => void;
+	onViewPurchased?: (postId: string) => void;
 }
 
 export const ShopContents: FC<ShopContentsProps> = (props) => {
 	const {
 		posts,
+		isDisplayShop,
 		onPressPostMenu,
 		onPressAddNew,
-		onClickBookmark,
-		onClickPostLike,
 		onClickComment,
 		onClickPostMessage,
+		updatePostCallback,
+		onToggleDisplayShop,
+		onViewGraph,
+		onViewPurchased,
 	} = props;
-	const [displayShop, setDisplayShop] = useState(true);
-	const [orderBy, setOrderBy] = useState("newest");
+
+	const [orderBy, setOrderBy] = useState<SortType>("Newest");
 
 	return (
 		<FansView style={tw.style("py-[22px] md:py-10")}>
-			<FansView
-				padding={{ x: 18, b: 24 }}
-				flexDirection="row"
-				alignItems="center"
-				justifyContent="between"
-			>
-				<FypText
-					fontSize={18}
-					lineHeight={24}
-					style={tw.style("text-fans-black dark:text-fans-white")}
+			{onToggleDisplayShop ? (
+				<FansView
+					padding={{ x: 18, b: 24 }}
+					flexDirection="row"
+					alignItems="center"
+					justifyContent="between"
 				>
-					Display your Shop
-				</FypText>
-				<FypSwitch
-					value={displayShop}
-					onValueChange={(val) => setDisplayShop(val)}
-				/>
-			</FansView>
+					<FypText
+						fontSize={18}
+						lineHeight={24}
+						style={tw.style("text-fans-black dark:text-fans-white")}
+					>
+						Display your Shop
+					</FypText>
+					<FypSwitch
+						value={isDisplayShop}
+						onValueChange={(val) => onToggleDisplayShop(val)}
+					/>
+				</FansView>
+			) : null}
+
 			<FansView padding={{ x: 18, b: 12 }}>
 				<FansDivider />
-				<FansView
-					padding={{ t: 22, b: 25 }}
-					flexDirection="row"
-					alignItems="center"
-					gap={13.2}
-					pressableProps={{
-						onPress: () =>
-							setOrderBy(
-								orderBy === "newest" ? "oldest" : "newest",
-							),
-					}}
-				>
-					<FypSvg
-						width={16.76}
-						height={14.05}
-						svg={orderBy === "oldest" ? SortAscSvg : SortDescSvg}
-						color="fans-grey-70 dark:fans-grey-b1"
-					/>
-					<Animated.View entering={PinwheelIn} exiting={PinwheelOut}>
-						<FypText
-							fontWeight={500}
-							fontSize={17}
-							style={tw.style(
-								"text-fans-grey-70 dark:text-fans-grey-b1",
-							)}
-						>
-							{orderBy === "newest"
-								? "Newest first"
-								: "Oldest first"}
-						</FypText>
-					</Animated.View>
+				<FansView padding={{ t: 22, b: 25 }}>
+					<FypSortButton value={orderBy} handleToggle={setOrderBy} />
 				</FansView>
-				<FansView
-					height={42}
-					borderRadius={42}
-					flexDirection="row"
-					alignItems="center"
-					justifyContent="center"
-					style={tw.style("border border-fans-purple")}
-					gap={10}
-					pressableProps={{
-						onPress: onPressAddNew,
-					}}
-				>
-					<FypSvg
-						svg={PlusSvg}
-						width={13}
-						height={13}
-						color="fans-purple"
-					/>
-					<FypText
-						fontSize={19}
-						fontWeight={700}
-						lineHeight={19}
-						style={tw.style("text-fans-purple")}
+
+				{onToggleDisplayShop ? (
+					<FansView
+						height={42}
+						borderRadius={42}
+						flexDirection="row"
+						alignItems="center"
+						justifyContent="center"
+						style={tw.style("border border-fans-purple")}
+						gap={10}
+						pressableProps={{
+							onPress: onPressAddNew,
+						}}
 					>
-						Add new
-					</FypText>
-				</FansView>
+						<FypSvg
+							svg={PlusSvg}
+							width={13}
+							height={13}
+							color="fans-purple"
+						/>
+						<FypText
+							fontSize={19}
+							fontWeight={700}
+							lineHeight={19}
+							style={tw.style("text-fans-purple")}
+						>
+							Add new
+						</FypText>
+					</FansView>
+				) : null}
 			</FansView>
 			<FansView gap={18}>
 				{posts.map((post) => (
 					<PostCard
 						key={post.id}
 						data={post}
-						shopCard
+						shopCard={!!onToggleDisplayShop}
 						onClickUnlock={() => {}}
-						onClickBookmark={() => onClickBookmark(post.id)}
-						onClickLike={() => onClickPostLike(post.id)}
 						onClickActionMenu={() => onPressPostMenu(post.id)}
 						onClickMessage={
 							onClickPostMessage
@@ -254,6 +238,9 @@ export const ShopContents: FC<ShopContentsProps> = (props) => {
 								: undefined
 						}
 						onClickComment={() => onClickComment(post.id)}
+						updatePostCallback={updatePostCallback}
+						onViewGraph={onViewGraph}
+						onViewPurchased={onViewPurchased}
 					/>
 				))}
 			</FansView>
@@ -263,25 +250,33 @@ export const ShopContents: FC<ShopContentsProps> = (props) => {
 
 interface ShopTabContentsProps {
 	posts: IPost[];
+	profile: IProfile;
 	onPressPostMenu: (postId: string) => void;
-	onClickBookmark: (postId: string) => void;
-	onClickPostLike: (postId: string) => void;
 	onClickComment: (postId: string) => void;
 	onClickPostMessage?: (postId: string) => void;
+	updatePostCallback: (postId: string, data: Partial<IPost>) => void;
+	onToggleDisplayShop?: (val: boolean) => void;
+	onViewGraph?: (postId: string) => void;
+	onViewPurchased?: (postId: string) => void;
 }
 
 const ShopTabContents: FC<ShopTabContentsProps> = (props) => {
 	const {
 		posts,
+		profile,
 		onPressPostMenu,
-		onClickBookmark,
-		onClickPostLike,
 		onClickComment,
 		onClickPostMessage,
+		updatePostCallback,
+		onToggleDisplayShop,
+		onViewGraph,
+		onViewPurchased,
 	} = props;
 	const router = useRouter();
 	const { dispatch } = useAppContext();
 	const { useImagePicker } = useDocumentPicker();
+
+	const isCreatorPage = !onToggleDisplayShop;
 
 	const handleOpenImagePicker = async () => {
 		const result = await useImagePicker();
@@ -335,19 +330,38 @@ const ShopTabContents: FC<ShopTabContentsProps> = (props) => {
 
 	return (
 		<FansView>
-			{posts.length === 0 ? (
-				<StartSellingContents />
-			) : (
+			<FypNullableView visible={isCreatorPage}>
 				<ShopContents
 					posts={posts}
+					isDisplayShop={profile.isDisplayShop}
 					onPressPostMenu={onPressPostMenu}
 					onPressAddNew={handleAddNewPaidPost}
-					onClickBookmark={onClickBookmark}
-					onClickPostLike={onClickPostLike}
 					onClickComment={onClickComment}
 					onClickPostMessage={onClickPostMessage}
+					updatePostCallback={updatePostCallback}
+					onToggleDisplayShop={onToggleDisplayShop}
+					onViewGraph={onViewGraph}
+					onViewPurchased={onViewPurchased}
 				/>
-			)}
+			</FypNullableView>
+			<FypNullableView visible={!isCreatorPage}>
+				{posts.length === 0 ? (
+					<StartSellingContents />
+				) : (
+					<ShopContents
+						posts={posts}
+						isDisplayShop={profile.isDisplayShop}
+						onPressPostMenu={onPressPostMenu}
+						onPressAddNew={handleAddNewPaidPost}
+						onClickComment={onClickComment}
+						onClickPostMessage={onClickPostMessage}
+						updatePostCallback={updatePostCallback}
+						onToggleDisplayShop={onToggleDisplayShop}
+						onViewGraph={onViewGraph}
+						onViewPurchased={onViewPurchased}
+					/>
+				)}
+			</FypNullableView>
 		</FansView>
 	);
 };

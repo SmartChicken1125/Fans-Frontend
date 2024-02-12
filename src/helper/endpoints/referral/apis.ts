@@ -1,7 +1,6 @@
 import {
 	createDELETEWithParams,
 	createGET,
-	createGETWithParams,
 	createPOST,
 	createPOSTWithParams,
 	createPUTWithParams,
@@ -12,13 +11,9 @@ import {
 	CreateReferralLinkReqBody,
 	DeleteReferralLinkReqBody,
 	FansReferralJoinProgramReqBody,
-	GetCreatorReferralCreatorsReqQueryParams,
 	GetCreatorReferralCreatorsRespBody,
-	GetCreatorReferralLinkPerformanceReqQueryParams,
 	GetCreatorReferralLinkPerformanceRespBody,
-	GetCreatorReferralTotalEarningReqQueryParams,
 	GetCreatorReferralTotalEarningRespBody,
-	GetCreatorReferralTransactionsReqQueryParams,
 	GetCreatorReferralTransactionsRespBody,
 	UpdateReferralLinkReqBody,
 } from "./schemas";
@@ -44,25 +39,29 @@ export const deleteReferralLink = createDELETEWithParams<
 	IdParams
 >("/profile/creator-referrals/:id", true);
 
-export const getCreatorReferralTotalEarning = createGETWithParams<
-	GetCreatorReferralTotalEarningRespBody,
-	GetCreatorReferralTotalEarningReqQueryParams
->("/profile/creator-referrals/earning", true);
+export const getCreatorReferralTotalEarning =
+	createGET<GetCreatorReferralTotalEarningRespBody>(
+		"/profile/creator-referrals/earning",
+		true,
+	);
 
-export const getCreatorReferralCreators = createGETWithParams<
-	GetCreatorReferralCreatorsRespBody,
-	GetCreatorReferralCreatorsReqQueryParams
->("/profile/creator-referrals/creators", true);
+export const getCreatorReferralCreators =
+	createGET<GetCreatorReferralCreatorsRespBody>(
+		"/profile/creator-referrals/creators",
+		true,
+	);
 
-export const getCreatorReferralLinkPerformance = createGETWithParams<
-	GetCreatorReferralLinkPerformanceRespBody,
-	GetCreatorReferralLinkPerformanceReqQueryParams
->("/profile/creator-referrals/link-performance", true);
+export const getCreatorReferralLinkPerformance =
+	createGET<GetCreatorReferralLinkPerformanceRespBody>(
+		"/profile/creator-referrals/link-performance",
+		true,
+	);
 
-export const getCreatorReferralTransactions = createGETWithParams<
-	GetCreatorReferralTransactionsRespBody,
-	GetCreatorReferralTransactionsReqQueryParams
->("/profile/creator-referrals/transactions", true);
+export const getCreatorReferralTransactions =
+	createGET<GetCreatorReferralTransactionsRespBody>(
+		"/profile/creator-referrals/transactions",
+		true,
+	);
 
 export const postVisitReferralLink = createPOSTWithParams<
 	unknown,

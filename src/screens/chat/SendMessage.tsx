@@ -11,6 +11,7 @@ import {
 import LoyalPng from "@assets/svgs/common/LoyalC";
 import UserAvatar from "@components/avatar/UserAvatar";
 import RoundButton from "@components/common/RoundButton";
+import { FypSvg } from "@components/common/base";
 import {
 	FansButton,
 	FansCheck,
@@ -255,7 +256,7 @@ const SendMessageScreen = (
 			<View
 				style={tw.style(
 					"h-[34px]",
-					"bg-fans-white",
+					"bg-fans-white dark:bg-fans-black-1d",
 					"flex-row gap-[5px] items-center",
 					"px-[3px]",
 					"rounded-full",
@@ -281,7 +282,12 @@ const SendMessageScreen = (
 						"flex justify-center items-center",
 					)}
 				>
-					<CloseSvg width={10} height={10} />
+					<FypSvg
+						svg={CloseSvg}
+						width={10}
+						height={10}
+						color="fans-black dark:fans-white"
+					/>
 				</View>
 			</View>
 		);

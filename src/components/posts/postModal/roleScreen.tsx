@@ -170,7 +170,11 @@ const RoleScreen: FC<Props> = (props) => {
 				setIcon(roleIcons.find((el) => el.name === role?.icon) ?? null);
 				setImageIcon(null);
 			} else {
-				setImageIcon({ uri: role?.icon ?? "", isPicker: false });
+				setImageIcon({
+					uri: role?.icon ?? "",
+					isPicker: false,
+					type: MediaType.Image,
+				});
 				setIcon(null);
 			}
 		} else {

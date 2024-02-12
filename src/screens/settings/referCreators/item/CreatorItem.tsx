@@ -1,6 +1,7 @@
 import { ChevronDownSvg, CircledDollarSvg, UserSvg } from "@assets/svgs/common";
 import AvatarWithStatus from "@components/common/AvatarWithStatus";
 import { FansGap, FansText, FansView } from "@components/controls";
+import { formatPrice } from "@helper/Utils";
 import { CreatorReferralCreator } from "@usertypes/types";
 import { getAgoTime } from "@utils/common";
 import React, { FC } from "react";
@@ -58,7 +59,7 @@ const CreatorItem: FC<{
 						fontSize={16}
 						color="green-4d"
 					>
-						MONTHLY INCOME / MO ${amount.toLocaleString()}
+						MONTHLY INCOME / MO {formatPrice(amount)}
 					</FansText>
 				</FansView>
 

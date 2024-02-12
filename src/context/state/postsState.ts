@@ -1,15 +1,27 @@
 import { defaultPostFormData } from "@constants/defaultFormData";
-import { PostStepTypes, MediaType } from "@usertypes/commonEnums";
-import { ICategory, IRole, IPostForm, IPost } from "@usertypes/types";
+import { ActionType, MediaType, PostStepTypes } from "@usertypes/commonEnums";
+import {
+	ICategory,
+	IPost,
+	IPostForm,
+	IRole,
+	IPostSchedule,
+} from "@usertypes/types";
 
 export interface IPostModal {
 	visible: boolean;
 	step: PostStepTypes;
 }
 
+export interface IStoryModal {
+	visible: boolean;
+}
+
 export interface ILiveModal {
+	action?: ActionType;
 	visible: boolean;
 	postId: string;
+	schedule?: IPostSchedule;
 }
 
 export interface IMediaModal {
@@ -19,6 +31,7 @@ export interface IMediaModal {
 	mediaUrls: string[];
 	mediaType: MediaType;
 	index: number;
+	watermark?: string;
 }
 
 export interface IPostsState {
@@ -29,6 +42,7 @@ export interface IPostsState {
 	modal: IPostModal;
 	liveModal: ILiveModal;
 	mediaModal: IMediaModal;
+	storyModal: IStoryModal;
 }
 
 export const postsInitialState: IPostsState = {
@@ -51,5 +65,8 @@ export const postsInitialState: IPostsState = {
 		mediaUrls: [],
 		mediaType: MediaType.Image,
 		index: 0,
+	},
+	storyModal: {
+		visible: false,
 	},
 };

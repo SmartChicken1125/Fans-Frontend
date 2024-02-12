@@ -1,22 +1,21 @@
 import {
+	createDELETEWithParams,
 	createGET,
+	createGETWithParams,
 	createPOST,
 	createPUT,
-	createDELETEWithParams,
-	createGETWithParams,
 	createPUTWithParams,
 } from "@helper/RequesterBase";
 import {
-	PayPalPayoutMethodsResBody,
-	PayoutMethodReqBody,
-	PayPalPayoutMethodResBody,
-	PayoutScheduleResBody,
-	UpdatePayoutScheduleReqBody,
-	GetPayoutMethodReqBody,
-	PutPayoutMethodReqBody,
 	DeletePayoutMethodReqBody,
 	GetPayoutLogsRespBody,
-	GetPayoutLogsReqQueryParams,
+	GetPayoutMethodReqBody,
+	PayPalPayoutMethodResBody,
+	PayPalPayoutMethodsResBody,
+	PayoutMethodReqBody,
+	PayoutScheduleResBody,
+	PutPayoutMethodReqBody,
+	UpdatePayoutScheduleReqBody,
 } from "./schemas";
 
 export const executePayout = createGET("/payout/execute-payout", true);
@@ -58,7 +57,7 @@ export const updatePayoutSchedule = createPUT<
 	never
 >("/payout/payout-schedule", true);
 
-export const getPayoutLogs = createGETWithParams<
-	GetPayoutLogsRespBody,
-	GetPayoutLogsReqQueryParams
->("/payout/logs", true);
+export const getPayoutLogs = createGET<GetPayoutLogsRespBody>(
+	"/payout/logs",
+	true,
+);

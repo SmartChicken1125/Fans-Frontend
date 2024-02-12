@@ -1,19 +1,18 @@
 import {
+	createDELETEWithParams,
 	createGET,
 	createGETWithParams,
 	createPOST,
-	createPUTWithParams,
-	createDELETEWithParams,
 	createPOSTWithParams,
+	createPUTWithParams,
 } from "@helper/RequesterBase";
 import { IdParams } from "@usertypes/params";
-import { IUserList } from "@usertypes/types";
 import {
+	SubscribedProfilesRespBody,
 	UserlistCreateReqBody,
+	UserlistRespBody,
 	UserlistUpdateReqBody,
 	UserlistsRespBody,
-	SubscribedProfilesRespBody,
-	UserlistRespBody,
 } from "./schemas";
 
 export const getUserlists = createGET<UserlistsRespBody>("/userlists", true);

@@ -69,14 +69,18 @@ import UserPopupMenu from "./userPopupMenu";
 
 interface MembershipSectionProps {
 	profiles: IProfile[];
+	onPressCallback?: () => void;
 }
 
 export const MembershipSection: FC<MembershipSectionProps> = (props) => {
-	const { profiles } = props;
+	const { profiles, onPressCallback } = props;
 	const router = useRouter();
 	const [showMemberships, setShowMemberships] = useState(true);
 
 	const onPressUser = (profileLink: string) => {
+		if (onPressCallback) {
+			onPressCallback();
+		}
 		router.push(`/${profileLink}`);
 	};
 

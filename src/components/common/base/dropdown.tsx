@@ -39,7 +39,9 @@ export const FypDropdown: IFypDropdown = (props) => {
 					"text-[18px] leading-6 text-fans-black dark:text-fans-white",
 				)}
 				selectedTextStyle={[
-					tw.style("text-fans-black dark:text-fans-white"),
+					tw.style(
+						"text-fans-black dark:text-fans-white text-[18px] leading-6",
+					),
 				]}
 				inputSearchStyle={[
 					tw.style(
@@ -49,6 +51,7 @@ export const FypDropdown: IFypDropdown = (props) => {
 						},
 					),
 				]}
+				itemTextStyle={tw.style("text-[18px] leading-6")}
 				data={data}
 				search={search}
 				maxHeight={300}

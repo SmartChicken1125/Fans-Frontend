@@ -120,6 +120,37 @@ export interface PostCreateReqBody {
 	schedule?: ScheduleBody;
 }
 
+export interface PostUpdateReqBody {
+	title?: string;
+	type?: PostType;
+	caption?: string;
+	thumbId?: string;
+	// video, image, audios can be string
+	// fundraiser will be FundrasierResource
+	// poll will be PollResource
+	postMedias?: PostMedia[];
+	text?: string;
+	taggedPeoples?: TaggedPeople[];
+	advanced?: PostAdvanced;
+	location?: string;
+
+	roles?: string[];
+	tiers?: string[];
+	users?: string[];
+	categories?: string[];
+	episodeNumber?: number;
+	description?: string;
+	formIds?: string[];
+	isPrivate?: boolean;
+	isNoiseReduction?: boolean;
+	isAudioLeveling?: boolean;
+	paidPost?: PaidPost;
+	fundraiser?: FundraiserBody;
+	giveaway?: GiveawayBody;
+	poll?: PollBody;
+	schedule?: ScheduleBody;
+}
+
 export interface PostArchiveReqBody {
 	id: string;
 }
@@ -198,3 +229,8 @@ export interface PaidPostPriceResBody {
 }
 
 export type CreatePostReportRespBody = IProfile & { user: IUser };
+
+export interface PollVoteReqBody {
+	pollId: string;
+	answerId: string;
+}

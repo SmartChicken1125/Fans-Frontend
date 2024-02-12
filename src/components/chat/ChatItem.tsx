@@ -1,68 +1,81 @@
-import {
-	BlockSvg,
-	ChevronDown2Svg,
-	Close4Svg,
-	CopySvg,
-	ImageSvg,
-	OutlinedPinSvg,
-	ReplySvg,
-	RobotSvg,
-	Search1Svg,
-	SearchSvg,
-	ThreeDotsMenuSvg,
-	WarningSvg,
-	LockSvg,
-} from "@assets/svgs/common";
-import OnlineAvatar from "@components/avatar/OnlineAvatar";
+import { BlockSvg, LockSvg, PlaySvg, ReplyArrowSvg } from "@assets/svgs/common";
 import UserAvatar from "@components/avatar/UserAvatar";
-import { MessageInput } from "@components/chat";
-import ActionDialog from "@components/chat/common/dialogs/ActionDialog";
-import ProfileSheet from "@components/chat/common/dialogs/ChatUserDlg";
-import { FypSvg } from "@components/common/base";
+import { FypSvg } from "@components/common/base/svg";
 import {
 	FansButton3,
 	FansEmoji,
-	FansGap,
 	FansImage,
-	FansScreen2,
-	FansSvg,
 	FansText,
-	FansTextInput3,
-	FansView,
 } from "@components/controls";
-import { ImageTimestampModal } from "@components/modals";
-import { SelectToneSheet } from "@components/sheet/chat";
-import { useAppContext } from "@context/useAppContext";
-import { cdnURL } from "@helper/Utils";
+import { cdnURL, urlOrBlurHash } from "@helper/Utils";
 import tw from "@lib/tailwind";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { chatInboxAtom } from "@state/chat";
-import { useMessageView } from "@state/messagesView";
-import { Colors } from "@usertypes/enums";
-import { ChatNativeStackParams } from "@usertypes/navigations";
-import { IMessage, MessageType } from "@usertypes/types";
-import { IUploadedFile } from "@utils/useUploadFile";
-import { Stack, useRouter } from "expo-router";
-import React, { Fragment, useEffect, useRef, useState } from "react";
-import {
-	Animated,
-	Image,
-	ScrollView,
-	TouchableOpacity,
-	View,
-	VirtualizedList,
-} from "react-native";
+import { MediaType } from "@usertypes/commonEnums";
+import { IMedia, IMessage, MessageType } from "@usertypes/types";
+import React, { useRef } from "react";
+import { Animated, Image, TouchableOpacity, View } from "react-native";
 import { TapGestureHandler } from "react-native-gesture-handler";
-import { Menu } from "react-native-paper";
-import { useRecoilValue } from "recoil";
+import { MessageOptionsMenu } from "./MessageOptionsMenu";
 
-const SelfMessage = ({ message }: { message: IMessage }) => (
+const SelfMessage = ({
+	message,
+	onDeleteMessage,
+	onReplyMessage,
+	onReportMessage,
+}: {
+	message: IMessage;
+	onDeleteMessage: (message: IMessage) => void;
+	onReplyMessage: (message: IMessage) => void;
+	onReportMessage: (message: IMessage) => void;
+}) => (
 	<View
-		style={tw`bg-fans-purple self-end px-[15px] py-[8px] rounded-l-2xl rounded-tr-2xl max-w-full`}
+		style={tw`flex-row items-center self-end max-w-full md:max-w-[80%] ${
+			message.parentMessage ? "mt-[40px]" : ""
+		}`}
 	>
-		<FansText color="white" fontSize={18}>
-			{message.content}
-		</FansText>
+		<View style={tw`flex-1 min-w-0`}>
+			<View style={tw`flex-row justify-end items-center gap-2.5`}>
+				<MessageOptionsMenu
+					message={message}
+					onDeleteMessage={onDeleteMessage}
+					onReplyMessage={onReplyMessage}
+					onReportMessage={onReportMessage}
+					isSelf
+				/>
+				{message.parentMessage && (
+					<View
+						style={tw.style(
+							"flex-row items-center gap-2.5 max-w-full md:max-w-[80%] absolute top-[-40px] right-0 justify-end",
+						)}
+					>
+						<UserAvatar
+							size="24px"
+							image={message.user.avatar ?? undefined}
+						/>
+						<View style={tw.style("relative")}>
+							<View style={tw`px-[5px] py-[8px]`}>
+								<FansText fontSize={16}>
+									{message.parentMessage.content}
+								</FansText>
+							</View>
+						</View>
+						<FypSvg
+							svg={ReplyArrowSvg}
+							width={17}
+							height={17}
+							color="fans-black dark:fans-white"
+							style={{ transform: "rotate(180deg) scaleY(-1)" }}
+						/>
+					</View>
+				)}
+				<View
+					style={tw`bg-fans-purple px-[15px] py-[8px] rounded-l-2xl rounded-tr-2xl max-w-full overflow-hidden`}
+				>
+					<FansText color="white" fontSize={18} style={tw`truncate`}>
+						{message.content}
+					</FansText>
+				</View>
+			</View>
+		</View>
 	</View>
 );
 
@@ -118,16 +131,26 @@ const FromMessage = ({
 	message,
 	handleActivatedDoubleTapMessage,
 	handleActivatedTapMessage,
+	onDeleteMessage,
+	onReplyMessage,
+	onReportMessage,
 }: {
 	message: IMessage;
 	handleActivatedDoubleTapMessage: () => void;
 	handleActivatedTapMessage: () => void;
+	onDeleteMessage: (message: IMessage) => void;
+	onReplyMessage: (message: IMessage) => void;
+	onReportMessage: (message: IMessage) => void;
 }) => {
 	const doubleTapRef = useRef();
 	const singleTapRef = useRef();
 
 	return (
-		<View style={tw`flex-row gap-2.5 self-start max-w-full`}>
+		<View
+			style={tw`flex-row items-center gap-2.5 self-start max-w-full md:max-w-[80%] ${
+				message.parentMessage ? "mt-[40px]" : ""
+			}`}
+		>
 			<UserAvatar size="34px" image={message.user.avatar ?? undefined} />
 			<View style={tw`flex shrink`}>
 				<TapGestureHandler
@@ -147,6 +170,27 @@ const FromMessage = ({
 								message.emoji ? "mb-5" : undefined,
 							)}
 						>
+							{message.parentMessage && (
+								<View
+									style={tw.style(
+										"flex-row items-center gap-2.5 max-w-full md:max-w-[80%] absolute top-[-40px]",
+									)}
+								>
+									<FypSvg
+										svg={ReplyArrowSvg}
+										width={17}
+										height={17}
+										color="fans-black dark:fans-white"
+									/>
+									<View style={tw.style("relative")}>
+										<View style={tw`px-[5px] py-[8px]`}>
+											<FansText fontSize={16}>
+												{message.parentMessage.content}
+											</FansText>
+										</View>
+									</View>
+								</View>
+							)}
 							<View
 								style={tw`bg-fans-grey px-[15px] py-[8px] rounded-r-2xl rounded-tl-2xl dark:bg-fans-grey-43`}
 							>
@@ -174,314 +218,12 @@ const FromMessage = ({
 					</TapGestureHandler>
 				</TapGestureHandler>
 			</View>
-		</View>
-	);
-};
-
-const TipMessage = ({ message }: { message: IMessage }) => (
-	<View
-		style={tw.style(
-			"bg-fans-purple",
-			"self-end",
-			"px-[50px] py-5",
-			"rounded-[20px]",
-			"justify-center",
-			"items-center",
-		)}
-	>
-		<UserAvatar image={message.user?.avatar ?? ""} size="34px" />
-		<FansText
-			color="white"
-			fontSize={22}
-			fontFamily="inter-bold"
-			style={tw.style("mt-2.5")}
-		>
-			{message.user?.displayName} sent you a{" "}
-			<Image
-				source={require("@assets/images/gem.png")}
-				style={tw.style("w-4 h-4 lg:w-5.5 lg:h-5.5 mr-2.5")}
+			<MessageOptionsMenu
+				message={message}
+				onDeleteMessage={onDeleteMessage}
+				onReplyMessage={onReplyMessage}
+				onReportMessage={onReportMessage}
 			/>
-			{message.value} tip!
-		</FansText>
-		<FansText color="white" fontSize={18} style={tw.style("mt-2.5")}>
-			{message.content}
-		</FansText>
-	</View>
-);
-
-const SelfPaidPostMessage = ({
-	message,
-	onPressImage,
-}: {
-	message: IMessage;
-	onPressImage: (data: IMessage, index: number) => void;
-}) => {
-	return (
-		<View style={tw`flex-row gap-2.5 self-end`}>
-			<View style={tw.style("flex")}>
-				<View
-					style={tw.style(
-						"relative",
-						message.emoji ? "mb-5" : undefined,
-					)}
-				>
-					<View style={tw`bg-fans-grey rounded-2xl w-[400px]`}>
-						<View style={tw.style("relative")}>
-							<TouchableOpacity
-								onPress={() => onPressImage(message, 0)}
-							>
-								<FansImage
-									source={{
-										uri:
-											message.status === "Successful"
-												? message.images![0]
-												: message.previewImages![0],
-									}}
-									style={tw.style("h-[400px] rounded-t-2xl")}
-									resizeMode="cover"
-									blurRadius={3}
-								/>
-							</TouchableOpacity>
-
-							<View
-								style={tw.style(
-									"absolute bottom-2.5 w-[100%] p-[15px]",
-								)}
-							>
-								<View
-									style={tw.style(
-										"border border-fans-white rounded-[5px] p-[15px]",
-									)}
-								>
-									<View
-										style={tw.style(
-											"flex flex-row items-center",
-										)}
-									>
-										<BlockSvg size={16} color="white" />
-										<FansText
-											fontSize={16}
-											color="white"
-											style={tw.style("text-center ml-1")}
-											fontFamily="inter-bold"
-										>
-											12
-										</FansText>
-										<FansText
-											fontFamily="inter-bold"
-											fontSize={16}
-											color="white"
-											style={tw.style(
-												"text-center mr-2 ml-2",
-											)}
-										>
-											·
-										</FansText>
-										<BlockSvg size={16} color="white" />
-										<FansText
-											fontSize={16}
-											color="white"
-											style={tw.style("text-center ml-1")}
-											fontFamily="inter-bold"
-										>
-											9
-										</FansText>
-										<View style={tw.style("flex-grow")} />
-										<BlockSvg size={16} color="white" />
-										<FansText
-											fontSize={16}
-											color="white"
-											style={tw.style("text-center ml-1")}
-											fontFamily="inter-bold"
-										>
-											9
-										</FansText>
-									</View>
-									<FansButton3
-										height={40}
-										onPress={() => {}}
-										style={tw.style(
-											"bg-fans-purple",
-											"px-2.5",
-											"mt-[15px]",
-										)}
-										title={
-											message.status === "Successful"
-												? "PURCHASED"
-												: `NOT PURCHASED`
-										}
-										textStyle1={{
-											fontFamily: "inter-bold",
-											fontSize: 16,
-										}}
-									/>
-								</View>
-							</View>
-						</View>
-						<View>
-							<FansText style={tw`p-[15px]`} fontSize={18}>
-								{message.content}
-							</FansText>
-						</View>
-					</View>
-					{message.emoji && (
-						<View
-							style={tw.style(
-								"absolute bottom-[-20px] left-[15px]",
-								"bg-fans-grey",
-								"border-2 border-white rounded-full",
-								"p-[6px]",
-							)}
-						>
-							<FansEmoji
-								size={14}
-								emoji={message.emoji}
-								style={tw.style("leading-[14px]")}
-							/>
-						</View>
-					)}
-				</View>
-			</View>
-		</View>
-	);
-};
-
-const FromPaidPostMessage = ({
-	message,
-	onPressImage,
-}: {
-	message: IMessage;
-	onPressImage: (data: IMessage, index: number) => void;
-}) => {
-	return (
-		<View style={tw.style("flex-row gap-2.5", "self-start")}>
-			<UserAvatar size="34px" image={message.user.avatar ?? undefined} />
-			<View style={tw.style("flex")}>
-				<View
-					style={tw.style(
-						"relative",
-						message.emoji ? "mb-5" : undefined,
-					)}
-				>
-					<View style={tw`bg-fans-grey rounded-2xl w-[400px]`}>
-						<View style={tw.style("relative")}>
-							<TouchableOpacity
-								onPress={() => onPressImage(message, 0)}
-							>
-								<FansImage
-									source={{
-										uri:
-											message.status === "Successful"
-												? message.images![0]
-												: message.previewImages![0],
-									}}
-									style={tw.style("h-[400px] rounded-t-2xl")}
-									resizeMode="cover"
-								/>
-							</TouchableOpacity>
-
-							<View
-								style={tw.style(
-									"absolute bottom-2.5 w-[100%] flex justify-center items-center",
-								)}
-							>
-								<View
-									style={tw.style(
-										"bg-[rgba(0,0,0,0.5)] rounded-[20px] px-2.5 py-[5px] flex flex-row items-center",
-									)}
-								>
-									<BlockSvg size={12} color="white" />
-									<FansText
-										fontSize={12}
-										color="white"
-										style={tw.style("text-center ml-1")}
-									>
-										12
-									</FansText>
-									<FansText
-										fontFamily="inter-bold"
-										fontSize={12}
-										color="white"
-										style={tw.style(
-											"text-center mr-2 ml-2",
-										)}
-									>
-										·
-									</FansText>
-									<BlockSvg size={12} color="white" />
-									<FansText
-										fontSize={12}
-										color="white"
-										style={tw.style("text-center ml-1")}
-									>
-										9
-									</FansText>
-								</View>
-							</View>
-						</View>
-						<View>
-							<FansText
-								style={tw.style("p-[15px]")}
-								fontSize={18}
-							>
-								{message.content}
-							</FansText>
-						</View>
-					</View>
-					{message.emoji && (
-						<View
-							style={tw.style(
-								"absolute bottom-[-20px] left-[15px]",
-								"bg-fans-grey",
-								"border-2 border-white rounded-full",
-								"p-[6px]",
-							)}
-						>
-							<FansEmoji
-								size={14}
-								emoji={message.emoji}
-								style={tw.style("leading-[14px]")}
-							/>
-						</View>
-					)}
-				</View>
-			</View>
-		</View>
-	);
-};
-
-const ImageMessage = ({
-	message,
-	isSelf,
-	onPressImage,
-}: {
-	message: IMessage;
-	isSelf: boolean;
-	onPressImage: (data: IMessage, index: number) => void;
-}) => {
-	return (
-		<View style={tw.style(isSelf ? "self-end" : "", "flex-row gap-2.5")}>
-			{!isSelf && (
-				<UserAvatar
-					size="34px"
-					image={message.user.avatar ?? undefined}
-				/>
-			)}
-			<View style={tw`relative w-[300px] h-[200px]`}>
-				{message.images?.map((image: string, index: number) => (
-					<TouchableOpacity
-						key={index}
-						activeOpacity={1}
-						onPress={() => onPressImage(message, index)}
-						style={layoutFunction(message.images!.length, index)}
-					>
-						<FansImage
-							source={{ uri: cdnURL(image) }}
-							resizeMode="cover"
-						/>
-					</TouchableOpacity>
-				))}
-			</View>
 		</View>
 	);
 };
@@ -514,7 +256,11 @@ const FromNotPaidPostMessage = ({
 									source={{
 										uri:
 											message.status === "Successful"
-												? message.images![0]
+												? urlOrBlurHash(
+														message.media?.[0]?.url,
+														message.media?.[0]
+															?.blurhash,
+												  )
 												: message.previewImages![0],
 									}}
 									style={tw.style("h-[400px] rounded-t-2xl")}
@@ -666,26 +412,383 @@ const FromNotPaidPostMessage = ({
 	);
 };
 
+const FromPaidPostMessage = ({
+	message,
+	onPressImage,
+}: {
+	message: IMessage;
+	onPressImage: (data: IMessage, index: number) => void;
+}) => {
+	return (
+		<View style={tw.style("flex-row gap-2.5", "self-start")}>
+			<UserAvatar size="34px" image={message.user.avatar ?? undefined} />
+			<View style={tw.style("flex")}>
+				<View
+					style={tw.style(
+						"relative",
+						message.emoji ? "mb-5" : undefined,
+					)}
+				>
+					<View style={tw`bg-fans-grey rounded-2xl w-[400px]`}>
+						<View style={tw.style("relative")}>
+							<TouchableOpacity
+								onPress={() => onPressImage(message, 0)}
+							>
+								<FansImage
+									source={{
+										uri:
+											message.status === "Successful"
+												? urlOrBlurHash(
+														message.media?.[0]?.url,
+														message.media?.[0]
+															?.blurhash,
+												  )
+												: message.previewImages![0],
+									}}
+									style={tw.style("h-[400px] rounded-t-2xl")}
+									resizeMode="cover"
+								/>
+							</TouchableOpacity>
+
+							<View
+								style={tw.style(
+									"absolute bottom-2.5 w-[100%] flex justify-center items-center",
+								)}
+							>
+								<View
+									style={tw.style(
+										"bg-[rgba(0,0,0,0.5)] rounded-[20px] px-2.5 py-[5px] flex flex-row items-center",
+									)}
+								>
+									<BlockSvg size={12} color="white" />
+									<FansText
+										fontSize={12}
+										color="white"
+										style={tw.style("text-center ml-1")}
+									>
+										12
+									</FansText>
+									<FansText
+										fontFamily="inter-bold"
+										fontSize={12}
+										color="white"
+										style={tw.style(
+											"text-center mr-2 ml-2",
+										)}
+									>
+										·
+									</FansText>
+									<BlockSvg size={12} color="white" />
+									<FansText
+										fontSize={12}
+										color="white"
+										style={tw.style("text-center ml-1")}
+									>
+										9
+									</FansText>
+								</View>
+							</View>
+						</View>
+						<View>
+							<FansText
+								style={tw.style("p-[15px]")}
+								fontSize={18}
+							>
+								{message.content}
+							</FansText>
+						</View>
+					</View>
+					{message.emoji && (
+						<View
+							style={tw.style(
+								"absolute bottom-[-20px] left-[15px]",
+								"bg-fans-grey",
+								"border-2 border-white rounded-full",
+								"p-[6px]",
+							)}
+						>
+							<FansEmoji
+								size={14}
+								emoji={message.emoji}
+								style={tw.style("leading-[14px]")}
+							/>
+						</View>
+					)}
+				</View>
+			</View>
+		</View>
+	);
+};
+
+const SelfPaidPostMessage = ({
+	message,
+	onPressImage,
+}: {
+	message: IMessage;
+	onPressImage: (data: IMessage, index: number) => void;
+}) => {
+	return (
+		<View style={tw`flex-row gap-2.5 self-end`}>
+			<View style={tw.style("flex")}>
+				<View
+					style={tw.style(
+						"relative",
+						message.emoji ? "mb-5" : undefined,
+					)}
+				>
+					<View style={tw`bg-fans-grey rounded-2xl w-[400px]`}>
+						<View style={tw.style("relative")}>
+							<TouchableOpacity
+								onPress={() => onPressImage(message, 0)}
+							>
+								<FansImage
+									source={{
+										uri:
+											message.status === "Successful"
+												? urlOrBlurHash(
+														message.media?.[0]?.url,
+														message.media?.[0]
+															?.blurhash,
+												  )
+												: message.previewImages![0],
+									}}
+									style={tw.style("h-[400px] rounded-t-2xl")}
+									resizeMode="cover"
+									blurRadius={3}
+								/>
+							</TouchableOpacity>
+
+							<View
+								style={tw.style(
+									"absolute bottom-2.5 w-[100%] p-[15px]",
+								)}
+							>
+								<View
+									style={tw.style(
+										"border border-fans-white rounded-[5px] p-[15px]",
+									)}
+								>
+									<View
+										style={tw.style(
+											"flex flex-row items-center",
+										)}
+									>
+										<BlockSvg size={16} color="white" />
+										<FansText
+											fontSize={16}
+											color="white"
+											style={tw.style("text-center ml-1")}
+											fontFamily="inter-bold"
+										>
+											12
+										</FansText>
+										<FansText
+											fontFamily="inter-bold"
+											fontSize={16}
+											color="white"
+											style={tw.style(
+												"text-center mr-2 ml-2",
+											)}
+										>
+											·
+										</FansText>
+										<BlockSvg size={16} color="white" />
+										<FansText
+											fontSize={16}
+											color="white"
+											style={tw.style("text-center ml-1")}
+											fontFamily="inter-bold"
+										>
+											9
+										</FansText>
+										<View style={tw.style("flex-grow")} />
+										<BlockSvg size={16} color="white" />
+										<FansText
+											fontSize={16}
+											color="white"
+											style={tw.style("text-center ml-1")}
+											fontFamily="inter-bold"
+										>
+											9
+										</FansText>
+									</View>
+									<FansButton3
+										height={40}
+										onPress={() => {}}
+										style={tw.style(
+											"bg-fans-purple",
+											"px-2.5",
+											"mt-[15px]",
+										)}
+										title={
+											message.status === "Successful"
+												? "PURCHASED"
+												: `NOT PURCHASED`
+										}
+										textStyle1={{
+											fontFamily: "inter-bold",
+											fontSize: 16,
+										}}
+									/>
+								</View>
+							</View>
+						</View>
+						<View>
+							<FansText style={tw`p-[15px]`} fontSize={18}>
+								{message.content}
+							</FansText>
+						</View>
+					</View>
+					{message.emoji && (
+						<View
+							style={tw.style(
+								"absolute bottom-[-20px] left-[15px]",
+								"bg-fans-grey",
+								"border-2 border-white rounded-full",
+								"p-[6px]",
+							)}
+						>
+							<FansEmoji
+								size={14}
+								emoji={message.emoji}
+								style={tw.style("leading-[14px]")}
+							/>
+						</View>
+					)}
+				</View>
+			</View>
+		</View>
+	);
+};
+
+const MediaMessage = ({
+	message,
+	isSelf,
+	onPressMedia,
+}: {
+	message: IMessage;
+	isSelf: boolean;
+	onPressMedia: (data: IMessage, index: number) => void;
+}) => {
+	return (
+		<View style={tw.style(isSelf ? "self-end" : "", "flex-row gap-2.5")}>
+			{!isSelf && (
+				<UserAvatar
+					size="34px"
+					image={message.user.avatar ?? undefined}
+				/>
+			)}
+			<View style={tw`relative w-[300px] h-[200px]`}>
+				{message.media?.map((media: IMedia, index: number) => (
+					<TouchableOpacity
+						key={index}
+						activeOpacity={1}
+						onPress={() => onPressMedia(message, index)}
+						style={layoutFunction(message.media!.length, index)}
+					>
+						<FansImage
+							source={{
+								uri: urlOrBlurHash(
+									cdnURL(
+										media.type === MediaType.Video
+											? media.thumbnail
+											: media.url,
+									),
+									media.blurhash,
+								),
+							}}
+							resizeMode="cover"
+						/>
+						{media.type === MediaType.Video && (
+							<View
+								style={{
+									filter: "drop-shadow(0 5px 7px rgba(0,0,0,0.5))",
+									position: "absolute",
+									left: 0,
+									right: 0,
+									top: 0,
+									bottom: 0,
+									justifyContent: "center",
+									alignItems: "center",
+								}}
+							>
+								<FypSvg
+									width={27}
+									height={27}
+									color="fans-white"
+									svg={PlaySvg}
+								/>
+							</View>
+						)}
+					</TouchableOpacity>
+				))}
+			</View>
+		</View>
+	);
+};
+
+const TipMessage = ({ message }: { message: IMessage }) => (
+	<View
+		style={tw.style(
+			"bg-fans-purple",
+			"self-end",
+			"px-[50px] py-5",
+			"rounded-[20px]",
+			"justify-center",
+			"items-center",
+		)}
+	>
+		<UserAvatar image={message.user?.avatar ?? ""} size="34px" />
+		<FansText
+			color="white"
+			fontSize={22}
+			fontFamily="inter-bold"
+			style={tw.style("mt-2.5")}
+		>
+			{message.user?.displayName} sent you a{" "}
+			<Image
+				source={require("@assets/images/gem.png")}
+				style={tw.style("w-4 h-4 lg:w-5.5 lg:h-5.5 mr-2.5")}
+			/>
+			{message.value} tip!
+		</FansText>
+		<FansText color="white" fontSize={18} style={tw.style("mt-2.5")}>
+			{message.content}
+		</FansText>
+	</View>
+);
+
 const ChatItem = ({
 	message,
 	isSelf,
 	animatedValue,
 	handleActivatedDoubleTapMessage,
 	handleActivatedTapMessage,
-	onPressImage,
+	onPressMedia,
+	onDeleteMessage,
+	onReplyMessage,
+	onReportMessage,
 }: {
 	message: IMessage;
 	isSelf: boolean;
 	animatedValue: Animated.Value;
 	handleActivatedDoubleTapMessage: () => void;
 	handleActivatedTapMessage: () => void;
-	onPressImage: (data: IMessage, index: number) => void;
+	onPressMedia: (data: IMessage, index: number) => void;
+	onDeleteMessage: (message: IMessage) => void;
+	onReplyMessage: (message: IMessage) => void;
+	onReportMessage: (message: IMessage) => void;
 }) => {
 	return (
 		<Animated.View style={[tw.style("my-[4px]")]}>
 			{message.messageType === MessageType.TEXT &&
 				(isSelf ? (
-					<SelfMessage message={message} />
+					<SelfMessage
+						message={message}
+						onDeleteMessage={onDeleteMessage}
+						onReplyMessage={onReplyMessage}
+						onReportMessage={onReportMessage}
+					/>
 				) : (
 					<FromMessage
 						message={message}
@@ -693,13 +796,16 @@ const ChatItem = ({
 							handleActivatedDoubleTapMessage
 						}
 						handleActivatedTapMessage={handleActivatedTapMessage}
+						onDeleteMessage={onDeleteMessage}
+						onReplyMessage={onReplyMessage}
+						onReportMessage={onReportMessage}
 					/>
 				))}
-			{message.messageType === MessageType.IMAGE && (
-				<ImageMessage
+			{message.messageType === MessageType.MEDIA && (
+				<MediaMessage
 					message={message}
 					isSelf={isSelf}
-					onPressImage={onPressImage}
+					onPressMedia={onPressMedia}
 				/>
 			)}
 			{message.messageType === MessageType.TIP && (
@@ -709,17 +815,17 @@ const ChatItem = ({
 				(isSelf ? (
 					<SelfPaidPostMessage
 						message={message}
-						onPressImage={onPressImage}
+						onPressImage={onPressMedia}
 					/>
 				) : message.status === "Successful" ? (
 					<FromPaidPostMessage
 						message={message}
-						onPressImage={onPressImage}
+						onPressImage={onPressMedia}
 					/>
 				) : (
 					<FromNotPaidPostMessage
 						message={message}
-						onPressImage={onPressImage}
+						onPressImage={onPressMedia}
 					/>
 				))}
 		</Animated.View>

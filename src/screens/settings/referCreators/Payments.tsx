@@ -22,6 +22,7 @@ import {
 import SettingsNavigationHeader from "@components/screens/settings/SettingsNavigationHeader";
 import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
 import { useAppContext } from "@context/useAppContext";
+import { formatPrice } from "@helper/Utils";
 import { executePayout, getPayoutLogs } from "@helper/endpoints/payout/apis";
 import tw from "@lib/tailwind";
 import {
@@ -134,7 +135,7 @@ const ReferCreatorsPaymentsContenView = () => {
 	const handleClosePayoutLogDialog = () => setPayoutLogSheetVisible(false);
 
 	const getPaymentHistoryData = async () => {
-		const logsData = await getPayoutLogs({}, { page });
+		const logsData = await getPayoutLogs({ page });
 		if (logsData.ok) {
 			setPayoutLogs(logsData.data.payoutLogs);
 			setPages(logsData.data.pages);
@@ -455,7 +456,7 @@ const ReferCreatorsPaymentsContenView = () => {
 						>
 							<FansView grow>
 								<FansText fontSize={16}>
-									${amount.toLocaleString()}
+									{formatPrice(amount)}
 								</FansText>
 								<FansText fontSize={13} color="grey-70">
 									{"Wells Fargo Bank **** 1234"}

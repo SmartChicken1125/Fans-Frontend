@@ -6,7 +6,6 @@ import { FilterButton } from "@components/posts/common";
 import { SendMessageDialog } from "@components/posts/dialogs";
 import PostCard from "@components/posts/postCard";
 import SuggestProfiles from "@components/posts/suggestProfiles";
-import { deleteBookmark, setBookmark } from "@helper/endpoints/post/apis";
 import tw from "@lib/tailwind";
 import { useFeatureGates } from "@state/featureGates";
 import { IconTypes } from "@usertypes/commonEnums";
@@ -133,39 +132,6 @@ const FansView = () => {
 
 	const featureGates = useFeatureGates();
 
-	const onChangeLike = (id: string) => {
-		setPosts(
-			posts.map((post) =>
-				post.id === id
-					? { ...post, isLike: true, likeCount: post.likeCount + 1 }
-					: post,
-			),
-		);
-	};
-
-	const onClickBookmark = async (postId: string) => {
-		const post = posts.find((el) => el.id === postId);
-		if (post?.isBookmarked) {
-			const resp = await deleteBookmark(null, { id: postId });
-			if (resp.ok) {
-				setPosts(
-					posts.map((el) =>
-						el.id === postId ? resp.data.updatedPost : el,
-					),
-				);
-			}
-		} else {
-			const resp = await setBookmark(null, { id: postId });
-			if (resp.ok) {
-				setPosts(
-					posts.map((el) =>
-						el.id === postId ? resp.data.updatedPost : el,
-					),
-				);
-			}
-		}
-	};
-
 	const onClickMessage = (id: string) => {
 		setOpenMessageDialog(true);
 	};
@@ -270,8 +236,6 @@ const FansView = () => {
 							<PostCard
 								key={post.id}
 								data={post}
-								onClickBookmark={() => onClickBookmark(post.id)}
-								onClickLike={() => onChangeLike(post.id)}
 								onClickActionMenu={() =>
 									onClickPostActionMenu(post.id)
 								}
@@ -280,6 +244,7 @@ const FansView = () => {
 									setSelectedPostId(post.id);
 									setOpenCommentModal(true);
 								}}
+								updatePostCallback={() => {}}
 							/>
 						))}
 						<SuggestProfiles />

@@ -1,6 +1,7 @@
 import CustomTopNavBar from "@components/common/customTopNavBar";
 import { FansView } from "@components/controls";
 import { AudioDetailForm } from "@components/posts/share";
+import { defaultPickerMedia } from "@constants/common";
 import { defaultAudioDetail } from "@constants/defaultFormData";
 import { PostsActionType, useAppContext } from "@context/useAppContext";
 import tw from "@lib/tailwind";
@@ -27,10 +28,7 @@ const AudioDetailScreen = (
 
 	const [formData, setFormData] = useState<IAudioDetail>(defaultAudioDetail);
 	const [isSubmitted, setIsSubmitted] = useState(false);
-	const [coverImg, setCoverImg] = useState<IPickerMedia>({
-		uri: "",
-		isPicker: false,
-	});
+	const [coverImg, setCoverImg] = useState<IPickerMedia>(defaultPickerMedia);
 
 	const onChangeFormData = (name: string, value: string | boolean) => {
 		setFormData({
@@ -92,9 +90,7 @@ const AudioDetailScreen = (
 					isSubmitted={isSubmitted}
 					onChangeFormData={onChangeFormData}
 					onChangeImage={onChangeImage}
-					onDeletePreview={() =>
-						setCoverImg({ uri: "", isPicker: true })
-					}
+					onDeletePreview={() => setCoverImg(defaultPickerMedia)}
 				/>
 			</ScrollView>
 		</FansView>

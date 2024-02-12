@@ -3,6 +3,7 @@ import {
 	CalendarSvg,
 	Check1Svg,
 	BlockSvg,
+	OutlinedInfoSvg,
 } from "@assets/svgs/common";
 import UserAvatar from "@components/avatar/UserAvatar";
 import {
@@ -14,22 +15,58 @@ import {
 } from "@components/common/base";
 import { FansView, FansDivider } from "@components/controls";
 import tw from "@lib/tailwind";
+import {
+	MeetingStatusType,
+	VideoCallOrderCardType,
+} from "@usertypes/commonEnums";
+import { IProfile, IVideoCallMeeting } from "@usertypes/types";
+import moment from "moment";
 import React, { FC } from "react";
 
 interface Props {
-	status: "active" | "fulfilled" | "refunded";
+	title: string;
+	profile: IProfile;
+	data: IVideoCallMeeting;
+	cardType: VideoCallOrderCardType;
+	onPressSubmit?: () => void;
+	onPressCancel?: () => void;
+	onPressAddCalendar?: () => void;
+	submitLabel?: string;
+	cancelLabel?: string;
+	disabledSubmit?: boolean;
+	disabledCancel?: boolean;
 }
 
 const OrderCard: FC<Props> = (props) => {
-	const { status } = props;
+	const {
+		data,
+		cardType,
+		onPressSubmit,
+		onPressCancel,
+		onPressAddCalendar,
+		title,
+		profile,
+		submitLabel,
+		cancelLabel,
+		disabledSubmit,
+		disabledCancel,
+	} = props;
+
+	const attendant = data.attendees
+		? data.attendees.find((el) => el.id !== profile.userId)
+		: null;
 
 	const getGradientColor = () => {
-		switch (status) {
-			case "active":
+		switch (cardType) {
+			case VideoCallOrderCardType.Pending:
 				return ["#d885ff", "#a854f5", "#1d21e5"];
-			case "fulfilled":
-				return ["#89F276", "#23C9B1", "#24A2FF"];
-			case "refunded":
+			case VideoCallOrderCardType.Accepted:
+				return ["#d885ff", "#a854f5", "#1d21e5"];
+			case VideoCallOrderCardType.Now:
+				return ["#FD41AE", "#FA7256", "#F9F928"];
+			case VideoCallOrderCardType.Past:
+				return ["#24A2FF", "#23C9B1", "#89F276"];
+			case VideoCallOrderCardType.Refunded:
 				return ["#EB2121", "#E53EC6", "#F98C28"];
 			default:
 				return ["#d885ff", "#a854f5", "#1d21e5"];
@@ -51,7 +88,19 @@ const OrderCard: FC<Props> = (props) => {
 				gap={8}
 				margin={{ b: 6 }}
 			>
-				<FypNullableView visible={status === "active"}>
+				<FypNullableView
+					visible={cardType === VideoCallOrderCardType.Pending}
+				>
+					<FypSvg
+						svg={OutlinedInfoSvg}
+						width={10}
+						height={10}
+						color="fans-white"
+					/>
+				</FypNullableView>
+				<FypNullableView
+					visible={cardType === VideoCallOrderCardType.Accepted}
+				>
 					<FypSvg
 						svg={Clock1Svg}
 						width={10}
@@ -59,7 +108,9 @@ const OrderCard: FC<Props> = (props) => {
 						color="fans-white"
 					/>
 				</FypNullableView>
-				<FypNullableView visible={status === "fulfilled"}>
+				<FypNullableView
+					visible={cardType === VideoCallOrderCardType.Past}
+				>
 					<FypSvg
 						svg={Check1Svg}
 						width={12}
@@ -67,7 +118,9 @@ const OrderCard: FC<Props> = (props) => {
 						color="fans-white"
 					/>
 				</FypNullableView>
-				<FypNullableView visible={status === "refunded"}>
+				<FypNullableView
+					visible={cardType === VideoCallOrderCardType.Refunded}
+				>
 					<FypSvg
 						svg={BlockSvg}
 						width={10}
@@ -82,7 +135,7 @@ const OrderCard: FC<Props> = (props) => {
 					fontWeight={600}
 					style={tw.style("text-fans-white")}
 				>
-					STARTS IN 2 DAYS, 12 HOURS
+					{title}
 				</FypText>
 			</FansView>
 			<FansView
@@ -98,50 +151,56 @@ const OrderCard: FC<Props> = (props) => {
 					position="relative"
 					margin={{ b: 30 }}
 				>
-					<UserAvatar size="46px" />
-					<FansView flex="1">
-						<FypText
-							fontSize={15}
-							lineHeight={20}
-							fontWeight={600}
-							margin={{ b: 3 }}
-						>
-							Ramiro Altamiglia
-						</FypText>
-						<FansView flexDirection="row" alignItems="center">
+					<UserAvatar size="46px" image={attendant?.avatar} />
+					{attendant ? (
+						<FansView flex="1">
 							<FypText
-								fontSize={14}
-								lineHeight={19}
-								style={tw.style(
-									"text-fans-grey-70 dark:text-fans-grey-b1",
-								)}
+								fontSize={15}
+								lineHeight={20}
+								fontWeight={600}
+								margin={{ b: 3 }}
 							>
-								JAN 13, 2024
+								{attendant.displayName}
 							</FypText>
-							<FansView
-								width={4}
-								height={4}
-								borderRadius={4}
-								margin={{ l: 17, r: 13 }}
-								style={tw.style(
-									"bg-fans-grey-70 dark:bg-fans-grey-b1",
-								)}
-							></FansView>
-							<FypText
-								fontSize={14}
-								lineHeight={19}
-								style={tw.style(
-									"text-fans-grey-70 dark:text-fans-grey-b1",
-								)}
-							>
-								4:23 AM
-							</FypText>
+							<FansView flexDirection="row" alignItems="center">
+								<FypText
+									fontSize={14}
+									lineHeight={19}
+									style={tw.style(
+										"text-fans-grey-70 dark:text-fans-grey-b1",
+									)}
+								>
+									{moment(attendant.createdAt).format(
+										"MMM DD, YYYY",
+									)}
+								</FypText>
+								<FansView
+									width={4}
+									height={4}
+									borderRadius={4}
+									margin={{ l: 17, r: 13 }}
+									style={tw.style(
+										"bg-fans-grey-70 dark:bg-fans-grey-b1",
+									)}
+								></FansView>
+								<FypText
+									fontSize={14}
+									lineHeight={19}
+									style={tw.style(
+										"text-fans-grey-70 dark:text-fans-grey-b1",
+									)}
+								>
+									{moment(attendant.createdAt).format(
+										"H:mm A",
+									)}
+								</FypText>
+							</FansView>
 						</FansView>
-					</FansView>
+					) : null}
 
 					<FypLinearGradientView
 						colors={
-							status !== "refunded"
+							data.status !== MeetingStatusType.Cancelled
 								? ["#24A2FF", "#23C9B1", "#89F276"]
 								: ["#b1b1b1", "#b1b1b1"]
 						}
@@ -161,7 +220,7 @@ const OrderCard: FC<Props> = (props) => {
 							fontWeight={600}
 							style={tw.style("text-fans-white")}
 						>
-							$100
+							{`$${data.price.amount}`}
 						</FypText>
 					</FypLinearGradientView>
 				</FansView>
@@ -175,7 +234,7 @@ const OrderCard: FC<Props> = (props) => {
 							color="fans-purple"
 						/>
 						<FypText fontSize={15} fontWeight={600} lineHeight={15}>
-							APRIL 23
+							{moment(data.startDate).format("MMMM DD")}
 						</FypText>
 					</FansView>
 					<FansView flexDirection="row" alignItems="center" gap={8}>
@@ -186,7 +245,11 @@ const OrderCard: FC<Props> = (props) => {
 							color="fans-purple"
 						/>
 						<FypText fontSize={15} fontWeight={600} lineHeight={15}>
-							10:15-10:30 PM UTC
+							{moment(data.startDate).format("HH:mm") +
+								"-" +
+								moment(data.endDate).format("HH:mm") +
+								" " +
+								moment(data.endDate).format("A")}
 						</FypText>
 					</FansView>
 				</FansView>
@@ -204,72 +267,70 @@ const OrderCard: FC<Props> = (props) => {
 							"text-fans-grey-48 dark:text-fans-grey-b1",
 						)}
 					>
-						It's my friend's birthday and I'd like you to give him a
-						special surprise....
+						{data.topics}
 					</FypText>
-					{status === "active" ? (
-						<>
-							<FansView
-								flexDirection="row"
-								gap={8}
-								margin={{ t: 26 }}
-							>
-								<FypButton2
-									style={tw.style(
-										"border border-fans-grey-48 dark:border-fans-grey-b1 flex-1",
-									)}
-									textStyle={tw.style(
-										"text-fans-grey-48 dark:text-fans-grey-48",
-									)}
-								>
-									Cancel
-								</FypButton2>
-								<FypButton2
-									style={tw.style(
-										"bg-fans-black dark:bg-fans-white flex-1",
-									)}
-									textStyle={tw.style(
-										"text-fans-white dark:text-fans-black-1d",
-									)}
-								>
-									Join
-								</FypButton2>
-							</FansView>
-							<FansView
-								flexDirection="row"
-								alignItems="center"
-								justifyContent="center"
-								gap={13}
-								margin={{ t: 14 }}
-							>
-								<FypSvg
-									svg={CalendarSvg}
-									width={14}
-									height={16}
-									color="fans-purple"
-								/>
-								<FypText
-									fontSize={17}
-									lineHeight={22}
-									fontWeight={600}
-									style={tw.style("text-fans-purple")}
-								>
-									Add to Calendar
-								</FypText>
-							</FansView>
-						</>
-					) : null}
-					{status === "fulfilled" ? (
-						<FypButton2
-							style={tw.style(
-								"border border-fans-grey-48 dark:border-fans-grey-b1 mt-[26px]",
-							)}
-							textStyle={tw.style(
-								"text-fans-grey-48 dark:text-fans-grey-48",
-							)}
+					{onPressSubmit || onPressCancel ? (
+						<FansView
+							flexDirection="row"
+							gap={8}
+							margin={{ t: 26 }}
 						>
-							Refund
-						</FypButton2>
+							<FypButton2
+								style={tw.style(
+									disabledCancel && "opacity-35",
+									"border border-fans-grey-48 dark:border-fans-grey-b1 flex-1",
+								)}
+								textStyle={tw.style(
+									"text-fans-grey-48 dark:text-fans-grey-48",
+								)}
+								pressableProps={{
+									onPress: onPressCancel,
+								}}
+							>
+								{cancelLabel ?? "Cancel"}
+							</FypButton2>
+
+							<FypButton2
+								style={tw.style(
+									disabledSubmit
+										? "bg-fans-grey-de flex-1"
+										: "bg-fans-black dark:bg-fans-white flex-1",
+								)}
+								textStyle={tw.style(
+									"text-fans-white dark:text-fans-black-1d",
+								)}
+								pressableProps={{
+									onPress: onPressSubmit,
+								}}
+							>
+								{submitLabel ?? "Accept"}
+							</FypButton2>
+						</FansView>
+					) : null}
+
+					{onPressAddCalendar ? (
+						<FansView
+							flexDirection="row"
+							alignItems="center"
+							justifyContent="center"
+							gap={13}
+							margin={{ t: 14 }}
+						>
+							<FypSvg
+								svg={CalendarSvg}
+								width={14}
+								height={16}
+								color="fans-purple"
+							/>
+							<FypText
+								fontSize={17}
+								lineHeight={22}
+								fontWeight={600}
+								style={tw.style("text-fans-purple")}
+							>
+								Add to Calendar
+							</FypText>
+						</FansView>
 					) : null}
 				</FansView>
 			</FansView>

@@ -9,14 +9,16 @@ import { FypLink, FypText, FypModal, FypSvg } from "@components/common/base";
 import { FansView, FansIconButton } from "@components/controls";
 import { PostsActionType, useAppContext } from "@context/useAppContext";
 import tw from "@lib/tailwind";
+import { ActionType } from "@usertypes/commonEnums";
 import { useBlankLink } from "@utils/useBlankLink";
 import useClipboard from "@utils/useClipboard";
 import { createURL } from "expo-linking";
+import moment from "moment";
 import React, { FC, useState, useEffect } from "react";
 import { Image, Pressable, ImageBackground } from "react-native";
 
 interface Props {
-	closeCallback?: (postId: string) => void;
+	closeCallback?: (postId: string, action: ActionType) => void;
 }
 
 const PostLiveDialog: FC<Props> = (props) => {
@@ -26,11 +28,16 @@ const PostLiveDialog: FC<Props> = (props) => {
 	const [copied, setCopied] = useState(false);
 	const { state, dispatch } = useAppContext();
 
-	const { visible, postId } = state.posts.liveModal;
+	const {
+		visible,
+		postId,
+		action = ActionType.Create,
+		schedule,
+	} = state.posts.liveModal;
 
 	const onClose = () => {
 		if (closeCallback) {
-			closeCallback(postId);
+			closeCallback(postId, action);
 		}
 		dispatch.setPosts({
 			type: PostsActionType.updateLiveModal,
@@ -101,7 +108,15 @@ const PostLiveDialog: FC<Props> = (props) => {
 						margin={{ b: 18 }}
 						style={tw.style("text-fans-black dark:text-fans-white")}
 					>
-						Your post is live!
+						{action === ActionType.Create
+							? `${
+									schedule
+										? `Your post is scheduled at ${moment(
+												schedule.startDate,
+										  ).format("MM/DD/YYYY HH:mm")}`
+										: "Your post is live!"
+							  }`
+							: "Your post is updated!"}
 					</FypText>
 					<FypText
 						fontSize={16}

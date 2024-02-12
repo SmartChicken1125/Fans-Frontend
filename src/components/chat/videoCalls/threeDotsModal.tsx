@@ -1,8 +1,8 @@
 import {
 	BlockSvg,
+	EmergencySvg,
 	ReportSvg,
 	UserSvg,
-	EmergencySvg,
 } from "@assets/svgs/common";
 import { FypSvg } from "@components/common/base";
 import { FansView } from "@components/controls";

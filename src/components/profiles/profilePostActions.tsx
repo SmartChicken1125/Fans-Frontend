@@ -2,6 +2,7 @@ import {
 	ArchivedPostSvg,
 	CommentSvg,
 	CopyLinkSvg,
+	EditSvg,
 	HeartSvg,
 	HideLikeSvg,
 	ImageSvg,
@@ -38,7 +39,7 @@ export const FunctionButton: FC<FunctionButtonProps> = (props) => {
 	const { title, icon, onPress } = props;
 
 	return (
-		<View style={tw.style("items-center")}>
+		<View style={tw.style("items-center w-[75px]")}>
 			<FansIconButton
 				size={46}
 				backgroundColor="bg-fans-purple"
@@ -48,7 +49,7 @@ export const FunctionButton: FC<FunctionButtonProps> = (props) => {
 			</FansIconButton>
 			<FypText
 				fontSize={16}
-				fontWeight={500}
+				fontWeight={400}
 				margin={{ t: 8 }}
 				lineHeight={21}
 				style={tw.style("text-fans-black dark:text-fans-white")}
@@ -67,6 +68,7 @@ interface Props {
 	onPostAdvancedCallback: (advanced: IPostAdvanced) => void;
 	onPinCallback: (post: IPost) => void;
 	onArchivePostCallback: () => void;
+	onEditPostCallback: () => void;
 }
 
 const ProfilePostActions: FC<Props> = (props) => {
@@ -78,6 +80,7 @@ const ProfilePostActions: FC<Props> = (props) => {
 		onPostAdvancedCallback,
 		onPinCallback,
 		onArchivePostCallback,
+		onEditPostCallback,
 	} = props;
 
 	const router = useRouter();
@@ -179,11 +182,16 @@ const ProfilePostActions: FC<Props> = (props) => {
 			}}
 		>
 			<View style={tw.style("pt-[50px]")}>
-				<View style={tw.style("flex-row justify-around pb-5")}>
-					{/* <FunctionButton
+				<View
+					style={tw.style(
+						"flex-row justify-center pb-5 gap-4 mx-auto",
+					)}
+				>
+					<FunctionButton
 						title="Edit"
 						icon={<EditSvg color="#fff" size={22} />}
-					/> */}
+						onPress={onEditPostCallback}
+					/>
 					<FunctionButton
 						title={post?.isPinned ? "Unpin" : "Pin"}
 						icon={

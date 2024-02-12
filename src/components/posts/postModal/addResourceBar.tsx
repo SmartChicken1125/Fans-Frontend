@@ -1,3 +1,4 @@
+import { FansView } from "@components/controls";
 import { IAppDispatch } from "@context/appContext";
 import { PostsActionType } from "@context/reducer/postsReducer";
 import tw from "@lib/tailwind";
@@ -5,7 +6,6 @@ import { MediaType, PostType } from "@usertypes/commonEnums";
 import { IPostForm } from "@usertypes/types";
 import useDocumentPicker from "@utils/useDocumentPicker";
 import React, { FC, useCallback, useState } from "react";
-import { View } from "react-native";
 import Toast from "react-native-toast-message";
 import AddResource from "./addResource";
 import ResourceItem from "./resourceItem";
@@ -84,15 +84,19 @@ const AddResourceBar: FC<Props> = (props) => {
 		[carouselIndex],
 	);
 
+	if (![PostType.Video, PostType.Photo, PostType.Vault].includes(type)) {
+		return null;
+	}
+
 	return (
-		<View
+		<FansView
+			position="absolute"
+			borderRadius={15}
+			gap={8}
+			padding={10}
+			flexDirection="row"
 			style={[
-				tw.style(
-					"absolute rounded-[15px] bg-[rgba(0,0,0,0.5)] p-2.5 bottom-9 flex-row gap-2 left-1/2",
-					type === PostType.Video || type === PostType.Photo
-						? "flex"
-						: "hidden",
-				),
+				tw.style("bg-[rgba(0,0,0,0.5)] bottom-9 left-1/2"),
 				{
 					transform: [{ translateX: resourceWidth / -2 }],
 				},
@@ -112,8 +116,10 @@ const AddResourceBar: FC<Props> = (props) => {
 					onSelect={() => onSelectMedia(index)}
 				/>
 			))}
-			{medias.length < 5 ? <AddResource onClick={onClickAdd} /> : null}
-		</View>
+			{medias.length < 5 && data.type !== PostType.Vault ? (
+				<AddResource onClick={onClickAdd} />
+			) : null}
+		</FansView>
 	);
 };
 

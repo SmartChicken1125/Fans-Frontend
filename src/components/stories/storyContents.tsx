@@ -1,13 +1,19 @@
+import { FansText, FansView } from "@components/controls";
+import LinkPreviewCard from "@components/posts/postModal/linkPreviewCard";
 import { cdnURL } from "@helper/Utils";
+import { getLinkPreview } from "@helper/endpoints/stories/apis";
+import { LinkPreviewRespBody } from "@helper/endpoints/stories/schemas";
 import tw from "@lib/tailwind";
 import { IStory } from "@usertypes/types";
-import React, { FC, useState, useRef, useEffect } from "react";
-import { Image, Platform, View } from "react-native";
+import { openURL } from "expo-linking";
+import { useRouter } from "expo-router";
+import React, { FC, useEffect, useRef, useState } from "react";
+import { Image, Platform, TouchableOpacity, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { ActivityIndicator } from "react-native-paper";
 import Animated, {
-	useSharedValue,
 	useAnimatedStyle,
+	useSharedValue,
 	withSpring,
 } from "react-native-reanimated";
 import type { ICarouselInstance } from "react-native-reanimated-carousel";
@@ -34,6 +40,7 @@ const StoryContents: FC<Props> = (props) => {
 		onClose,
 	} = props;
 	const carouselRef = useRef<ICarouselInstance>(null);
+	const router = useRouter();
 
 	const [width, setWidth] = useState(0);
 	const [imgHeight, setImgHeight] = useState(0);
@@ -83,6 +90,37 @@ const StoryContents: FC<Props> = (props) => {
 		}
 	}, [storyIndex]);
 
+	const [linkPreviews, setLinkPreviews] = useState<{
+		[key: string]: LinkPreviewRespBody;
+	}>({});
+
+	useEffect(() => {
+		(async () => {
+			await Promise.all(
+				stories
+					.flatMap((story) => story.storyUrls)
+					.map((url) => url.url)
+					.filter((link) => !linkPreviews[link])
+					.map(async (link) => {
+						const res = await getLinkPreview({ link: link });
+
+						const updated = linkPreviews;
+						if (res.data.code) {
+							updated[link] = {
+								url: link,
+								mediaType: "text",
+								contentType: "text/html",
+							};
+						} else {
+							updated[link] = res.data as LinkPreviewRespBody;
+						}
+
+						setLinkPreviews(updated);
+					}),
+			);
+		})();
+	}, [stories]);
+
 	return (
 		<View
 			style={tw.style("flex-1 relative")}
@@ -115,7 +153,7 @@ const StoryContents: FC<Props> = (props) => {
 									{storyIndex === index ? (
 										<Image
 											source={{
-												uri: cdnURL(story.medias[0]),
+												uri: cdnURL(story.media),
 											}}
 											style={[
 												tw.style(
@@ -124,6 +162,104 @@ const StoryContents: FC<Props> = (props) => {
 											]}
 										/>
 									) : null}
+
+									{storyIndex === index &&
+										story.storyTexts.map((storyText) => (
+											<FansView
+												style={tw.style(
+													"absolute left-[20px] right-[20px] top-[110px] bottom-[110px]",
+												)}
+											>
+												<FansText
+													style={[
+														tw.style(
+															`font-${storyText.font}`,
+															"text-[28px] text-center",
+															"w-full mt-auto mb-auto",
+														),
+														{
+															color: `#${storyText.color.substring(
+																2,
+															)}`,
+														},
+													]}
+												>
+													{storyText.text}
+												</FansText>
+											</FansView>
+										))}
+
+									{storyIndex === index &&
+										story.storyUrls.map((storyUrl) => (
+											<TouchableOpacity
+												style={tw.style(
+													"absolute w-[245px] h-[85px] bg-black bg-opacity-75 rounded-[7px] left-[60px] top-[160px]",
+												)}
+												onPress={() => {
+													openURL(storyUrl.url);
+												}}
+											>
+												<LinkPreviewCard
+													preview={
+														linkPreviews[
+															storyUrl.url
+														] ?? {
+															url: storyUrl.url,
+														}
+													}
+													isListItem={false}
+												/>
+											</TouchableOpacity>
+										))}
+
+									{storyIndex === index &&
+										story.storyTags.map((storyTag) => (
+											<FansView
+												style={tw.style(
+													"absolute left-[20px] right-[20px] top-[600px]",
+												)}
+											>
+												<TouchableOpacity
+													style={tw.style(
+														"ml-auto mr-auto mt-auto mb-auto",
+													)}
+													onPress={() =>
+														router.push(
+															`/${storyTag.creator.profileLink}`,
+														)
+													}
+												>
+													<FansText
+														style={[
+															tw.style(
+																"font-inter-medium",
+																`text-[${
+																	tw.prefixMatch(
+																		"md",
+																	)
+																		? "22px"
+																		: "28px"
+																}]`,
+																"pt-[4px] pb-[8px] pl-[23px] pr-[31px]",
+																"rounded-full",
+															),
+															{
+																color: "white",
+																backgroundColor: `#${storyTag.color.substring(
+																	2,
+																)}`,
+															},
+														]}
+													>
+														@
+														{
+															storyTag.creator
+																.displayName
+														}
+													</FansText>
+												</TouchableOpacity>
+											</FansView>
+										))}
 								</View>
 							))}
 						</Animated.View>
@@ -145,7 +281,7 @@ const StoryContents: FC<Props> = (props) => {
 						<View style={tw.style("h-full")} key={index}>
 							<Image
 								source={{
-									uri: cdnURL(item.medias[0]),
+									uri: cdnURL(item.media),
 								}}
 								style={tw.style("w-full h-full")}
 							/>

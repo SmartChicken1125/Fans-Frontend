@@ -3,7 +3,7 @@ import CustomTopNavBar from "@components/common/customTopNavBar";
 import FileDropzone from "@components/common/fileDropzone";
 import AppLayout, { LayoutContentsContainer } from "@components/common/layout";
 import { ImagePostChip } from "@components/posts/common";
-import { useAppContext } from "@context/useAppContext";
+import { ProfileActionType, useAppContext } from "@context/useAppContext";
 import { updateProfilePreview } from "@helper/endpoints/profile/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -93,10 +93,20 @@ const PreviewScreen = (
 		};
 
 		const previewResp = await updateProfilePreview(postbody);
-		console.log(previewResp);
+
 		setInProgress(false);
 
 		if (previewResp.ok) {
+			dispatch.setProfile({
+				type: ProfileActionType.updateProfile,
+				data: {
+					previews: previewResp.data.previews.map((url, id) => ({
+						id: id.toString(),
+						url: url,
+						profileId: state.profile.id,
+					})),
+				},
+			});
 			navigation.goBack();
 		} else {
 			Toast.show({
@@ -108,10 +118,18 @@ const PreviewScreen = (
 
 	useEffect(() => {
 		setImages(
-			previews.map((preview) => ({ uri: preview.url, isPicker: false })),
+			previews.map((preview) => ({
+				uri: preview.url,
+				isPicker: false,
+				type: MediaType.Image,
+			})),
 		);
 		setSelectedImages(
-			previews.map((preview) => ({ uri: preview.url, isPicker: false })),
+			previews.map((preview) => ({
+				uri: preview.url,
+				isPicker: false,
+				type: MediaType.Image,
+			})),
 		);
 	}, [previews]);
 

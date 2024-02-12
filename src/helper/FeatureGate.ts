@@ -105,10 +105,6 @@ export const featureGates = {
 		description: "New shop tab on creators profile page",
 		production: false,
 	},
-	"2023_12-purchased-posts": {
-		description: "Purchased posts navigation",
-		production: false,
-	},
 	"2023_12-fundraiser-post-card": {
 		description: "Fundraiser content in post card",
 		production: false,
@@ -137,10 +133,6 @@ export const featureGates = {
 		description: "Checkout methods in get gems screen",
 		production: false,
 	},
-	"2024_01-new-vault-design": {
-		description: "New vault screen",
-		production: false,
-	},
 	"2024_01-new-exclusive-post": {
 		description: "New exclusive post form",
 		production: false,
@@ -151,6 +143,50 @@ export const featureGates = {
 	},
 	"2024_01-purchases-search-filter": {
 		description: "Search filed and filter options in purchase page",
+		production: false,
+	},
+	"2024_01-hide-tips": {
+		description: "Hide tips",
+		production: false,
+	},
+	"2024_01-explicit-comment-filter": {
+		description: "Explicit comment filtering",
+		production: false,
+	},
+	"2024_01-allow-screenshot": {
+		description: "Allow fans to screenshot content",
+		production: false,
+	},
+	"2024_01-pending-orders-modal": {
+		description: "Pending orders modal in video call",
+		production: false,
+	},
+	"2024_01-available-text-in-video-call-page": {
+		description: "Available status text in creating meeting page",
+		production: false,
+	},
+	"2024_01-post-products": {
+		description: "Post type products",
+		production: false,
+	},
+	"2024_01-post-golive": {
+		description: "Post type go live",
+		production: false,
+	},
+	"2024_01-post-poll": {
+		description: "Post type poll",
+		production: false,
+	},
+	"2024_02-delete-vault-medias": {
+		description: "delete medias function in vault screen",
+		production: false,
+	},
+	"2024_02-shop-analytics": {
+		description: "analytics in shop posts",
+		production: false,
+	},
+	"2024_02-test-pinch-gesture": {
+		description: "testing for pinch gesture on mobile",
 		production: false,
 	},
 } satisfies Record<string, IFeatureGateData>; // Note, it's year_month-feature-name, not year_month_feature-name!!!

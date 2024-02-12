@@ -16,6 +16,7 @@ import {
 	ISocialLink,
 	IStory,
 	ITransaction,
+	IUser,
 	PaginatedRespBody,
 	ProfileReportFlag,
 } from "@usertypes/types";
@@ -34,6 +35,13 @@ export interface ProfileReqBody {
 	isFanReferralEnabled?: boolean;
 	fanReferralShare?: number;
 	marketingContentLink?: string;
+	hideTips?: boolean;
+	hideLikes?: boolean;
+	hideComments?: boolean;
+	explicitCommentFilter?: boolean;
+	isAllowedScreenshot?: boolean;
+	watermark?: boolean;
+	isDisplayShop?: boolean;
 }
 
 export interface SocialLinkReqBody {
@@ -173,4 +181,16 @@ export interface ProfilesRespBody {
 	page: number;
 	size: number;
 	total: number;
+}
+
+export interface UpdateProfilePreviewRespBody {
+	previews: string[];
+}
+
+export interface GetBlockedUsersRespBody {
+	blockedUsers: IUser[];
+}
+
+export interface SearchUsersToBlockRespBody {
+	users: IUser[];
 }

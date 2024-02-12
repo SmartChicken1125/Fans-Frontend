@@ -1,204 +1,276 @@
-import { dummyImages } from "@assets/dummyData/chat";
-import {
-	CheckSvg,
-	ChevronDownSvg,
-	StarCheckSvg,
-	TrashSvg,
-} from "@assets/svgs/common";
-import { FypSvg } from "@components/common/base";
-import { FansChips, FansImage, FansText } from "@components/controls";
+import { OutlineCamera, RecordSvg } from "@assets/svgs/common";
+import OnlineAvatar from "@components/avatar/OnlineAvatar";
+import { FypSvg, FypText } from "@components/common/base";
+import { FansScreen2, FansText, FansView } from "@components/controls";
+import { MediaDialog } from "@components/posts/dialogs";
+import { MediaItem } from "@components/profiles";
+import { useAppContext } from "@context/useAppContext";
+import { getChannelMedias } from "@helper/endpoints/chat/apis";
+import { MediasRespBody } from "@helper/endpoints/media/schemas";
 import tw from "@lib/tailwind";
-import { Colors } from "@usertypes/enums";
-import { Stack } from "expo-router";
-import React, { useState } from "react";
-import { TouchableOpacity, View, useWindowDimensions } from "react-native";
-import { FlatGrid } from "react-native-super-grid";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { chatInboxAtom } from "@state/chat";
+import { MediaType } from "@usertypes/commonEnums";
+import { ChatNativeStackParams } from "@usertypes/navigations";
+import { checkEnableMediasLoadingMore } from "@utils/common";
+import { Stack, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Pressable, View } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
+import { useRecoilValue } from "recoil";
 
-const GalleryScreen = () => {
-	const items = [
-		{ text: "All" },
-		{ text: "Photos" },
-		{ text: "Videos" },
-		{ text: "Audio" },
-	];
+const GalleryScreen = (
+	props: NativeStackScreenProps<ChatNativeStackParams, "Gallery">,
+) => {
+	const { state } = useAppContext();
+	const router = useRouter();
 
-	const [filter, setFilter] = useState("All");
-	const [isSelectMode, setIsSelectMode] = useState(false);
-	const [selected, setSelected] = useState<number[]>([]);
+	const inbox = useRecoilValue(chatInboxAtom);
+	const id = props.route.params?.id ?? "0";
+	const conversation = inbox.data.get(id);
 
-	const { width: screenWidth } = useWindowDimensions();
+	const [medias, setMedias] = useState<MediasRespBody>({
+		medias: [],
+		page: 1,
+		size: 10,
+		total: 0,
+		videoTotal: 0,
+		imageTotal: 0,
+	});
+	const [filter, setFilter] = useState(MediaType.All);
+	const [width, setWidth] = useState(0);
+	const [openModal, setOpenModal] = useState(false);
+	const [selectedMediaId, setSelectedMediaId] = useState("");
 
-	const handleSelect = (i: number) => {
-		if (!isSelectMode) return;
-		const index = selected.findIndex((item) => item === i);
-		if (index === -1) {
-			setSelected((old) => [...old, i]);
-		} else {
-			const temp = [...selected];
-			temp.splice(index, 1);
-			setSelected(temp);
+	useEffect(() => {
+		const fetchMedias = async () => {
+			const resp = await getChannelMedias(
+				{
+					id: id,
+				},
+				{
+					page: medias.page,
+					size: medias.size,
+					type: filter,
+				},
+			);
+
+			if (resp.ok) {
+				setMedias(resp.data as MediasRespBody);
+			}
+		};
+		fetchMedias();
+	}, [filter, medias.page]);
+
+	const onClickMedia = (mediaId: string) => {
+		setSelectedMediaId(mediaId);
+		setOpenModal(true);
+	};
+
+	const handleFilter = (val: MediaType) => {
+		setSelectedMediaId("");
+		setFilter(val);
+		setMedias({
+			...medias,
+			page: 1,
+		});
+	};
+
+	const onScrollView = () => {
+		const enableLoadingMore = checkEnableMediasLoadingMore(filter, medias);
+		if (enableLoadingMore) {
+			setMedias({
+				...medias,
+				page: medias.page + 1,
+			});
 		}
 	};
 
-	const handleCancel = () => {
-		setSelected([]);
-		setIsSelectMode(false);
-	};
+	if (!conversation) {
+		return <FansScreen2 contentStyle={tw.style("pt-[0px]")}></FansScreen2>;
+	}
 
-	const handleSelectAll = () => {
-		const arr = Array.from(
-			{ length: dummyImages.length },
-			(_, index) => index,
-		);
-		setSelected(arr);
-	};
 	return (
 		<View>
-			{/* custom header */}
 			<Stack.Screen
 				options={{
 					headerTitleAlign: "left",
-					headerTitle: () => (
-						<View
-							style={tw.style("flex-row gap-[10px] items-center")}
+					headerTitle: (props) => (
+						<Pressable
+							onPress={() => {
+								const profileLink =
+									state.profile.profileLink ||
+									conversation.otherParticipant?.profileLink;
+								if (profileLink) {
+									router.push(`/${profileLink}`);
+								}
+							}}
 						>
-							<FansImage
-								size={34}
-								source={require("@assets/images/default-avatar.png")}
-							/>
-							<FansText fontFamily="inter-semibold" fontSize={16}>
-								Jane Love
-							</FansText>
-							<StarCheckSvg width={14} height={14} />
-						</View>
-					),
-					headerRight: () => (
-						<View style={tw.style("mr-[20px]")}>
-							{isSelectMode ? (
-								<TouchableOpacity onPress={handleCancel}>
-									<FansText
+							<View
+								{...props}
+								style={tw.style(
+									"flex-row gap-2.5 items-center",
+								)}
+							>
+								<View style={tw.style("relative")}>
+									<OnlineAvatar
+										size="34px"
+										image={conversation.icon || undefined}
+									/>
+									<View
 										style={tw.style(
-											"text-purple-600 text-[16px] font-bold",
+											"w-[11px] h-[11px]",
+											"absolute right-0 bottom-0",
+											"bg-fans-green",
+											"border-[2px] border-white rounded-full dark:border-fans-black-1d",
 										)}
-									>
-										Cancel
-									</FansText>
-								</TouchableOpacity>
-							) : (
-								<TouchableOpacity
-									onPress={() => setIsSelectMode(true)}
+									/>
+								</View>
+								<FansText
+									fontFamily="inter-semibold"
+									fontSize={16}
 								>
-									<FansText
-										style={tw.style(
-											"text-purple-600 text-[16px] font-bold",
-										)}
-									>
-										Select
-									</FansText>
-								</TouchableOpacity>
-							)}
-						</View>
+									{conversation.name}
+								</FansText>
+							</View>
+						</Pressable>
 					),
 				}}
 			/>
-			{/* user menu */}
-			<View
-				style={tw.style(
-					"bg-white dark:bg-fans-black-1d",
-					"flex gap-[15px]",
-					"px-[18px] py-[20px]",
-				)}
+			<ScrollView
+				style={tw.style("flex-1")}
+				onScroll={onScrollView}
+				scrollEventThrottle={30}
+				nestedScrollEnabled
 			>
-				<TouchableOpacity
-					style={tw.style("flex flex-row items-center gap-[10px]")}
+				<FansView
+					padding={{ t: 16 }}
+					onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
 				>
-					<FansText fontFamily="inter-bold" fontSize={19}>
-						From Jane Love
-					</FansText>
-					<ChevronDownSvg size={12} color={Colors.Black} />
-				</TouchableOpacity>
-				<FansChips data={items} selected={0} onChangeValue={() => {}} />
-			</View>
-			{isSelectMode && (
-				<View
-					style={tw.style(
-						"border-t border-gray-300 p-[10px] bg-white flex flex-row gap-2 items-center dark:bg-fans-black-1d",
-					)}
-				>
-					<TouchableOpacity
+					<FansView
+						margin={{ x: 18 }}
+						border={{ t: 1 }}
 						style={tw.style(
-							"bg-fans-grey dark:bg-fans-grey-43 p-2 px-3 rounded-full",
+							"border-fans-grey-f0 dark:border-fans-grey-43",
 						)}
-						onPress={handleSelectAll}
+						padding={{ y: 12 }}
 					>
-						<FansText style={tw.style("text-4")}>
-							Select all
-						</FansText>
-					</TouchableOpacity>
-					<TouchableOpacity
-						style={tw.style(
-							"w-9 h-9 bg-fans-grey dark:bg-fans-grey-43 rounded-full p-2",
-						)}
-					>
-						<FypSvg
-							svg={TrashSvg}
-							width={20}
-							height={20}
-							color="fans-black dark:fans-white"
-						/>
-					</TouchableOpacity>
-				</View>
-			)}
-
-			{/* images */}
-			<FlatGrid
-				itemDimension={screenWidth / 4}
-				data={dummyImages}
-				renderItem={({ item, index }) => (
-					<TouchableOpacity
-						style={tw.style("relative")}
-						onPress={() => handleSelect(index)}
-					>
-						<FansImage
-							source={{ uri: item }}
-							style={tw.style(
-								`h-[${screenWidth / 3}px] w-[${
-									screenWidth / 3
-								}px]`,
-							)}
-							resizeMode="cover"
-						/>
-						{isSelectMode && (
-							<View
-								style={tw.style(
-									"absolute top-[10px] right-[10px] w-[20px] h-[20px] rounded-full border border-white overflow-hidden",
-								)}
+						<FansView
+							flexDirection="row"
+							alignItems="center"
+							justifyContent="between"
+						>
+							<FansView
+								pressableProps={{
+									onPress: () => handleFilter(MediaType.All),
+								}}
 							>
-								<View
+								<FypText
+									fontSize={17}
+									lineHeight={22}
+									fontWeight={500}
 									style={tw.style(
-										`${
-											selected.includes(index)
-												? "bg-purple-500"
-												: "bg-gray-f0 dark:bg-fans-grey-43"
-										} flex-1 p-[5px]`,
+										filter === MediaType.All
+											? "text-fans-purple"
+											: "text-fans-grey-9d",
 									)}
 								>
-									{selected.includes(index) && (
-										<FypSvg
-											svg={CheckSvg}
-											width={8}
-											height={8}
-											color="fans-white"
-										/>
+									{`All ${medias.total}`}
+								</FypText>
+							</FansView>
+
+							<FansView
+								pressableProps={{
+									onPress: () =>
+										handleFilter(MediaType.Image),
+								}}
+								flexDirection="row"
+								alignItems="center"
+							>
+								<FypSvg
+									svg={OutlineCamera}
+									width={23.54}
+									height={20.42}
+									color={
+										filter === MediaType.Image
+											? "fans-purple"
+											: "fans-grey-9d"
+									}
+								/>
+
+								<FypText
+									fontSize={17}
+									lineHeight={22}
+									fontWeight={500}
+									margin={{ l: 8 }}
+									style={tw.style(
+										filter === MediaType.Image
+											? "text-fans-purple"
+											: "text-fans-grey-9d",
 									)}
-								</View>
-							</View>
-						)}
-					</TouchableOpacity>
-				)}
-				spacing={2}
-				style={tw.style("bg-fans-white dark:bg-fans-black-1d")}
-			/>
+								>
+									{medias.imageTotal}
+								</FypText>
+							</FansView>
+
+							<FansView
+								pressableProps={{
+									onPress: () =>
+										handleFilter(MediaType.Video),
+								}}
+								flexDirection="row"
+								alignItems="center"
+							>
+								<FypSvg
+									svg={RecordSvg}
+									width={23.54}
+									height={20.42}
+									color={
+										filter === MediaType.Video
+											? "fans-purple"
+											: "fans-grey-9d"
+									}
+								/>
+								<FypText
+									fontSize={17}
+									lineHeight={22}
+									fontWeight={500}
+									margin={{ l: 8 }}
+									style={tw.style(
+										filter === MediaType.Video
+											? "text-fans-purple"
+											: "text-fans-grey-9d",
+									)}
+								>
+									{medias.videoTotal}
+								</FypText>
+							</FansView>
+						</FansView>
+					</FansView>
+
+					<FansView
+						flexDirection="row"
+						flexWrap="wrap"
+						position="relative"
+					>
+						{medias.medias.map((media) => (
+							<MediaItem
+								key={media.id}
+								data={media}
+								onPress={() => onClickMedia(media.id)}
+								size={width / 3}
+							/>
+						))}
+					</FansView>
+
+					<MediaDialog
+						visible={openModal}
+						handleClose={() => setOpenModal(false)}
+						selectedId={selectedMediaId}
+						data={medias.medias}
+					/>
+				</FansView>
+			</ScrollView>
 		</View>
 	);
 };

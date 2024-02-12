@@ -7,6 +7,7 @@ import {
 	SendOneSvg,
 	SoundWaveSvg,
 	TrashSvg,
+	VideoCameraSvg,
 	VoiceRecordSvg,
 } from "@assets/svgs/common";
 import { FypSvg } from "@components/common/base";
@@ -22,6 +23,7 @@ import PaidPostCreateSheet from "@components/dialogs/chat/PaidPostCreate";
 import { CommonActionType, useAppContext } from "@context/useAppContext";
 import { IGif } from "@giphy/js-types";
 import tw from "@lib/tailwind";
+import { ISendOptions } from "@state/messagesView";
 import {
 	MediaType,
 	UploadUsageType,
@@ -31,7 +33,7 @@ import { Colors } from "@usertypes/enums";
 import { IPickerMedia, IProfile } from "@usertypes/types";
 import useDocumentPicker from "@utils/useDocumentPicker";
 import useUploadFiles, { IUploadedFile } from "@utils/useUploadFile";
-import { Audio } from "expo-av";
+import { Audio, ResizeMode, Video } from "expo-av";
 import React, {
 	FC,
 	Fragment,
@@ -123,7 +125,7 @@ function useRecorder(): IAudioRecorder {
 	};
 }
 
-const AudioRecorder: FC<IAudioRecorderProps> = (props) => {
+function AudioRecorder(props: IAudioRecorderProps) {
 	const { onSend, recorder } = props;
 
 	const handlePressDelete = () => {
@@ -182,12 +184,12 @@ const AudioRecorder: FC<IAudioRecorderProps> = (props) => {
 			)}
 		</FansView>
 	);
-};
+}
 
-const RecordButton: FC<{
+function RecordButton(props: {
 	onPressIn: () => void;
 	onPressOut: () => void;
-}> = (props) => {
+}) {
 	const { onPressIn, onPressOut } = props;
 	return (
 		<TouchableOpacity onPressIn={onPressIn} onPressOut={onPressOut}>
@@ -206,9 +208,9 @@ const RecordButton: FC<{
 			</FansView>
 		</TouchableOpacity>
 	);
-};
+}
 
-const SendButton: FC<{ onPress: () => void }> = (props) => {
+function SendButton(props: { onPress: () => void }) {
 	const { onPress } = props;
 	return (
 		<TouchableOpacity onPress={onPress}>
@@ -224,12 +226,122 @@ const SendButton: FC<{ onPress: () => void }> = (props) => {
 			</View>
 		</TouchableOpacity>
 	);
-};
+}
+
+function MediaTile(props: {
+	item: IPickerMedia;
+	type: MediaType;
+	isUploading?: boolean;
+	individualProgress?: number;
+	onPressEdit?: () => void;
+	onPressDelete?: () => void;
+}) {
+	const {
+		item,
+		type,
+		isUploading = false,
+		individualProgress = 0,
+		onPressEdit,
+		onPressDelete,
+	} = props;
+	return (
+		<FansView
+			borderColor="white"
+			backgroundColor="black-2e"
+			borderRadius={15}
+			overflow="hidden"
+			width={250}
+			height={250}
+			position="relative"
+			margin={2}
+		>
+			{type === MediaType.Image && (
+				<FansImage2
+					width="full"
+					height="full"
+					source={{ uri: item.uri }}
+					viewStyle={isUploading ? tw`opacity-900` : tw``}
+				/>
+			)}
+			{type === MediaType.Video && (
+				<Video
+					source={{ uri: item.uri }}
+					style={{
+						width: 250,
+						height: 250,
+					}}
+					videoStyle={tw.style(isUploading ? "opacity-90" : "", {
+						width: "250px",
+						height: "250px",
+					})}
+					resizeMode={ResizeMode.CONTAIN}
+				/>
+			)}
+
+			<TouchableOpacity
+				onPress={onPressDelete}
+				style={tw.style("absolute", "top-0", "right-0", "z-10")}
+			>
+				<FansView
+					width={25}
+					height={25}
+					alignItems="center"
+					justifyContent="center"
+					position="absolute"
+					right={10}
+					top={10}
+					borderRadius="full"
+					backgroundColor="purple"
+				>
+					<CloseSvg height={10} width={10} color="white" />
+				</FansView>
+			</TouchableOpacity>
+
+			{!isUploading && (
+				<TouchableOpacity onPress={onPressEdit}>
+					<FansView
+						width={30}
+						height={30}
+						alignItems="center"
+						justifyContent="center"
+						position="absolute"
+						right={10}
+						bottom={10}
+						borderRadius="full"
+						backgroundColor="grey-70"
+					>
+						<EditSvg height={15} width={15} color="white" />
+					</FansView>
+				</TouchableOpacity>
+			)}
+
+			{isUploading && (
+				<FansView
+					justifyContent="center"
+					alignItems="center"
+					position="absolute"
+					left={10}
+					right={10}
+					bottom={10}
+				>
+					<ProgressBar
+						progress={individualProgress}
+						color="#D2A8F9"
+						style={{
+							height: 8,
+							borderRadius: 5,
+						}}
+					/>
+				</FansView>
+			)}
+		</FansView>
+	);
+}
 
 interface IMessageInput {
 	isTipAndPhotoVisible?: boolean;
 	textOnly?: boolean;
-	onSend?: (message: string, uploadedImages: IUploadedFile[]) => void;
+	onSend?: (options: ISendOptions) => void;
 	creator?: Partial<IProfile> | null;
 }
 
@@ -247,7 +359,7 @@ const MessageInput: FC<IMessageInput> = (props) => {
 
 	const isCreator = type === UserRoleTypes.Creator;
 
-	const { useImagePicker } = useDocumentPicker();
+	const { useImagePicker, useVideoPicker } = useDocumentPicker();
 	const { uploadFiles, isUploading, progress } = useUploadFiles();
 
 	const recorder = useRecorder();
@@ -261,6 +373,8 @@ const MessageInput: FC<IMessageInput> = (props) => {
 	const [price, setPrice] = useState("0");
 	const [previewFiles, setPreviewFiles] = useState<IPickerMedia[]>([]);
 	const [images, setImages] = useState<IPickerMedia[]>([]);
+	const [videos, setVideos] = useState<IPickerMedia[]>([]);
+	const [gif, setGif] = useState<IGif | undefined>(undefined);
 
 	const handleChangeText = (text: string) => setMessage(text);
 
@@ -298,6 +412,26 @@ const MessageInput: FC<IMessageInput> = (props) => {
 		}
 	};
 
+	const handlePressVideo = async (index?: number) => {
+		if (isAddSheetOpened) handleCloseAddSheet();
+
+		const result = await useVideoPicker(true);
+		if (result.ok) {
+			setVideos((currentVideos) => {
+				const updatedVideos =
+					index !== undefined
+						? currentVideos.filter((_, i) => i !== index)
+						: currentVideos;
+				return [...updatedVideos, ...result.data];
+			});
+		} else {
+			Toast.show({
+				type: "error",
+				text1: result?.message ?? "",
+			});
+		}
+	};
+
 	const handlePaidPostCreate = async (
 		price: string,
 		previewFiles: IPickerMedia[],
@@ -318,16 +452,31 @@ const MessageInput: FC<IMessageInput> = (props) => {
 		handlePressPhoto(index);
 	};
 
-	const handleUploadImages = async (): Promise<IUploadedFile[]> => {
+	const handleDeleteVideo = (index: number) => {
+		if (isUploading) return;
+		setVideos((videos) => videos.filter((_, i) => i !== index));
+	};
+
+	const handleEditVideo = (index: number) => {
+		if (isUploading) return;
+		handlePressVideo(index);
+	};
+
+	const handleUploadMedia = async (): Promise<IUploadedFile[]> => {
 		if (isUploading) return [];
-		if (images.length === 0) return [];
 
-		const imagesToUpload = images.map((item) => ({
-			...item,
-			type: MediaType.Image,
-		}));
+		const mediaToUpload = [
+			...videos.map((item) => ({
+				...item,
+				type: MediaType.Video,
+			})),
+			...images.map((item) => ({
+				...item,
+				type: MediaType.Image,
+			})),
+		];
 
-		const result = await uploadFiles(imagesToUpload, UploadUsageType.CHAT);
+		const result = await uploadFiles(mediaToUpload, UploadUsageType.CHAT);
 		if (result.ok) {
 			return result.data;
 		}
@@ -365,12 +514,13 @@ const MessageInput: FC<IMessageInput> = (props) => {
 
 	const handlePressSend = async () => {
 		if (!onSend) return;
-		const uploadedImages = await handleUploadImages();
+		const uploadedFiles = await handleUploadMedia();
 		const uploadedPreviewImages = await handleUploadPreviewImages();
 		//TODO Alula: Handle uploaded preview images
-		onSend(message, uploadedImages); // Add uploaded preview images, price
+		onSend({ message, uploadedFiles }); // Add uploaded preview images, price
 		setMessage("");
 		setImages([]);
+		setVideos([]);
 	};
 
 	const handleSendAudio = (audioUri: string) => {
@@ -433,6 +583,8 @@ const MessageInput: FC<IMessageInput> = (props) => {
 		);
 	}
 
+	const progressPerMedia = 100 / Math.max(images.length + videos.length, 1);
+
 	return (
 		<Fragment>
 			<View style={tw.style("relative")}>
@@ -450,140 +602,54 @@ const MessageInput: FC<IMessageInput> = (props) => {
 							"flex-row flex-wrap justify-start items-center mb-2",
 						)}
 					>
-						{images.map((item, index) => {
-							const progressPerImage = 100 / images.length;
+						{videos.map((item, index) => {
 							const individualProgress = Math.min(
 								Math.max(
-									progress - index * progressPerImage,
+									progress - index * progressPerMedia,
 									0,
-								) / progressPerImage,
+								) / progressPerMedia,
 								1,
 							);
 
 							return (
-								<FansView
-									key={index}
-									borderColor="white"
-									width={250}
-									height={250}
-									position="relative"
-									margin={2}
-								>
-									<FansImage2
-										width="full"
-										height="full"
-										source={{ uri: item.uri }}
-										viewStyle={
-											isUploading ? tw`opacity-900` : tw``
-										}
-									/>
-
-									<TouchableOpacity
-										onPress={() => handleDeleteImage(index)}
-										style={tw.style(
-											"absolute",
-											"top-0",
-											"right-0",
-											"z-10",
-										)}
-									>
-										<FansView
-											width={25}
-											height={25}
-											alignItems="center"
-											justifyContent="center"
-											position="absolute"
-											right={10}
-											top={10}
-											borderRadius="full"
-											backgroundColor="purple"
-										>
-											<CloseSvg
-												height={10}
-												width={10}
-												color="white"
-											/>
-										</FansView>
-									</TouchableOpacity>
-
-									{!isUploading && (
-										<TouchableOpacity
-											onPress={() =>
-												handleEditImage(index)
-											}
-										>
-											<FansView
-												width={30}
-												height={30}
-												alignItems="center"
-												justifyContent="center"
-												position="absolute"
-												right={10}
-												bottom={10}
-												borderRadius="full"
-												backgroundColor="grey-70"
-											>
-												<EditSvg
-													height={15}
-													width={15}
-													color="white"
-												/>
-											</FansView>
-										</TouchableOpacity>
-									)}
-
-									{isUploading && (
-										<FansView
-											justifyContent="center"
-											alignItems="center"
-											position="absolute"
-											left={10}
-											right={10}
-											bottom={10}
-										>
-											<ProgressBar
-												progress={individualProgress}
-												color="#D2A8F9"
-												style={{
-													height: 8,
-													borderRadius: 5,
-												}}
-											/>
-										</FansView>
-									)}
-								</FansView>
+								<MediaTile
+									key={item.id ?? index}
+									item={item}
+									type={MediaType.Video}
+									isUploading={isUploading}
+									individualProgress={individualProgress}
+									onPressEdit={() => handleEditVideo(index)}
+									onPressDelete={() =>
+										handleDeleteVideo(index)
+									}
+								/>
 							);
 						})}
-						{images.length > 0 && (
-							<FansView
-								borderColor="white"
-								width={100}
-								height={250}
-								position="relative"
-								margin={2}
-							>
-								<TouchableOpacity
-									onPress={() => handlePressPhoto()}
-									style={tw.style(
-										"justify-center",
-										"items-center",
-										"border-2",
-										"rounded",
-										"border-gray-100",
-										"bg-gray-100",
-										"w-full",
-										"h-full",
-									)}
-								>
-									<FansText
-										fontSize={50}
-										style={tw.style("text-gray-400")}
-									>
-										+
-									</FansText>
-								</TouchableOpacity>
-							</FansView>
-						)}
+						{images.map((item, index) => {
+							const individualProgress = Math.min(
+								Math.max(
+									progress -
+										(index - videos.length) *
+											progressPerMedia,
+									0,
+								) / progressPerMedia,
+								1,
+							);
+
+							return (
+								<MediaTile
+									key={item.id ?? index}
+									item={item}
+									type={MediaType.Image}
+									isUploading={isUploading}
+									individualProgress={individualProgress}
+									onPressEdit={() => handleEditImage(index)}
+									onPressDelete={() =>
+										handleDeleteImage(index)
+									}
+								/>
+							);
+						})}
 					</View>
 				</View>
 
@@ -669,6 +735,23 @@ const MessageInput: FC<IMessageInput> = (props) => {
 											/>
 										</FansView>
 									</TouchableOpacity>
+									<FansGap width={18.2} />
+									<TouchableOpacity
+										onPress={() => handlePressVideo()}
+									>
+										<FansView
+											style={tw.style(
+												"w-[18.7px] h-[18.7px]",
+											)}
+										>
+											<FypSvg
+												svg={VideoCameraSvg}
+												width={19}
+												height={19}
+												color="fans-black dark:fans-white"
+											/>
+										</FansView>
+									</TouchableOpacity>
 									<FansGap width={18} />
 								</Fragment>
 							)}
@@ -729,8 +812,8 @@ const MessageInput: FC<IMessageInput> = (props) => {
 					onClose={handleCloseAddSheet}
 					onPressPhoto={handlePressPhoto}
 					onGifSelect={(gif: IGif) => {
-						// Todo Alula: Handle gif
 						console.log("GIF selected", gif);
+						setGif(gif);
 					}}
 				/>
 				<PaidPostCreateSheet

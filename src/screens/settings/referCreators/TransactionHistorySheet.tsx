@@ -9,6 +9,7 @@ import {
 	FansText,
 	FansView,
 } from "@components/controls";
+import { formatPrice } from "@helper/Utils";
 import tw from "@lib/tailwind";
 import { RoundButtonType } from "@usertypes/commonEnums";
 import { IFansSheet } from "@usertypes/components";
@@ -108,16 +109,22 @@ const TransactionHistorySheet: IFansSheet = (props) => {
 						},
 						{
 							label: "Price",
-							text: `$${props.creatorReferralTransaction?.amount}`,
+							text: `${formatPrice(
+								props.creatorReferralTransaction?.amount ?? 0,
+							)}`,
 						},
 						// { label: "VAT tax", text: "$10" },
 						{
 							label: "Fee",
-							text: `$${props.creatorReferralTransaction?.totalFee}`,
+							text: `${formatPrice(
+								props.creatorReferralTransaction?.totalFee ?? 0,
+							)}`,
 						},
 						{
 							label: "Net cost",
-							text: `$${props.creatorReferralTransaction?.total}`,
+							text: `${formatPrice(
+								props.creatorReferralTransaction?.total ?? 0,
+							)}`,
 						},
 						{
 							label: "Status",

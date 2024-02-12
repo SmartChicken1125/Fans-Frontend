@@ -20,31 +20,33 @@ import {
 	FypNullableView,
 } from "@components/common/base";
 import { FansView, FansIconButton, FansDivider } from "@components/controls";
-import { emptyProfileData } from "@constants/common";
+import { defaultVideoCallAttendant } from "@constants/common";
 import { useAppContext } from "@context/useAppContext";
 import { cdnURL } from "@helper/Utils";
-import { getCreatorProfileByLink } from "@helper/endpoints/profile/apis";
+import { getOrCreateConversation } from "@helper/endpoints/chat/apis";
+import { getVideoCallAttendants } from "@helper/endpoints/videoCalls/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { chatInboxAtom } from "@state/chat";
 import { VideoCallStackParams } from "@usertypes/navigations";
-import { IProfile } from "@usertypes/types";
+import { IVideoCallAttendant } from "@usertypes/types";
 import { useRouter } from "expo-router";
 import React, { useState, useEffect } from "react";
 import { Image } from "react-native";
-import { useRecoilValue } from "recoil";
 
 const CreatorScreen = (
 	props: NativeStackScreenProps<VideoCallStackParams, "Creator">,
 ) => {
+	const { route } = props;
+	const { id: meetingId } = route.params;
+
 	const router = useRouter();
 	const { state } = useAppContext();
 	const { profile } = state;
-	const [receiver, setReceiver] = useState<IProfile>(emptyProfileData);
 
-	// const chatId = (paramId as string) ?? "0";
-	const chatId = "";
-
+	const [attendant, setAttendant] = useState<IVideoCallAttendant>(
+		defaultVideoCallAttendant,
+	);
+	const [chatId, setChatId] = useState("");
 	const [openThreeDots, setOpenThreeDots] = useState(false);
 	const [openEmergencyModal, setOpenEmergencyModal] = useState(false);
 	const [openChatModal, setOpenChatModal] = useState(false);
@@ -69,9 +71,6 @@ const CreatorScreen = (
 	const [showNavs, setShowNavs] = useState(false);
 	const [openReportModal, setOpenReportModal] = useState(false);
 
-	const inbox = useRecoilValue(chatInboxAtom);
-	const conversation = inbox.data.get(chatId);
-
 	const handleClose = () => {
 		router.replace("/posts");
 	};
@@ -94,6 +93,42 @@ const CreatorScreen = (
 	const handleSendOffer = () => {
 		setOpenSendOfferModal(true);
 	};
+
+	const fetchVideoCallAttendants = async () => {
+		const resp = await getVideoCallAttendants({ id: meetingId });
+		if (resp.ok) {
+			const _attendant = resp.data.attendees.find(
+				(el) => el.id !== profile.userId,
+			);
+			if (_attendant) {
+				setAttendant(_attendant);
+			}
+		}
+	};
+
+	const getChatId = async () => {
+		const resp = await getOrCreateConversation(
+			{},
+			{
+				userId: attendant.id,
+			},
+		);
+		if (resp.ok) {
+			setChatId(resp.data.id);
+		}
+	};
+
+	useEffect(() => {
+		if (meetingId && profile.id !== "0") {
+			fetchVideoCallAttendants();
+		}
+	}, [meetingId, profile]);
+
+	useEffect(() => {
+		if (attendant.id !== "0") {
+			getChatId();
+		}
+	}, [attendant]);
 
 	return (
 		<FansView>
@@ -153,9 +188,9 @@ const CreatorScreen = (
 								onPress: () => setOpenExpandView(false),
 							}}
 						>
-							{receiver.avatar ? (
+							{attendant.avatar ? (
 								<Image
-									source={{ uri: cdnURL(receiver.avatar) }}
+									source={{ uri: cdnURL(attendant.avatar) }}
 									style={tw.style(
 										"w-full h-full rounded-[15px]",
 									)}
@@ -184,10 +219,10 @@ const CreatorScreen = (
 							visible={!openChatWindow && tw.prefixMatch("md")}
 						>
 							<FansView height="full" flex="1">
-								{receiver.avatar ? (
+								{attendant.avatar ? (
 									<Image
 										source={{
-											uri: cdnURL(receiver.avatar),
+											uri: cdnURL(attendant.avatar),
 										}}
 										style={tw.style("w-full h-full")}
 										resizeMode="cover"
@@ -205,7 +240,7 @@ const CreatorScreen = (
 						</FypNullableView>
 					)}
 
-					<FypNullableView visible={openChatWindow && !!conversation}>
+					<FypNullableView visible={openChatWindow && chatId !== ""}>
 						<FansView
 							width={510}
 							position="relative"
@@ -241,7 +276,7 @@ const CreatorScreen = (
 								</FansIconButton>
 							</FansView>
 
-							<ChatSection profile={profile} />
+							<ChatSection profile={profile} chatId={chatId} />
 						</FansView>
 					</FypNullableView>
 				</FansView>
@@ -278,6 +313,7 @@ const CreatorScreen = (
 			<MobileChatModal
 				open={openChatModal}
 				profile={profile}
+				chatId={chatId}
 				handleClose={() => setOpenChatModal(false)}
 			/>
 			<SendOfferModal

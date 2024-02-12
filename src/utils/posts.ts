@@ -1,6 +1,14 @@
+import {
+	defaultAddGiveawayFormData,
+	defaultAudioDetail,
+	defaultFundraiserFormData,
+	defaultPollFormData,
+	defaultPostFormData,
+} from "@constants/defaultFormData";
+import { timezones } from "@constants/timezones";
 import { PostCreateReqBody } from "@helper/endpoints/post/schemas";
-import { PostType } from "@usertypes/commonEnums";
-import { IPostForm } from "@usertypes/types";
+import { MediaType, PostType } from "@usertypes/commonEnums";
+import { IPost, IPostForm, Media } from "@usertypes/types";
 import moment from "moment";
 
 export const getCreatePostData = (data: {
@@ -30,7 +38,14 @@ export const getCreatePostData = (data: {
 		thumbId: thumbId,
 		postMedias: mediaIds.map((mediaId) => ({
 			postMediaId: mediaId,
-			tags: [],
+			tags:
+				postForm.taggedPeoples
+					.find((mediaTag) => mediaTag.postMediaId === mediaId)
+					?.tags.map((tag) => ({
+						userId: tag.userId ?? "",
+						pointX: tag.pointX,
+						pointY: tag.pointY,
+					})) ?? [],
 		})),
 		caption: postForm.caption,
 		categories: postForm.categories,
@@ -44,6 +59,13 @@ export const getCreatePostData = (data: {
 				: [],
 		tiers: postForm.viewType === "PaymentTiers" ? postForm.tiers : [],
 	};
+
+	if (postForm.type === PostType.Vault) {
+		postBody.type =
+			postForm.medias[0].type === MediaType.Video
+				? PostType.Video
+				: PostType.Photo;
+	}
 
 	if (postForm.location) {
 		postBody.location = postForm.location;
@@ -113,10 +135,21 @@ export const getCreatePostData = (data: {
 	}
 
 	if (postForm.schedule.startDate !== undefined) {
+		const offset =
+			timezones.find((tz) => tz.value === postForm.schedule.timezone)
+				?.offset ?? 0;
+		const startDate = moment({
+			year: postForm.schedule.startDate.getFullYear(),
+			month: postForm.schedule.startDate.getMonth(),
+			day: postForm.schedule.startDate.getDate(),
+			hours: postForm.schedule.time.hours,
+			minutes: postForm.schedule.time.minutes,
+		})
+			.utcOffset(offset, true)
+			.format();
 		postBody.schedule = {
-			...postForm.schedule,
-			startDate: postForm.schedule.startDate.toString(),
-			endDate: postForm.schedule.startDate.toString(),
+			startDate: startDate,
+			endDate: startDate,
 		};
 	}
 	if (
@@ -153,4 +186,116 @@ export const getPostTitleIcon = (postType: PostType) => {
 		default:
 			return "photo";
 	}
+};
+
+export const post2PostFormData = (data: IPost): IPostForm => {
+	return {
+		id: data.id,
+		title: data.title,
+		type: data.type,
+		caption: data.caption,
+		thumb: {
+			uri: data.thumb?.url ?? defaultPostFormData.thumb.uri,
+			url: data.thumb?.url,
+			isPicker: defaultPostFormData.thumb.isPicker,
+			type:
+				(data.thumb?.type as MediaType) ??
+				defaultPostFormData.thumb.type,
+		},
+		medias: data.medias.map((v) => ({
+			id: v.id,
+			uri: v.url ?? "",
+			type: v.type as MediaType,
+			isPicker: false,
+		})),
+		roles: [],
+		categories: [],
+		// paidPost: {
+		// 	currency: "USD",
+		// 	price: "0",
+		// 	thumb: "",
+		// },
+		fundraiser: {
+			title: data.fundraiser?.title ?? defaultFundraiserFormData.title,
+			caption:
+				data.fundraiser?.caption ?? defaultFundraiserFormData.caption,
+			price:
+				String(data.fundraiser?.price) ??
+				defaultFundraiserFormData.price,
+			currency:
+				data.fundraiser?.currency ?? defaultFundraiserFormData.currency,
+			// startDate: data.fundraiser?.startDate ?? defaultFundraiserFormData.startDate,
+			startDate: defaultFundraiserFormData.startDate,
+			endDate: data.fundraiser?.endDate
+				? new Date(data.fundraiser?.endDate)
+				: defaultFundraiserFormData.endDate,
+			isXpAdd:
+				data.fundraiser?.isXpAdd ?? defaultFundraiserFormData.isXpAdd,
+			timezone:
+				data.fundraiser?.timezone ?? defaultFundraiserFormData.timezone,
+			cover: defaultFundraiserFormData.cover,
+		},
+		giveaway: {
+			prize: data.giveaway?.prize ?? defaultAddGiveawayFormData.prize,
+			endDate: data.giveaway?.endDate
+				? new Date(data.giveaway?.endDate)
+				: defaultAddGiveawayFormData.endDate,
+			winnerCount:
+				data.giveaway?.winnerCount ??
+				defaultAddGiveawayFormData.winnerCount,
+			cover: defaultAddGiveawayFormData.cover,
+		},
+		schedule: {
+			startDate: data.schedule?.startDate
+				? new Date(data.schedule?.startDate)
+				: defaultPostFormData.schedule.startDate,
+			timezone:
+				// data.schedule?.timezone ??
+				defaultPostFormData.schedule.timezone,
+			time: {
+				hours: data.schedule?.startDate
+					? new Date(data.schedule?.startDate).getHours()
+					: defaultPostFormData.schedule.time.hours,
+				minutes: data.schedule?.startDate
+					? new Date(data.schedule?.startDate).getMinutes()
+					: defaultPostFormData.schedule.time.minutes,
+			},
+		},
+		advanced: {
+			isHideLikeViewCount:
+				data.advanced?.isHideLikeViewCount ??
+				defaultPostFormData.advanced.isHideLikeViewCount,
+			isTurnOffComment:
+				data.advanced?.isTurnOffComment ??
+				defaultPostFormData.advanced.isTurnOffComment,
+			isPaidLabelDisclaimer:
+				data.advanced?.isPaidLabelDisclaimer ??
+				defaultPostFormData.advanced.isPaidLabelDisclaimer,
+		},
+		poll: {
+			id: data.poll?.id ?? defaultPollFormData.id,
+			question: data.poll?.question ?? defaultPollFormData.question,
+			caption: data.poll?.caption ?? defaultPollFormData.caption,
+			answers: data.poll?.answers
+				? data.poll?.answers.map((v) => v.answer)
+				: defaultPollFormData.answers,
+			cover: defaultPollFormData.cover,
+			endDate: data.poll?.endDate
+				? new Date(data.poll?.endDate)
+				: defaultPollFormData.endDate,
+			isPublic: data.poll?.isPublic ?? defaultPollFormData.isPublic,
+		},
+		audio: defaultAudioDetail,
+		taggedPeoples: data.taggedPeoples,
+		location: data.location,
+		formIds: defaultPostFormData.formIds,
+		uploadFiles: defaultPostFormData.uploadFiles,
+		isReleaseForm: defaultPostFormData.isReleaseForm,
+		carouselIndex: defaultPostFormData.carouselIndex,
+		categoryForm: defaultPostFormData.categoryForm,
+		paidPostAccess: defaultPostFormData.paidPostAccess,
+		tiers: defaultPostFormData.tiers,
+		users: defaultPostFormData.users,
+		viewType: defaultPostFormData.viewType,
+	};
 };

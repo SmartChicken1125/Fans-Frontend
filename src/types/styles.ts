@@ -333,7 +333,10 @@ export type FontFamilyStyle =
 	| "inter-regular"
 	| "inter-medium"
 	| "inter-semibold"
-	| "inter-bold";
+	| "inter-bold"
+	| "inter-light"
+	| "inter-black";
+
 export const getFontFamilyStyle = (style: FontFamilyStyle): string => {
 	return `font-${style}`;
 };

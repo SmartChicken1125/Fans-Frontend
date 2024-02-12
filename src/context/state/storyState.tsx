@@ -8,6 +8,7 @@ export interface IStoryState {
 		stories: IStory[];
 	};
 	storiesFeed: IProfile[];
+	modal: boolean;
 }
 
 export const storyInitialState: IStoryState = {
@@ -16,4 +17,5 @@ export const storyInitialState: IStoryState = {
 	},
 	profilePreview: defaultProfileStateData,
 	storiesFeed: [],
+	modal: false,
 };

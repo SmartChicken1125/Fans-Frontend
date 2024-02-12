@@ -32,16 +32,16 @@ const PinchImage = () => {
 	}));
 
 	return (
-		<PinchGestureHandler onGestureEvent={handlePinch}>
+		<GestureDetector gesture={pinchGesture}>
 			<Animated.View
 				style={[tw.style("h-30 w-30 bg-fans-purple"), animatedStyle]}
 			>
-				{/* <Image
+				<Image
 					source={require("@assets/images/background/login-banner.webp")}
 					style={tw.style("w-full h-full")}
-				/> */}
+				/>
 			</Animated.View>
-		</PinchGestureHandler>
+		</GestureDetector>
 	);
 };
 

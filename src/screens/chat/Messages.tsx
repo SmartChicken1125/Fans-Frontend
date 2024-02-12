@@ -36,6 +36,7 @@ import {
 	creatorNoteAtom,
 	setCreatorNote,
 	setInbox,
+	setInboxFiltered,
 } from "@state/chat";
 import { useFeatureGates } from "@state/featureGates";
 import { UserRoleTypes } from "@usertypes/commonEnums";
@@ -92,6 +93,8 @@ export const MessagesScreenContent = (props: MessagesScreenContentProps) => {
 	const { userInfo } = state.user;
 	const { type } = userInfo;
 
+	const isCreator = type === UserRoleTypes.Creator;
+
 	const notes = useRecoilValue(notesAtom);
 	const [note, setNote] = useState({ name: "", text: "" });
 	const creatorNote = useRecoilValue(creatorNoteAtom);
@@ -108,6 +111,10 @@ export const MessagesScreenContent = (props: MessagesScreenContentProps) => {
 	const [isSearch, setSearchYN] = useState(false);
 	const [isShareNoteDialogOpened, openShareNoteDialogYN] = useState(false);
 	const [selected, setSelected] = useState(0);
+
+	useEffect(() => {
+		setInboxFiltered(inbox, selected === 1 ? "unread" : "all");
+	}, [selected]);
 
 	const fetchNotes = async () => {
 		const res = await getNotes();
@@ -194,6 +201,12 @@ export const MessagesScreenContent = (props: MessagesScreenContentProps) => {
 	};
 
 	const handlePress = (meta: IConversationMeta) => {
+		if (meta.isBlocked) {
+			if (!isCreator) {
+				router.push(`/${meta.otherParticipant?.profileLink}`);
+			}
+			return;
+		}
 		props.navigationRef.navigate("Chat", { id: meta.id });
 		router.push(`/chat/${meta.id}`);
 	};
@@ -254,7 +267,7 @@ export const MessagesScreenContent = (props: MessagesScreenContentProps) => {
 			)}
 
 			<FansView height={42} alignItems="center" flexDirection="row">
-				{isSearch ? (
+				{/* {isSearch ? (
 					<Fragment>
 						<FansTextInput2
 							iconNode={
@@ -272,76 +285,74 @@ export const MessagesScreenContent = (props: MessagesScreenContentProps) => {
 							<FansText fontSize={19}>Cancel</FansText>
 						</TouchableOpacity>
 					</Fragment>
-				) : (
-					<Fragment>
+				) : ( */}
+				<Fragment>
+					<FansView
+						touchableOpacityProps={{ onPress: handlePressSort }}
+						flexDirection="row"
+					>
+						<FansSvg
+							width={16.76}
+							height={14.05}
+							svg={orderBy === "asc" ? SortAscSvg : SortDescSvg}
+							color={tw.color(ColorStyle1.GreyDark)}
+						/>
+						<FansGap width={13.2} />
+						<Animated.View
+							entering={PinwheelIn}
+							exiting={PinwheelOut}
+						>
+							<FansText
+								color="grey-70"
+								fontFamily="inter-medium"
+								fontSize={17}
+							>
+								{orderBy === "asc"
+									? "Newest first"
+									: "Oldest first"}
+							</FansText>
+						</Animated.View>
+					</FansView>
+					<FansGap grow />
+					{featureGates.has("2023_11-chat-selections") && (
+						<>
+							<TouchableOpacity onPress={handlePressSelect}>
+								<FansView
+									width={34}
+									height={34}
+									alignItems="center"
+									backgroundColor="grey-f0"
+									borderRadius="full"
+									justifyContent="center"
+								>
+									<FansSvg
+										width={15.65}
+										height={15.65}
+										svg={SelectSvg}
+									/>
+								</FansView>
+							</TouchableOpacity>
+							<FansGap width={7} />
+						</>
+					)}
+					{/* <TouchableOpacity onPress={handlePressSearch}>
 						<FansView
-							touchableOpacityProps={{ onPress: handlePressSort }}
-							flexDirection="row"
+							width={34}
+							height={34}
+							alignItems="center"
+							backgroundColor="grey-f0"
+							borderRadius="full"
+							justifyContent="center"
 						>
 							<FansSvg
-								width={16.76}
-								height={14.05}
-								svg={
-									orderBy === "asc" ? SortAscSvg : SortDescSvg
-								}
-								color={tw.color(ColorStyle1.GreyDark)}
+								width={13.71}
+								height={13.84}
+								svg={SearchSvg}
 							/>
-							<FansGap width={13.2} />
-							<Animated.View
-								entering={PinwheelIn}
-								exiting={PinwheelOut}
-							>
-								<FansText
-									color="grey-70"
-									fontFamily="inter-medium"
-									fontSize={17}
-								>
-									{orderBy === "asc"
-										? "Newest first"
-										: "Oldest first"}
-								</FansText>
-							</Animated.View>
 						</FansView>
-						<FansGap grow />
-						{featureGates.has("2023_11-chat-selections") && (
-							<>
-								<TouchableOpacity onPress={handlePressSelect}>
-									<FansView
-										width={34}
-										height={34}
-										alignItems="center"
-										backgroundColor="grey-f0"
-										borderRadius="full"
-										justifyContent="center"
-									>
-										<FansSvg
-											width={15.65}
-											height={15.65}
-											svg={SelectSvg}
-										/>
-									</FansView>
-								</TouchableOpacity>
-								<FansGap width={7} />
-							</>
-						)}
-						<TouchableOpacity onPress={handlePressSearch}>
-							<FansView
-								width={34}
-								height={34}
-								alignItems="center"
-								backgroundColor="grey-f0"
-								borderRadius="full"
-								justifyContent="center"
-							>
-								<FansSvg
-									width={13.71}
-									height={13.84}
-									svg={SearchSvg}
-								/>
-							</FansView>
-						</TouchableOpacity>
-					</Fragment>
-				)}
+					</TouchableOpacity> */}
+				</Fragment>
+				{/* )} */}
 			</FansView>
 			<FansGap height={15.1} />
 			<FansView>

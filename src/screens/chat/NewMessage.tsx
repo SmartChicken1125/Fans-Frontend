@@ -5,9 +5,8 @@ import { getOrCreateConversation } from "@helper/endpoints/chat/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { ISelectedFan, selectedFansAtom, updateInbox } from "@state/chat";
-import { globalMessageViewManager } from "@state/messagesView";
+import { ISendOptions, globalMessageViewManager } from "@state/messagesView";
 import { ChatNativeStackParams } from "@usertypes/navigations";
-import { IUploadedFile } from "@utils/useUploadFile";
 import React, { useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import Toast from "react-native-toast-message";
@@ -19,7 +18,7 @@ const SelectedFan = (props: { fan: ISelectedFan }) => {
 		<View
 			style={tw.style(
 				"h-[34px]",
-				"bg-fans-white",
+				"bg-fans-white dark:bg-fans-grey-43",
 				"flex-row gap-[5px] items-center",
 				"px-[3px]",
 				"rounded-full",
@@ -37,10 +36,7 @@ const NewMessageScreen = (
 	const { navigation } = props;
 	const selectedFans = useRecoilValue(selectedFansAtom);
 	const [sending, setSending] = useState(false);
-	const handleSend = async (
-		message: string,
-		uploadedFiles: IUploadedFile[],
-	) => {
+	const handleSend = async (options: ISendOptions) => {
 		setSending(true);
 		for (const fan of selectedFans) {
 			const resp = await getOrCreateConversation(
@@ -57,12 +53,7 @@ const NewMessageScreen = (
 						resp.data.id,
 					);
 
-				if (uploadedFiles.length > 0) {
-					await messagesView?.sendImageMessage(uploadedFiles);
-				}
-				if (message.length !== 0) {
-					await messagesView?.sendTextMessage(message);
-				}
+				await messagesView?.sendMessage(options);
 			}
 
 			await new Promise((resolve) => setTimeout(resolve, 250));

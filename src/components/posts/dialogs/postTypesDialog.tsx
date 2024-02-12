@@ -1,17 +1,21 @@
 import {
 	CloseSvg,
-	ImageSvg,
+	LiveSvg,
+	MediaSvg,
 	MusicSvg,
-	StorySvg,
-	TextSvg,
-	VideoCallSvg,
-	FundSvg,
 	PollSvg,
-	VaultSvg,
+	ProductSvg,
+	Story1Svg,
+	TextSvg,
 } from "@assets/svgs/common";
-import { FypText, FypSvg } from "@components/common/base";
+import { FypSvg, FypText } from "@components/common/base";
 import BottomSheetWrapper from "@components/common/bottomSheetWrapper";
-import { FansDivider, FansView, FansIconButton } from "@components/controls";
+import {
+	FansDivider,
+	FansIconButton,
+	FansSvg,
+	FansView,
+} from "@components/controls";
 import { defaultPostFormData } from "@constants/defaultFormData";
 import {
 	CommonActionType,
@@ -77,7 +81,7 @@ const PostTypesDialog = () => {
 		() => (openNewPostTypesModal ? true : false),
 		[openNewPostTypesModal],
 	);
-	const { useAudioPicker, useVideoPicker, useImagePicker } =
+	const { useAudioPicker, useVideoPicker, useImagePicker, useMediaPicker } =
 		useDocumentPicker();
 
 	const { width } = useWindowDimensions();
@@ -125,7 +129,9 @@ const PostTypesDialog = () => {
 			onClose();
 			router.push({
 				pathname: "posts",
-				params: { screen: "Thumbnail" },
+				params: {
+					screen: postType === PostType.Story ? "Story" : "Thumbnail",
+				},
 			});
 		} else {
 			Toast.show({
@@ -178,6 +184,35 @@ const PostTypesDialog = () => {
 		}
 	};
 
+	const handleOpenMediaPicker = async () => {
+		const result = await useMediaPicker(true);
+		if (result.ok) {
+			const medias = result.data;
+			dispatch.setPosts({
+				type: PostsActionType.updatePostForm,
+				data: {
+					...defaultPostFormData,
+					type: PostType.Media,
+					medias: medias,
+					thumb:
+						medias.length > 0
+							? medias[0]
+							: defaultPostFormData.thumb,
+				},
+			});
+			onClose();
+			router.push({
+				pathname: "posts",
+				params: { screen: "Thumbnail" },
+			});
+		} else {
+			Toast.show({
+				type: "error",
+				text1: result?.message ?? "",
+			});
+		}
+	};
+
 	const onSelect = async (postType: PostType, desktopMode: boolean) => {
 		if (desktopMode) {
 			dispatch.setPosts({
@@ -215,6 +250,9 @@ const PostTypesDialog = () => {
 			});
 		} else {
 			switch (postType) {
+				case PostType.Media:
+					handleOpenMediaPicker();
+					break;
 				case PostType.Story:
 				case PostType.Photo:
 					handleOpenImagePicker(
@@ -276,53 +314,56 @@ const PostTypesDialog = () => {
 
 	const postTypes = [
 		{
-			title: "Photo",
-			type: PostType.Photo,
+			title: "Media",
+			type: PostType.Media,
 			icon: (
-				<ImageSvg
-					width={33}
-					height={33}
-					color="#a854f5"
-					style={tw.style("md:w-[57.5px] md:h-[57.5px]")}
+				<FansSvg
+					width={{ md: 52, xs: 38.44 }}
+					height={{ md: 58.5, xs: 36.6 }}
+					svg={MediaSvg}
+					color1="purple-a8"
 				/>
 			),
-		},
-		{
-			title: "Video",
-			type: PostType.Video,
-			icon: (
-				<VideoCallSvg
-					width={36}
-					height={33}
-					color="#a854f5"
-					style={tw.style("md:w-[63px] md:h-[58.5px]")}
-				/>
-			),
+			isVisible: true,
 		},
 		{
 			title: "Story",
 			type: PostType.Story,
 			icon: (
-				<StorySvg
-					width={36}
-					height={36}
-					color="#a854f5"
-					style={tw.style("md:w-[63px] md:h-[62.85px]")}
+				<FansSvg
+					width={{ md: 52, xs: 36.04 }}
+					height={{ md: 58.5, xs: 35.95 }}
+					svg={Story1Svg}
+					color1="purple-a8"
 				/>
 			),
+			isVisible: true,
 		},
 		{
-			title: "From Vault",
-			type: PostType.Vault,
+			title: "Products",
+			type: PostType.Products,
 			icon: (
-				<VaultSvg
-					width={36}
-					color="#a854f5"
-					height={36}
-					style={tw.style("md:w-[51px] md:h-[43px]")}
+				<FansSvg
+					width={{ md: 52, xs: 28.95 }}
+					height={{ md: 58.5, xs: 36.5 }}
+					svg={ProductSvg}
+					color1="purple-a8"
 				/>
 			),
-			hide: !featureGates.has("2024_01-new-vault-design"),
+			isVisible: featureGates.has("2024_01-post-products"),
+		},
+		{
+			title: "Go live",
+			type: PostType.GoLive,
+			icon: (
+				<FansSvg
+					width={{ md: 52, xs: 37.98 }}
+					height={{ md: 58.5, xs: 27.13 }}
+					svg={LiveSvg}
+					color1="purple-a8"
+				/>
+			),
+			isVisible: featureGates.has("2024_01-post-golive"),
 		},
 		{
 			title: "Audio",
@@ -335,19 +376,8 @@ const PostTypesDialog = () => {
 					style={tw.style("md:w-[52px] md:h-[58.5px]")}
 				/>
 			),
+			isVisible: true,
 		},
-		// {
-		// 	title: "Fundraiser",
-		// 	type: PostType.Fundraiser,
-		// 	icon: (
-		// 		<FundSvg
-		// 			width={27.34}
-		// 			height={38.6}
-		// 			color="#a854f5"
-		// 			style={tw.style("md:w-[48.5px] md:h-[68.5px]")}
-		// 		/>
-		// 	),
-		// },
 		{
 			title: "Text",
 			type: PostType.Text,
@@ -359,19 +389,21 @@ const PostTypesDialog = () => {
 					style={tw.style("md:w-[71.5px] md:h-[51.6px]")}
 				/>
 			),
+			isVisible: true,
 		},
-		// {
-		// 	title: "Poll",
-		// 	type: PostType.Poll,
-		// 	icon: (
-		// 		<PollSvg
-		// 			width={30.89}
-		// 			height={30.8}
-		// 			color="#a854f5"
-		// 			style={tw.style("md:w-[55px] md:h-[54.6px]")}
-		// 		/>
-		// 	),
-		// },
+		{
+			title: "Poll",
+			type: PostType.Poll,
+			icon: (
+				<PollSvg
+					width={30.89}
+					height={30.8}
+					color="#a854f5"
+					style={tw.style("md:w-[55px] md:h-[54.6px]")}
+				/>
+			),
+			isVisible: featureGates.has("2024_01-post-poll"),
+		},
 	];
 
 	return (
@@ -392,7 +424,7 @@ const PostTypesDialog = () => {
 							"mb-[50px] md:mb-0 text-fans-black dark:text-fans-white",
 						)}
 					>
-						Create post
+						Select post type
 					</FypText>
 					<FansView
 						style={tw.style(
@@ -435,8 +467,7 @@ const PostTypesDialog = () => {
 							]}
 						>
 							{postTypes
-								.filter((el) => !el.hide)
-								.slice(0, 6)
+								.filter((value) => value.isVisible)
 								.map((postType) => (
 									<PostTypeItem
 										key={postType.type}
@@ -475,7 +506,7 @@ const PostTypesDialog = () => {
 					)}
 				>
 					{postTypes
-						.filter((el) => !el.hide)
+						.filter((value) => value.isVisible)
 						.map((postType) => (
 							<PostTypeItem
 								key={postType.type}

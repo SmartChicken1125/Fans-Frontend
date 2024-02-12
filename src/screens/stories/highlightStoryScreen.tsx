@@ -11,6 +11,7 @@ import {
 	StoryFunctionButtons,
 	StoryLayout,
 } from "@components/stories";
+import { defaultProfileData } from "@constants/common";
 import { CommonActionType, useAppContext } from "@context/useAppContext";
 import {
 	createTextMessage,
@@ -37,13 +38,13 @@ const HighlightStoryScreen = (
 	props: NativeStackScreenProps<StoriesNavigationStacks, "Highlight">,
 ) => {
 	const { route } = props;
-	const { highlightId, userId } = route.params;
+	const { highlightId, userId, storyId: paramStoryId } = route.params;
 	const router = useRouter();
 	const { copyString } = useClipboard();
 
 	const { state, dispatch } = useAppContext();
 	const { highlightStory } = state.story;
-	const [profile, setProfile] = useState<IProfile>();
+	const [profile, setProfile] = useState<IProfile>(defaultProfileData);
 
 	const isOwner = userId === state.profile.userId;
 
@@ -55,10 +56,18 @@ const HighlightStoryScreen = (
 
 	const [openShare, setOpenShare] = useState(false);
 	const [openCommentModal, setOpenCommentModal] = useState(false);
-	const [storyId, setStoryId] = useState("");
 
 	const onChangeStoryIndex = (index: number) => {
 		setStoryIndex(index);
+		router.push({
+			pathname: "stories",
+			params: {
+				screen: "Highlight",
+				highlightId: highlightId,
+				userId: profile.userId,
+				storyId: stories[index].id,
+			},
+		});
 	};
 
 	const onClickTip = () => {
@@ -72,7 +81,6 @@ const HighlightStoryScreen = (
 	};
 
 	const onClickComment = () => {
-		setStoryId(stories[storyIndex].id);
 		setOpenCommentModal(true);
 	};
 
@@ -124,6 +132,15 @@ const HighlightStoryScreen = (
 			onClickClose();
 		} else {
 			setStoryIndex(storyIndex - 1);
+			router.push({
+				pathname: "stories",
+				params: {
+					screen: "Highlight",
+					highlightId: highlightId,
+					userId: profile.userId,
+					storyId: stories[storyIndex - 1].id,
+				},
+			});
 		}
 	};
 
@@ -132,6 +149,15 @@ const HighlightStoryScreen = (
 			return;
 		}
 		setStoryIndex(storyIndex + 1);
+		router.push({
+			pathname: "stories",
+			params: {
+				screen: "Highlight",
+				highlightId: highlightId,
+				userId: profile.userId,
+				storyId: stories[storyIndex + 1].id,
+			},
+		});
 	};
 
 	const onClickClose = () => {
@@ -153,6 +179,7 @@ const HighlightStoryScreen = (
 				highlightId: highlightId,
 				userId: userId,
 				screen: "Highlight",
+				storyId: paramStoryId ? paramStoryId : stories[storyIndex].id,
 			},
 		});
 		await copyString(url);
@@ -167,8 +194,16 @@ const HighlightStoryScreen = (
 
 	const fetchStories = async () => {
 		const resp = await getHighlightById({ id: highlightId });
+
 		if (resp.ok) {
 			setStories(resp.data.stories);
+			setStoryIndex(
+				paramStoryId
+					? resp.data.stories.findIndex(
+							(story) => story.id === paramStoryId,
+					  )
+					: 0,
+			);
 		}
 	};
 
@@ -231,6 +266,13 @@ const HighlightStoryScreen = (
 		if (highlightStory.profile) {
 			setStories(highlightStory.stories);
 			setProfile(highlightStory.profile);
+			setStoryIndex(
+				paramStoryId
+					? highlightStory.stories.findIndex(
+							(story) => story.id === paramStoryId,
+					  )
+					: 0,
+			);
 		} else {
 			fetchStories();
 			fetchProfile();
@@ -367,7 +409,7 @@ const HighlightStoryScreen = (
 				onCopyLink={onCopyStory}
 			/>
 			<StoryCommentDialog
-				storyId={storyId}
+				storyId={paramStoryId ?? stories[storyIndex].id}
 				visible={openCommentModal}
 				onDismiss={() => setOpenCommentModal(false)}
 				onCallback={commentCallback}

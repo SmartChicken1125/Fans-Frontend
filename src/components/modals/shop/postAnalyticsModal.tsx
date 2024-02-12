@@ -3,11 +3,15 @@ import {
 	Dollar5Svg,
 	ShopSvg,
 	CursorSvg,
-	ChevronLeftSvg,
 	ChatSvg,
+	ArrowUpSvg,
 } from "@assets/svgs/common";
 import UserAvatar from "@components/avatar/UserAvatar";
-import { FypSvg, FypText } from "@components/common/base";
+import {
+	FypSvg,
+	FypText,
+	FypLinearGradientView,
+} from "@components/common/base";
 import BottomSheetWrapper from "@components/common/bottomSheetWrapper";
 import SearchTextInput from "@components/common/searchTextInput";
 import { FansIconButton, FansDivider, FansView } from "@components/controls";
@@ -22,21 +26,183 @@ import { DateTime } from "luxon";
 import React, { FC, useState, useEffect } from "react";
 import { ScrollView, useWindowDimensions } from "react-native";
 
+interface AnalyticItemProps {
+	title: string;
+	value: string;
+	icon: React.ReactNode;
+}
+
+const AnalyticItem: FC<AnalyticItemProps> = (props) => {
+	const { title, value, icon } = props;
+	return (
+		<FansView position="relative" flex="1">
+			<FypText
+				fontSize={23}
+				lineHeight={26}
+				fontWeight={600}
+				style={tw.style(
+					"md:mb-[3px] text-fans-grey-48 dark:text-fans-grey-b1",
+				)}
+			>
+				{title}
+			</FypText>
+			<FansView
+				flexDirection="row"
+				alignItems="center"
+				gap={12}
+				margin={{ b: 8 }}
+			>
+				{icon}
+				<FypText
+					fontSize={34}
+					lineHeight={46}
+					fontWeight={600}
+					style={tw.style("text-fans-green dark:text-fans-green-29")}
+				>
+					{value}
+				</FypText>
+			</FansView>
+			<FansView flexDirection="row" alignItems="center">
+				<FypSvg
+					svg={ArrowUpSvg}
+					width={13}
+					height={11}
+					color="fans-green"
+				/>
+				<FypText
+					fontSize={16}
+					lineHeight={21}
+					style={tw.style("text-fans-green ml-2")}
+				>
+					$0.8 (0.5%)
+				</FypText>
+				<FansView
+					width={4}
+					height={4}
+					borderRadius={4}
+					margin={{ l: 16, r: 8 }}
+					style={tw.style("bg-fans-grey-48 dark:bg-fans-grey-b1")}
+				></FansView>
+				<FypText
+					fontSize={14}
+					lineHeight={19}
+					style={tw.style("text-fans-grey-48 dark:text-fans-grey-b1")}
+				>
+					Past day
+				</FypText>
+			</FansView>
+		</FansView>
+	);
+};
+
+const HeaderSection = () => {
+	const onDismiss = () => {};
+
+	return (
+		<FansView>
+			<FansView position="relative" padding={{ y: 20 }}>
+				<FypText
+					fontSize={{ xs: 19, md: 23 }}
+					lineHeight={{ xs: 26, md: 31 }}
+					fontWeight={700}
+					textAlign="center"
+					numberOfLines={2}
+					style={tw.style("w-4/5 mx-auto")}
+				>
+					Summer photoshoot: Poll time with Elizabeth!
+				</FypText>
+				<FansIconButton
+					backgroundColor="bg-fans-black/30 dark:bg-fans-white/30"
+					size={30}
+					onPress={onDismiss}
+					style={[
+						tw.style("absolute right-0 top-1/2 hidden md:flex"),
+						{ transform: [{ translateY: -15 }] },
+					]}
+				>
+					<FypSvg
+						svg={CloseSvg}
+						width={12}
+						height={12}
+						color="fans-white dark:fans-black"
+					/>
+				</FansIconButton>
+			</FansView>
+			<FansDivider style={tw.style("hidden md:flex mb-[34px]")} />
+			<FansView
+				style={tw.style(
+					"flex-col md:flex-row md:justify-content-between md:gap-0",
+				)}
+			>
+				<AnalyticItem
+					title={
+						tw.prefixMatch("md")
+							? `Total${"\n"}revenue`
+							: "Total revenue"
+					}
+					value="$0"
+					icon={
+						<FypSvg
+							svg={Dollar5Svg}
+							width={21}
+							height={23}
+							color="fans-green"
+							style={tw.style("md:hidden")}
+						/>
+					}
+				/>
+				<FansDivider style={tw.style("md:hidden mt-4 mb-3")} />
+				<AnalyticItem
+					title={
+						tw.prefixMatch("md")
+							? `Total${"\n"}purchases`
+							: "Total purchases"
+					}
+					value="54"
+					icon={
+						<FypSvg
+							svg={ShopSvg}
+							width={21}
+							height={26}
+							color="fans-green"
+							style={tw.style("md:hidden")}
+						/>
+					}
+				/>
+				<FansDivider style={tw.style("md:hidden mt-4 mb-3")} />
+				<AnalyticItem
+					title={
+						tw.prefixMatch("md")
+							? `Click through${"\n"}rate`
+							: "Click through rate"
+					}
+					value="54"
+					icon={
+						<FypSvg
+							svg={CursorSvg}
+							width={21}
+							height={26}
+							color="fans-green"
+							style={tw.style("md:hidden")}
+						/>
+					}
+				/>
+			</FansView>
+		</FansView>
+	);
+};
+
 interface ITimeline {
 	date: string;
 	earnings: number;
 }
 
 interface GraphSectionProps {
-	handleOpenMessage: (fanId: string) => void;
-	onDismiss: () => void;
-	handlePressViewFans: () => void;
 	post?: AnalyticsIPost;
 }
 
 export const GraphSection: FC<GraphSectionProps> = (props) => {
-	const { post, onDismiss, handlePressViewFans } = props;
-	const { height } = useWindowDimensions();
+	const { post } = props;
 	const [timeline, setTimeline] = useState<ITimeline[]>([]);
 	const [period, setPeriod] = useState("today");
 	const [duration, setDuration] = useState("Today");
@@ -96,194 +262,26 @@ export const GraphSection: FC<GraphSectionProps> = (props) => {
 	}, [post, duration]);
 
 	return (
-		<ScrollView
-			style={tw.style(
-				!tw.prefixMatch("md") && `max-h-[${height * 0.8}px]`,
-			)}
-		>
-			<FansView
-				style={tw.style("md:pt-5 px-[18px] md:px-8 pb-1 md:pb-9")}
-			>
-				<FansView
-					position="relative"
-					style={tw.style("mb-6 md:mb-5 md:px-8")}
-				>
-					<FypText
-						fontSize={{ xs: 19, md: 23 }}
-						lineHeight={{ xs: 26, md: 31 }}
-						fontWeight={700}
-						textAlign="center"
-					>
-						{post?.title}
-					</FypText>
-					<FansIconButton
-						backgroundColor="bg-fans-black/30 dark:bg-fans-white/30"
-						size={30}
-						onPress={onDismiss}
-						style={[
-							tw.style("absolute right-0 top-1/2 hidden md:flex"),
-							{ transform: [{ translateY: -15 }] },
-						]}
-					>
-						<FypSvg
-							svg={CloseSvg}
-							width={12}
-							height={12}
-							color="fans-white dark:fans-black"
-						/>
-					</FansIconButton>
-				</FansView>
-				<FansDivider style={tw.style("mb-[34px] hidden md:flex")} />
-				<FansView
-					style={tw.style(
-						"flex-col md:flex-row md:justify-content-between gap-3 md:gap-0",
-						"mb-11 md:mb-2",
-					)}
-				>
-					<FansView position="relative" flex="1">
-						<FypText
-							fontSize={23}
-							lineHeight={26}
-							fontWeight={600}
-							style={tw.style("md:mb-[3px]")}
-						>
-							{tw.prefixMatch("md")
-								? `Total${"\n"}revenue`
-								: "Total revenue"}
-						</FypText>
-						<FypText
-							fontSize={34}
-							lineHeight={46}
-							fontWeight={600}
-							style={tw.style(
-								"text-fans-green dark:text-fans-green-29",
-							)}
-						>
-							${earnings}
-						</FypText>
-						<FypSvg
-							svg={Dollar5Svg}
-							width={21}
-							height={23}
-							color="fans-black dark:fans-white"
-							style={tw.style("absolute top-2 right-0 md:hidden")}
-						/>
-						<FansDivider style={tw.style("md:hidden mt-4")} />
-					</FansView>
-					<FansView position="relative" flex="1">
-						<FypText
-							fontSize={23}
-							lineHeight={26}
-							fontWeight={600}
-							style={tw.style("md:mb-[3px]")}
-						>
-							{tw.prefixMatch("md")
-								? `Total${"\n"}purchases`
-								: "Total purchases"}
-						</FypText>
-						<FypText
-							fontSize={34}
-							lineHeight={46}
-							fontWeight={600}
-							style={tw.style(
-								"text-fans-green dark:text-fans-green-29",
-							)}
-						>
-							{purchases}
-						</FypText>
-						<FypSvg
-							svg={ShopSvg}
-							width={21}
-							height={26}
-							color="fans-black dark:fans-white"
-							style={tw.style("absolute top-2 right-0 md:hidden")}
-						/>
-						<FansDivider style={tw.style("md:hidden mt-4")} />
-					</FansView>
-					{/* <FansView position="relative" flex="1">
-						<FypText
-							fontSize={23}
-							lineHeight={26}
-							fontWeight={600}
-							style={tw.style("md:mb-[3px]")}
-						>
-							{tw.prefixMatch("md")
-								? `Click through${"\n"}rate`
-								: "Click through rate"}
-						</FypText>
-						<FypText
-							fontSize={34}
-							lineHeight={46}
-							fontWeight={600}
-							style={tw.style(
-								"text-fans-green dark:text-fans-green-29",
-							)}
-						>
-							54
-						</FypText>
-						<FypSvg
-							svg={CursorSvg}
-							width={21}
-							height={26}
-							color="fans-black dark:fans-white"
-							style={tw.style("absolute top-2 right-0 md:hidden")}
-						/>
-					</FansView> */}
-				</FansView>
-				<FansView margin={{ b: 32 }}>
-					<LineChart
-						timeline={timeline}
-						duration={duration}
-						setDuration={setDuration}
-						period={period}
-						labelTheme="black"
-					/>
-				</FansView>
-				<FansView
-					height={34}
-					gap={12}
-					flexDirection="row"
-					alignItems="center"
-					borderRadius={34}
-					justifyContent="center"
-					style={tw.style(
-						"w-full md:w-[310px] md:mx-auto border",
-						"border-fans-green dark:border-fans-green-29",
-					)}
-					pressableProps={{
-						onPress: handlePressViewFans,
-					}}
-				>
-					<FypSvg
-						svg={ShopSvg}
-						width={10}
-						height={12}
-						color="fans-green dark:fans-green-29"
-					/>
-					<FypText
-						fontSize={17}
-						lineHeight={22}
-						fontWeight={600}
-						style={tw.style(
-							"text-fans-green dark:text-fans-green-29",
-						)}
-					>
-						View purchased
-					</FypText>
-				</FansView>
-			</FansView>
-		</ScrollView>
+		<FansView style={tw.style("pt-8 md:pt-12 pb-8 md:pb-16")}>
+			<LineChart
+				timeline={timeline}
+				duration={duration}
+				setDuration={setDuration}
+				period={period}
+				labelTheme="black"
+			/>
+		</FansView>
 	);
 };
 
 interface FansSectionProps {
 	handleOpenMessage: (fanId: string) => void;
-	handlePrev: () => void;
+
 	post?: AnalyticsIPost;
 }
 
 export const FansSection: FC<FansSectionProps> = (props) => {
-	const { post, handlePrev, handleOpenMessage } = props;
+	const { post, handleOpenMessage } = props;
 	const [fans, setFans] = useState<IUserInfo[]>([]);
 
 	const [searchQuery, setSearchQuery] = useState("");
@@ -306,33 +304,7 @@ export const FansSection: FC<FansSectionProps> = (props) => {
 	}, [post]);
 
 	return (
-		<FansView style={tw.style("md:pt-5 px-[18px] md:px-8 pb-1 md:pb-9")}>
-			<FansView position="relative" margin={{ b: 38 }}>
-				<FypText
-					fontSize={{ xs: 19, md: 23 }}
-					lineHeight={{ xs: 26, md: 31 }}
-					fontWeight={700}
-					textAlign="center"
-				>
-					Purchased
-				</FypText>
-				<FansIconButton
-					size={30}
-					backgroundColor="bg-transparent"
-					style={[
-						tw.style("absolute top-1/2 left-0"),
-						{ transform: [{ translateY: -15 }] },
-					]}
-					onPress={handlePrev}
-				>
-					<FypSvg
-						svg={ChevronLeftSvg}
-						width={7}
-						height={13}
-						color="fans-grey-70 dark:fans-grey-b1"
-					/>
-				</FansIconButton>
-			</FansView>
+		<FansView padding={{ y: 18 }}>
 			<SearchTextInput value={searchQuery} onChangeText={handleSearch} />
 			<FansView margin={{ t: 26 }}>
 				<FansView>
@@ -343,7 +315,7 @@ export const FansSection: FC<FansSectionProps> = (props) => {
 								alignItems="center"
 								padding={{ y: 12 }}
 							>
-								<UserAvatar size="46px" image={fan.avatar} />
+								<UserAvatar size="34px" image={fan.avatar} />
 								<FypText
 									fontSize={19}
 									fontWeight={700}
@@ -354,6 +326,26 @@ export const FansSection: FC<FansSectionProps> = (props) => {
 								>
 									{fan.username}
 								</FypText>
+								<FypLinearGradientView
+									colors={["#24A2FF", "#23C9B1", "#89F276"]}
+									start={[0, 1]}
+									end={[1, 0]}
+									alignItems="center"
+									justifyContent="center"
+									borderRadius={26}
+									margin={{ t: 7 }}
+									height={26}
+									padding={{ x: 13 }}
+									style={tw.style("min-w-[55px]")}
+								>
+									<FypText
+										fontSize={14}
+										fontWeight={600}
+										style={tw.style("text-fans-white")}
+									>
+										$100
+									</FypText>
+								</FypLinearGradientView>
 								<FansIconButton
 									size={34}
 									backgroundColor="bg-fans-grey-f0 dark:bg-fans-grey-43"
@@ -387,6 +379,7 @@ interface Props {
 const PostAnalyticsModal: FC<Props> = (props) => {
 	const { visible, onDismiss, showFans, post, handleOpenMessage } = props;
 
+	const { height } = useWindowDimensions();
 	const [tab, setTab] = useState<"graph" | "fans">("graph");
 
 	useEffect(() => {
@@ -400,20 +393,92 @@ const PostAnalyticsModal: FC<Props> = (props) => {
 			dialogWrapperStyle="md:max-w-[700px] md:w-[700px]"
 			hideTopLine={tw.prefixMatch("md")}
 		>
-			{tab === "graph" ? (
-				<GraphSection
-					onDismiss={onDismiss}
-					handlePressViewFans={() => setTab("fans")}
-					post={post}
-					handleOpenMessage={handleOpenMessage}
-				/>
-			) : (
-				<FansSection
-					handlePrev={() => setTab("graph")}
-					post={post}
-					handleOpenMessage={handleOpenMessage}
-				/>
-			)}
+			<ScrollView
+				style={tw.style(
+					!tw.prefixMatch("md") && `max-h-[${height * 0.8}px]`,
+				)}
+			>
+				<FansView style={tw.style("px-[18px] md:px-[34px]")}>
+					<HeaderSection />
+					<FansView
+						margin={{ t: 35 }}
+						padding={{ b: 14 }}
+						flexDirection="row"
+						alignItems="center"
+						justifyContent="center"
+						style={tw.style(
+							"gap-[90px] md:gap-[180px] border-b border-fans-grey-f0 dark:border-fans-grey-43",
+						)}
+					>
+						<FansView
+							position="relative"
+							pressableProps={{
+								onPress: () => setTab("graph"),
+							}}
+						>
+							<FypText
+								fontSize={17}
+								fontWeight={tab === "graph" ? 600 : 500}
+								style={tw.style(
+									tab === "graph"
+										? "text-fans-black dark:text-fans-white"
+										: "text-fans-grey-48 dark:text-fans-grey-b1",
+								)}
+							>
+								Graph
+							</FypText>
+							{tab === "graph" ? (
+								<FansView
+									position="absolute"
+									width="full"
+									height={2}
+									left={0}
+									bottom={-15}
+									style={tw.style("bg-fans-green")}
+									borderRadius={2}
+								></FansView>
+							) : null}
+						</FansView>
+						<FansView
+							position="relative"
+							pressableProps={{
+								onPress: () => setTab("fans"),
+							}}
+						>
+							<FypText
+								fontSize={17}
+								fontWeight={tab === "fans" ? 600 : 500}
+								style={tw.style(
+									tab === "fans"
+										? "text-fans-black dark:text-fans-white"
+										: "text-fans-grey-48 dark:text-fans-grey-b1",
+								)}
+							>
+								Purchases
+							</FypText>
+							{tab === "fans" ? (
+								<FansView
+									position="absolute"
+									width="full"
+									height={2}
+									left={0}
+									bottom={-15}
+									borderRadius={2}
+									style={tw.style("bg-fans-green")}
+								></FansView>
+							) : null}
+						</FansView>
+					</FansView>
+					{tab === "graph" ? (
+						<GraphSection post={post} />
+					) : (
+						<FansSection
+							post={post}
+							handleOpenMessage={handleOpenMessage}
+						/>
+					)}
+				</FansView>
+			</ScrollView>
 		</BottomSheetWrapper>
 	);
 };

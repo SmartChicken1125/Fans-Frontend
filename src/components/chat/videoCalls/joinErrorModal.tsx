@@ -90,7 +90,7 @@ const JoinErrorModal: FC<Props> = (props) => {
 							margin={{ t: 20, b: 18 }}
 							style={tw.style("text-fans-white")}
 						>
-							We'are sorry, it seems the creator couldn't join!
+							We're sorry, it seems the creator couldn't join!
 						</FypText>
 						<FypText
 							fontSize={16}

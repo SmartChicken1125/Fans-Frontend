@@ -1,12 +1,12 @@
-import { CloseSvg, ChevronLeftSvg, ChevronRightSvg } from "@assets/svgs/common";
-import { FypVideo, FypSvg, FypNullableView } from "@components/common/base";
-import { FansView, FansIconButton } from "@components/controls";
+import { ChevronLeftSvg, ChevronRightSvg, CloseSvg } from "@assets/svgs/common";
+import { FypNullableView, FypSvg, FypVideo } from "@components/common/base";
+import { FansIconButton, FansView } from "@components/controls";
+import { decodeToDataURL } from "@helper/BlurHash";
 import { cdnURL } from "@helper/Utils";
 import tw from "@lib/tailwind";
 import { MediaType, ResizeMode } from "@usertypes/commonEnums";
 import { IMedia } from "@usertypes/types";
-import { Image as ExpoImage } from "expo-image";
-import React, { FC, useState, useEffect } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { Image } from "react-native";
 import { Modal, Portal } from "react-native-paper";
 
@@ -18,25 +18,22 @@ interface Props {
 }
 
 const MediaDialog: FC<Props> = (props) => {
+	console.log("MediaDialog");
 	const { visible, handleClose, selectedId, data } = props;
 	const [index, setIndex] = useState(0);
-	// const [url, setUrl] = useState("");
 	const [imgHeight, setImgHeight] = useState(400);
 
 	const handlePrev = () => {
-		// setUrl(data[index - 1].url || data[index - 1].blurhash || "");
 		setIndex(index - 1);
 	};
 
 	const handleNext = () => {
-		// setUrl(data[index + 1].url || data[index + 1].blurhash || "");
 		setIndex(index + 1);
 	};
 
 	useEffect(() => {
 		const _index = data.findIndex((media) => media.id === selectedId);
 		setIndex(_index);
-		// setUrl(data[_index]?.url ?? "");
 	}, [selectedId]);
 
 	return (
@@ -60,19 +57,13 @@ const MediaDialog: FC<Props> = (props) => {
 				>
 					{data[index]?.type === MediaType.Video ? (
 						<>
-							{data[index].blurhash ? (
-								<ExpoImage
-									source={data[index].blurhash}
-									contentFit="cover"
-									style={[
-										tw.style("w-full bg-fans-grey"),
-										{ height: imgHeight },
-									]}
-								/>
-							) : (
+							{data[index].url ? (
 								<FypVideo
 									source={{
 										uri: cdnURL(data[index].url) ?? "",
+									}}
+									posterSource={{
+										uri: cdnURL(data[index].thumbnail),
 									}}
 									style={[
 										tw.style("w-full bg-fans-grey"),
@@ -80,31 +71,43 @@ const MediaDialog: FC<Props> = (props) => {
 									]}
 									resizeMode={ResizeMode.CONTAIN}
 								/>
+							) : (
+								<Image
+									source={{
+										uri: decodeToDataURL(
+											data[index].blurhash,
+										),
+									}}
+									resizeMode="cover"
+									style={[
+										tw.style("w-full bg-fans-grey"),
+										{ height: imgHeight },
+									]}
+								/>
 							)}
 						</>
 					) : null}
 					{data[index]?.type === MediaType.Image ? (
 						<>
-							{data[index].blurhash ? (
-								<ExpoImage
-									source={data[index].blurhash}
-									contentFit="cover"
-									style={[
-										tw.style("w-full bg-fans-grey"),
-										{ height: imgHeight },
-									]}
-								/>
-							) : (
-								<Image
-									source={{
-										uri: cdnURL(data[index].url ?? ""),
-									}}
-									style={[
-										tw.style("w-full bg-fans-grey"),
-										{ height: imgHeight },
-									]}
-								/>
-							)}
+							<Image
+								source={{
+									uri: decodeToDataURL(data[index].blurhash),
+								}}
+								style={tw.style("w-full", {
+									height: imgHeight,
+									position: "absolute",
+									pointerEvents: "none",
+								})}
+							/>
+							<Image
+								source={{
+									uri: cdnURL(data[index].url ?? ""),
+								}}
+								style={tw.style("w-full", {
+									height: imgHeight,
+									pointerEvents: "none",
+								})}
+							/>
 						</>
 					) : null}
 

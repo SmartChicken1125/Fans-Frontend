@@ -1,6 +1,6 @@
 import { SubscriptionTypes } from "@usertypes/commonEnums";
 import { IProfile } from "@usertypes/types";
-export const defaultStoryFeeds: IProfile[] = [
+export const testStoryFeeds: IProfile[] = [
 	{
 		id: "111185451566895104",
 		userId: "81222749179879424",
@@ -37,9 +37,12 @@ export const defaultStoryFeeds: IProfile[] = [
 				likeCount: 0,
 				commentCount: 0,
 				updatedAt: "2023-12-07T23:22:12.754Z",
-				medias: ["media/ADC4P3r9tgF6JSF_UDqlcEsbK_Pfj-vgMguEky2Zh0o"],
+				media: "media/ADC4P3r9tgF6JSF_UDqlcEsbK_Pfj-vgMguEky2Zh0o",
 				shareCount: 0,
 				isLiked: true,
+				storyTags: [],
+				storyUrls: [],
+				storyTexts: [],
 			},
 			{
 				id: "123564809109647360",
@@ -49,9 +52,12 @@ export const defaultStoryFeeds: IProfile[] = [
 				likeCount: 0,
 				commentCount: 0,
 				updatedAt: "2023-12-07T23:22:26.214Z",
-				medias: ["media/ADC4jYj9tgFf5wuo23oTdv4DgnvaR7KVHYbg3eUQ5f8"],
+				media: "media/ADC4jYj9tgFf5wuo23oTdv4DgnvaR7KVHYbg3eUQ5f8",
 				shareCount: 0,
 				isLiked: true,
+				storyTags: [],
+				storyUrls: [],
+				storyTexts: [],
 			},
 		],
 		stories: [
@@ -63,9 +69,12 @@ export const defaultStoryFeeds: IProfile[] = [
 				likeCount: 0,
 				commentCount: 0,
 				updatedAt: "2023-12-07T23:22:12.754Z",
-				medias: ["media/AAAdIYH5tgF158K3ZOpagdjBag2LtqGZe_hsfdo03BU"],
+				media: "media/AAAdIYH5tgF158K3ZOpagdjBag2LtqGZe_hsfdo03BU",
 				isLiked: false,
 				shareCount: 0,
+				storyTags: [],
+				storyUrls: [],
+				storyTexts: [],
 			},
 			{
 				id: "123564809109647360",
@@ -75,11 +84,15 @@ export const defaultStoryFeeds: IProfile[] = [
 				likeCount: 0,
 				commentCount: 0,
 				updatedAt: "2023-12-07T23:22:26.214Z",
-				medias: ["media/AJCLNK3-tgGYOEjxuSebkiFyQboGvtFqCZqEIYM4iN4"],
+				media: "media/AJCLNK3-tgGYOEjxuSebkiFyQboGvtFqCZqEIYM4iN4",
 				isLiked: false,
 				shareCount: 0,
+				storyTags: [],
+				storyUrls: [],
+				storyTexts: [],
 			},
 		],
+		isDisplayShop: false,
 	},
 	{
 		id: "115164232302080000",
@@ -116,9 +129,12 @@ export const defaultStoryFeeds: IProfile[] = [
 				likeCount: 0,
 				commentCount: 0,
 				updatedAt: "2023-12-07T09:02:17.765Z",
-				medias: ["media/AIAz0qk4tgGmYJb_bxu0wLyiwbAMhat8zg3sFxT6fNM"],
+				media: "media/AIAz0qk4tgGmYJb_bxu0wLyiwbAMhat8zg3sFxT6fNM",
 				shareCount: 0,
 				isLiked: true,
+				storyTags: [],
+				storyUrls: [],
+				storyTexts: [],
 			},
 		],
 		stories: [
@@ -130,12 +146,14 @@ export const defaultStoryFeeds: IProfile[] = [
 				likeCount: 0,
 				commentCount: 0,
 				updatedAt: "2023-12-07T09:02:17.765Z",
-				medias: [
-					"media/81222749179879424/AEBJYPiSJgFD95kNqpNR1jiD3xxyNQjo.png",
-				],
+				media: "media/81222749179879424/AEBJYPiSJgFD95kNqpNR1jiD3xxyNQjo.png",
 				isLiked: false,
 				shareCount: 0,
+				storyTags: [],
+				storyUrls: [],
+				storyTexts: [],
 			},
 		],
+		isDisplayShop: false,
 	},
 ];

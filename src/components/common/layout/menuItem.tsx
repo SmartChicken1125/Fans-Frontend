@@ -20,6 +20,7 @@ import {
 	ChatSvg,
 	ShopSvg,
 	VaultSvg,
+	PayoutsSvg,
 } from "@assets/svgs/common";
 import { FypText, FypSvg } from "@components/common/base";
 import { FansView } from "@components/controls";
@@ -151,6 +152,15 @@ const MenuItem: FC<Props> = (props) => {
 						svg={VaultSvg}
 						width={25}
 						height={21}
+						color="fans-black dark:fans-white"
+					/>
+				);
+			case "Payouts":
+				return (
+					<FypSvg
+						svg={PayoutsSvg}
+						width={27}
+						height={23}
 						color="fans-black dark:fans-white"
 					/>
 				);

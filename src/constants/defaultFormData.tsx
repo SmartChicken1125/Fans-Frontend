@@ -4,6 +4,7 @@ import {
 	DurationType,
 	PostType,
 	PromotionType,
+	MediaType,
 } from "@usertypes/commonEnums";
 import { IPaymentCard, IPollForm, IPostForm } from "@usertypes/types";
 
@@ -17,10 +18,11 @@ export const defaultAudioDetail = {
 };
 
 export const defaultPollFormData: IPollForm = {
+	id: "0",
 	question: "",
 	caption: "",
 	answers: [""],
-	cover: { uri: "", isPicker: true },
+	cover: { uri: "", isPicker: true, type: MediaType.Image },
 	endDate: undefined,
 	isPublic: true,
 };
@@ -34,7 +36,7 @@ export const defaultFundraiserFormData = {
 	endDate: undefined,
 	timezone: "GMT +0:00",
 	isXpAdd: false,
-	cover: { uri: "", isPicker: true },
+	cover: { uri: "", isPicker: true, type: MediaType.Image },
 };
 
 export const defaultAddGiveawayFormData = {
@@ -46,17 +48,19 @@ export const defaultAddGiveawayFormData = {
 	cover: {
 		uri: "",
 		isPicker: true,
+		type: MediaType.Image,
 	},
 };
 
 export const defaultPostFormData: IPostForm = {
 	id: "0",
 	title: "",
-	type: PostType.Photo,
+	type: PostType.Media,
 	caption: "",
 	thumb: {
 		uri: "",
 		isPicker: true,
+		type: MediaType.Image,
 	},
 	medias: [],
 	roles: [],
@@ -86,7 +90,6 @@ export const defaultPostFormData: IPostForm = {
 	uploadFiles: [],
 	isReleaseForm: false,
 	carouselIndex: 0,
-	newUsertags: [],
 	categoryForm: {
 		isAll: true,
 		categoryName: "",

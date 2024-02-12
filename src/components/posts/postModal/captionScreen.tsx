@@ -1,6 +1,7 @@
+import { defaultPostFormData } from "@constants/defaultFormData";
 import { IconTypes, PostStepTypes, PostType } from "@usertypes/commonEnums";
 import { IPostForm } from "@usertypes/types";
-import React, { FC } from "react";
+import React, { FC, useState, useEffect } from "react";
 import { View } from "react-native";
 import { CaptionForm } from "../share";
 import ModalHeader from "./modalHeader";
@@ -11,6 +12,7 @@ interface Props {
 	inProgress: boolean;
 	progress: number;
 	titleIcon: IconTypes;
+	handleClearForm: () => void;
 	handleNext: () => void;
 	handleChangeTab: (tab: PostStepTypes) => void;
 	handleUpdatePostForm: (data: Partial<IPostForm>) => void;
@@ -22,19 +24,20 @@ const CaptionScreen: FC<Props> = (props) => {
 		inProgress,
 		progress,
 		titleIcon,
+		handleClearForm,
 		handleNext,
 		handleChangeTab,
 		handleUpdatePostForm,
 	} = props;
+
+	const [caption, setCaption] = useState("");
 
 	const handleSave = () => {
 		handleNext();
 	};
 
 	const handleChangeCaption = (val: string) => {
-		handleUpdatePostForm({
-			caption: val,
-		});
+		setCaption(val);
 	};
 
 	const getRightLabel = () => {
@@ -46,12 +49,33 @@ const CaptionScreen: FC<Props> = (props) => {
 	};
 
 	const handlePrev = () => {
-		if (data.type === PostType.Text) {
-			handleChangeTab(PostStepTypes.Text);
-		} else {
-			handleChangeTab(PostStepTypes.Thumbnail);
+		if (data.id !== defaultPostFormData.id) {
+			handleClearForm();
+			return;
+		}
+
+		switch (data.type) {
+			case PostType.Text:
+				handleChangeTab(PostStepTypes.Text);
+				break;
+			case PostType.Vault:
+				handleChangeTab(PostStepTypes.Vault);
+				break;
+			default:
+				handleChangeTab(PostStepTypes.Thumbnail);
+				break;
 		}
 	};
+
+	const onPointerLeave = () => {
+		handleUpdatePostForm({
+			caption: caption,
+		});
+	};
+
+	useEffect(() => {
+		setCaption(data.caption);
+	}, [data.caption]);
 
 	return (
 		<View>
@@ -66,9 +90,13 @@ const CaptionScreen: FC<Props> = (props) => {
 			<ScreenWrapper>
 				<CaptionForm
 					data={data}
-					caption={data.caption}
+					caption={caption}
 					onChangeCaption={handleChangeCaption}
-					onNavigateLink={(link) => handleChangeTab(link.stepType)}
+					onNavigateLink={(link) => {
+						onPointerLeave();
+						handleChangeTab(link.stepType);
+					}}
+					onPointerLeave={onPointerLeave}
 				/>
 			</ScreenWrapper>
 		</View>
