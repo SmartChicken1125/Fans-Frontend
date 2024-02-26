@@ -2,9 +2,9 @@ import { Close1Svg, Close2Svg } from "@assets/svgs/common";
 import UserAvatar from "@components/avatar/UserAvatar";
 import RoundButton from "@components/common/RoundButton";
 import {
+	FypLinearGradientView,
 	FypSvg,
 	FypText,
-	FypLinearGradientView,
 } from "@components/common/base";
 import PaymentMethodDropdown from "@components/common/paymentMethodDropdown";
 import {
@@ -13,7 +13,7 @@ import {
 	FansText,
 	FansView,
 } from "@components/controls";
-import { SubscriptionButton, AddPaymentCardDialog } from "@components/profiles";
+import { AddPaymentCardDialog, SubscriptionButton } from "@components/profiles";
 import { ANIMATION_LOADING_DIALOG_ID } from "@constants/modal";
 import {
 	CommonActionType,
@@ -21,6 +21,10 @@ import {
 	useAppContext,
 } from "@context/useAppContext";
 import { cdnURL } from "@helper/Utils";
+import {
+	getChatPaidPostPrice,
+	purchaseChatPaidPost,
+} from "@helper/endpoints/chat/apis";
 import {
 	getPaidPostPrice,
 	purchasePaidPost,
@@ -57,6 +61,7 @@ const SubscribeDialog: FC = () => {
 		bundleId,
 		defaultTab,
 		post,
+		message,
 		onSuccess,
 		checkAccessSubscribedUser,
 		paidPostCallback,
@@ -136,10 +141,25 @@ const SubscribeDialog: FC = () => {
 			};
 
 			const getPaidPostPriceData = async () => {
-				if (!post) return;
+				if (!message) return;
 
 				const paidPostPriceData = await getPaidPostPrice({
-					id: post.id,
+					id: message.id,
+					customerPaymentProfileId: payment,
+				});
+				if (paidPostPriceData.ok) {
+					setPrice(paidPostPriceData.data.amount);
+					setPlatformFee(paidPostPriceData.data.platformFee);
+					setVatFee(paidPostPriceData.data.vatFee);
+					setTotal(paidPostPriceData.data.totalAmount);
+				}
+			};
+
+			const getChatPaidPostPriceData = async () => {
+				if (!message) return;
+
+				const paidPostPriceData = await getChatPaidPostPrice({
+					id: message.id,
 					customerPaymentProfileId: payment,
 				});
 				if (paidPostPriceData.ok) {
@@ -163,6 +183,9 @@ const SubscribeDialog: FC = () => {
 				case SubscribeActionType.Post:
 					getPaidPostPriceData();
 					break;
+				case SubscribeActionType.ChatPost:
+					getChatPaidPostPriceData();
+					break;
 				default:
 					break;
 			}
@@ -174,6 +197,7 @@ const SubscribeDialog: FC = () => {
 		post,
 		visible,
 		payment,
+		message,
 	]);
 
 	const handleAddMethod = () => {
@@ -317,6 +341,31 @@ const SubscribeDialog: FC = () => {
 		}
 	};
 
+	const onPurchaseChatPost = async () => {
+		if (!message) return;
+
+		const purchasePaidPostData = await purchaseChatPaidPost({
+			messageId: message.id,
+			customerPaymentProfileId: payment,
+		});
+		hideLoading();
+		if (purchasePaidPostData.ok) {
+			handleClose();
+			Toast.show({
+				type: "success",
+				text1: "Success",
+				text2: `You have successfully purchased post from ${creator.displayName}`,
+			});
+			if (onSuccess) onSuccess();
+		} else {
+			Toast.show({
+				type: "error",
+				text1: "Error",
+				text2: purchasePaidPostData.data.message,
+			});
+		}
+	};
+
 	const onPayment = () => {
 		if (!payment && price !== 0) {
 			Toast.show({
@@ -337,6 +386,9 @@ const SubscribeDialog: FC = () => {
 				break;
 			case SubscribeActionType.Post:
 				onPurchasePost();
+				break;
+			case SubscribeActionType.ChatPost:
+				onPurchaseChatPost();
 				break;
 			default:
 				break;
@@ -384,6 +436,23 @@ const SubscribeDialog: FC = () => {
 											"rounded-t-[15px] w-full h-[85px]",
 										)}
 									/>
+								)}
+
+								{creator.isNSFW && (
+									<FansView
+										style={tw.style(
+											"absolute top-[17px] left-[17px] rounded-[10px] bg-black bg-opacity-40 h-[20px] pl-[11px] pr-[8px] mr-auto",
+										)}
+									>
+										<FansText
+											color={"white"}
+											fontSize={13}
+											fontFamily="inter-semibold"
+											style={tw.style("mt-auto mb-auto")}
+										>
+											18+ CONTENT
+										</FansText>
+									</FansView>
 								)}
 							</FansView>
 

@@ -4,6 +4,7 @@ import ReferCreatorsEarnScreen from "@screens/settings/referCreators/ReferAndEar
 import { ProfileNavigationStacks } from "@usertypes/navigations";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
+import ReviewsScreen from "./Reviews";
 import AddCardScreen from "./addCardScreen";
 import {
 	AddCategoryScreen,
@@ -296,6 +297,7 @@ const ProfileLayout = () => {
 					headerShown: false,
 				}}
 			/>
+			<Stack.Screen name="Reviews" component={ReviewsScreen} />
 		</Stack.Navigator>
 	);
 };

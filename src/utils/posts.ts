@@ -136,8 +136,8 @@ export const getCreatePostData = (data: {
 
 	if (postForm.schedule.startDate !== undefined) {
 		const offset =
-			timezones.find((tz) => tz.value === postForm.schedule.timezone)
-				?.offset ?? 0;
+			timezones.find((tz) => tz.tzCode === postForm.schedule.timezone)
+				?.utc ?? "+00:00";
 		const startDate = moment({
 			year: postForm.schedule.startDate.getFullYear(),
 			month: postForm.schedule.startDate.getMonth(),
@@ -145,7 +145,7 @@ export const getCreatePostData = (data: {
 			hours: postForm.schedule.time.hours,
 			minutes: postForm.schedule.time.minutes,
 		})
-			.utcOffset(offset, true)
+			.zone(offset)
 			.format();
 		postBody.schedule = {
 			startDate: startDate,

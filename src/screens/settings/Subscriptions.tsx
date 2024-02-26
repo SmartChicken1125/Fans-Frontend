@@ -31,6 +31,7 @@ import {
 import {
 	SubscribeActionType,
 	SubscriptionFilterTypes,
+	SubscriptionTypes,
 } from "@usertypes/commonEnums";
 import { SettingsSubscriptionsNativeStackParams } from "@usertypes/navigations";
 import { Subscription } from "@usertypes/types";
@@ -293,9 +294,10 @@ const SubscriptionsContentView = (
 				onDeleteSubscription={() =>
 					setCancelSubscriptionModalVisible(true)
 				}
-				onRenewSubscription={() =>
-					handleOpenSubscribeModal(selectedSubscription)
-				}
+				onRenewSubscription={() => {
+					setOpenActions(0);
+					handleOpenSubscribeModal(selectedSubscription);
+				}}
 			/>
 			<CancelSubscriptionModal
 				visible={isCancelSubscriptionModalVisible}

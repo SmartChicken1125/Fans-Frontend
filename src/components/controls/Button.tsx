@@ -67,7 +67,7 @@ export const FansButton: IFansButton = (props) => {
 
 	return (
 		<FansView style={[tw.style(buttonStyles), style]}>
-			<TouchableOpacity {...props_}>
+			<TouchableOpacity {...props_} style={tw.style("w-full h-full")}>
 				{children ? (
 					children
 				) : (
@@ -79,6 +79,10 @@ export const FansButton: IFansButton = (props) => {
 								osSelect("text-19px", {
 									desktop: "text-24px",
 								}),
+								"mt-auto",
+								"mb-auto",
+								"ml-auto",
+								"mr-auto",
 							),
 							containerStyle,
 						]}

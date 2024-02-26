@@ -84,7 +84,14 @@ const AddResourceBar: FC<Props> = (props) => {
 		[carouselIndex],
 	);
 
-	if (![PostType.Video, PostType.Photo, PostType.Vault].includes(type)) {
+	if (
+		![
+			PostType.Video,
+			PostType.Photo,
+			PostType.Vault,
+			PostType.Media,
+		].includes(type)
+	) {
 		return null;
 	}
 

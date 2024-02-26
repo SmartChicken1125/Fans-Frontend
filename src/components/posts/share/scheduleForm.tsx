@@ -85,9 +85,10 @@ const ScheduleForm: FC<Props> = (props) => {
 					Time Zone
 				</FansText>
 				<FypDropdown
+					search
 					data={timezones.map((tz) => ({
-						data: tz.value,
-						label: tz.label,
+						data: tz.tzCode,
+						label: tz.name,
 					}))}
 					value={data.timezone}
 					onSelect={(val) => onChangeField("timezone", val as string)}

@@ -207,6 +207,10 @@ export const usersListData: IUserList[] = [
 				categories: [],
 				stories: [],
 				isDisplayShop: false,
+				review: {
+					score: 0,
+					total: 0,
+				},
 			},
 		],
 		enabled: true,

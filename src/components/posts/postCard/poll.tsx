@@ -9,14 +9,14 @@ import React, { FC, useState, useEffect } from "react";
 import Toast from "react-native-toast-message";
 
 interface PollAnswerProps {
-	showPercent: boolean;
+	isVoted: boolean;
 	voteCounts: number;
 	onPressAnswer: () => void;
 	answer: IPollAnswer;
 }
 
 const PollAnswer: FC<PollAnswerProps> = (props) => {
-	const { answer, onPressAnswer, voteCounts, showPercent } = props;
+	const { answer, onPressAnswer, voteCounts, isVoted } = props;
 	const percent =
 		voteCounts === 0
 			? 0
@@ -47,7 +47,7 @@ const PollAnswer: FC<PollAnswerProps> = (props) => {
 			>
 				{answer.answer}
 			</FypText>
-			<FypNullableView visible={showPercent}>
+			<FypNullableView visible={isVoted}>
 				<FypText
 					fontSize={16}
 					lineHeight={21}
@@ -58,7 +58,7 @@ const PollAnswer: FC<PollAnswerProps> = (props) => {
 					{`${percent}%`}
 				</FypText>
 			</FypNullableView>
-			<FypNullableView visible={showPercent}>
+			<FypNullableView visible={isVoted}>
 				<FansView
 					position="absolute"
 					height={42}
@@ -86,7 +86,7 @@ const Poll: FC<Props> = (props) => {
 	const [showPercent, setShowPercent] = useState(false);
 
 	const onPressAnswer = async (answerId: string) => {
-		if (poll) {
+		if (poll && !poll.isVoted) {
 			const resp = await createPollVote({
 				pollId: poll?.id ?? "",
 				answerId: answerId,
@@ -122,7 +122,7 @@ const Poll: FC<Props> = (props) => {
 						answer={answer}
 						voteCounts={voteCounts}
 						onPressAnswer={() => onPressAnswer(answer.id)}
-						showPercent={showPercent}
+						isVoted={poll.isVoted}
 					/>
 				))}
 			</FansView>

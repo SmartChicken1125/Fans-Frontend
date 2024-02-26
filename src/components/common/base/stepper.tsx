@@ -8,10 +8,11 @@ import { FypSvg } from "./svg";
 interface StepPositionProps {
 	currentStep: number;
 	index: number;
+	onSelect: () => void;
 }
 
 const StepPosition: FC<StepPositionProps> = (props) => {
-	const { index, currentStep } = props;
+	const { index, currentStep, onSelect } = props;
 	const gradientColors = [
 		["#1D21E5", "#673CEE"],
 		["#6E3FEE", "#8848F1"],
@@ -26,16 +27,28 @@ const StepPosition: FC<StepPositionProps> = (props) => {
 		"#D885FF",
 	];
 	return index < currentStep ? (
-		<FypLinearGradientView
-			colors={gradientColors[index] ?? []}
+		<FansView
 			width={25}
 			height={25}
 			borderRadius={25}
-			alignItems="center"
-			justifyContent="center"
+			pressableProps={{ onPress: onSelect }}
 		>
-			<FypSvg svg={CheckSvg} width={12} height={8} color="fans-white" />
-		</FypLinearGradientView>
+			<FypLinearGradientView
+				colors={gradientColors[index] ?? []}
+				width={25}
+				height={25}
+				borderRadius={25}
+				alignItems="center"
+				justifyContent="center"
+			>
+				<FypSvg
+					svg={CheckSvg}
+					width={12}
+					height={8}
+					color="fans-white"
+				/>
+			</FypLinearGradientView>
+		</FansView>
 	) : (
 		<FansView
 			width={25}
@@ -83,10 +96,17 @@ const StepLine: FC<StepLinePros> = (props) => {
 interface Props {
 	currentStep: number;
 	steps: string[];
+	onSelect?: (step: number) => void;
 }
 
 const FypStepper: FC<Props> = (props) => {
-	const { currentStep, steps } = props;
+	const { currentStep, steps, onSelect } = props;
+
+	const handleSelect = (step: number) => {
+		if (onSelect) {
+			onSelect(step);
+		}
+	};
 
 	return (
 		<FansView
@@ -97,7 +117,11 @@ const FypStepper: FC<Props> = (props) => {
 		>
 			{steps.map((step, index) => (
 				<Fragment key={step}>
-					<StepPosition currentStep={currentStep} index={index} />
+					<StepPosition
+						currentStep={currentStep}
+						index={index}
+						onSelect={() => handleSelect(index)}
+					/>
 					{index !== steps.length - 1 ? (
 						<StepLine currentStep={currentStep} index={index} />
 					) : null}

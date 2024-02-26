@@ -103,6 +103,18 @@ export const MessageReportFlags = [
 ] as const;
 export type MessageReportFlag = (typeof MessageReportFlags)[number];
 
+export const videoCallSettingProgresses = [
+	"None",
+	"Pricing",
+	"Availability",
+	"Content",
+	"Description",
+	"Notifications",
+	"Completed",
+] as const;
+export type VideoCallSettingProgresses =
+	(typeof videoCallSettingProgresses)[number];
+export type RecipientPronoun = "He" | "She" | "They";
 export interface StringIdParam {
 	id: string;
 }
@@ -165,6 +177,11 @@ export interface IProfile {
 	isAllowedScreenshot?: boolean;
 	watermark?: boolean;
 	isDisplayShop: boolean;
+
+	review: {
+		total: number;
+		score: number;
+	};
 }
 
 export interface IOAuth2LinkedAccount {
@@ -198,6 +215,7 @@ export interface IUserInfo {
 	ageVerifyId?: string;
 	ageVerifyStatus?: AgeVerifyStatus;
 	isShowProfile?: boolean;
+	isOlderThan18?: boolean;
 }
 
 export interface IUser {
@@ -215,6 +233,7 @@ export interface IUser {
 	gemsAmount?: number;
 	payoutBalance?: number;
 	isShowProfile?: boolean;
+	isOlderThan18?: boolean;
 }
 
 export interface IUserBasic {
@@ -557,6 +576,7 @@ export interface IPoll {
 	isPublic: boolean;
 	roles: IRole[];
 	updatedAt: string;
+	isVoted: boolean;
 }
 
 export interface IPollForm {
@@ -629,8 +649,8 @@ export interface IUserTag {
 }
 
 // export interface INewTaggedPeople {
-// 	postMediaId: string;
-// 	tags: IUserTag[];
+//  postMediaId: string;
+//  tags: IUserTag[];
 // }
 
 export interface IAudioDetail {
@@ -865,10 +885,19 @@ export const enum MessageType {
 	TIP = 2,
 	PAID_POST = 3,
 	GIF = 4,
+	VIDEO_CALL_NOTIFICATION = 5,
 }
 
 export const enum MessageChannelType {
 	DIRECT = 0,
+}
+
+export interface IVideoCallNotification {
+	meetingId: string;
+	status: "Pending" | "Accepted" | "Cancelled";
+	date: string;
+	time: string;
+	amount: number;
 }
 
 export interface IMessage {
@@ -880,9 +909,10 @@ export interface IMessage {
 	content: string;
 	emoji?: number;
 	media?: IMedia[];
-	previewImages?: string;
-	value?: number;
-	status?: string;
+	previewMedia?: IMedia[];
+	value?: string;
+	status?: TransactionStatus;
+	videoCallNotification?: IVideoCallNotification;
 	parentId?: string;
 	parentMessage?: IMessage;
 }
@@ -1115,22 +1145,6 @@ export interface Timeframe {
 	endTime: string;
 	dayOfTheWeek: string;
 }
-export interface NotificationsSettings {
-	newRequests: boolean;
-	cancellations: boolean;
-	reminders: boolean;
-	notificationsByEmail: boolean;
-	notificationsByPhone: boolean;
-}
-
-export interface CameoNotificationsSettings {
-	newRequests: boolean;
-	pendingVideos: boolean;
-	completedRequests: boolean;
-	notificationsByEmail: boolean;
-	notificationsByPhone: boolean;
-}
-
 export interface RequestLimitationSettings {
 	fulFillmentTimeFrame: string;
 	numberRequestsType: string;
@@ -1169,43 +1183,64 @@ export interface SocialMediaUrl {
 }
 
 export interface IVideoCallSetting {
-	timeZone: string;
-	timeframes: ITimeframeInterval[];
+	timezone?: string;
 	bufferBetweenCalls: number;
+	meetingType: VideoCallWays;
 	sexualContentAllowed: boolean;
 	contentPreferences: string[];
 	customContentPreferences: string;
-	meetingType: VideoCallWays;
 	meetingDescription: string;
-	vacationMode: boolean;
-	meetingDurations: IVideoCallDuration[];
+	vacationEnabled: boolean;
 	notificationNewRequests: boolean;
 	notificationCancellations: boolean;
 	notificationReminders: boolean;
 	notificationsByEmail: boolean;
 	notificationsByPhone: boolean;
 	videoCallsEnabled: boolean;
+	progress: VideoCallSettingProgresses;
+}
+
+export interface ICustomVideoSettings {
+	volumeLimit: {
+		amount: null | number;
+		unit: string;
+	};
+	fulfillmentTime: number;
+	description: string;
+	sexualContentEnabled: boolean;
+	contentTypes: string[];
+	customContentType: string;
+	agreedToTerms: boolean;
+	notificationNewRequests: boolean;
+	notificationPendingVideos: boolean;
+	notificationCompletedRequests: boolean;
+	notificationsByEmail: boolean;
+	notificationsByPhone: boolean;
+	customVideoEnabled: boolean;
+}
+
+export interface ICreatorCustomVideoSettings {
+	description: string;
+	sexualContentEnabled: boolean;
+	contentTypes: string[];
+	customContentType: string;
+	customVideoDurations: IVideoDuration[];
 	isAvailable: boolean;
 }
 
+export interface ICreatorVideoCallSettings {
+	bufferBetweenCalls: number;
+	meetingType: VideoCallWays;
+	sexualContentAllowed: boolean;
+	contentPreferences: string[];
+	customContentPreferences: string;
+	meetingDescription: string;
+	meetingDurations: IVideoDuration[];
+}
+
 export interface IProfileSettings {
-	video: IVideoCallSetting;
-	cameo: {
-		pricesDuration: PriceDuration[];
-		sexualContent: boolean;
-		additionalContentPreferences: string;
-		contentPreferences: string[];
-		timeframes: Timeframe[];
-		tos: string;
-		requestLimitations: RequestLimitationSettings;
-		responseDescription: string;
-		uploadPreviews: string;
-		notifications: CameoNotificationsSettings;
-		customVideoOrdersEnabled: boolean;
-		vacationMode: boolean;
-		vacationModeInterval: string;
-		videoCallsEnabled: boolean;
-	};
+	video?: ICreatorVideoCallSettings;
+	cameo: ICreatorCustomVideoSettings;
 	fanProfile: {
 		bio: string;
 		displayName: string;
@@ -1373,7 +1408,7 @@ export const transactionStatuses = [
 ] as const;
 export type TransactionStatus = (typeof transactionStatuses)[number];
 
-export interface IVideoCallDuration {
+export interface IVideoDuration {
 	id: string;
 	length: number;
 	price: number;
@@ -1381,11 +1416,16 @@ export interface IVideoCallDuration {
 	isEnabled: boolean;
 }
 
+export interface IVideoDurationForm extends IVideoDuration {
+	isNew?: boolean;
+}
+
 export interface ITimeframeInterval {
 	id: string;
 	startTime: string;
 	length: number;
 	day: number;
+	isNew?: boolean;
 }
 
 export type SortType = "Newest" | "Oldest";
@@ -1423,10 +1463,36 @@ export interface IVideoCallAttendant {
 	createdAt: string;
 	updatedAt: string;
 	isShowProfile: boolean;
+	isOlderThan18: boolean;
 }
 
 export interface IDatePickerVaildRange {
 	startDate?: Date;
 	endDate?: Date;
 	disabledDates?: Date[];
+}
+
+export interface ICustomVideoOrder {
+	id: string;
+	fanId: string;
+	creatorId: string;
+	instructions: string;
+	recipientName: string;
+	recipientPronoun: RecipientPronoun;
+	status: MeetingStatusType;
+	duration: number;
+	price: {
+		currency: string;
+		amount: number;
+	};
+	currency: string;
+	review: string;
+	dueDate: string;
+}
+export interface IReview {
+	id: string;
+	creatorId: string;
+	creator: IProfile;
+	score: number;
+	text: string;
 }

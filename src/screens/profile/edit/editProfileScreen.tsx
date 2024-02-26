@@ -109,9 +109,7 @@ const EditProfileScreen = (
 		}
 
 		setInProgress(true);
-		const birthday = moment(formData.birthday)
-			.utcOffset("+000", true)
-			.toDate();
+		const birthday = moment(formData.birthday).toDate();
 		await updateSetting({
 			birthdate: birthday,
 		});
@@ -633,12 +631,18 @@ const EditProfileScreen = (
 										navigation.navigate("GetPaid");
 									}}
 								/>
-								<EditSubLink
-									title="Fans levels / roles"
-									onPress={() => {
-										navigation.navigate("Levels");
-									}}
-								/>
+								<FypNullableView
+									visible={featureGates.has(
+										"2024_02-xp-system",
+									)}
+								>
+									<EditSubLink
+										title="Fans levels / roles"
+										onPress={() => {
+											navigation.navigate("Levels");
+										}}
+									/>
+								</FypNullableView>
 								<FypNullableView visible={job2Enabled}>
 									<EditSubLink
 										title="Badge system"

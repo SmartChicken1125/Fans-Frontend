@@ -34,7 +34,7 @@ import React, { useState, useEffect } from "react";
 import { Image } from "react-native";
 
 const FanScreen = (
-	props: NativeStackScreenProps<VideoCallStackParams, "Fan">,
+	props: NativeStackScreenProps<VideoCallStackParams, "FanCall">,
 ) => {
 	const { route } = props;
 	const { id: meetingId } = route.params;

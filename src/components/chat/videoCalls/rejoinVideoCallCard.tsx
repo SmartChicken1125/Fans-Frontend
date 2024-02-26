@@ -16,15 +16,15 @@ const RejoinVideoCallCard = () => {
 
 	const handlePressJoin = () => {
 		router.replace({
-			pathname: "video-call",
-			params: { screen: "Creator" },
+			pathname: "videocall",
+			params: { screen: "CreatorCall" },
 		});
 	};
 
 	const handleCancel = () => {
 		router.replace({
-			pathname: "video-call",
-			params: { screen: "Fan" },
+			pathname: "videocall",
+			params: { screen: "FanCall" },
 		});
 	};
 

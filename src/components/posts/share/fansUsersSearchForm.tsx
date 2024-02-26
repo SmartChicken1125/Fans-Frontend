@@ -3,20 +3,29 @@ import { FypText } from "@components/common/base";
 import { FansView } from "@components/controls";
 import { SelectableUserListItem } from "@components/posts/common";
 import { getFansUsers } from "@helper/endpoints/post/apis";
+import { FansUsersRespBody } from "@helper/endpoints/post/schemas";
 import tw from "@lib/tailwind";
 import { IFansUser } from "@usertypes/types";
 import React, { FC, useState, useEffect } from "react";
-import { ScrollView } from "react-native";
+import { NativeScrollEvent, ScrollView } from "react-native";
 
 interface Props {
 	handleSave: (fans: IFansUser[]) => void;
 }
 
+const SCROLL_SIZE = 10;
+
 const FansUsersSearchForm: FC<Props> = (props) => {
 	const { handleSave } = props;
 
 	const [searchKey, setSearchKey] = useState("");
-	const [fanUsers, setFanUsers] = useState<IFansUser[]>([]);
+	const [inLoadingMore, setInLoadingMore] = useState(false);
+	const [fanUsers, setFanUsers] = useState<FansUsersRespBody>({
+		fans: [],
+		page: 1,
+		size: SCROLL_SIZE,
+		total: 0,
+	});
 	const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
 
 	const handleToggleUser = (userId: string) => {
@@ -29,19 +38,48 @@ const FansUsersSearchForm: FC<Props> = (props) => {
 
 	const handlePressDone = () => {
 		handleSave(
-			fanUsers.filter((user) => selectedUserIds.includes(user.id)),
+			fanUsers.fans.filter((user) => selectedUserIds.includes(user.id)),
 		);
 	};
 
-	const fetchFanUsers = async () => {
-		const resp = await getFansUsers({ query: searchKey });
+	const fetchFanUsers = async (page: number) => {
+		const filterObject = {
+			page: page,
+			size: SCROLL_SIZE,
+			query: searchKey,
+		};
+
+		const resp = await getFansUsers(filterObject);
+		setInLoadingMore(false);
 		if (resp.ok) {
-			setFanUsers(resp.data.fans);
+			setFanUsers({
+				...resp.data,
+				fans:
+					resp.data.page === 1
+						? resp.data.fans
+						: [...fanUsers.fans, ...resp.data.fans],
+			});
+		}
+	};
+
+	const onScrollView = (nativeEvent: NativeScrollEvent) => {
+		const paddingToBottom = 20;
+		const isScrollEnd =
+			nativeEvent.layoutMeasurement.height +
+				nativeEvent.contentOffset.y >=
+			nativeEvent.contentSize.height - paddingToBottom;
+		if (
+			isScrollEnd &&
+			!inLoadingMore &&
+			fanUsers.total > SCROLL_SIZE * fanUsers.page
+		) {
+			setInLoadingMore(true);
+			fetchFanUsers(fanUsers.page + 1);
 		}
 	};
 
 	useEffect(() => {
-		fetchFanUsers();
+		fetchFanUsers(1);
 	}, [searchKey]);
 
 	return (
@@ -77,9 +115,15 @@ const FansUsersSearchForm: FC<Props> = (props) => {
 			>
 				Fans
 			</FypText>
-			<FansView flex="1">
-				<ScrollView>
-					{fanUsers.map((fanUser) => (
+			<ScrollView
+				style={tw.style("max-h-[480px]")}
+				onScroll={({ nativeEvent }) => onScrollView(nativeEvent)}
+				scrollEventThrottle={16}
+				showsVerticalScrollIndicator
+				showsHorizontalScrollIndicator={false}
+			>
+				<FansView flex="1">
+					{fanUsers.fans.map((fanUser) => (
 						<SelectableUserListItem
 							key={fanUser.id}
 							avatar={fanUser.avatar}
@@ -89,8 +133,8 @@ const FansUsersSearchForm: FC<Props> = (props) => {
 							selected={selectedUserIds.includes(fanUser.id)}
 						/>
 					))}
-				</ScrollView>
-			</FansView>
+				</FansView>
+			</ScrollView>
 		</FansView>
 	);
 };

@@ -16,11 +16,12 @@ import {
 	FypButton2,
 } from "@components/common/base";
 import { FansDivider, FansIconButton, FansView } from "@components/controls";
-import { OrderCard } from "@components/videoCall";
+import { VideoCallOrderCard } from "@components/videoCall";
 import { testPaymentToken } from "@constants/common";
 import { PENDING_ORDERS_DIALOG_ID } from "@constants/modal";
 import { ModalState } from "@context/state/modalState";
 import { useAppContext, ModalActionType } from "@context/useAppContext";
+import { formatPrice } from "@helper/Utils";
 import {
 	getVideoCallMeetings,
 	acceptMeetingById,
@@ -36,7 +37,7 @@ import {
 } from "@usertypes/commonEnums";
 import { IProfile } from "@usertypes/types";
 import { isDesktop } from "@utils/global";
-import React, { FC, useState, useRef, useEffect, useCallback } from "react";
+import React, { FC, useState, useRef, useEffect } from "react";
 import {
 	Image,
 	ScrollView,
@@ -118,12 +119,6 @@ const OrderCardGroup: FC<OrderCardGroupProps> = (props) => {
 		};
 	};
 
-	const getTotalRevenue = useCallback(() => {
-		let sum = 0;
-		data.meetings.forEach((meeting) => (sum += meeting.price.amount));
-		return sum;
-	}, [data]);
-
 	return (
 		<FansView>
 			<FansView
@@ -149,7 +144,7 @@ const OrderCardGroup: FC<OrderCardGroupProps> = (props) => {
 					lineHeight={21}
 					style={tw.style("text-fans-grey-48 dark:text-fans-grey-b1")}
 				>
-					{`Total revenue: $${getTotalRevenue()}`}
+					{`Total revenue: ${formatPrice(data.totalPrice ?? 0)}`}
 				</FypText>
 			</FansView>
 			{isDesktop ? (
@@ -163,7 +158,7 @@ const OrderCardGroup: FC<OrderCardGroupProps> = (props) => {
 								key={meeting.id}
 								padding={{ x: 4 }}
 							>
-								<OrderCard
+								<VideoCallOrderCard
 									data={meeting}
 									profile={profile}
 									title="AWAITING ACCEPTANCE"
@@ -195,7 +190,7 @@ const OrderCardGroup: FC<OrderCardGroupProps> = (props) => {
 								width={cardWidth + 8}
 								padding={{ x: 4 }}
 							>
-								<OrderCard
+								<VideoCallOrderCard
 									profile={profile}
 									data={item}
 									title="AWAITING ACCEPTANCE"
@@ -561,6 +556,7 @@ const PendingOrdersModal = () => {
 			page: 1,
 			size: 10,
 			total: 0,
+			totalPrice: 0,
 			meetings: [],
 		});
 	const [selectedMeetingId, setSelectedMeetingId] = useState("");
@@ -645,6 +641,7 @@ const PendingOrdersModal = () => {
 			status: MeetingStatusType.Pending.toLowerCase(),
 			after: new Date().toJSON(),
 		});
+
 		if (resp.ok) {
 			setVideoCallMeetings(resp.data);
 		}

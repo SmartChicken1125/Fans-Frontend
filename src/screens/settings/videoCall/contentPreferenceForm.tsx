@@ -1,12 +1,6 @@
-import { CheckSvg } from "@assets/svgs/common";
-import { AdultImage, ConsultationImage } from "@assets/svgs/images";
+import { OutlinedInfoSvg } from "@assets/svgs/common";
 import RoundTextInput from "@components/common/RoundTextInput";
-import {
-	FypText,
-	FypCheckbox,
-	FypNullableView,
-	FypSvg,
-} from "@components/common/base";
+import { FypText, FypCheckbox, FypSvg } from "@components/common/base";
 import {
 	FansGap,
 	FansHorizontalDivider,
@@ -14,95 +8,30 @@ import {
 	FansText,
 	FansView,
 } from "@components/controls";
-import { ProfileActionType, useAppContext } from "@context/useAppContext";
-import {
-	updateVideoCallSettings,
-	getVideoCallSettings,
-} from "@helper/endpoints/videoCalls/apis";
+import { PreferenceItem, SexualPolicyModal } from "@components/videoCall";
+import { updateVideoCallSettings } from "@helper/endpoints/videoCalls/apis";
 import tw from "@lib/tailwind";
-import { VideoCallWays } from "@usertypes/types";
+import { VideoCallWays, IVideoCallSetting } from "@usertypes/types";
 import React, { FC, useState, useEffect } from "react";
 import { Image } from "react-native";
 import Toast from "react-native-toast-message";
-import SexualPolicyModal from "./sexualPolicyModal";
 
-interface PreferenceItemProps {
-	title: string;
-	selected: boolean;
-	onPress: () => void;
-	iconToRender: React.ReactNode;
+interface Props {
+	videoCallSettings: IVideoCallSetting;
+	updateVideoCallSettingsCallback: (
+		videoCallSettings: IVideoCallSetting,
+	) => void;
 }
 
-const PreferenceItem: FC<PreferenceItemProps> = (props) => {
-	const { title, selected, onPress, iconToRender } = props;
-	return (
-		<FansView
-			style={tw.style(
-				"border",
-				selected
-					? "border-fans-purple border-[2px]"
-					: "border-fans-grey-f0 dark:border-fans-grey-43",
-			)}
-			width="full"
-			height={{ xs: 136, md: 186 }}
-			alignItems="center"
-			justifyContent="center"
-			borderRadius={15}
-			position="relative"
-			touchableOpacityProps={{
-				onPress: onPress,
-			}}
-		>
-			<FansView
-				width={20}
-				height={20}
-				borderRadius={20}
-				alignItems="center"
-				justifyContent="center"
-				position="absolute"
-				top={10}
-				right={10}
-				style={tw.style(
-					selected
-						? "bg-fans-purple"
-						: "border border-fans-grey dark:border-fans-grey-43",
-				)}
-			>
-				<FypNullableView visible={selected}>
-					<FypSvg
-						svg={CheckSvg}
-						width={12}
-						height={10}
-						color="fans-white"
-					/>
-				</FypNullableView>
-			</FansView>
-
-			<FansView alignItems="center" margin={{ t: -20 }}>
-				{iconToRender}
-			</FansView>
-			<FypText
-				fontSize={16}
-				margin={{ t: 18 }}
-				fontWeight={600}
-				textAlign="center"
-				style={tw.style("absolute bottom-4 md:bottom-5 left-0 w-full")}
-			>
-				{title}
-			</FypText>
-		</FansView>
-	);
-};
-
-const ContentPreferenceForm: FC = () => {
-	const { state, dispatch } = useAppContext();
+const ContentPreferenceForm: FC<Props> = (props) => {
+	const { videoCallSettings, updateVideoCallSettingsCallback } = props;
 
 	const {
 		sexualContentAllowed,
 		contentPreferences,
 		customContentPreferences,
 		meetingType,
-	} = state.profile.settings.video;
+	} = videoCallSettings;
 
 	const [openSexualPolicyModal, setOpenSexualPolicyModal] = useState(false);
 	const [localcustomContentPreferences, setLocalCustomContentPreferences] =
@@ -112,38 +41,15 @@ const ContentPreferenceForm: FC = () => {
 		setLocalCustomContentPreferences(text);
 	};
 
-	const fetchVideoCallSettings = async () => {
-		const resp = await getVideoCallSettings();
-		if (resp.ok) {
-			dispatch.setProfile({
-				type: ProfileActionType.updateSettings,
-				data: {
-					video: {
-						...state.profile.settings.video,
-						...resp.data,
-					},
-				},
-			});
-			setLocalCustomContentPreferences(
-				resp.data.customContentPreferences,
-			);
-		}
-	};
-
 	const handleUpdate = async (
 		name: string,
 		value: string[] | boolean | string | VideoCallWays,
 	) => {
 		const resp = await updateVideoCallSettings({ [name]: value });
 		if (resp.ok) {
-			dispatch.setProfile({
-				type: ProfileActionType.updateSettings,
-				data: {
-					video: {
-						...state.profile.settings.video,
-						[name]: value,
-					},
-				},
+			updateVideoCallSettingsCallback({
+				...videoCallSettings,
+				[name]: value,
 			});
 		} else {
 			Toast.show({
@@ -188,14 +94,15 @@ const ContentPreferenceForm: FC = () => {
 	};
 
 	useEffect(() => {
-		fetchVideoCallSettings();
-	}, []);
+		setLocalCustomContentPreferences(
+			videoCallSettings.customContentPreferences,
+		);
+	}, [videoCallSettings.customContentPreferences]);
 
 	const options = [
 		{
 			id: "Consultation",
 			title: "Consultation",
-			// iconToRender: <ConsultationImage width={64} height={64} />,
 			iconToRender: (
 				<Image
 					source={require("@assets/images/preferences/consultation.png")}
@@ -203,7 +110,6 @@ const ContentPreferenceForm: FC = () => {
 					style={tw.style("w-[47px] h-[47px] md:w-16 md:h-16")}
 				/>
 			),
-			iconColor: "#edfaea",
 		},
 		{
 			id: "Advice",
@@ -217,7 +123,6 @@ const ContentPreferenceForm: FC = () => {
 					)}
 				/>
 			),
-			iconColor: "#e8f6ff",
 		},
 		{
 			id: "Performance",
@@ -231,10 +136,9 @@ const ContentPreferenceForm: FC = () => {
 					)}
 				/>
 			),
-			iconColor: "#f6edff",
 		},
 		{
-			id: "Adult",
+			id: "EighteenPlusAdult",
 			title: "18+ Adult",
 			iconToRender: (
 				<Image
@@ -245,21 +149,19 @@ const ContentPreferenceForm: FC = () => {
 					)}
 				/>
 			),
-			iconColor: "#fdebf9",
 		},
 		{
-			id: "Sexual",
-			title: "18+ Sexual",
+			id: "Endorsement",
+			title: "Endorsements",
 			iconToRender: (
 				<Image
-					source={require("@assets/images/preferences/sexual.png")}
+					source={require("@assets/images/preferences/endorsements.png")}
 					resizeMode="contain"
 					style={tw.style(
-						"w-[49px] h-[49px] md:w-[62px] md:h-[69px]",
+						"w-[41px] h-[46px] md:w-[77px] md:h-[66px]",
 					)}
 				/>
 			),
-			iconColor: "#fff3e9",
 		},
 		{
 			id: "Spirituality",
@@ -273,7 +175,6 @@ const ContentPreferenceForm: FC = () => {
 					)}
 				/>
 			),
-			iconColor: "#fffcdb",
 		},
 	];
 
@@ -284,11 +185,32 @@ const ContentPreferenceForm: FC = () => {
 				value={sexualContentAllowed}
 				onValueChange={handleSexualContentToggle}
 			/>
-
+			<FansGap height={30} />
+			<FansView
+				padding={{ x: 16, t: 16, b: 15 }}
+				borderRadius={15}
+				style={tw.style("bg-fans-purple-light")}
+			>
+				<FypText
+					fontSize={16}
+					lineHeight={21}
+					textAlign="center"
+					style={tw.style("text-fans-grey-48 max-w-[460px] mx-auto")}
+				>
+					<FypSvg
+						svg={OutlinedInfoSvg}
+						width={15}
+						height={15}
+						color="fans-grey-48"
+					/>{" "}
+					When selected, all fans have to go through ID verification
+					to purchase video calls
+				</FypText>
+			</FansView>
+			<FansGap height={40} />
 			<FansView
 				flexDirection="row"
 				flexWrap="wrap"
-				margin={{ t: 20 }}
 				style={tw.style("mx-[-4px] md:mx-[-8px]")}
 			>
 				{options.map((item) => (

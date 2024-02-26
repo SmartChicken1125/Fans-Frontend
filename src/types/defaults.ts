@@ -27,4 +27,5 @@ export const defaultProfile: IProfile = {
 	categories: [],
 	stories: [],
 	isDisplayShop: false,
+	review: { score: 0, total: 0 },
 };

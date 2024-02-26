@@ -210,8 +210,6 @@ const ThumbnailScreen: FC<Props> = (props) => {
 		offset.value = carouselIndex;
 	}, [carouselIndex]);
 
-	console.log(pickerMedias);
-
 	return (
 		<FansView
 			style={tw.style(

@@ -124,6 +124,7 @@ export enum MediaType {
 export enum UploadUsageType {
 	POST = "POST",
 	CHAT = "CHAT",
+	CUSTOM_VIDEO = "CUSTOM_VIDEO",
 }
 
 export enum ResizeMode {
@@ -198,6 +199,7 @@ export enum SubscribeActionType {
 	Bundle = "Bundle",
 	Tier = "Tier",
 	Post = "Post",
+	ChatPost = "ChatPost",
 }
 
 export enum ReportType {
@@ -252,6 +254,7 @@ export enum MeetingStatusType {
 	Accepted = "Accepted",
 	Declined = "Declined",
 	Cancelled = "Cancelled",
+	Completed = "Completed",
 }
 
 export enum VideoCallOrderCardType {

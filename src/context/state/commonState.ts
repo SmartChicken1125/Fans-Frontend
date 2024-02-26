@@ -5,6 +5,7 @@ import {
 	IPost,
 	IProfile,
 	BeforeInstallPromptEvent,
+	IMessage,
 } from "@usertypes/types";
 
 export interface ISendTipModal {
@@ -27,6 +28,7 @@ export interface ISubscribeModal {
 	subscribeTierId: string;
 	defaultTab?: "start" | "form";
 	post?: IPost;
+	message?: IMessage;
 	onSuccess?: () => void;
 	paidPostCallback?: (postId: string) => void;
 	checkAccessSubscribedUser?: () => Promise<void>;

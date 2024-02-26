@@ -91,10 +91,10 @@ const Step1 = () => {
 			setLocalBio(profileSettings.fanProfile.bio);
 			setLocalDisplayName(profileSettings.fanProfile.displayName);
 
-			dispatch.setProfile({
-				type: ProfileActionType.updateSettings,
-				data: profileSettings,
-			});
+			// dispatch.setProfile({
+			// 	type: ProfileActionType.updateSettings,
+			// 	data: profileSettings,
+			// });
 		}
 	};
 

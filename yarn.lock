@@ -3968,6 +3968,7 @@ __metadata:
     expo-linear-gradient: "npm:^12.5.0"
     expo-linking: "npm:^6.0.0"
     expo-media-library: "npm:^15.6.0"
+    expo-network: "npm:^5.8.0"
     expo-pwa: "npm:^0.0.127"
     expo-router: "npm:^2.0.5"
     expo-screen-orientation: "npm:^6.2.0"
@@ -10655,6 +10656,15 @@ __metadata:
     compare-versions: "npm:^3.4.0"
     invariant: "npm:^2.2.4"
   checksum: 02b3f8d34c0f8a304d2981e74e6317c98622e312125a3d3a53f29488c11507c5542cfeb2d0d4a136ccf31309209b0e0c6979b9d000e8ae92371afe1b333abdaf
+  languageName: node
+  linkType: hard
+
+"expo-network@npm:^5.8.0":
+  version: 5.8.0
+  resolution: "expo-network@npm:5.8.0"
+  peerDependencies:
+    expo: "*"
+  checksum: 4da6d40d05acdfbd552b924eb159ee261e1ab801a6809112958843a4cc279ba92484e1e82942fecba6ec001247c0584fcd54cb7e24dbeb376b4a2774ceb3e430
   languageName: node
   linkType: hard
 

@@ -1,5 +1,6 @@
 import { FansView } from "@components/controls";
 import tw from "@lib/tailwind";
+import { IJustifyContentStyle } from "@usertypes/styles";
 import React, { FC, useEffect } from "react";
 import Animated, {
 	Easing,
@@ -7,15 +8,26 @@ import Animated, {
 	useSharedValue,
 	withTiming,
 } from "react-native-reanimated";
+import { FypText } from "./text";
 
 interface Props {
 	value: boolean;
 	onValueChange: (val: boolean) => void;
 	primary?: boolean;
+	label?: string;
+	justifyContent?: IJustifyContentStyle;
+	minHeight?: number;
 }
 
 export const FypSwitch: FC<Props> = (props) => {
-	const { value, onValueChange, primary = true } = props;
+	const {
+		value,
+		onValueChange,
+		primary = true,
+		label,
+		justifyContent,
+		minHeight,
+	} = props;
 
 	const offset = useSharedValue(0);
 
@@ -38,33 +50,45 @@ export const FypSwitch: FC<Props> = (props) => {
 
 	return (
 		<FansView
-			width={40}
-			height={26}
-			borderRadius={26}
-			position="relative"
-			style={tw.style(
-				primary
-					? {
-							"bg-fans-purple": value,
-							"bg-[#b1b1b1]": !value,
-					  }
-					: {
-							"bg-fans-green": value,
-							"bg-[#b1b1b1]": !value,
-					  },
-			)}
-			pressableProps={{
-				onPress: () => onValueChange(!value),
-			}}
+			flexDirection="row"
+			alignItems="center"
+			justifyContent={justifyContent ?? "between"}
+			style={tw.style(minHeight ? `min-h-[${minHeight}px]` : "")}
 		>
-			<Animated.View
-				style={[
-					tw.style(
-						"w-[18px] h-[18px] bg-white rounded-full absolute top-1",
-					),
-					timingStyles,
-				]}
-			></Animated.View>
+			{label ? (
+				<FypText fontSize={18} lineHeight={24}>
+					{label}
+				</FypText>
+			) : null}
+			<FansView
+				width={40}
+				height={26}
+				borderRadius={26}
+				position="relative"
+				style={tw.style(
+					primary
+						? {
+								"bg-fans-purple": value,
+								"bg-[#b1b1b1]": !value,
+						  }
+						: {
+								"bg-fans-green": value,
+								"bg-[#b1b1b1]": !value,
+						  },
+				)}
+				pressableProps={{
+					onPress: () => onValueChange(!value),
+				}}
+			>
+				<Animated.View
+					style={[
+						tw.style(
+							"w-[18px] h-[18px] bg-white rounded-full absolute top-1",
+						),
+						timingStyles,
+					]}
+				></Animated.View>
+			</FansView>
 		</FansView>
 	);
 };

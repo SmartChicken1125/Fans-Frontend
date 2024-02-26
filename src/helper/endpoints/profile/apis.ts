@@ -264,11 +264,6 @@ export const createAgeVerifyOndato = createPOST<
 	AgeVerifyOndatoRespBody
 >("/profiles/age-verify/ondato", true);
 
-export const updateCameoSettings = createPUT<CameoSettings, IProfileSettings>(
-	"/settings/user-settings/cameo",
-	true,
-);
-
 export const updateFanProfileSettings = createPUT<
 	FanProfileSettings,
 	IProfileSettings

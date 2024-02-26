@@ -11,7 +11,7 @@ import {
 import { FansModal3 } from "@components/controls/Modal";
 import tw from "@lib/tailwind";
 import { IFansModal } from "@usertypes/components";
-import React, { useState } from "react";
+import React from "react";
 import { View } from "react-native";
 import { IconButton } from "react-native-paper";
 

@@ -1,41 +1,25 @@
 import { FypNullableView, FypText } from "@components/common/base";
 import { FansScreen2, FansView } from "@components/controls";
-import SettingsNavigationHeader from "@components/screens/settings/SettingsNavigationHeader";
-import SettingsNavigationLayout from "@components/screens/settings/SettingsNavigationLayout";
+import { defaultVideoCallSettingsData } from "@constants/common";
 import { useAppContext } from "@context/useAppContext";
+import {
+	getVideoCallDurations,
+	getVideoCallTimeframes,
+	getVideoCallSettings,
+} from "@helper/endpoints/videoCalls/apis";
 import tw from "@lib/tailwind";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { SettingsVideoCallSetupNativeStackParams } from "@usertypes/navigations";
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import {
+	IVideoDurationForm,
+	ITimeframeInterval,
+	IVideoCallSetting,
+} from "@usertypes/types";
+import React, { useState, useEffect } from "react";
 import { FlatList } from "react-native";
 import ActiveOrdersForm from "./activeOrdersForm";
 import PastOrdersForm from "./pastOrdersForm";
 import PendingAcceptanceForm from "./pendingAcceptanceForm";
 import RefundedOrdersForm from "./refundedOrdersForm";
 import SettingsForm from "./settingsForm";
-
-const Stack =
-	createNativeStackNavigator<SettingsVideoCallSetupNativeStackParams>();
-
-const SettingsVideoCallSetupNativeStack = () => {
-	const router = useRouter();
-
-	return (
-		<Stack.Navigator
-			initialRouteName="EditVideoCallSetup"
-			screenOptions={{
-				header: (props) => SettingsNavigationHeader(props, router),
-			}}
-		>
-			<Stack.Screen
-				name="EditVideoCallSetup"
-				component={EditVideoCallSetupContentView}
-				options={{ title: "Video calls" }}
-			/>
-		</Stack.Navigator>
-	);
-};
 
 const tabs = [
 	"Settings",
@@ -45,10 +29,55 @@ const tabs = [
 	"Refunded orders",
 ];
 
-const EditVideoCallSetupContentView = () => {
+const EditVideoCallSetupScreen = () => {
 	const { state } = useAppContext();
-	const { video } = state.profile.settings;
 	const [tab, setTab] = useState(tabs[0]);
+	const [durations, setDurations] = useState<IVideoDurationForm[]>([]);
+	const [timeframes, setTimeframes] = useState<ITimeframeInterval[]>([]);
+	const [videoCallSettings, setVideoCallSettings] =
+		useState<IVideoCallSetting>(defaultVideoCallSettingsData);
+
+	const fetchVideoCallDurations = async () => {
+		const resp = await getVideoCallDurations();
+		if (resp.ok) {
+			setDurations(resp.data);
+		} else {
+			setDurations([]);
+		}
+	};
+
+	const updateDurationsCallback = (value: IVideoDurationForm[]) => {
+		setDurations(value);
+	};
+
+	const fetchTimeframes = async () => {
+		const resp = await getVideoCallTimeframes();
+		if (resp.ok) {
+			setTimeframes(resp.data);
+		}
+	};
+
+	const updateTimeframesCallback = (value: ITimeframeInterval[]) => {
+		setTimeframes(value);
+	};
+
+	const fetchVideoCallSettings = async () => {
+		const resp = await getVideoCallSettings();
+		if (resp.ok) {
+			setVideoCallSettings(resp.data);
+		}
+	};
+
+	const updateVideoCallSettingsCallback = (value: IVideoCallSetting) => {
+		setVideoCallSettings(value);
+	};
+
+	useEffect(() => {
+		fetchVideoCallDurations();
+		fetchTimeframes();
+		fetchVideoCallSettings();
+	}, []);
+
 	return (
 		<FansScreen2>
 			<FansView
@@ -73,7 +102,7 @@ const EditVideoCallSetupContentView = () => {
 								pressableProps={{
 									onPress: () => {
 										if (
-											video.videoCallsEnabled ||
+											videoCallSettings.videoCallsEnabled ||
 											item === "Settings"
 										) {
 											setTab(item);
@@ -81,7 +110,7 @@ const EditVideoCallSetupContentView = () => {
 									},
 								}}
 								style={tw.style(
-									!video.videoCallsEnabled &&
+									!videoCallSettings.videoCallsEnabled &&
 										item !== "Settings"
 										? "opacity-35"
 										: "",
@@ -107,7 +136,18 @@ const EditVideoCallSetupContentView = () => {
 				</FansView>
 				<FansView style={tw.style("pb-10 md:pb-15")} flex="1">
 					<FypNullableView visible={tab === "Settings"}>
-						<SettingsForm handleNext={() => setTab(tabs[1])} />
+						<SettingsForm
+							durations={durations}
+							updateDurationsCallback={updateDurationsCallback}
+							handleNext={() => setTab(tabs[1])}
+							timeframes={timeframes}
+							videoCallSettings={videoCallSettings}
+							fetchTimeframes={fetchTimeframes}
+							updateTimeframesCallback={updateTimeframesCallback}
+							updateVideoCallSettingsCallback={
+								updateVideoCallSettingsCallback
+							}
+						/>
 					</FypNullableView>
 					<FypNullableView visible={tab === "Pending acceptance"}>
 						<PendingAcceptanceForm />
@@ -125,10 +165,6 @@ const EditVideoCallSetupContentView = () => {
 			</FansView>
 		</FansScreen2>
 	);
-};
-
-const EditVideoCallSetupScreen = () => {
-	return SettingsNavigationLayout(<SettingsVideoCallSetupNativeStack />);
 };
 
 export default EditVideoCallSetupScreen;

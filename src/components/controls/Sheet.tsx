@@ -4,7 +4,7 @@ import {
 } from "@gorhom/bottom-sheet";
 import tw from "@lib/tailwind";
 import { IFansSheet } from "@usertypes/components";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { Modal, TouchableOpacity } from "react-native";
 import { FansView } from "./View";
 
@@ -158,6 +158,8 @@ export const FansSheet2: IFansSheet = (props) => {
 			? height.xs
 			: 0;
 
+	const snapPoints = useMemo(() => [snapPoint as number], []);
+
 	return (
 		<Modal transparent visible={visible}>
 			<FansView
@@ -169,7 +171,7 @@ export const FansSheet2: IFansSheet = (props) => {
 				justifyContent={{ xs: "end", md: "center" }}
 			>
 				<FansView touchableOpacityProps={{ activeOpacity: 1 }}>
-					{tw.prefixMatch("lg") ? (
+					{tw.prefixMatch("md") ? (
 						<FansView
 							width={width}
 							height={height}
@@ -190,7 +192,7 @@ export const FansSheet2: IFansSheet = (props) => {
 									"w-[34px]",
 									"bg-fans-grey-70/40",
 								)}
-								snapPoints={[snapPoint as number]}
+								snapPoints={snapPoints}
 							>
 								<FansView {...sheetStyle_}>{children}</FansView>
 							</BottomSheetModal>

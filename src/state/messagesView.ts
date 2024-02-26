@@ -16,6 +16,8 @@ export interface IGifMessageContent {
 export interface ISendOptions {
 	message?: string;
 	uploadedFiles?: IUploadedFile[];
+	previewUploadedFiles?: IUploadedFile[];
+	value?: string;
 	gif?: IGifMessageContent;
 }
 
@@ -185,8 +187,46 @@ export class MessageView implements MessageViewData {
 		this.acceptMessage(resp.data);
 	}
 
+	async sendPaidPostMessage(
+		value: string,
+		uploadedFiles: IUploadedFile[],
+		previewUploadedFiles?: IUploadedFile[],
+		content?: string,
+	) {
+		const resp = await createTextMessage(
+			{
+				content: content ?? "",
+				uploadIds: uploadedFiles.map((f) => f.id),
+				previewUploadIds: previewUploadedFiles?.map((f) => f.id),
+				messageType: MessageType.PAID_POST,
+				parentId: this.replyToMessage?.id,
+				value: value,
+			},
+			{
+				id: this.channelId,
+			},
+		);
+
+		if (!resp.ok) {
+			return;
+		}
+
+		this.acceptMessage(resp.data);
+	}
+
 	async sendMessage(options: ISendOptions) {
-		const { message, uploadedFiles, gif } = options;
+		const { message, uploadedFiles, previewUploadedFiles, value, gif } =
+			options;
+
+		if (value && uploadedFiles && uploadedFiles.length > 0) {
+			await this.sendPaidPostMessage(
+				value,
+				uploadedFiles,
+				previewUploadedFiles,
+				message,
+			);
+			return;
+		}
 
 		if (uploadedFiles && uploadedFiles.length > 0) {
 			await this.sendImageMessage(uploadedFiles);

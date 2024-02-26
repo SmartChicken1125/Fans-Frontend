@@ -8,7 +8,13 @@ module.exports = async function (env, argv) {
 	// Set by expo-cli during `expo build:web`
 	const isEnvProduction = env.mode === "production";
 
-	const config = await createExpoWebpackConfigAsync(env, argv);
+	const config = await createExpoWebpackConfigAsync(
+		{
+			...env,
+			babel: { dangerouslyAddModulePathsToTranspile: ["@gorhom"] },
+		},
+		argv,
+	);
 	config.plugins.push(
 		sentryWebpackPlugin({
 			org: "fyp-llc",

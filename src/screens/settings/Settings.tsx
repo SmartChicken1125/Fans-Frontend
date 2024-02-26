@@ -98,12 +98,30 @@ export const SettingsScreenContent = () => {
 	const { toggleTheme } = dispatch;
 	const { userInfo } = state.user;
 	const { type } = userInfo;
-	const { video } = state.profile.settings;
+	const { video, cameo } = state.profile.settings;
 	const isCreator = type === UserRoleTypes.Creator;
 	const featureGates = useFeatureGates();
 
 	const handleMenuItemPress = (path: string) => {
 		router.push(path);
+	};
+
+	const handlePressVideoCall = () => {
+		router.push({
+			pathname: "video-call-setup",
+			params: {
+				screen: video ? "EditVideoCallSetup" : "VideoCallSetupFaq",
+			},
+		});
+	};
+
+	const handlePressCustomVideo = () => {
+		router.push({
+			pathname: "custom-video-setup",
+			params: {
+				screen: cameo ? "Edit" : "Faq",
+			},
+		});
 	};
 
 	return (
@@ -262,20 +280,13 @@ export const SettingsScreenContent = () => {
 			/>
 			{featureGates.has("2023_10-video-calls") && (
 				<Item
-					text="Video calls"
+					text={video ? "Video Calls" : "Setup Video Calls"}
 					isActive={
 						segments[0] === "(tabs)" &&
-						(segments[1] === "video-call-setup-tos" ||
-							segments[1] === "video-call-setup-edit")
+						segments[1] === "video-call-setup"
 					}
 					icon={VideoCallSvg}
-					onPress={() =>
-						handleMenuItemPress(
-							video.videoCallsEnabled
-								? "/video-call-setup-edit"
-								: "/video-call-setup-tos",
-						)
-					}
+					onPress={handlePressVideoCall}
 				/>
 			)}
 			{featureGates.has("2023_11-custom-videos") && (
@@ -283,10 +294,10 @@ export const SettingsScreenContent = () => {
 					text="Custom video orders"
 					isActive={
 						segments[0] === "(tabs)" &&
-						segments[1] === "cameo-setup"
+						segments[1] === "custom-video-setup"
 					}
 					icon={CameoVideoSVG}
-					onPress={() => handleMenuItemPress("/cameo-setup")}
+					onPress={handlePressCustomVideo}
 				/>
 			)}
 
@@ -310,33 +321,33 @@ export const SettingsScreenContent = () => {
 				onPress={() => handleMenuItemPress("/subscriptions")}
 			/>
 			{featureGates.has("2023_10-random-future-stuff") && isCreator && (
-				<>
-					<Item
-						text="Automated chats"
-						iconNode={
-							<FansSvg
-								width={23.61}
-								height={23.61}
-								svg={Chat2Svg}
-								color={tw.color("fans-purple")}
-							/>
-						}
-						isActive={
-							segments[0] === "(tabs)" &&
-							segments[1] === "automated-chats"
-						}
-						onPress={() => handleMenuItemPress("/automated-chats")}
-					/>
-					<Item
-						text="Scheduled posts"
-						icon={CalendarSvg}
-						isActive={
-							segments[0] === "(tabs)" &&
-							segments[1] === "scheduled-posts"
-						}
-						onPress={() => handleMenuItemPress("/scheduled-posts")}
-					/>
-				</>
+				<Item
+					text="Automated chats"
+					iconNode={
+						<FansSvg
+							width={23.61}
+							height={23.61}
+							svg={Chat2Svg}
+							color={tw.color("fans-purple")}
+						/>
+					}
+					isActive={
+						segments[0] === "(tabs)" &&
+						segments[1] === "automated-chats"
+					}
+					onPress={() => handleMenuItemPress("/automated-chats")}
+				/>
+			)}
+			{featureGates.has("2024_02-scheduled-post") && isCreator && (
+				<Item
+					text="Scheduled posts"
+					icon={CalendarSvg}
+					isActive={
+						segments[0] === "(tabs)" &&
+						segments[1] === "scheduled-posts"
+					}
+					onPress={() => handleMenuItemPress("/scheduled-posts")}
+				/>
 			)}
 			<>
 				<FansDivider

@@ -21,6 +21,10 @@ import {
 	IVideoCallAttendant,
 	VideoCallWays,
 	LanguageType,
+	ICustomVideoSettings,
+	IVideoCallSetting,
+	ICreatorCustomVideoSettings,
+	ICreatorVideoCallSettings,
 } from "@usertypes/types";
 import { SocialMediaTypes } from "./socialMediaTypes";
 
@@ -382,52 +386,66 @@ const generateSocialMediaUrls = () => {
 	}));
 };
 
-export const defaultProfileSettings: IProfileSettings = {
-	video: {
-		timeZone: "Your Default Timezone",
-		timeframes: [],
-		bufferBetweenCalls: 15,
-		sexualContentAllowed: true,
-		contentPreferences: [],
-		customContentPreferences: "",
-		meetingType: VideoCallWays.TwoWay,
-		meetingDescription: "Default Meeting Description",
-		notificationNewRequests: true,
-		notificationCancellations: true,
-		notificationReminders: true,
-		notificationsByEmail: true,
-		notificationsByPhone: true,
-		vacationMode: false,
-		meetingDurations: [],
-		videoCallsEnabled: false,
+export const defaultCreatorVideoCallSettingsData: ICreatorVideoCallSettings = {
+	bufferBetweenCalls: 0,
+	meetingType: VideoCallWays.TwoWay,
+	sexualContentAllowed: true,
+	contentPreferences: [],
+	customContentPreferences: "",
+	meetingDescription: "",
+	meetingDurations: [],
+};
+
+export const defaultVideoCallSettingsData: IVideoCallSetting = {
+	// timezone: "Your Default Timezone",
+	bufferBetweenCalls: 15,
+	sexualContentAllowed: true,
+	contentPreferences: [],
+	customContentPreferences: "",
+	meetingType: VideoCallWays.TwoWay,
+	meetingDescription: "",
+	notificationNewRequests: true,
+	notificationCancellations: true,
+	notificationReminders: true,
+	notificationsByEmail: true,
+	notificationsByPhone: true,
+	videoCallsEnabled: false,
+	progress: "None",
+	vacationEnabled: false,
+};
+
+export const defaultCustomVideoSettingData: ICustomVideoSettings = {
+	volumeLimit: {
+		amount: null,
+		unit: "",
+	},
+	fulfillmentTime: 0,
+	description: "",
+	sexualContentEnabled: false,
+	contentTypes: [],
+	customContentType: "",
+	agreedToTerms: false,
+	notificationNewRequests: true,
+	notificationPendingVideos: true,
+	notificationCompletedRequests: true,
+	notificationsByEmail: true,
+	notificationsByPhone: true,
+	customVideoEnabled: true,
+};
+
+export const defaultCreatorCustomVideoSettingsData: ICreatorCustomVideoSettings =
+	{
+		description: "",
+		sexualContentEnabled: true,
+		contentTypes: [],
+		customContentType: "",
+		customVideoDurations: [],
 		isAvailable: false,
-	},
-	cameo: {
-		pricesDuration: [],
-		contentPreferences: [],
-		timeframes: [],
-		tos: "",
-		requestLimitations: {
-			fulFillmentTimeFrame: "",
-			numberRequestsType: "",
-			numberRequestsValue: 0,
-		},
-		responseDescription: "",
-		uploadPreviews: "",
-		notifications: {
-			newRequests: false,
-			pendingVideos: false,
-			completedRequests: false,
-			notificationsByPhone: false,
-			notificationsByEmail: false,
-		},
-		customVideoOrdersEnabled: false,
-		vacationMode: false,
-		vacationModeInterval: "",
-		videoCallsEnabled: false,
-		sexualContent: false,
-		additionalContentPreferences: "",
-	},
+	};
+
+export const defaultProfileSettings: IProfileSettings = {
+	video: undefined,
+	cameo: defaultCreatorCustomVideoSettingsData,
 	fanProfile: {
 		bio: "",
 		displayName: "",
@@ -633,6 +651,7 @@ export const defaultProfileData: IProfile = {
 	categories: [],
 	stories: [],
 	isDisplayShop: false,
+	review: { score: 0, total: 0 },
 };
 
 export const emptyPostData: IPost = {
@@ -738,4 +757,5 @@ export const defaultVideoCallAttendant: IVideoCallAttendant = {
 	createdAt: "",
 	updatedAt: "",
 	isShowProfile: false,
+	isOlderThan18: false,
 };

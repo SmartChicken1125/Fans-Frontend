@@ -3,14 +3,12 @@ import RoundButton from "@components/common/RoundButton";
 import { FypDropdown, FypSvg, FypText } from "@components/common/base";
 import { FansView, FansDivider, FansIconButton } from "@components/controls";
 import { timezones } from "@constants/timezones";
-import { ProfileActionType, useAppContext } from "@context/useAppContext";
 import {
 	generateTimeFrames,
 	getIntervalEndTime,
 	getIntervalLength,
 } from "@helper/HoursGenerator";
 import {
-	getVideoCallTimeframes,
 	createVideoCallInterval,
 	deleteVideoCallInterval,
 	updateVideoCallSettings,
@@ -22,12 +20,13 @@ import {
 	ISelectData,
 	ITimeframeInterval,
 	IHoursAndMinutes,
+	IVideoCallSetting,
 } from "@usertypes/types";
-import React, { FC, useState, useEffect, Fragment } from "react";
+import React, { FC, useState, Fragment, useEffect } from "react";
 import { TimePickerModal } from "react-native-paper-dates";
 import Toast from "react-native-toast-message";
 
-const minutesBefore = ["1", "5", "10", "15", "45", "60"];
+const minutesBefore = ["5", "10", "15", "30", "45", "60"];
 
 const initialDays = [
 	"Sunday",
@@ -38,6 +37,22 @@ const initialDays = [
 	"Friday",
 	"Saturday",
 ];
+
+const defaultEditTimeValue = {
+	intervalId: "",
+	fieldName: "",
+	value: "",
+	hours: 0,
+	minutes: 0,
+};
+
+interface IEditIntervalTime {
+	intervalId: string;
+	fieldName: string;
+	value: string;
+	hours?: number;
+	minutes?: number;
+}
 
 interface IExtendInterval extends ITimeframeInterval {
 	isNew?: boolean;
@@ -89,118 +104,34 @@ interface IntervalTimeframeProps {
 	timeframes: IExtendInterval[];
 	onSubmitCallback: () => void;
 	setTimeframes: (timeframes: IExtendInterval[]) => void;
+	handleOpenTimePicker: (data: IEditIntervalTime) => void;
 }
 
 const IntervalTimeframe: FC<IntervalTimeframeProps> = (props) => {
-	const { day, timeframes, onSubmitCallback, setTimeframes } = props;
+	const {
+		day,
+		timeframes,
+		onSubmitCallback,
+		setTimeframes,
+		handleOpenTimePicker,
+	} = props;
 
 	const intervals = generateTimeFrames(10);
 
 	const filteredObjects = timeframes.filter((obj) => obj.day === day);
-	const [openTimePicker, setOpenTimerPicker] = useState(false);
-	const [editTime, setEditTime] = useState<{
-		intervalId: string;
-		fieldName: string;
-		value: string;
-		hours: number;
-		minutes: number;
-	}>({
-		intervalId: "",
-		fieldName: "",
-		value: "",
-		hours: 0,
-		minutes: 0,
-	});
-
-	const handleConfirmTime = async (hoursAndMinutes: IHoursAndMinutes) => {
-		const interval = timeframes.find((el) => el.id === editTime.intervalId);
-		if (!interval) {
-			return;
-		}
-		const timeString = `${hoursAndMinutes.hours
-			.toString()
-			.padStart(2, "0")}:${hoursAndMinutes.minutes
-			.toString()
-			.padStart(2, "0")}`;
-		setOpenTimerPicker(false);
-		if (interval.isNew) {
-			if (editTime.fieldName === "startTime") {
-				setTimeframes(
-					timeframes.map((el) =>
-						el.id === editTime.intervalId
-							? {
-									...el,
-									startTime: timeString,
-							  }
-							: el,
-					),
-				);
-			} else {
-				setTimeframes(
-					timeframes.map((el) =>
-						el.id === editTime.intervalId
-							? {
-									...el,
-									length: getIntervalLength(
-										el.startTime,
-										timeString,
-									),
-							  }
-							: el,
-					),
-				);
-				const resp = await createVideoCallInterval({
-					startTime: interval.startTime,
-					length: getIntervalLength(interval.startTime, timeString),
-					day: day,
-				});
-				if (resp.ok) {
-					onSubmitCallback();
-				} else {
-					Toast.show({
-						type: "error",
-						text1: resp.data.message,
-					});
-				}
-			}
-		} else {
-			if (editTime.fieldName === "startTime") {
-				const newLength = getIntervalLength(
-					timeString,
-					getIntervalEndTime(interval.startTime, interval.length),
-				);
-				handleUpdate(
-					{ ...interval, startTime: timeString, length: newLength },
-					editTime.intervalId,
-				);
-			} else {
-				if (interval) {
-					const newLength = getIntervalLength(
-						interval.startTime,
-						timeString,
-					);
-					handleUpdate(
-						{ ...interval, length: newLength },
-						editTime.intervalId,
-					);
-				}
-			}
-		}
-	};
 
 	const onPressTimeButton = (
 		intervalId: string,
 		fieldName: string,
 		value: string,
 	) => {
-		setEditTime({
+		handleOpenTimePicker({
 			intervalId,
 			fieldName,
 			value,
 			hours: value === "" ? 0 : parseInt(value.slice(0, 2)),
 			minutes: value === "" ? 0 : parseInt(value.slice(3, 5)),
 		});
-		setOpenTimerPicker(true);
 	};
 
 	const handleCreate = async () => {
@@ -230,24 +161,6 @@ const IntervalTimeframe: FC<IntervalTimeframeProps> = (props) => {
 					text1: resp.data.message,
 				});
 			}
-		}
-	};
-
-	const handleUpdate = async (
-		postbody: ITimeframeInterval,
-		intervalId: string,
-	) => {
-		const resp = await updateVideoCallInterval(postbody, {
-			id: intervalId,
-		});
-		if (resp.ok) {
-			onSubmitCallback();
-		} else {
-			Toast.show({
-				type: "error",
-				text1: resp.data.message,
-			});
-			onSubmitCallback();
 		}
 	};
 
@@ -336,51 +249,39 @@ const IntervalTimeframe: FC<IntervalTimeframeProps> = (props) => {
 					</RoundButton>
 				</FansView>
 			) : null}
-			<TimePickerModal
-				visible={openTimePicker}
-				onDismiss={() => setOpenTimerPicker(false)}
-				onConfirm={handleConfirmTime}
-				hours={editTime.hours}
-				minutes={editTime.minutes}
-			/>
 		</FansView>
 	);
 };
 
-const TimeframeForm = () => {
-	const { state, dispatch } = useAppContext();
+interface Props {
+	timeframes: ITimeframeInterval[];
+	videoCallSettings: IVideoCallSetting;
+	fetchTimeframes: () => void;
+	updateTimeframesCallback: (timeframes: ITimeframeInterval[]) => void;
+	updateVideoCallSettingsCallback: (
+		videoCallSettings: IVideoCallSetting,
+	) => void;
+}
 
-	const { timeZone, bufferBetweenCalls } = state.profile.settings.video;
+const TimeframeForm: FC<Props> = (props) => {
+	const {
+		timeframes,
+		updateTimeframesCallback,
+		fetchTimeframes,
+		videoCallSettings,
+		updateVideoCallSettingsCallback,
+	} = props;
 
-	const [timeframes, setTimeframes] = useState<IExtendInterval[]>([]);
-
-	const fetchTimeframes = async () => {
-		const resp = await getVideoCallTimeframes();
-		if (resp.ok) {
-			setTimeframes(resp.data);
-			dispatch.setProfile({
-				type: ProfileActionType.updateSettings,
-				data: {
-					video: {
-						...state.profile.settings.video,
-						timeframes: resp.data,
-					},
-				},
-			});
-		}
-	};
+	const [openTimePicker, setOpenTimerPicker] = useState(false);
+	const [editTime, setEditTime] =
+		useState<IEditIntervalTime>(defaultEditTimeValue);
 
 	const handleChangeField = async (name: string, val: string | number) => {
 		const resp = await updateVideoCallSettings({ [name]: val });
 		if (resp.ok) {
-			dispatch.setProfile({
-				type: ProfileActionType.updateSettings,
-				data: {
-					video: {
-						...state.profile.settings.video,
-						[name]: val,
-					},
-				},
+			updateVideoCallSettingsCallback({
+				...videoCallSettings,
+				[name]: val,
 			});
 		} else {
 			Toast.show({
@@ -403,9 +304,127 @@ const TimeframeForm = () => {
 		});
 	};
 
+	const handleOpenTimePicker = (data: IEditIntervalTime) => {
+		setEditTime(data);
+		setOpenTimerPicker(true);
+	};
+
+	const handleDismissTimePicker = () => {
+		setEditTime(defaultEditTimeValue);
+		setOpenTimerPicker(false);
+	};
+
+	const handleUpdate = async (
+		postbody: ITimeframeInterval,
+		intervalId: string,
+	) => {
+		const resp = await updateVideoCallInterval(postbody, {
+			id: intervalId,
+		});
+		if (resp.ok) {
+			fetchTimeframes();
+		} else {
+			Toast.show({
+				type: "error",
+				text1: resp.data.message,
+			});
+			fetchTimeframes();
+		}
+	};
+
+	const handleConfirmTime = async (hoursAndMinutes: IHoursAndMinutes) => {
+		const interval = timeframes.find((el) => el.id === editTime.intervalId);
+		if (!interval) {
+			return;
+		}
+		if (!videoCallSettings.timezone) {
+			Toast.show({
+				type: "error",
+				text1: "Please select timezone",
+			});
+			return;
+		}
+		const timeString = `${hoursAndMinutes.hours
+			.toString()
+			.padStart(2, "0")}:${hoursAndMinutes.minutes
+			.toString()
+			.padStart(2, "0")}`;
+		setOpenTimerPicker(false);
+		if (interval.isNew) {
+			if (editTime.fieldName === "startTime") {
+				updateTimeframesCallback(
+					timeframes.map((el) =>
+						el.id === editTime.intervalId
+							? {
+									...el,
+									startTime: timeString,
+							  }
+							: el,
+					),
+				);
+			} else {
+				updateTimeframesCallback(
+					timeframes.map((el) =>
+						el.id === editTime.intervalId
+							? {
+									...el,
+									length: getIntervalLength(
+										el.startTime,
+										timeString,
+									),
+							  }
+							: el,
+					),
+				);
+				const resp = await createVideoCallInterval({
+					startTime: interval.startTime,
+					length: getIntervalLength(interval.startTime, timeString),
+					day: interval.day,
+				});
+				if (resp.ok) {
+					fetchTimeframes();
+				} else {
+					Toast.show({
+						type: "error",
+						text1: resp.data.message,
+					});
+				}
+			}
+		} else {
+			if (editTime.fieldName === "startTime") {
+				const newLength = getIntervalLength(
+					timeString,
+					getIntervalEndTime(interval.startTime, interval.length),
+				);
+				handleUpdate(
+					{ ...interval, startTime: timeString, length: newLength },
+					editTime.intervalId,
+				);
+			} else {
+				if (interval) {
+					const newLength = getIntervalLength(
+						interval.startTime,
+						timeString,
+					);
+					handleUpdate(
+						{ ...interval, length: newLength },
+						editTime.intervalId,
+					);
+				}
+			}
+		}
+		setEditTime(defaultEditTimeValue);
+	};
+
 	useEffect(() => {
-		fetchTimeframes();
-	}, []);
+		if (
+			videoCallSettings.progress !== "None" &&
+			!videoCallSettings.timezone
+		) {
+			const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+			handleChangeField("timezone", timezone);
+		}
+	}, [videoCallSettings.timezone, videoCallSettings.progress]);
 
 	return (
 		<FansView>
@@ -418,12 +437,15 @@ const TimeframeForm = () => {
 					Time Zone
 				</FypText>
 				<FypDropdown
+					search
 					data={timezones.map((tz) => ({
-						data: tz.value,
-						label: tz.label,
+						data: tz.tzCode,
+						label: tz.name,
 					}))}
-					value={timeZone}
-					onSelect={(val) => handleChangeField("timeZone", val)}
+					value={videoCallSettings.timezone ?? ""}
+					onSelect={(val) =>
+						handleChangeField("timezone", val as string)
+					}
 				/>
 			</FansView>
 			<FansDivider />
@@ -449,7 +471,8 @@ const TimeframeForm = () => {
 								day={index}
 								timeframes={timeframes}
 								onSubmitCallback={fetchTimeframes}
-								setTimeframes={setTimeframes}
+								setTimeframes={updateTimeframesCallback}
+								handleOpenTimePicker={handleOpenTimePicker}
 							/>
 						</FansView>
 					))}
@@ -470,7 +493,7 @@ const TimeframeForm = () => {
 				<FansView>
 					<FypDropdown
 						data={convertMinutesBeforeToSelectData(minutesBefore)}
-						value={bufferBetweenCalls.toString()}
+						value={videoCallSettings.bufferBetweenCalls.toString()}
 						onSelect={(val) => {
 							handleChangeField(
 								"bufferBetweenCalls",
@@ -480,6 +503,13 @@ const TimeframeForm = () => {
 					/>
 				</FansView>
 			</FansView>
+			<TimePickerModal
+				visible={openTimePicker}
+				onDismiss={handleDismissTimePicker}
+				onConfirm={handleConfirmTime}
+				hours={editTime.hours}
+				minutes={editTime.minutes}
+			/>
 		</FansView>
 	);
 };

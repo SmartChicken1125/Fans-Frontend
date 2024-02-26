@@ -100,18 +100,17 @@ export type SettingsNotificationsNativeStackScreenProps<
 > = NativeStackScreenProps<SettingsNotificationsNativeStackParams, T>;
 
 export type SettingsVideoCallSetupNativeStackParams = {
-	VideoCallSetupTOS: undefined;
+	VideoCallSetupFaq: undefined;
 	VideoCallSetup: undefined;
 	EditVideoCallSetup: undefined;
 };
 export type SettingsVideoCallSetupNativeStackScreens =
 	keyof SettingsVideoCallSetupNativeStackParams;
-export type SettingsVideoCallSetupNativeStackScreenProps<
-	T extends SettingsVideoCallSetupNativeStackScreens,
-> = NativeStackScreenProps<SettingsVideoCallSetupNativeStackParams, T>;
 
 export type SettingsCameoSetupNativeStackParams = {
-	CameoSetup: undefined;
+	Setup: undefined;
+	Faq: undefined;
+	Edit: undefined;
 };
 export type SettingsCameoSetupNativeStackScreens =
 	keyof SettingsCameoSetupNativeStackParams;
@@ -232,13 +231,13 @@ export type ProfileNavigationStacks = {
 	AgeVerifyFailed: undefined;
 	AgeVerifyPending: undefined;
 	Purchases: undefined;
+	Reviews: undefined;
 };
 
 export type CreatorProfileNavigationStacks = {
 	Creator: undefined;
 	Preview: undefined;
 	Post: { id: string };
-	OrderVideoCallScreen: { username: string };
 	ReferAndEarn: { profile?: IProfile } | undefined;
 };
 
@@ -357,6 +356,11 @@ export type VaultNavigationStacks = {
 };
 
 export type VideoCallStackParams = {
-	Creator: { id: string };
-	Fan: { id: string };
+	CreatorCall: { id: string };
+	FanCall: { id: string };
+	Order: { username: string };
+};
+
+export type CustomVideoStackParams = {
+	Home: { username: string };
 };

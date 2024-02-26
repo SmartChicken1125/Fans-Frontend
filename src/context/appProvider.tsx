@@ -1,11 +1,12 @@
 import { defaultSubscriptions } from "@constants/common";
 import { LOADING_DIALOG_ID } from "@constants/modal";
 import { authUserInfo } from "@helper/endpoints/auth/apis";
+import { getCreatorCustomVideoSettings } from "@helper/endpoints/cameo/apis";
 import {
 	getProfile,
 	getSuggestedProfiles,
 } from "@helper/endpoints/profile/apis";
-import { getVideoCallSettings } from "@helper/endpoints/videoCalls/apis";
+import { getProfileVideoCallSettings } from "@helper/endpoints/videoCalls/apis";
 import tw from "@lib/tailwind";
 import { AuthState, authAtom, authStateAtom } from "@state/auth";
 import { useRefreshNotifications } from "@state/notifications";
@@ -117,16 +118,25 @@ const AppProvider: FC<Props> = (props) => {
 		return res;
 	};
 
-	const fetchVideoCallSettings = async () => {
-		const resp = await getVideoCallSettings();
+	const fetchVideoCallSettings = async (userId: string) => {
+		const resp = await getProfileVideoCallSettings({ id: userId });
 		if (resp.ok) {
 			setProfile({
 				type: ProfileActionType.updateSettings,
 				data: {
-					video: {
-						...profile.settings.video,
-						...resp.data,
-					},
+					video: resp.data,
+				},
+			});
+		}
+	};
+
+	const fetchCustomVideoSettings = async (userId: string) => {
+		const resp = await getCreatorCustomVideoSettings({ id: userId });
+		if (resp.ok) {
+			setProfile({
+				type: ProfileActionType.updateSettings,
+				data: {
+					cameo: resp.data,
 				},
 			});
 		}
@@ -162,7 +172,8 @@ const AppProvider: FC<Props> = (props) => {
 				data: socialLinks,
 			});
 		}
-		fetchVideoCallSettings();
+		await fetchVideoCallSettings(resp.data.id);
+		await fetchCustomVideoSettings(resp.data.id);
 	};
 
 	const fetchSuggestedCreators = async () => {

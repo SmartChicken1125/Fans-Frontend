@@ -1,44 +1,29 @@
 import RoundButton from "@components/common/RoundButton";
-import { FansGap } from "@components/controls";
-import { useAppContext } from "@context/useAppContext";
+import { FansView } from "@components/controls";
 import { RoundButtonType } from "@usertypes/commonEnums";
-import React from "react";
-import { View } from "react-native";
+import React, { FC } from "react";
 
-interface VideoStepperButtonsProps {
+interface StepperButtonsProps {
 	currentStep: number;
 	totalSteps: number;
 	handlePrevStep: () => void;
 	handleNextStep: () => void;
 	handleEnableVideoCalls: () => void;
+	nextDisabled: boolean;
+	inProgress: boolean;
 }
 
-const StepperButtons: React.FC<VideoStepperButtonsProps> = ({
+const StepperButtons: FC<StepperButtonsProps> = ({
 	currentStep,
 	totalSteps,
 	handlePrevStep,
 	handleNextStep,
 	handleEnableVideoCalls,
+	nextDisabled,
+	inProgress,
 }) => {
-	const { state } = useAppContext();
-	const { video } = state.profile.settings;
-	const { meetingDurations, timeframes } = video;
-
-	const getNextDisabled = () => {
-		switch (currentStep) {
-			case 0:
-				return meetingDurations.length === 0;
-			case 1:
-				return timeframes.length < 3;
-			default:
-				return false;
-		}
-	};
-
-	console.log(video);
-
 	return (
-		<View>
+		<FansView gap={24}>
 			{currentStep !== 0 && (
 				<RoundButton
 					variant={RoundButtonType.OUTLINE_PRIMARY}
@@ -47,20 +32,23 @@ const StepperButtons: React.FC<VideoStepperButtonsProps> = ({
 					Previous
 				</RoundButton>
 			)}
-			<FansGap height={24.5} />
 			{currentStep !== totalSteps - 1 ? (
 				<RoundButton
-					disabled={getNextDisabled()}
+					loading={inProgress}
+					disabled={nextDisabled}
 					onPress={handleNextStep}
 				>
 					Next
 				</RoundButton>
 			) : (
-				<RoundButton onPress={handleEnableVideoCalls}>
+				<RoundButton
+					loading={inProgress}
+					onPress={handleEnableVideoCalls}
+				>
 					Enable Video Calls
 				</RoundButton>
 			)}
-		</View>
+		</FansView>
 	);
 };
 

@@ -1,10 +1,24 @@
-import { FypStepper, FypText } from "@components/common/base";
+import { FypStepper, FypText, FypNullableView } from "@components/common/base";
 import { FansGap, FansScreen2, FansView } from "@components/controls";
+import { defaultVideoCallSettingsData } from "@constants/common";
 import { useAppContext, ProfileActionType } from "@context/useAppContext";
-import { updateVideoCallSettings } from "@helper/endpoints/videoCalls/apis";
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
-import { View } from "react-native";
+import {
+	updateVideoCallSettings,
+	getVideoCallDurations,
+	getVideoCallSettings,
+	getVideoCallTimeframes,
+	getProfileVideoCallSettings,
+} from "@helper/endpoints/videoCalls/apis";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { SettingsVideoCallSetupNativeStackParams } from "@usertypes/navigations";
+import {
+	IVideoDurationForm,
+	IVideoCallSetting,
+	ITimeframeInterval,
+	videoCallSettingProgresses,
+} from "@usertypes/types";
+import { useNavigation } from "expo-router";
+import React, { useState, useEffect } from "react";
 import Toast from "react-native-toast-message";
 import ContentPreferenceForm from "./contentPreferenceForm";
 import NotificationStep from "./notificationStep";
@@ -22,15 +36,35 @@ const steps = [
 ];
 
 const VideoCallSetupScreen = () => {
+	const navigation =
+		useNavigation<
+			NativeStackNavigationProp<SettingsVideoCallSetupNativeStackParams>
+		>();
 	const [currentStep, setCurrentStep] = useState(0);
 	const { state, dispatch } = useAppContext();
-	const router = useRouter();
 
 	const totalSteps = steps.length;
 
-	const handleNextStep = () => {
-		if (currentStep < totalSteps - 1) {
+	const [nextDisabled, setNextDisabled] = useState(false);
+	const [durations, setDurations] = useState<IVideoDurationForm[]>([]);
+	const [timeframes, setTimeframes] = useState<ITimeframeInterval[]>([]);
+	const [videoCallSettings, setVideoCallSettings] =
+		useState<IVideoCallSetting>(defaultVideoCallSettingsData);
+	const [inProgress, setInProgress] = useState(false);
+
+	const handleNextStep = async () => {
+		setInProgress(true);
+		const resp = await updateVideoCallSettings({
+			progress: videoCallSettingProgresses[currentStep + 1],
+		});
+		setInProgress(false);
+		if (resp.ok) {
 			setCurrentStep(currentStep + 1);
+		} else {
+			Toast.show({
+				type: "error",
+				text1: resp.data.message,
+			});
 		}
 	};
 
@@ -41,19 +75,27 @@ const VideoCallSetupScreen = () => {
 	};
 
 	const handleEnableVideoCalls = async () => {
-		const resp = await updateVideoCallSettings({ videoCallsEnabled: true });
+		setInProgress(true);
+		const resp = await updateVideoCallSettings({
+			videoCallsEnabled: true,
+			progress: "Completed",
+		});
 		if (resp.ok) {
-			dispatch.setProfile({
-				type: ProfileActionType.updateSettings,
-				data: {
-					video: {
-						...state.profile.settings.video,
-						videoCallsEnabled: true,
-					},
-				},
+			const respProfile = await getProfileVideoCallSettings({
+				id: state.profile.id,
 			});
-			router.push("/profile");
+			setInProgress(false);
+			if (respProfile.ok) {
+				dispatch.setProfile({
+					type: ProfileActionType.updateSettings,
+					data: {
+						video: respProfile.data,
+					},
+				});
+				navigation.navigate("EditVideoCallSetup");
+			}
 		} else {
+			setInProgress(false);
 			Toast.show({
 				type: "error",
 				text1: resp.data.message,
@@ -61,14 +103,69 @@ const VideoCallSetupScreen = () => {
 		}
 	};
 
+	const fetchVideoCallDurations = async () => {
+		const resp = await getVideoCallDurations();
+		if (resp.ok) {
+			setDurations(resp.data);
+		} else {
+			setDurations([]);
+		}
+	};
+
+	const updateDurationsCallback = (value: IVideoDurationForm[]) => {
+		setDurations(value);
+	};
+
+	const fetchTimeframes = async () => {
+		const resp = await getVideoCallTimeframes();
+		if (resp.ok) {
+			setTimeframes(resp.data);
+		}
+	};
+
+	const updateTimeframesCallback = (value: ITimeframeInterval[]) => {
+		setTimeframes(value);
+	};
+
+	const fetchVideoCallSettings = async () => {
+		const resp = await getVideoCallSettings();
+		if (resp.ok) {
+			setVideoCallSettings(resp.data);
+		}
+	};
+
+	const updateVideoCallSettingsCallback = (value: IVideoCallSetting) => {
+		setVideoCallSettings(value);
+	};
+
+	useEffect(() => {
+		fetchVideoCallDurations();
+		fetchTimeframes();
+		fetchVideoCallSettings();
+	}, []);
+
+	useEffect(() => {
+		if (currentStep === 0 && durations.length === 0) {
+			setNextDisabled(true);
+		} else if (currentStep === 1 && timeframes.length === 0) {
+			setNextDisabled(true);
+		} else {
+			setNextDisabled(false);
+		}
+	}, [durations, currentStep]);
+
 	return (
 		<FansScreen2 contentStyle={{ maxWidth: 670 }}>
 			<FansView style={{ marginTop: 20 }}>
-				<FypStepper currentStep={currentStep} steps={steps} />
+				<FypStepper
+					currentStep={currentStep}
+					steps={steps}
+					onSelect={setCurrentStep}
+				/>
 			</FansView>
-			<View>
-				{steps[currentStep] === "Prices" ? (
-					<FansView padding={{ b: 180 }}>
+			<FansView>
+				<FypNullableView visible={steps[currentStep] === "Prices"}>
+					<FansView>
 						<FansView padding={{ t: 28, b: 42 }}>
 							<FypText
 								textAlign="center"
@@ -97,10 +194,14 @@ const VideoCallSetupScreen = () => {
 								fans to buy
 							</FypText>
 						</FansView>
-						<PricesForm />
+						<PricesForm
+							durations={durations}
+							updateDurationsCallback={updateDurationsCallback}
+						/>
+						<FansGap height={{ xs: 24, md: 180 }} />
 					</FansView>
-				) : null}
-				{steps[currentStep] === "Timeframes" ? (
+				</FypNullableView>
+				<FypNullableView visible={steps[currentStep] === "Timeframes"}>
 					<FansView padding={{ b: 40 }}>
 						<FansView margin={{ b: 42 }} padding={{ t: 34 }}>
 							<FypText
@@ -116,10 +217,20 @@ const VideoCallSetupScreen = () => {
 								between the selected range of dates
 							</FypText>
 						</FansView>
-						<TimeframeForm />
+						<TimeframeForm
+							timeframes={timeframes}
+							videoCallSettings={videoCallSettings}
+							fetchTimeframes={fetchTimeframes}
+							updateTimeframesCallback={updateTimeframesCallback}
+							updateVideoCallSettingsCallback={
+								updateVideoCallSettingsCallback
+							}
+						/>
 					</FansView>
-				) : null}
-				{steps[currentStep] === "ContentPreferences" ? (
+				</FypNullableView>
+				<FypNullableView
+					visible={steps[currentStep] === "ContentPreferences"}
+				>
 					<FansView padding={{ t: 34, b: 34 }}>
 						<FansView margin={{ b: 40 }}>
 							<FypText
@@ -135,11 +246,16 @@ const VideoCallSetupScreen = () => {
 								creating. This guides fans in their requests
 							</FypText>
 						</FansView>
-						<ContentPreferenceForm />
+						<ContentPreferenceForm
+							videoCallSettings={videoCallSettings}
+							updateVideoCallSettingsCallback={
+								updateVideoCallSettingsCallback
+							}
+						/>
 					</FansView>
-				) : null}
-				{steps[currentStep] === "Title" ? (
-					<FansView padding={{ t: 34, b: 355 }}>
+				</FypNullableView>
+				<FypNullableView visible={steps[currentStep] === "Title"}>
+					<FansView padding={{ y: 34 }}>
 						<FypText
 							textAlign="center"
 							fontFamily="inter-semibold"
@@ -156,22 +272,37 @@ const VideoCallSetupScreen = () => {
 							Specify the type of video call you will provide, so
 							that fans know what to expect
 						</FypText>
-						<TitleForm />
+						<TitleForm
+							videoCallSettings={videoCallSettings}
+							updateVideoCallSettingsCallback={
+								updateVideoCallSettingsCallback
+							}
+						/>
 					</FansView>
-				) : null}
-				{steps[currentStep] === "Notification" ? (
-					<NotificationStep />
-				) : null}
-			</View>
-			<View>
+				</FypNullableView>
+				<FypNullableView
+					visible={steps[currentStep] === "Notification"}
+				>
+					<NotificationStep
+						videoCallSettings={videoCallSettings}
+						updateVideoCallSettingsCallback={
+							updateVideoCallSettingsCallback
+						}
+					/>
+					<FansGap height={40} />
+				</FypNullableView>
+			</FansView>
+			<FansView>
 				<StepperButtons
 					currentStep={currentStep}
 					totalSteps={totalSteps}
+					nextDisabled={nextDisabled}
+					inProgress={inProgress}
 					handlePrevStep={handlePrevStep}
 					handleNextStep={handleNextStep}
 					handleEnableVideoCalls={handleEnableVideoCalls}
 				/>
-			</View>
+			</FansView>
 			<FansGap height={20} />
 		</FansScreen2>
 	);

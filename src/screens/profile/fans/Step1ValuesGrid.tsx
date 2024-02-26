@@ -140,10 +140,10 @@ const Step1ValuesGrid = () => {
 		if (response.ok) {
 			const profileSettings = response.data;
 
-			dispatch.setProfile({
-				type: ProfileActionType.updateSettings,
-				data: profileSettings,
-			});
+			// dispatch.setProfile({
+			// 	type: ProfileActionType.updateSettings,
+			// 	data: profileSettings,
+			// });
 		}
 	};
 

@@ -1,6 +1,7 @@
 import {
 	CreatorReferralTransaction,
 	IPost,
+	IProfile,
 	ITransaction,
 } from "@usertypes/types";
 import { LinearGradientProps } from "expo-linear-gradient";
@@ -119,7 +120,7 @@ interface FansScreenProps
 	contentStyle?: StyleProp<ViewStyle>;
 	contentStyle1?: Pick<
 		FansViewProps,
-		"maxWidth" | "flexDirection" | "grow" | "padding"
+		"maxWidth" | "background" | "flexDirection" | "grow" | "padding"
 	>;
 	contentContainerStyle?: StyleProp<ViewStyle>;
 	overflow?: boolean;
@@ -135,6 +136,7 @@ export interface FansSheetProps<Input = undefined>
 	data?: Input;
 	sheetStyle?: Pick<FansViewProps, "alignItems" | "padding">;
 	transaction?: ITransaction;
+	profile?: IProfile;
 	creatorReferralTransaction?: CreatorReferralTransaction;
 	onClose: () => void;
 	onSubmit: (value: string) => void;

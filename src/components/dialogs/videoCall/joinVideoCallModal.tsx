@@ -95,9 +95,12 @@ const JoinVideoCallModal = () => {
 		if (resp.ok) {
 			handleClose();
 			router.replace({
-				pathname: "video-call",
+				pathname: "videocall",
 				params: {
-					screen: profile.id === videoCall.hostId ? "Creator" : "Fan",
+					screen:
+						profile.id === videoCall.hostId
+							? "CreatorCall"
+							: "FanCall",
 					id: videoCall.id,
 				},
 			});

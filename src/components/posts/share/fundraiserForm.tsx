@@ -152,9 +152,10 @@ const FundraiserForm: FC<Props> = (props) => {
 						Time Zone
 					</FypText>
 					<FypDropdown
+						search
 						data={timezones.map((tz) => ({
-							data: tz.value,
-							label: tz.label,
+							data: tz.tzCode,
+							label: tz.name,
 						}))}
 						value={formData.timezone}
 						onSelect={(val) =>

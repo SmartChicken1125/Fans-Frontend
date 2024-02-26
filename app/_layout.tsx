@@ -3,10 +3,12 @@ import { AnimationLoadingModal } from "@components/common/dialog";
 import SubscribeDialog from "@components/common/dialog/subscribeDialog";
 import { MobileSidebar } from "@components/common/layout";
 import {
+	MessageReportDialog,
 	PostReportDialog,
 	ProfileReportDialog,
 } from "@components/dialogs/report";
 import BlockCreatorModal from "@components/dialogs/report/BlockCreatorModal";
+import { JoinVideoCallModal } from "@components/dialogs/videoCall";
 import { DeleteAccountSuccessModal } from "@components/modals";
 import { SendMessageSuccessModal } from "@components/modals/contact";
 import {
@@ -15,11 +17,13 @@ import {
 	SendTipSuccessDialog,
 } from "@components/posts/dialogs";
 import PostModal from "@components/posts/postModal";
+import StoryEditModal from "@components/posts/postModal/storyEditModal";
 import { PwaInstallModal } from "@components/pwa";
 import {
 	ANIMATION_LOADING_DIALOG_ID,
 	BLOCK_CREATOR_MODAL_ID,
 	DELETE_ACCOUNT_SUCCESS_DIALOG_ID,
+	MESSAGE_REPORT_DIALOG_ID,
 	POST_REPORT_DIALOG_ID,
 	PROFILE_REPORT_DIALOG_ID,
 	PWA_INSTALL_DIALOG_ID,
@@ -178,6 +182,9 @@ export default function AppLayout() {
 							<ProfileReportDialog
 								key={PROFILE_REPORT_DIALOG_ID}
 							/>
+							<MessageReportDialog
+								key={MESSAGE_REPORT_DIALOG_ID}
+							/>
 							<SendMessageSuccessModal
 								key={SEND_MESSAGE_SUCCESS_MODAL_ID}
 							/>
@@ -190,6 +197,7 @@ export default function AppLayout() {
 							<PostMediaDialog key="post-media-dialog" />
 							<SubscribeDialog key="subscribe-dialog" />
 							<PostModal key="create-post-modal" />
+							<StoryEditModal key="story-edit-modal" />
 
 							<PwaInstallModal key={PWA_INSTALL_DIALOG_ID} />
 
@@ -199,6 +207,7 @@ export default function AppLayout() {
 
 							{Platform.OS === "web" && <SiftScript />}
 							{/* {Platform.OS === "web" && <PWA />} */}
+							<JoinVideoCallModal />
 						</AppProvider>
 					</GestureHandlerRootView>
 					<Toast />

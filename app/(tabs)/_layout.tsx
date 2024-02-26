@@ -164,7 +164,7 @@ const NewLayout = () => {
 						),
 						tabBarStyle: {
 							backgroundColor: themeColor,
-							borderTopColor: themeColor,
+							borderTopColor: tw.color("fans-purple"),
 							display: !tw.prefixMatch("md")
 								? screen === "Home"
 									? "flex"
@@ -216,7 +216,7 @@ const NewLayout = () => {
 						tabBarStyle: {
 							display: !tw.prefixMatch("md") ? "flex" : "none",
 							backgroundColor: themeColor,
-							borderTopColor: themeColor,
+							borderTopColor: tw.color("fans-purple"),
 						},
 					}}
 				/>
@@ -234,7 +234,7 @@ const NewLayout = () => {
 						tabBarStyle: {
 							display: !tw.prefixMatch("md") ? "flex" : "none",
 							backgroundColor: themeColor,
-							borderTopColor: themeColor,
+							borderTopColor: tw.color("fans-purple"),
 						},
 					}}
 					listeners={() => ({
@@ -275,7 +275,7 @@ const NewLayout = () => {
 						tabBarStyle: {
 							display: !tw.prefixMatch("md") ? "flex" : "none",
 							backgroundColor: themeColor,
-							borderTopColor: themeColor,
+							borderTopColor: tw.color("fans-purple"),
 						},
 					}}
 				/>
@@ -299,7 +299,7 @@ const NewLayout = () => {
 						tabBarStyle: {
 							display: !tw.prefixMatch("md") ? "flex" : "none",
 							backgroundColor: themeColor,
-							borderTopColor: themeColor,
+							borderTopColor: tw.color("fans-purple"),
 						},
 					}}
 				/>
@@ -334,7 +334,7 @@ const NewLayout = () => {
 								? "none"
 								: "flex",
 							backgroundColor: themeColor,
-							borderTopColor: themeColor,
+							borderTopColor: tw.color("fans-purple"),
 						},
 					}}
 				/>
@@ -362,12 +362,6 @@ const NewLayout = () => {
 				/>
 				<Tabs.Screen
 					name="vault"
-					options={{
-						href: null,
-					}}
-				/>
-				<Tabs.Screen
-					name="video-call"
 					options={{
 						href: null,
 					}}
@@ -494,7 +488,7 @@ const NewLayout = () => {
 					}}
 				/>
 				<Tabs.Screen
-					name="cameo-setup"
+					name="custom-video-setup"
 					options={{
 						href: null,
 					}}
@@ -542,13 +536,25 @@ const NewLayout = () => {
 					}}
 				/>
 				<Tabs.Screen
-					name="video-call-setup-tos"
+					name="video-call-setup"
 					options={{
 						href: null,
 					}}
 				/>
 				<Tabs.Screen
-					name="video-call-setup-edit"
+					name="videocall"
+					options={{
+						href: null,
+					}}
+				/>
+				<Tabs.Screen
+					name="custom-video"
+					options={{
+						href: null,
+					}}
+				/>
+				<Tabs.Screen
+					name="privacy-safety"
 					options={{
 						href: null,
 					}}

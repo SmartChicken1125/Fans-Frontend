@@ -256,9 +256,9 @@ export {
 export { default as SelectSvg } from "./Select";
 export { default as SendSvg } from "./Send";
 export { default as SendOneSvg } from "./SendOne";
-export { default as SettingSvg } from "./Setting";
+export { default as SettingSvg, FilledSettingSvg } from "./Setting";
 export { default as ShareSvg } from "./Share";
-export { ShopSvg } from "./Shop";
+export { ShopSvg, FilledShopSvg } from "./Shop";
 export { default as ShortSvg } from "./Short";
 export { default as ShuffleSvg } from "./Shuffle";
 export { default as SingleGem } from "./SingleGem";
@@ -267,7 +267,7 @@ export { default as SnapchatSvg } from "./Snapchat";
 export { SortAscSvg, SortDescSvg } from "./Sort";
 export { default as SoundWaveSvg } from "./SoundWaveC";
 export { default as SpeakerSvg } from "./Speaker";
-export { Star1Svg, default as StarSvg } from "./StarC1";
+export { Star1Svg, default as StarSvg, Star2Svg } from "./Star";
 export { default as StarCheckSvg } from "./StarCheck";
 export { default as StatisticsSvg } from "./Statistics";
 export { Story1Svg, default as StorySvg } from "./Story";
@@ -319,6 +319,7 @@ export { default as XLinkSvg } from "./XLink";
 export { default as YellowGemSvg } from "./YellowGem";
 export { default as YouTubeSvg } from "./YouTubeV3";
 
+export { default as GemLockSvg } from "./GemLock";
 export { default as StoryEditAaSvg } from "./StoryEditAa";
 export { default as StoryEditAtSvg } from "./StoryEditAt";
 export { default as StoryEditBackSvg } from "./StoryEditBack";
@@ -331,4 +332,5 @@ export { default as StoryEditLinkSvg } from "./StoryEditLink";
 export { default as StoryEditNextArrowSvg } from "./StoryEditNextArrow";
 export { default as StoryEditScanColorSvg } from "./StoryEditScanColor";
 export { default as WhiteLogoSvg } from "./WhiteLogo";
-export { default as GemLockSvg } from "./GemLock";
+
+export { default as Over18Svg } from "./Over18";

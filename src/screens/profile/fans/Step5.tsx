@@ -17,13 +17,13 @@ import React from "react";
 const Step5 = () => {
 	const { state, dispatch } = useAppContext();
 
-	const {
-		notificationNewRequests,
-		notificationCancellations,
-		notificationsByEmail,
-		notificationReminders,
-		notificationsByPhone,
-	} = state.profile.settings.video;
+	// const {
+	// 	notificationNewRequests,
+	// 	notificationCancellations,
+	// 	notificationsByEmail,
+	// 	notificationReminders,
+	// 	notificationsByPhone,
+	// } = state.profile.settings.video;
 	const { video } = state.profile.settings;
 
 	// const {
@@ -50,11 +50,10 @@ const Step5 = () => {
 	};
 
 	const updateSettings = async (updatedSettings: IProfileSettings) => {
-		const response = await updateVideoSettings(updatedSettings);
-
-		if (response.ok) {
-			fetchProfileSettings();
-		}
+		// const response = await updateVideoSettings(updatedSettings);
+		// if (response.ok) {
+		// 	fetchProfileSettings();
+		// }
 	};
 
 	const fetchProfileSettings = async () => {
@@ -70,7 +69,7 @@ const Step5 = () => {
 
 	return (
 		<FansScreen2>
-			<FansView>
+			{/* <FansView>
 				<FansText fontFamily="inter-semibold" fontSize={17}>
 					Notify top fans
 				</FansText>
@@ -124,7 +123,7 @@ const Step5 = () => {
 						handleChangeField("notificationsByPhone", value)
 					}
 				/>
-			</FansView>
+			</FansView> */}
 		</FansScreen2>
 	);
 };

@@ -1,51 +1,8 @@
-import Adult from "@assets/svgs/common/Adult";
-import Advice from "@assets/svgs/common/Advice";
-import Consultation from "@assets/svgs/common/Consultation";
-import Performance from "@assets/svgs/common/Performance";
-import SexualContent from "@assets/svgs/common/SexualContent";
 import { FypText } from "@components/common/base";
 import { FansView } from "@components/controls";
 import tw from "@lib/tailwind";
 import React from "react";
-
-const options = [
-	{
-		id: "Consultation",
-		title: "Consultation",
-		iconToRender: <Consultation />,
-		iconColor: "#edfaea",
-	},
-	{
-		id: "Advice",
-		title: "Advice",
-		iconToRender: <Advice />,
-		iconColor: "#e8f6ff",
-	},
-	{
-		id: "Performance",
-		title: "Performance",
-		iconToRender: <Performance />,
-		iconColor: "#f6edff",
-	},
-	{
-		id: "Adult",
-		title: "18+ Adult",
-		iconToRender: <Adult />,
-		iconColor: "#fdebf9",
-	},
-	{
-		id: "Sexual",
-		title: "18+ Sexual",
-		iconToRender: <SexualContent />,
-		iconColor: "#fff3e9",
-	},
-	{
-		id: "Spirituality",
-		title: "Spirituality",
-		iconToRender: <Consultation />,
-		iconColor: "#fffcdb",
-	},
-];
+import { Image } from "react-native";
 
 export interface Option {
 	id: string;
@@ -61,11 +18,96 @@ interface ContentPreferencesListProps {
 export const ContentPreferencesList: React.FC<ContentPreferencesListProps> = ({
 	availableOptionIds,
 }) => {
+	const options = [
+		{
+			id: "Shoutout",
+			title: "Shoutout",
+			iconToRender: (
+				<Image
+					source={require("@assets/images/preferences/shoutout.png")}
+					resizeMode="contain"
+					style={tw.style(
+						"w-[50px] h-[50px] md:w-[55px] md:h-[55px]",
+					)}
+				/>
+			),
+		},
+		{
+			id: "Advice",
+			title: "Advice",
+			iconToRender: (
+				<Image
+					source={require("@assets/images/preferences/advice.png")}
+					resizeMode="contain"
+					style={tw.style(
+						"w-[54px] h-[54px] md:w-[64px] md:h-[64px]",
+					)}
+				/>
+			),
+		},
+		{
+			id: "Performance",
+			title: "Performance",
+			iconToRender: (
+				<Image
+					source={require("@assets/images/preferences/performance.png")}
+					resizeMode="contain"
+					style={tw.style(
+						"w-[56px] h-[34px] md:w-[66px] md:h-[40px]",
+					)}
+				/>
+			),
+		},
+		{
+			id: "Adult",
+			title: "18+ Adult",
+			iconToRender: (
+				<Image
+					source={require("@assets/images/preferences/adult.png")}
+					resizeMode="contain"
+					style={tw.style(
+						"w-[46px] h-[51px] md:w-[58px] md:h-[58px]",
+					)}
+				/>
+			),
+		},
+		{
+			id: "Endorsements",
+			title: "Endorsements",
+			iconToRender: (
+				<Image
+					source={require("@assets/images/preferences/endorsements.png")}
+					resizeMode="contain"
+					style={tw.style(
+						"w-[41px] h-[46px] md:w-[64px] md:h-[55px]",
+					)}
+				/>
+			),
+		},
+		{
+			id: "Roast",
+			title: "Roast",
+			iconToRender: (
+				<Image
+					source={require("@assets/images/preferences/roast.png")}
+					resizeMode="contain"
+					style={tw.style(
+						"w-[61px] h-[44px] md:w-[66px] md:h-[48px]",
+					)}
+				/>
+			),
+		},
+	];
+
 	const filteredOptions = options.filter((option) =>
 		availableOptionIds.includes(option.id),
 	);
 	return (
-		<FansView flexDirection="row" gap={{ xs: 20, md: 40 }}>
+		<FansView
+			flexDirection="row"
+			gap={{ xs: 20, md: 40 }}
+			justifyContent="center"
+		>
 			{filteredOptions.map((option) => (
 				<FansView
 					key={option.id}
@@ -78,7 +120,6 @@ export const ContentPreferencesList: React.FC<ContentPreferencesListProps> = ({
 						alignItems="center"
 						justifyContent="center"
 						borderRadius={75}
-						style={tw.style(`bg-[${option.iconColor}99]`)}
 					>
 						{option.iconToRender}
 					</FansView>

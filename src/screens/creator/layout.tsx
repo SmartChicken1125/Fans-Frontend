@@ -5,7 +5,6 @@ import ReferAndEarnScreen from "@screens/settings/referral/ReferAndEarn";
 import { CreatorProfileNavigationStacks } from "@usertypes/navigations";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect } from "react";
-import OrderVideoCallScreen from "./orderVideoCall";
 import PostInteractiveScreen from "./postInteractiveScreen";
 import PreviewScreen from "./previewScreen";
 import ProfileScreen from "./profileScreen";
@@ -52,13 +51,6 @@ const CreatorProfileLayout = () => {
 			<Stack.Screen
 				name="Post"
 				component={PostInteractiveScreen}
-				options={{
-					headerShown: false,
-				}}
-			/>
-			<Stack.Screen
-				name="OrderVideoCallScreen"
-				component={OrderVideoCallScreen}
 				options={{
 					headerShown: false,
 				}}

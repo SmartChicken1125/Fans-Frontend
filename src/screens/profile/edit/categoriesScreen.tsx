@@ -53,7 +53,10 @@ const CategoriesScreen = (
 	};
 
 	const fetchCategories = async () => {
-		const resp = await getCategories();
+		const resp = await getCategories({
+			page: 1,
+			size: categories.length > 0 ? categories.length : 10,
+		});
 		if (resp.ok) {
 			dispatch.setProfile({
 				type: ProfileActionType.updateProfile,

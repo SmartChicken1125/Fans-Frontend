@@ -194,10 +194,10 @@ const Step2: React.FC = () => {
 		const response = await getUserSettings();
 		if (response.ok) {
 			const profileSettings = response.data;
-			dispatch.setProfile({
-				type: ProfileActionType.updateSettings,
-				data: profileSettings,
-			});
+			// dispatch.setProfile({
+			// 	type: ProfileActionType.updateSettings,
+			// 	data: profileSettings,
+			// });
 		}
 	};
 

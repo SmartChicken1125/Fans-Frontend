@@ -39,7 +39,10 @@ const SubscriptionDetailsSheet: FC<Props> = (props) => {
 							<RenewSvg />
 						</FansView>
 					),
-					onPress: onRenewSubscription,
+					onPress: () => {
+						onClose();
+						onRenewSubscription();
+					},
 				},
 				// {
 				// 	label: "Copy profile link",

@@ -34,7 +34,7 @@ import React, { useState, useEffect } from "react";
 import { Image } from "react-native";
 
 const CreatorScreen = (
-	props: NativeStackScreenProps<VideoCallStackParams, "Creator">,
+	props: NativeStackScreenProps<VideoCallStackParams, "CreatorCall">,
 ) => {
 	const { route } = props;
 	const { id: meetingId } = route.params;

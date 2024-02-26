@@ -1,33 +1,32 @@
 import RoundTextInput from "@components/common/RoundTextInput";
 import { FypText, FypSwitch } from "@components/common/base";
 import { FansView } from "@components/controls";
-import { ProfileActionType, useAppContext } from "@context/useAppContext";
-import {
-	updateVideoCallSettings,
-	getVideoCallSettings,
-} from "@helper/endpoints/videoCalls/apis";
-import React, { useState, useEffect } from "react";
+import { updateVideoCallSettings } from "@helper/endpoints/videoCalls/apis";
+import { useFeatureGates } from "@state/featureGates";
+import { IVideoCallSetting } from "@usertypes/types";
+import React, { FC, useState, useEffect } from "react";
 import Toast from "react-native-toast-message";
 
-const TitleForm = () => {
-	const { state, dispatch } = useAppContext();
+interface Props {
+	videoCallSettings: IVideoCallSetting;
+	updateVideoCallSettingsCallback: (
+		videoCallSettings: IVideoCallSetting,
+	) => void;
+}
 
-	const { meetingDescription } = state.profile.settings.video;
+const TitleForm: FC<Props> = (props) => {
+	const { videoCallSettings, updateVideoCallSettingsCallback } = props;
+	const featureGates = useFeatureGates();
 
 	const [localMeetingDescription, setLocalMeetingDescription] =
-		useState<string>(meetingDescription);
+		useState<string>("");
 
 	const handleUpdate = async (name: string, value: string) => {
 		const resp = await updateVideoCallSettings({ [name]: value });
 		if (resp.ok) {
-			dispatch.setProfile({
-				type: ProfileActionType.updateSettings,
-				data: {
-					video: {
-						...state.profile.settings.video,
-						[name]: value,
-					},
-				},
+			updateVideoCallSettingsCallback({
+				...videoCallSettings,
+				[name]: value,
 			});
 		} else {
 			Toast.show({
@@ -37,31 +36,15 @@ const TitleForm = () => {
 		}
 	};
 
-	const fetchVideoCallSettings = async () => {
-		const resp = await getVideoCallSettings();
-		if (resp.ok) {
-			dispatch.setProfile({
-				type: ProfileActionType.updateSettings,
-				data: {
-					video: {
-						...state.profile.settings.video,
-						...resp.data,
-					},
-				},
-			});
-			setLocalMeetingDescription(resp.data.meetingDescription);
-		}
-	};
-
 	const handleMeetingDescriptionBlur = async () => {
-		if (localMeetingDescription !== meetingDescription) {
+		if (localMeetingDescription !== videoCallSettings.meetingDescription) {
 			handleUpdate("meetingDescription", localMeetingDescription);
 		}
 	};
 
 	useEffect(() => {
-		fetchVideoCallSettings();
-	}, []);
+		setLocalMeetingDescription(videoCallSettings.meetingDescription);
+	}, [videoCallSettings.meetingDescription]);
 
 	return (
 		<FansView>
@@ -81,16 +64,18 @@ const TitleForm = () => {
 				/>
 			</FansView>
 
-			<FansView
-				flexDirection="row"
-				alignItems="center"
-				justifyContent="between"
-			>
-				<FypText fontSize={18} lineHeight={24}>
-					Show reviews from fans
-				</FypText>
-				<FypSwitch value={true} onValueChange={() => {}} />
-			</FansView>
+			{featureGates.has("2024_02-show-reviews-in-video-call") ? (
+				<FansView
+					flexDirection="row"
+					alignItems="center"
+					justifyContent="between"
+				>
+					<FypText fontSize={18} lineHeight={24}>
+						Show reviews from fans
+					</FypText>
+					<FypSwitch value={true} onValueChange={() => {}} />
+				</FansView>
+			) : null}
 		</FansView>
 	);
 };

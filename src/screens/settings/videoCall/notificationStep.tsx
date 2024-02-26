@@ -1,18 +1,24 @@
 import {
 	FansGap,
 	FansHorizontalDivider,
-	FansScreen2,
 	FansSwitch,
 	FansText,
 	FansView,
 } from "@components/controls";
-import { ProfileActionType, useAppContext } from "@context/useAppContext";
 import { updateVideoCallSettings } from "@helper/endpoints/videoCalls/apis";
-import React from "react";
+import { IVideoCallSetting } from "@usertypes/types";
+import React, { FC } from "react";
 import Toast from "react-native-toast-message";
 
-const NotificationStep = () => {
-	const { state, dispatch } = useAppContext();
+interface Props {
+	videoCallSettings: IVideoCallSetting;
+	updateVideoCallSettingsCallback: (
+		videoCallSettings: IVideoCallSetting,
+	) => void;
+}
+
+const NotificationStep: FC<Props> = (props) => {
+	const { videoCallSettings, updateVideoCallSettingsCallback } = props;
 
 	const {
 		notificationNewRequests,
@@ -20,19 +26,14 @@ const NotificationStep = () => {
 		notificationReminders,
 		notificationsByEmail,
 		notificationsByPhone,
-	} = state.profile.settings.video;
+	} = videoCallSettings;
 
 	const handleChangeField = async (name: string, val: boolean) => {
 		const resp = await updateVideoCallSettings({ [name]: val });
 		if (resp.ok) {
-			dispatch.setProfile({
-				type: ProfileActionType.updateSettings,
-				data: {
-					video: {
-						...state.profile.settings.video,
-						[name]: val,
-					},
-				},
+			updateVideoCallSettingsCallback({
+				...videoCallSettings,
+				[name]: val,
 			});
 		} else {
 			Toast.show({
@@ -43,7 +44,7 @@ const NotificationStep = () => {
 	};
 
 	return (
-		<FansScreen2>
+		<FansView>
 			<FansGap height={34} />
 			<FansView>
 				<FansText fontFamily="inter-semibold" fontSize={17}>
@@ -100,7 +101,7 @@ const NotificationStep = () => {
 					}
 				/>
 			</FansView>
-		</FansScreen2>
+		</FansView>
 	);
 };
 

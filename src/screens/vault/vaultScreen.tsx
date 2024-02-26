@@ -78,7 +78,10 @@ const VaultScreen = (
 			type: PostsActionType.updatePostModal,
 			data: {
 				visible: true,
-				step: PostStepTypes.Vault,
+				step:
+					selectedMedias.length === 0
+						? PostStepTypes.Vault
+						: PostStepTypes.Caption,
 			},
 		});
 	};

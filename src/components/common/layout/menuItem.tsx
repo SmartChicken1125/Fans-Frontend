@@ -21,6 +21,7 @@ import {
 	ShopSvg,
 	VaultSvg,
 	PayoutsSvg,
+	VideoCallSvg,
 } from "@assets/svgs/common";
 import { FypText, FypSvg } from "@components/common/base";
 import { FansView } from "@components/controls";
@@ -161,6 +162,16 @@ const MenuItem: FC<Props> = (props) => {
 						svg={PayoutsSvg}
 						width={27}
 						height={23}
+						color="fans-black dark:fans-white"
+					/>
+				);
+			case "Video Calls":
+			case "Setup Video Calls":
+				return (
+					<FypSvg
+						svg={VideoCallSvg}
+						width={25}
+						height={25}
 						color="fans-black dark:fans-white"
 					/>
 				);

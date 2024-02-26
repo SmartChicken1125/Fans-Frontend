@@ -29,6 +29,7 @@ const MainMenu: FC<Props> = (props) => {
 	const { user } = state;
 	const { userInfo } = state.user;
 	const { type } = userInfo;
+	const { video } = state.profile.settings;
 
 	const isCreator = type === UserRoleTypes.Creator;
 
@@ -90,6 +91,15 @@ const MainMenu: FC<Props> = (props) => {
 		router.replace("/vault");
 	};
 
+	const onPressVideoCalls = () => {
+		router.push({
+			pathname: "video-call-setup",
+			params: {
+				screen: video ? "EditVideoCallSetup" : "VideoCallSetupFaq",
+			},
+		});
+	};
+
 	return (
 		<ScrollView
 			contentContainerStyle={[
@@ -142,6 +152,10 @@ const MainMenu: FC<Props> = (props) => {
 						/>
 					)}
 					<MenuItem title="Payouts" onPress={onPressPayouts} />
+					<MenuItem
+						title={video ? "Video Calls" : "Setup Video Calls"}
+						onPress={onPressVideoCalls}
+					/>
 					<MenuItem title="Settings" onPress={onPressSettings} />
 					<FansDivider />
 					<MenuItem title="Your cards" onPress={onPressYourCard} />

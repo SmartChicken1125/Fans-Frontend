@@ -27,12 +27,22 @@ import {
 import MediaTimestampModal from "@components/modals/chat/MediaTimestamp";
 import { SelectToneSheet } from "@components/sheet/chat";
 import { MESSAGE_REPORT_DIALOG_ID } from "@constants/modal";
-import { ModalActionType, useAppContext } from "@context/useAppContext";
+import {
+	CommonActionType,
+	ModalActionType,
+	useAppContext,
+} from "@context/useAppContext";
+import {
+	acceptMeetingById,
+	cancelMeetingById,
+	declineMeetingById,
+} from "@helper/endpoints/videoCalls/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { chatInboxAtom } from "@state/chat";
 import { useFeatureGates } from "@state/featureGates";
 import { ISendOptions, useMessageView } from "@state/messagesView";
+import { SubscribeActionType } from "@usertypes/commonEnums";
 import { ChatNativeStackParams } from "@usertypes/navigations";
 import { IMessage } from "@usertypes/types";
 import { Stack, useRouter } from "expo-router";
@@ -45,6 +55,7 @@ import {
 	View,
 	VirtualizedList,
 } from "react-native";
+import Toast from "react-native-toast-message";
 import { useRecoilValue } from "recoil";
 
 const ChatGPTBar = (props: {
@@ -278,6 +289,85 @@ const ChatScreen = (
 		});
 	};
 
+	const handlePurchasePost = (message: IMessage) => {
+		dispatch.setCommon({
+			type: CommonActionType.toggleSubscribeModal,
+			data: {
+				visible: true,
+				subscribeActionType: SubscribeActionType.ChatPost,
+				message: message,
+				defaultTab: "form",
+				onSuccess: () => messagesView.initIfNeeded(),
+			},
+		});
+	};
+
+	const handleBookAgain = () => {
+		router.push(
+			`/videocall?username=${conversation?.otherParticipant?.user?.username}&screen=Order`,
+		);
+	};
+
+	const handleAcceptCall = async (message: IMessage) => {
+		if (!message.videoCallNotification) {
+			return;
+		}
+		const resp = await acceptMeetingById(null, {
+			id: message.videoCallNotification?.meetingId,
+		});
+		if (resp.ok) {
+			Toast.show({
+				type: "success",
+				text1: "Meeting accepted",
+			});
+		} else {
+			Toast.show({
+				type: "error",
+				text1: resp.data.message,
+			});
+		}
+	};
+
+	const handleRejectCall = async (message: IMessage) => {
+		if (!message.videoCallNotification) {
+			return;
+		}
+		const resp = await declineMeetingById(null, {
+			id: message.videoCallNotification?.meetingId,
+		});
+		if (resp.ok) {
+			Toast.show({
+				type: "success",
+				text1: "Meeting cancelled",
+			});
+		} else {
+			Toast.show({
+				type: "error",
+				text1: resp.data.message,
+			});
+		}
+	};
+
+	const handleCancelCall = async (message: IMessage) => {
+		if (!message.videoCallNotification) {
+			return;
+		}
+		const resp = await cancelMeetingById(null, {
+			id: message.videoCallNotification?.meetingId,
+		});
+		if (resp.ok) {
+			Toast.show({
+				type: "success",
+				text1: "Meeting cancelled",
+			});
+		} else {
+			Toast.show({
+				type: "error",
+				text1: resp.data.message,
+			});
+		}
+	};
+
 	const handleStartReached = () => {
 		messagesView?.scrolledToBottom();
 	};
@@ -364,6 +454,12 @@ const ChatScreen = (
 					onDeleteMessage={handleDeleteMessage}
 					onReplyMessage={handleReplyMessage}
 					onReportMessage={handleReportMessage}
+					onPurchasePost={handlePurchasePost}
+					onBookAgain={handleBookAgain}
+					onCancelVideoCall={handleCancelCall}
+					onAcceptVideoCall={handleAcceptCall}
+					onRejectVideoCall={handleRejectCall}
+					onAddToCalendar={() => {}}
 				/>
 				{isEndOfCurrentDay && (
 					<View style={tw.style("flex-row", "items-center", "my-2")}>
@@ -475,17 +571,17 @@ const ChatScreen = (
 								/>
 							</TouchableOpacity>
 							{/* <TouchableOpacity
-								style={tw.style(
-									"flex justify-center items-center w-8 h-8",
-								)}
-								onPress={() =>
-									navigation.navigate("FanAnalysis")
-								}
-							>
-								<FansView style={tw.style("w-[17px] h-[17px]")}>
-									<Note1Svg />
-								</FansView>
-							</TouchableOpacity> */}
+                                style={tw.style(
+                                    "flex justify-center items-center w-8 h-8",
+                                )}
+                                onPress={() =>
+                                    navigation.navigate("FanAnalysis")
+                                }
+                            >
+                                <FansView style={tw.style("w-[17px] h-[17px]")}>
+                                    <Note1Svg />
+                                </FansView>
+                            </TouchableOpacity> */}
 							<TouchableOpacity
 								style={tw.style(
 									"flex justify-center items-center w-8 h-8",
@@ -563,51 +659,51 @@ const ChatScreen = (
 				/>
 			</FansView>
 			{/*<ReactNativeReanimated.default.ScrollView
-				contentContainerStyle={{
-					flexGrow: 1,
-					justifyContent: "flex-end",
-				}}
-				ref={aref}
-			>
-				<View style={tw.style("flex gap-2.5")}>
-					{[...Array(countMessages)].map((_, index) => {
-						if (index % 5 === 0)
-							return (
-								<View>
-									<Text
-										style={tw.style(
-											"text-fans-grey-dark text-center",
-										)}
-									>
-										TODAY
-									</Text>
-								</View>
-							);
-						if (index % 5 === 1)
-							return (
-							);
-						if (index % 5 === 2)
-							return (
-								<View
-									style={tw.style(
-										"flex-row gap-[5px] items-center",
-										"self-end",
-									)}
-								>
-									<Text
-										style={tw.style("text-fans-grey-dark")}
-									>
-										Seen
-									</Text>
-									<DoubleCheckSvg
-										color={"#A854F5"}
-										size={16}
-									/>
-								</View>
-							);
-					})}
-				</View>
-				</ReactNativeReanimated.default.ScrollView>*/}
+                contentContainerStyle={{
+                    flexGrow: 1,
+                    justifyContent: "flex-end",
+                }}
+                ref={aref}
+            >
+                <View style={tw.style("flex gap-2.5")}>
+                    {[...Array(countMessages)].map((_, index) => {
+                        if (index % 5 === 0)
+                            return (
+                                <View>
+                                    <Text
+                                        style={tw.style(
+                                            "text-fans-grey-dark text-center",
+                                        )}
+                                    >
+                                        TODAY
+                                    </Text>
+                                </View>
+                            );
+                        if (index % 5 === 1)
+                            return (
+                            );
+                        if (index % 5 === 2)
+                            return (
+                                <View
+                                    style={tw.style(
+                                        "flex-row gap-[5px] items-center",
+                                        "self-end",
+                                    )}
+                                >
+                                    <Text
+                                        style={tw.style("text-fans-grey-dark")}
+                                    >
+                                        Seen
+                                    </Text>
+                                    <DoubleCheckSvg
+                                        color={"#A854F5"}
+                                        size={16}
+                                    />
+                                </View>
+                            );
+                    })}
+                </View>
+                </ReactNativeReanimated.default.ScrollView>*/}
 			{messagesView.replyToMessage && (
 				<View
 					style={tw`flex-row items-center bg-gray-200 p-2 rounded-lg mb-2`}

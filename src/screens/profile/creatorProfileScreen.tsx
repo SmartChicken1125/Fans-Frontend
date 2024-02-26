@@ -5,6 +5,7 @@ import {
 	DocEditSvg,
 	EditSvg,
 	RoundedBorderSvg,
+	Star1Svg,
 	StarCheckSvg,
 	StatisticsSvg,
 } from "@assets/svgs/common";
@@ -17,7 +18,9 @@ import AppLayout, { LayoutContentsContainer } from "@components/common/layout";
 import Tabs from "@components/common/tabs";
 import {
 	FansDivider,
+	FansGap,
 	FansIconButton,
+	FansSvg,
 	FansText,
 	FansView,
 } from "@components/controls";
@@ -45,6 +48,7 @@ import {
 	TopActions,
 	WelcomeModal,
 } from "@components/profiles";
+import { ProfileReviewSheet } from "@components/sheet";
 import { PROFILE_THREE_DOTS_DIALOG_ID } from "@constants/modal";
 import {
 	CommonActionType,
@@ -169,6 +173,9 @@ const CreatorProfileScreen = (
 	const [openShopPostMenus, setOpenShopPostMenus] = useState(false);
 	const [openPostAnalytics, setOpenPostAnalytics] = useState(false);
 	const [openPostPurchased, setOpenPostPurchased] = useState(false);
+
+	const [isProfileReviewSheetVisible, setProfileReviewSheetVisible] =
+		useState(false);
 
 	const onCreateNewPost = () => {
 		if (postFormStep === PostStepTypes.Empty) {
@@ -776,6 +783,8 @@ const CreatorProfileScreen = (
 		}
 	};
 
+	const handlePressViewReviews = () => navigation.navigate("Reviews");
+
 	useEffect(() => {
 		if (profile.userId) {
 			fetchPlaylists();
@@ -938,8 +947,46 @@ const CreatorProfileScreen = (
 								</FansText>
 							</FansView>
 							<CopyLink url={createURL(profile.profileLink)} />
-
-							<FansView margin={{ t: 16 }}>
+							<FansGap height={19.5} />
+							{featureGates.has("2024_02-review") && (
+								<FansView
+									alignItems="center"
+									flexDirection="row"
+								>
+									<FansSvg
+										width={11.9}
+										height={11.4}
+										svg={Star1Svg}
+										color1="purple-a8"
+									/>
+									<FansGap width={4} />
+									<FansText
+										fontFamily="inter-semibold"
+										fontSize={15}
+									>
+										{profile.review.score}
+									</FansText>
+									<FansGap width={4} />
+									<FansText color="grey-48" fontSize={15}>
+										({profile.review.total})
+									</FansText>
+									<FansGap width={4} />
+									<FansView
+										touchableOpacityProps={{
+											onPress: handlePressViewReviews,
+										}}
+									>
+										<FansText
+											color="purple-a8"
+											fontFamily="inter-semibold"
+											fontSize={15}
+										>
+											View reviews
+										</FansText>
+									</FansView>
+								</FansView>
+							)}
+							<FansView margin={{ t: 15.5 }}>
 								<BioText text={profile.bio} />
 							</FansView>
 
@@ -1001,20 +1048,18 @@ const CreatorProfileScreen = (
 								) : null}
 							</FansView>
 
-							<FansView margin={{ t: 18, b: 26 }}>
+							<FansView margin={{ t: 18 }}>
 								<CountsDetails
 									photos={profile.imageCount}
 									videos={profile.videoCount}
 									likes={profile.likeCount}
 								/>
 							</FansView>
-							<FansView margin={{ b: 24 }}>
-								<SocialLinkList
-									data={socialLinks}
-									onClickLink={onClickSocialLink}
-								/>
-							</FansView>
-
+							<FansGap height={21} />
+							<SocialLinkList
+								data={socialLinks}
+								onClickLink={onClickSocialLink}
+							/>
 							<FansView
 								margin={{ b: 24 }}
 								style={tw.style(

@@ -21,6 +21,7 @@ export interface UpdateSettingReqBody {
 	language?: LanguageType;
 	isShowProfile?: boolean;
 	phonenumber?: string;
+	isOlderThan18?: boolean;
 }
 export interface UpdateEmailReqBody {
 	email: string;

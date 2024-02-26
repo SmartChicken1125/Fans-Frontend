@@ -60,6 +60,8 @@ export interface ChatConversationMessagesPostReqBody {
 	messageType?: MessageType;
 	content: string;
 	uploadIds?: string[];
+	previewUploadIds?: string[];
+	value?: string;
 	parentId?: string;
 }
 
@@ -127,4 +129,22 @@ export interface ChannelMediaPageQuery {
 	page: number;
 	size: number;
 	type?: string;
+}
+
+export interface PurchaseChatPaidPostReqBody {
+	messageId: string;
+	customerPaymentProfileId: string;
+	fanReferralCode?: string;
+}
+
+export interface ChatPaidPostPriceReqQuery {
+	id: string;
+	customerPaymentProfileId?: string;
+}
+
+export interface ChatPaidPostPriceResBody {
+	amount: number;
+	platformFee: number;
+	vatFee: number;
+	totalAmount: number;
 }

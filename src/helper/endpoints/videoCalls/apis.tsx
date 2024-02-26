@@ -9,9 +9,10 @@ import {
 } from "@helper/RequesterBase";
 import { IdParams } from "@usertypes/params";
 import {
-	IVideoCallDuration,
+	IVideoDuration,
 	ITimeframeInterval,
 	IVideoCallSetting,
+	ICreatorVideoCallSettings,
 } from "@usertypes/types";
 import {
 	VideoCallDurationReqBody,
@@ -23,7 +24,7 @@ import {
 	VideoCallMeetingPriceRespBody,
 } from "./schemas";
 
-export const getVideoCallDurations = createGET<IVideoCallDuration[]>(
+export const getVideoCallDurations = createGET<IVideoDuration[]>(
 	"/videocall/durations",
 	true,
 );
@@ -77,7 +78,7 @@ export const updateVideoCallSettings = createPATCH<
 >("/videocall/settings", true);
 
 export const getProfileVideoCallSettings = createGETWithParams<
-	IVideoCallSetting,
+	ICreatorVideoCallSettings,
 	IdParams
 >("/videocall/profiles/:id", true);
 

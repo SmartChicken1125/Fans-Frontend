@@ -8,7 +8,7 @@ export { default as GemImage } from "./Gem";
 export { default as ImageImage, ImagesImage, Image2Image } from "./Image";
 export { LevelDevotedImage } from "./Levels";
 export * from "./Logo";
-export { default as MediaSetImage } from "./MediaSet";
+export { default as MediaSetImage, MediasImage } from "./MediaSet";
 export { PaymentVISAImage } from "./Payments";
 export {
 	SocialInstagram1Image,
@@ -37,3 +37,4 @@ export { default as TextImage } from "./Text";
 export { default as DocumentImage } from "./Document";
 export { ConsultationImage } from "./Preferences";
 export { default as AdultImage } from "./Adult";
+export { default as StarImage } from "./Star";

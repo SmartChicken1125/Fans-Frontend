@@ -1,6 +1,6 @@
 import { FypSortButton, FypText } from "@components/common/base";
 import { FansView } from "@components/controls";
-import { OrderCard } from "@components/videoCall";
+import { VideoCallOrderCard } from "@components/videoCall";
 import { testPaymentToken } from "@constants/common";
 import { useAppContext } from "@context/useAppContext";
 import {
@@ -26,6 +26,7 @@ const PendingAcceptanceForm = () => {
 		page: 1,
 		size: 10,
 		total: 0,
+		totalPrice: 0,
 		meetings: [],
 	});
 	const [orderBy, setOrderBy] = useState<SortType>("Newest");
@@ -121,7 +122,7 @@ const PendingAcceptanceForm = () => {
 					contentContainerStyle={tw.style("gap-[14px]")}
 				>
 					{meetings.meetings.map((meeting) => (
-						<OrderCard
+						<VideoCallOrderCard
 							title="AWAITING ACCEPTANCE"
 							key={meeting.id}
 							profile={profile}

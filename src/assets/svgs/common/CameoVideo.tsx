@@ -17,7 +17,7 @@ export default function CameoVideoSVG({ ...props }: CameoVideoSVGProps) {
 		>
 			<G
 				data-name="Group 52616"
-				fill="#a854f5"
+				fill={props.color}
 				stroke="#fff"
 				strokeWidth={0.1}
 			>

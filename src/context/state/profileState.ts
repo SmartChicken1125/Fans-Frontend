@@ -59,6 +59,11 @@ export const defaultProfileStateData: IProfileState = {
 	highlightForm: defaultHighlight,
 	stories: [],
 	settings: defaultProfileSettings,
+
+	review: {
+		score: 0,
+		total: 0,
+	},
 };
 
 export const profileInitialState: IProfileState = {

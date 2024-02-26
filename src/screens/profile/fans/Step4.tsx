@@ -21,7 +21,7 @@ const Step4 = () => {
 
 	const { state, dispatch } = useAppContext();
 
-	const { meetingDescription } = state.profile.settings.video;
+	// const { meetingDescription } = state.profile.settings.video;
 	const meetingTitle = "";
 	const { video } = state.profile.settings;
 
@@ -34,25 +34,24 @@ const Step4 = () => {
 			},
 		};
 
-		await updateSettings(updatedSettings);
+		// await updateSettings(updatedSettings);
 	};
 
 	const updateSettings = async (updatedSettings: IProfileSettings) => {
-		const response = await updateVideoSettings(updatedSettings);
-
-		if (response.ok) {
-			fetchProfileSettings();
-		}
+		// const response = await updateVideoSettings(updatedSettings);
+		// if (response.ok) {
+		// 	fetchProfileSettings();
+		// }
 	};
 
 	const fetchProfileSettings = async () => {
 		const response = await getUserSettings();
 		if (response.ok) {
 			const profileSettings = response.data;
-			dispatch.setProfile({
-				type: ProfileActionType.updateSettings,
-				data: profileSettings,
-			});
+			// dispatch.setProfile({
+			// 	type: ProfileActionType.updateSettings,
+			// 	data: profileSettings,
+			// });
 		}
 	};
 	return (
@@ -101,7 +100,7 @@ const Step4 = () => {
 						"rounded-[7px]",
 					)}
 				>
-					<TextInput
+					{/* <TextInput
 						style={tw.style("font-inter-regular text-[16px]")}
 						placeholder="Enter description here"
 						placeholderTextColor={tw.color("fans-grey-dark")}
@@ -109,7 +108,7 @@ const Step4 = () => {
 						onChangeText={(value) =>
 							handleChangeField("meetingDescription", value)
 						}
-					/>
+					/> */}
 				</FansView>
 				<FansGap height={355} />
 			</FansView>

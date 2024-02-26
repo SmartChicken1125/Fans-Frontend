@@ -516,8 +516,16 @@ const MessageInput: FC<IMessageInput> = (props) => {
 		if (!onSend) return;
 		const uploadedFiles = await handleUploadMedia();
 		const uploadedPreviewImages = await handleUploadPreviewImages();
-		//TODO Alula: Handle uploaded preview images
-		onSend({ message, uploadedFiles }); // Add uploaded preview images, price
+		onSend({
+			message,
+			uploadedFiles,
+			previewUploadedFiles: uploadedPreviewImages,
+			value: price,
+			gif: gif && {
+				source: "giphy",
+				id: String(gif.id),
+			},
+		});
 		setMessage("");
 		setImages([]);
 		setVideos([]);

@@ -3,6 +3,7 @@ import tw from "@lib/tailwind";
 import { FansViewProps } from "@usertypes/components";
 import React, { FC } from "react";
 import { Pressable, PressableProps, TextStyle, ViewStyle } from "react-native";
+import { ActivityIndicator, MD2Colors } from "react-native-paper";
 import { FypNullableView } from "./nullableView";
 import { FypText } from "./text";
 
@@ -32,10 +33,11 @@ interface IFypButton2Props extends FansViewProps {
 	children: React.ReactNode;
 	textStyle?: TextStyle;
 	icon?: React.ReactNode;
+	loading?: boolean;
 }
 
 export const FypButton2: FC<IFypButton2Props> = (props) => {
-	const { children, textStyle, style, icon, ..._props } = props;
+	const { children, textStyle, style, icon, loading, ..._props } = props;
 	return (
 		<FansView
 			flexDirection="row"
@@ -44,17 +46,27 @@ export const FypButton2: FC<IFypButton2Props> = (props) => {
 			borderRadius={42}
 			height={42}
 			style={[style]}
+			gap={4}
 			{..._props}
 		>
-			<FypNullableView visible={!!icon}>{icon}</FypNullableView>
-			<FypText
-				fontSize={19}
-				fontWeight={700}
-				lineHeight={26}
-				style={textStyle}
+			<FypNullableView visible={!!loading}>
+				<ActivityIndicator animating={true} color="#fff" size={20} />
+			</FypNullableView>
+			<FansView
+				flexDirection="row"
+				alignItems="center"
+				justifyContent="center"
 			>
-				{children}
-			</FypText>
+				<FypNullableView visible={!!icon}>{icon}</FypNullableView>
+				<FypText
+					fontSize={19}
+					fontWeight={700}
+					lineHeight={26}
+					style={textStyle}
+				>
+					{children}
+				</FypText>
+			</FansView>
 		</FansView>
 	);
 };

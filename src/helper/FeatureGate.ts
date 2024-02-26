@@ -177,6 +177,10 @@ export const featureGates = {
 		description: "Post type poll",
 		production: false,
 	},
+	"2024_02-review": {
+		description: "Profile review",
+		production: false,
+	},
 	"2024_02-delete-vault-medias": {
 		description: "delete medias function in vault screen",
 		production: false,
@@ -187,6 +191,34 @@ export const featureGates = {
 	},
 	"2024_02-test-pinch-gesture": {
 		description: "testing for pinch gesture on mobile",
+		production: false,
+	},
+	"2024_02-video-of-video-call-setup": {
+		description: "Video component of video call set up page",
+		production: false,
+	},
+	"2024_02-show-reviews-in-video-call": {
+		description: "show reviews option in video call set up page",
+		production: false,
+	},
+	"2024_02-scheduled-post": {
+		description: "show scheduled post on settings page",
+		production: false,
+	},
+	"2024_02-NSFW-indicator": {
+		description: "enable 18+ indicator functionality on profile page",
+		production: false,
+	},
+	"2024_02-edit-post": {
+		description: "enable post editing functionality",
+		production: false,
+	},
+	"2024_02-post-story": {
+		description: "enable story posting functionality",
+		production: false,
+	},
+	"2024_02-xp-system": {
+		description: "enable xp system",
 		production: false,
 	},
 } satisfies Record<string, IFeatureGateData>; // Note, it's year_month-feature-name, not year_month_feature-name!!!

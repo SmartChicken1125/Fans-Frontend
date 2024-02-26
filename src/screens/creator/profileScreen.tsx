@@ -1,6 +1,13 @@
-import { PostMailSvg, StarCheckSvg, TipSvg } from "@assets/svgs/common";
+import {
+	Over18Svg,
+	PostMailSvg,
+	Star2Svg,
+	StarCheckSvg,
+	TipSvg,
+} from "@assets/svgs/common";
 import { AuthModal } from "@components/auth";
 import AvatarWithStatus from "@components/common/AvatarWithStatus";
+import RoundButton from "@components/common/RoundButton";
 import { FypNullableView, FypSvg } from "@components/common/base";
 import CardActions from "@components/common/cardActions";
 import CopyLink from "@components/common/copyLink";
@@ -11,10 +18,13 @@ import AppLayout, {
 import Tabs from "@components/common/tabs";
 import {
 	FansDivider,
+	FansGap,
 	FansIconButton,
+	FansSvg,
 	FansText,
 	FansView,
 } from "@components/controls";
+import { PostAnalyticsModal } from "@components/modals/shop";
 import { StoryCell } from "@components/posts/common";
 import {
 	CreatorPostActions,
@@ -23,6 +33,7 @@ import {
 } from "@components/posts/dialogs";
 import {
 	BioText,
+	BookVideoCallCard,
 	CountsDetails,
 	MediaTabContents,
 	PlaylistsTabContents,
@@ -31,15 +42,15 @@ import {
 	ProfilePictureDialog,
 	ProfilePostActions,
 	ProfileThreeDotsDialog,
+	ShopTabContents,
 	SocialLinkList,
 	StickyHeader,
 	SubscriptionPart,
 	TierJoinDialog,
 	TopActions,
-	ShopTabContents,
-	BookVideoCallCard,
 } from "@components/profiles";
 import { JoinProgramCard } from "@components/refer";
+import { ProfileReviewSheet } from "@components/sheet";
 import {
 	POST_REPORT_DIALOG_ID,
 	PROFILE_REPORT_DIALOG_ID,
@@ -51,6 +62,7 @@ import {
 	CommonActionType,
 	ModalActionType,
 	StoryActionType,
+	UserActionType,
 	useAppContext,
 } from "@context/useAppContext";
 import { hasFlags } from "@helper/Utils";
@@ -58,12 +70,13 @@ import { getOrCreateConversation } from "@helper/endpoints/chat/apis";
 import { getPostMediasByUserId } from "@helper/endpoints/media/apis";
 import { MediasRespBody } from "@helper/endpoints/media/schemas";
 import {
+	getCreatorsPaidPosts,
 	getPostById,
 	getPostFeedForProfile,
-	getCreatorsPaidPosts,
 } from "@helper/endpoints/post/apis";
 import { PostListRespBody } from "@helper/endpoints/post/schemas";
 import { getCreatorProfileByLink } from "@helper/endpoints/profile/apis";
+import { updateSetting } from "@helper/endpoints/settings/apis";
 import { getProfileVideoCallSettings } from "@helper/endpoints/videoCalls/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -94,9 +107,9 @@ import useClipboard from "@utils/useClipboard";
 import { createURL } from "expo-linking";
 import { useRouter } from "expo-router";
 import React, { Fragment, useEffect, useState } from "react";
-import { NativeScrollEvent, ScrollView } from "react-native";
+import { NativeScrollEvent, ScrollView, TouchableOpacity } from "react-native";
 import { Button } from "react-native-paper";
-import Toast from "react-native-toast-message";
+import Toast, { default as ToastMessage } from "react-native-toast-message";
 import { useRecoilValue } from "recoil";
 
 const defaultPosts = {
@@ -164,7 +177,12 @@ const ProfileScreen = (
 	const [openCommentModal, setOpenCommentModal] = useState(false);
 	const [openAvatarModal, setOpenAvatarModal] = useState(false);
 	const [openShopPostMenus, setOpenShopPostMenus] = useState(false);
+	const [openPostAnalytics, setOpenPostAnalytics] = useState(false);
 	const [isAvailableVideoCall, setIsAvailableVideoCall] = useState(false);
+	const [refreshKey, setRefreshKey] = useState(0);
+
+	const [isProfileReviewSheetVisible, setProfileReviewSheetVisible] =
+		useState(false);
 
 	const handleOpenGemModal = () => {
 		dispatch.setCommon({
@@ -231,7 +249,7 @@ const ProfileScreen = (
 	const fetchVideoCallSettings = async (profileId: string) => {
 		const resp = await getProfileVideoCallSettings({ id: profileId });
 		if (resp.ok) {
-			setIsAvailableVideoCall(resp.data.isAvailable);
+			setIsAvailableVideoCall(true);
 		} else {
 			setIsAvailableVideoCall(false);
 		}
@@ -241,6 +259,7 @@ const ProfileScreen = (
 		const resp = await getCreatorProfileByLink({
 			profileLink: username as string,
 		});
+		console.log(resp);
 		if (resp.ok) {
 			setProfile(resp.data);
 			setPlaylists(resp.data.playlists);
@@ -269,8 +288,9 @@ const ProfileScreen = (
 	};
 
 	const onBookVideoCall = () => {
-		navigation.navigate("OrderVideoCallScreen", {
-			username: username as string,
+		router.replace({
+			pathname: "videocall",
+			params: { screen: "Order", username: profile.profileLink },
 		});
 	};
 
@@ -673,6 +693,29 @@ const ProfileScreen = (
 		});
 	};
 
+	const handleOlderThan18 = async () => {
+		if (state.user.userInfo.id === "0") {
+			localStorage.setItem("is_older_than_18", "1");
+			setRefreshKey(refreshKey + 1);
+			return;
+		}
+
+		const res = await updateSetting({
+			isOlderThan18: true,
+		});
+		if (res.ok) {
+			dispatch.setUser({
+				type: UserActionType.updateUserInfo,
+				payload: { data: { isOlderThan18: true } },
+			});
+		} else {
+			ToastMessage.show({
+				type: "error",
+				text1: res.data.message,
+			});
+		}
+	};
+
 	useEffect(() => {
 		initState();
 		if (username) {
@@ -702,466 +745,497 @@ const ProfileScreen = (
 		}
 	}, [profile.userId, paidPosts.page]);
 
+	const handlePressReview = () => setProfileReviewSheetVisible(true);
+
 	return (
-		<AppLayout
-			title={`${profile.displayName} | FYP.Fans`}
-			description={profile.bio}
-		>
-			<FansView flex="1" position="relative">
-				<StickyHeader
-					visible={showStickyHeader}
-					profile={profile}
-					onClickBack={() => router.push("/posts")}
-					onClickMenu={onPressMenus}
-					onClickTip={handleOpenGemModal}
-					onClickMail={hasAccess ? handleOpenMessage : undefined}
-					onClickShare={hasAccess ? undefined : handleCopyProfileUrl}
-				/>
-				<ScrollView
-					style={tw.style("flex-1")}
-					onScroll={({ nativeEvent }) => onScrollView(nativeEvent)}
-					scrollEventThrottle={30}
-					nestedScrollEnabled
-				>
-					<FansView flexDirection="row" flex="1">
-						<FansView
-							flex="1"
-							alignItems="center"
-							style={tw.style(
-								`"md:border-r border-fans-grey-f0 dark:border-fans-grey-43"`,
-							)}
-						>
+		<FansView style={tw.style("w-full h-full flex")}>
+			<AppLayout
+				title={`${profile.displayName} | FYP.Fans`}
+				description={profile.bio}
+			>
+				<FansView flex="1" position="relative">
+					<StickyHeader
+						visible={showStickyHeader}
+						profile={profile}
+						onClickBack={() => router.push("/posts")}
+						onClickMenu={onPressMenus}
+						onClickTip={handleOpenGemModal}
+						onClickMail={hasAccess ? handleOpenMessage : undefined}
+						onClickShare={
+							hasAccess ? undefined : handleCopyProfileUrl
+						}
+					/>
+					<ScrollView
+						style={tw.style("flex-1")}
+						onScroll={({ nativeEvent }) =>
+							onScrollView(nativeEvent)
+						}
+						scrollEventThrottle={30}
+						nestedScrollEnabled
+					>
+						<FansView flexDirection="row" flex="1">
 							<FansView
 								flex="1"
-								position="relative"
+								alignItems="center"
 								style={tw.style(
-									"w-full md:max-w-[710px] bg-fans-white dark:bg-fans-black-1d",
+									`"md:border-r border-fans-grey-f0 dark:border-fans-grey-43"`,
 								)}
 							>
-								{profile ? (
-									<Fragment>
-										<FansView
-											position="relative"
-											padding={{ b: 40 }}
-										>
-											<TopActions
-												onClickMenu={onPressMenus}
-											/>
+								<FansView
+									flex="1"
+									position="relative"
+									style={tw.style(
+										"w-full md:max-w-[710px] bg-fans-white dark:bg-fans-black-1d",
+									)}
+								>
+									{profile ? (
+										<Fragment>
+											<FansView
+												position="relative"
+												padding={{ b: 40 }}
+											>
+												<TopActions
+													onClickMenu={onPressMenus}
+												/>
 
-											<ProfileCarousel
-												images={profile.cover}
-											/>
-											<FansView padding={{ x: 18 }}>
-												<FansView
-													flexDirection="row"
-													alignItems="end"
-													margin={{ t: -30 }}
-													justifyContent="between"
-												>
-													<AvatarWithStatus
-														size={79}
-														avatar={profile?.avatar}
-														onPress={() =>
-															setOpenAvatarModal(
-																true,
-															)
-														}
-													/>
-
+												<ProfileCarousel
+													images={profile.cover}
+												/>
+												<FansView padding={{ x: 18 }}>
 													<FansView
 														flexDirection="row"
-														gap={7}
+														alignItems="end"
+														margin={{ t: -30 }}
+														justifyContent="between"
 													>
-														{hasAccess && (
-															<FansIconButton
-																onPress={
-																	handleOpenMessage
-																}
-																backgroundColor="bg-fans-grey-f0 dark:bg-fans-grey-43"
-															>
-																<FypSvg
-																	svg={
-																		PostMailSvg
+														<AvatarWithStatus
+															size={79}
+															avatar={
+																profile?.avatar
+															}
+															onPress={() =>
+																setOpenAvatarModal(
+																	true,
+																)
+															}
+														/>
+
+														<FansView
+															flexDirection="row"
+															gap={7}
+														>
+															{hasAccess && (
+																<FansIconButton
+																	onPress={
+																		handleOpenMessage
 																	}
-																	width={19}
-																	height={15}
-																	color="fans-black dark:fans-white"
-																/>
-															</FansIconButton>
-														)}
-														{hasAccess && (
-															<FansIconButton
-																onPress={
-																	handleOpenGemModal
-																}
-																backgroundColor="bg-fans-grey-f0 dark:bg-fans-grey-43"
-															>
-																<FypSvg
-																	svg={TipSvg}
-																	width={10}
-																	height={20}
-																	color="fans-black dark:fans-white"
-																/>
-															</FansIconButton>
-														)}
+																	backgroundColor="bg-fans-grey-f0 dark:bg-fans-grey-43"
+																>
+																	<FypSvg
+																		svg={
+																			PostMailSvg
+																		}
+																		width={
+																			19
+																		}
+																		height={
+																			15
+																		}
+																		color="fans-black dark:fans-white"
+																	/>
+																</FansIconButton>
+															)}
+															{hasAccess && (
+																<FansIconButton
+																	onPress={
+																		handleOpenGemModal
+																	}
+																	backgroundColor="bg-fans-grey-f0 dark:bg-fans-grey-43"
+																>
+																	<FypSvg
+																		svg={
+																			TipSvg
+																		}
+																		width={
+																			10
+																		}
+																		height={
+																			20
+																		}
+																		color="fans-black dark:fans-white"
+																	/>
+																</FansIconButton>
+															)}
 
-														<Button
-															onPress={
-																onClickPreview
-															}
-															style={tw.style(
-																"items-center h-[34px] flex-row border-fans-purple",
-																profile.previews
-																	.length ===
-																	0 &&
-																	"hidden",
-																hasAccess &&
-																	"hidden",
-															)}
-															labelStyle={tw.style(
-																"text-[17px] font-bold leading-[22px] my-0 text-fans-purple",
-															)}
-															mode="outlined"
-														>
-															Preview
-														</Button>
-													</FansView>
-												</FansView>
-												<FansView
-													margin={{ t: 16, b: 20 }}
-												>
-													<FansView
-														flexDirection="row"
-														alignItems="center"
-													>
-														<FansText
-															fontSize={19}
-															lineHeight={26}
-															style={tw.style(
-																"mr-3 font-bold text-fans-black dark:text-fans-white",
-															)}
-															numberOfLines={1}
-														>
-															{
-																profile.displayName
-															}
-														</FansText>
-														{hasFlags(
-															profile.flags,
-															ProfileFlags.VERIFIED,
-														) && (
-															<StarCheckSvg
-																width={15.66}
-																height={15}
-															/>
-														)}
+															<Button
+																onPress={
+																	onClickPreview
+																}
+																style={tw.style(
+																	"items-center h-[34px] flex-row border-fans-purple",
+																	profile
+																		.previews
+																		.length ===
+																		0 &&
+																		"hidden",
+																	hasAccess &&
+																		"hidden",
+																)}
+																labelStyle={tw.style(
+																	"text-[17px] font-bold leading-[22px] my-0 text-fans-purple",
+																)}
+																mode="outlined"
+															>
+																Preview
+															</Button>
+														</FansView>
 													</FansView>
 													<FansView
-														flexDirection="row"
-														alignItems="center"
+														margin={{
+															t: 16,
+															b: 20,
+														}}
 													>
-														<FansText
-															fontSize={16}
-															lineHeight={21}
-															style={tw.style(
-																"text-fans-grey-70 dark:text-fans-grey-b1",
-															)}
+														<FansView
+															flexDirection="row"
+															alignItems="center"
 														>
-															{`@${profile.profileLink}`}
-														</FansText>
+															<FansText
+																fontSize={19}
+																lineHeight={26}
+																style={tw.style(
+																	"mr-3 font-bold text-fans-black dark:text-fans-white",
+																)}
+																numberOfLines={
+																	1
+																}
+															>
+																{
+																	profile.displayName
+																}
+															</FansText>
+															{hasFlags(
+																profile.flags,
+																ProfileFlags.VERIFIED,
+															) && (
+																<StarCheckSvg
+																	width={
+																		15.66
+																	}
+																	height={15}
+																/>
+															)}
+														</FansView>
+														<FansView
+															flexDirection="row"
+															alignItems="center"
+														>
+															<FansText
+																fontSize={16}
+																lineHeight={21}
+																style={tw.style(
+																	"text-fans-grey-70 dark:text-fans-grey-b1",
+																)}
+															>
+																{`@${profile.profileLink}`}
+															</FansText>
+														</FansView>
 													</FansView>
-												</FansView>
-												<CopyLink
-													url={`fyp.fans/${profile.profileLink}`}
-												/>
-												<FansView margin={{ t: 16 }}>
-													<BioText
-														text={profile.bio}
+													<CopyLink
+														url={`fyp.fans/${profile.profileLink}`}
 													/>
-												</FansView>
-												<FansView
-													margin={{ t: 18, b: 26 }}
-												>
-													<CountsDetails
-														photos={
-															profile.imageCount
-														}
-														videos={
-															profile.videoCount
-														}
-														likes={
-															profile.likeCount
-														}
-													/>
-												</FansView>
-												<SocialLinkList
-													data={profile.socialLinks}
-													onClickLink={
-														onClickSocialLink
-													}
-												/>
-												<FansDivider
-													color="fans-grey-f0"
-													style={tw.style(
-														"my-[14px]",
-													)}
-												/>
-												<FypNullableView
-													visible={
-														isAvailableVideoCall &&
-														featureGates.has(
-															"2023_10-video-calls",
-														)
-													}
-												>
 													<FansView
-														margin={{ b: 14 }}
+														margin={{ t: 16 }}
 													>
-														<BookVideoCallCard
-															username={
-																profile.displayName ||
-																""
+														<BioText
+															text={profile.bio}
+														/>
+													</FansView>
+													<FansView
+														margin={{
+															t: 18,
+															b: 26,
+														}}
+													>
+														<CountsDetails
+															photos={
+																profile.imageCount
 															}
-															onClick={
-																onBookVideoCall
+															videos={
+																profile.videoCount
+															}
+															likes={
+																profile.likeCount
 															}
 														/>
 													</FansView>
+													<FansGap height={18} />
+													{featureGates.has(
+														"2024_02-review",
+													) && (
+														<>
+															<FansView
+																alignItems="center"
+																flexDirection="row"
+															>
+																<FansSvg
+																	width={11.9}
+																	height={
+																		11.4
+																	}
+																	svg={
+																		Star2Svg
+																	}
+																	color1="purple-a8"
+																/>
+																<FansGap
+																	width={4}
+																/>
+																<FansText
+																	fontFamily="inter-semibold"
+																	fontSize={
+																		15
+																	}
+																>
+																	{
+																		profile
+																			.review
+																			.score
+																	}
+																</FansText>
+																<FansGap
+																	width={4}
+																/>
+																<FansText
+																	color="grey-48"
+																	fontSize={
+																		15
+																	}
+																>
+																	(
+																	{
+																		profile
+																			.review
+																			.total
+																	}
+																	)
+																</FansText>
+																<FansGap
+																	width={4}
+																/>
+																<FansView
+																	touchableOpacityProps={{
+																		onPress:
+																			handlePressReview,
+																	}}
+																>
+																	<FansText
+																		color="purple-a8"
+																		fontFamily="inter-semibold"
+																		fontSize={
+																			15
+																		}
+																	>
+																		Review
+																	</FansText>
+																</FansView>
+															</FansView>
+															<FansGap
+																height={21.5}
+															/>
+														</>
+													)}
+													<SocialLinkList
+														data={
+															profile.socialLinks
+														}
+														onClickLink={
+															onClickSocialLink
+														}
+													/>
+													<FansDivider
+														color="fans-grey-f0"
+														style={tw.style(
+															"my-[14px]",
+														)}
+													/>
+													<FypNullableView
+														visible={
+															isAvailableVideoCall &&
+															featureGates.has(
+																"2023_10-video-calls",
+															)
+														}
+													>
+														<FansView
+															margin={{ b: 14 }}
+														>
+															<BookVideoCallCard
+																username={
+																	profile.displayName ||
+																	""
+																}
+																onClick={
+																	onBookVideoCall
+																}
+															/>
+														</FansView>
+													</FypNullableView>
+
+													<FansView
+														style={tw.style(
+															hasAccess &&
+																"hidden",
+														)}
+													>
+														<SubscriptionPart
+															profile={profile}
+															isPreview
+															onClickSubscribe={
+																handleOpenSubscribe
+															}
+														/>
+													</FansView>
+												</FansView>
+												<FypNullableView
+													visible={
+														hasAccess &&
+														highlights.length > 0
+													}
+												>
+													<ScrollView
+														horizontal
+														contentContainerStyle={{
+															paddingHorizontal: 18,
+															columnGap: 15,
+															// marginBottom: 18,
+														}}
+														showsHorizontalScrollIndicator={
+															false
+														}
+													>
+														{highlights.map(
+															(highlight) => (
+																<StoryCell
+																	key={
+																		highlight.id
+																	}
+																	title={
+																		highlight.title
+																	}
+																	image={
+																		highlight.cover
+																	}
+																	onClick={() =>
+																		onClickHighlight(
+																			highlight,
+																		)
+																	}
+																	// isSelected={cell.isSelected}
+																/>
+															),
+														)}
+													</ScrollView>
 												</FypNullableView>
 
-												<FansView
-													style={tw.style(
-														hasAccess && "hidden",
-													)}
-												>
-													<SubscriptionPart
-														profile={profile}
-														isPreview
-														onClickSubscribe={
-															handleOpenSubscribe
-														}
-													/>
-												</FansView>
-											</FansView>
-											<FypNullableView
-												visible={
-													hasAccess &&
-													highlights.length > 0
-												}
-											>
-												<ScrollView
-													horizontal
-													contentContainerStyle={{
-														paddingHorizontal: 18,
-														columnGap: 15,
-														// marginBottom: 18,
-													}}
-													showsHorizontalScrollIndicator={
-														false
-													}
-												>
-													{highlights.map(
-														(highlight) => (
-															<StoryCell
-																key={
-																	highlight.id
-																}
-																title={
-																	highlight.title
-																}
-																image={
-																	highlight.cover
-																}
-																onClick={() =>
-																	onClickHighlight(
-																		highlight,
-																	)
-																}
-																// isSelected={cell.isSelected}
-															/>
-														),
-													)}
-												</ScrollView>
-											</FypNullableView>
-
-											{featureGates.has(
-												"2023_12-fans-referral",
-											) &&
-												!(
-													state.profile.userId !==
-														"0" &&
-													state.profile.userId ===
-														profile.userId
+												{featureGates.has(
+													"2023_12-fans-referral",
 												) &&
-												profile.user?.type ===
-													UserRoleTypes.Creator &&
-												profile.isFanReferralEnabled ===
-													true && (
-													<JoinProgramCard
-														profile={profile}
-														navigation={navigation}
-													/>
-												)}
-
-											<FansView>
-												<Tabs
-													tabs={[
-														{
-															data: "post",
-															label: `POSTS ${posts.total}`,
-														},
-														{
-															data: "media",
-															label: `MEDIA ${
-																medias.imageTotal +
-																medias.videoTotal
-															}`,
-														},
-														{
-															data: "shop",
-															label: "SHOP",
-															hide:
-																!profile.isDisplayShop ||
-																!featureGates.has(
-																	"2023_12-shop-tab-on-creators-profile",
-																),
-														},
-														{
-															data: "playlists",
-															label: "PLAYLISTS",
-														},
-													]}
-													selectedTab={tab}
-													onChangeTab={(val) =>
-														setTab(val)
-													}
-												/>
-												{tab === "post" && (
-													<PostsTabContents
-														posts={posts.posts}
-														totalPostsCount={
-															posts.total
-														}
-														categories={
-															profile.categories
-														}
-														filter={filter.post}
-														onChangeFilter={
-															onChangeFilter
-														}
-														needToSubscribe={
-															!hasAccess
-														}
-														subscription={
-															profile
-																.subscriptions[0]
-														}
-														onClickSubscribe={() =>
-															handleOpenSubscribe(
-																SubscribeActionType.Subscribe,
-																profile
-																	.subscriptions[0]
-																	.id,
-																"",
-															)
-														}
-														onClickPostAction={
-															onClickPostAction
-														}
-														onClickPostMessage={(
-															id,
-														) => {
-															setSelectedPostId(
-																id,
-															);
-															setOpenMessageDialog(
-																true,
-															);
-														}}
-														onClickUnlock={
-															onClickPostUnlock
-														}
-														onClickComment={(
-															id,
-														) => {
-															setSelectedPostId(
-																id,
-															);
-															setOpenCommentModal(
-																true,
-															);
-														}}
-														updatePostCallback={
-															updatePostCallback
-														}
-													/>
-												)}
-												{tab === "media" && (
-													<MediaTabContents
-														allCounts={medias.total}
-														medias={medias}
-														mediaType={filter.media}
-														onChangeFilter={
-															onFilterMedia
-														}
-														needToSubscribe={
-															!hasAccess
-														}
-														onClickSubscribe={() =>
-															handleOpenSubscribe(
-																SubscribeActionType.Subscribe,
-																profile
-																	.subscriptions[0]
-																	.id,
-																"",
-															)
-														}
-														subscription={
-															profile
-																.subscriptions[0]
-														}
-													/>
-												)}
-												{tab === "playlists" && (
-													<PlaylistsTabContents
-														playlists={playlists}
-														needToSubscribe={
-															!hasAccess
-														}
-														isSuggested={true}
-														onClickMenus={() => {}}
-														handleAdd={() => {}}
-														handleEdit={() => {}}
-														onClickSubscribe={() =>
-															handleOpenSubscribe(
-																SubscribeActionType.Subscribe,
-																profile
-																	.subscriptions[0]
-																	.id,
-																"",
-															)
-														}
-													/>
-												)}
-												{tab === "shop" &&
-													profile.isDisplayShop && (
-														<ShopTabContents
-															posts={
-																paidPosts.posts
-															}
+													!(
+														state.profile.userId !==
+															"0" &&
+														state.profile.userId ===
+															profile.userId
+													) &&
+													profile.user?.type ===
+														UserRoleTypes.Creator &&
+													profile.isFanReferralEnabled ===
+														true && (
+														<JoinProgramCard
 															profile={profile}
-															onPressPostMenu={(
-																postId,
+															navigation={
+																navigation
+															}
+														/>
+													)}
+
+												<FansView>
+													<Tabs
+														tabs={[
+															{
+																data: "post",
+																label: `POSTS ${posts.total}`,
+															},
+															{
+																data: "media",
+																label: `MEDIA ${
+																	medias.imageTotal +
+																	medias.videoTotal
+																}`,
+															},
+															{
+																data: "shop",
+																label: "SHOP",
+																hide:
+																	!profile.isDisplayShop ||
+																	!featureGates.has(
+																		"2023_12-shop-tab-on-creators-profile",
+																	),
+															},
+															{
+																data: "playlists",
+																label: "PLAYLISTS",
+															},
+														]}
+														selectedTab={tab}
+														onChangeTab={(val) =>
+															setTab(val)
+														}
+													/>
+													{tab === "post" && (
+														<PostsTabContents
+															posts={posts.posts}
+															totalPostsCount={
+																posts.total
+															}
+															categories={
+																profile.categories
+															}
+															filter={filter.post}
+															onChangeFilter={
+																onChangeFilter
+															}
+															needToSubscribe={
+																!hasAccess
+															}
+															subscription={
+																profile
+																	.subscriptions[0]
+															}
+															onClickSubscribe={() =>
+																handleOpenSubscribe(
+																	SubscribeActionType.Subscribe,
+																	profile
+																		.subscriptions[0]
+																		.id,
+																	"",
+																)
+															}
+															onClickPostAction={
+																onClickPostAction
+															}
+															onClickPostMessage={(
+																id,
 															) => {
 																setSelectedPostId(
-																	postId,
+																	id,
 																);
-																setOpenShopPostMenus(
+																setOpenMessageDialog(
 																	true,
 																);
 															}}
-															updatePostCallback={
-																updatePostCallback
+															onClickUnlock={
+																onClickPostUnlock
 															}
 															onClickComment={(
 																id,
@@ -1173,96 +1247,293 @@ const ProfileScreen = (
 																	true,
 																);
 															}}
+															updatePostCallback={
+																updatePostCallback
+															}
 														/>
 													)}
+													{tab === "media" && (
+														<MediaTabContents
+															allCounts={
+																medias.total
+															}
+															medias={medias}
+															mediaType={
+																filter.media
+															}
+															onChangeFilter={
+																onFilterMedia
+															}
+															needToSubscribe={
+																!hasAccess
+															}
+															onClickSubscribe={() =>
+																handleOpenSubscribe(
+																	SubscribeActionType.Subscribe,
+																	profile
+																		.subscriptions[0]
+																		.id,
+																	"",
+																)
+															}
+															subscription={
+																profile
+																	.subscriptions[0]
+															}
+														/>
+													)}
+													{tab === "playlists" && (
+														<PlaylistsTabContents
+															playlists={
+																playlists
+															}
+															needToSubscribe={
+																!hasAccess
+															}
+															isSuggested={true}
+															onClickMenus={() => {}}
+															handleAdd={() => {}}
+															handleEdit={() => {}}
+															onClickSubscribe={() =>
+																handleOpenSubscribe(
+																	SubscribeActionType.Subscribe,
+																	profile
+																		.subscriptions[0]
+																		.id,
+																	"",
+																)
+															}
+														/>
+													)}
+													{tab === "shop" &&
+														profile.isDisplayShop && (
+															<ShopTabContents
+																posts={
+																	paidPosts.posts
+																}
+																profile={
+																	profile
+																}
+																onPressPostMenu={(
+																	postId,
+																) => {
+																	setSelectedPostId(
+																		postId,
+																	);
+																	setOpenShopPostMenus(
+																		true,
+																	);
+																}}
+																updatePostCallback={
+																	updatePostCallback
+																}
+																onClickComment={(
+																	id,
+																) => {
+																	setSelectedPostId(
+																		id,
+																	);
+																	setOpenCommentModal(
+																		true,
+																	);
+																}}
+															/>
+														)}
+												</FansView>
 											</FansView>
-										</FansView>
 
-										<SendMessageDialog
-											open={openMessageDialog}
-											onClose={() =>
-												setOpenMessageDialog(false)
-											}
-											reciever={
-												posts.posts.find(
-													(post) =>
-														post.id ===
-														selectedPostId,
-												)?.profile
-											}
-										/>
+											<SendMessageDialog
+												open={openMessageDialog}
+												onClose={() =>
+													setOpenMessageDialog(false)
+												}
+												reciever={
+													posts.posts.find(
+														(post) =>
+															post.id ===
+															selectedPostId,
+													)?.profile
+												}
+											/>
 
-										<CreatorPostActions
-											open={
-												authProfile.userId !==
-													profile.userId &&
-												openPostActions
-											}
-											onClose={() =>
-												setOpenPostActions(false)
-											}
-											onShare={() => {}}
-											onReportPost={handleReportPost}
-											onOpenPost={handleGoToPost}
-										/>
+											<CreatorPostActions
+												open={
+													authProfile.userId !==
+														profile.userId &&
+													openPostActions
+												}
+												onClose={() =>
+													setOpenPostActions(false)
+												}
+												onShare={() => {}}
+												onReportPost={handleReportPost}
+												onOpenPost={handleGoToPost}
+											/>
 
-										<TierJoinDialog
-											open={openJoinTier}
-											onClose={() =>
-												setOpenJoinTier(false)
-											}
-											data={profile.tiers.find(
-												(tier) => tier.id === tierId,
-											)}
-											onClickJoin={() =>
-												setOpenJoinTier(false)
-											}
-										/>
-										<CardActions
-											open={openProfileActions}
-											onClose={() =>
-												setOpenProfileActions(false)
-											}
-											actions={profileActions}
-										/>
-										<AuthModal />
-										<ProfileThreeDotsDialog />
-									</Fragment>
-								) : null}
+											<TierJoinDialog
+												open={openJoinTier}
+												onClose={() =>
+													setOpenJoinTier(false)
+												}
+												data={profile.tiers.find(
+													(tier) =>
+														tier.id === tierId,
+												)}
+												onClickJoin={() =>
+													setOpenJoinTier(false)
+												}
+											/>
+											<CardActions
+												open={openProfileActions}
+												onClose={() =>
+													setOpenProfileActions(false)
+												}
+												actions={profileActions}
+											/>
+											<AuthModal />
+											<ProfileThreeDotsDialog />
+										</Fragment>
+									) : null}
+								</FansView>
 							</FansView>
+							<LayoutRightContents />
 						</FansView>
-						<LayoutRightContents />
+					</ScrollView>
+					<BottomNav />
+				</FansView>
+				<PostCommentDialog
+					visible={openCommentModal}
+					postId={selectedPostId}
+					onDismiss={() => setOpenCommentModal(false)}
+					onCallback={onCommentCallback}
+				/>
+				<ProfilePostActions
+					post={posts.posts.find(
+						(post) => post.id === selectedPostId,
+					)}
+					open={
+						authProfile.userId === profile.userId && openPostActions
+					}
+					onClose={() => setOpenPostActions(false)}
+					onTrashCallback={onTrachCallback}
+					onPostAdvancedCallback={onPostAdvancedCallback}
+					onPinCallback={onPinCallback}
+					onArchivePostCallback={onArchivePostCallback}
+					onEditPostCallback={() => {}}
+				/>
+				<ProfilePictureDialog
+					visible={openAvatarModal}
+					onDismiss={() => setOpenAvatarModal(false)}
+					profile={profile}
+				/>
+				<CardActions
+					open={openShopPostMenus}
+					onClose={() => setOpenShopPostMenus(false)}
+					actions={shopPostActions}
+				/>
+				<PostAnalyticsModal
+					visible={openPostAnalytics}
+					onDismiss={() => setOpenPostAnalytics(false)}
+					handleOpenMessage={() => {}}
+				/>
+				<ProfileReviewSheet
+					visible={isProfileReviewSheetVisible}
+					profile={profile}
+					onClose={() => setProfileReviewSheetVisible(false)}
+					onSubmit={() => {}}
+				/>
+			</AppLayout>
+
+			{featureGates.has("2024_02-NSFW-indicator") &&
+				profile.isNSFW &&
+				((state.user.userInfo.id === "0" &&
+					localStorage.getItem("is_older_than_18") !== "1") ||
+					(state.user.userInfo.id !== "0" &&
+						!state.user.userInfo.isOlderThan18)) && (
+					<FansView
+						style={tw.style(
+							"bg-black bg-opacity-80 absolute w-full h-full",
+						)}
+					>
+						<FansView
+							style={tw.style(
+								"mt-auto mb-auto ml-[17px] mr-[17px] content-center",
+							)}
+						>
+							<Over18Svg
+								width={112.167}
+								height={112.167}
+								style={tw.style("ml-auto mr-auto")}
+							/>
+							<FansText
+								style={tw.style("mt-[24px]")}
+								color={"white"}
+								fontSize={23}
+								fontFamily="inter-bold"
+								textAlign="center"
+							>
+								Are you over 18?
+							</FansText>
+
+							<FansView
+								style={tw.style(
+									"mt-[27px] ml-[21px] mr-[21px]",
+								)}
+							>
+								<FansText
+									style={tw.style(
+										"ml-auto mr-auto lg:w-[317px]",
+									)}
+									color={"white"}
+									fontSize={16}
+									fontFamily="inter-regular"
+									textAlign="center"
+								>
+									This creator's content is 18+. Please
+									confirm your age below to access their
+									profile
+								</FansText>
+							</FansView>
+
+							<FansView
+								style={tw.style(
+									"mt-[36px] lg:w-[358px] lg:ml-auto lg:mr-auto",
+								)}
+							>
+								<RoundButton
+									onPress={() => {
+										handleOlderThan18();
+									}}
+								>
+									Yes, I am 18 or older
+								</RoundButton>
+							</FansView>
+
+							<TouchableOpacity
+								style={tw.style("mt-[18px] ml-auto mr-auto")}
+								onPress={() => {
+									if (router.canGoBack()) {
+										router.back();
+									} else {
+										router.replace({
+											pathname: "posts",
+											params: { screen: "Home" },
+										});
+									}
+								}}
+							>
+								<FansText
+									color={"white"}
+									fontFamily="inter-bold"
+									fontSize={19}
+								>
+									Go back
+								</FansText>
+							</TouchableOpacity>
+						</FansView>
 					</FansView>
-				</ScrollView>
-				<BottomNav />
-			</FansView>
-			<PostCommentDialog
-				visible={openCommentModal}
-				postId={selectedPostId}
-				onDismiss={() => setOpenCommentModal(false)}
-				onCallback={onCommentCallback}
-			/>
-			<ProfilePostActions
-				post={posts.posts.find((post) => post.id === selectedPostId)}
-				open={authProfile.userId === profile.userId && openPostActions}
-				onClose={() => setOpenPostActions(false)}
-				onTrashCallback={onTrachCallback}
-				onPostAdvancedCallback={onPostAdvancedCallback}
-				onPinCallback={onPinCallback}
-				onArchivePostCallback={onArchivePostCallback}
-				onEditPostCallback={() => {}}
-			/>
-			<ProfilePictureDialog
-				visible={openAvatarModal}
-				onDismiss={() => setOpenAvatarModal(false)}
-				profile={profile}
-			/>
-			<CardActions
-				open={openShopPostMenus}
-				onClose={() => setOpenShopPostMenus(false)}
-				actions={shopPostActions}
-			/>
-		</AppLayout>
+				)}
+		</FansView>
 	);
 };
 

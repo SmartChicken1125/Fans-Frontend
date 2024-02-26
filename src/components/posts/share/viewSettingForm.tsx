@@ -4,6 +4,7 @@ import CustomRadio from "@components/common/customRadio";
 import { FansDivider, FansText, FansView } from "@components/controls";
 import { SelectableUserListItem } from "@components/posts/common";
 import tw from "@lib/tailwind";
+import { useFeatureGates } from "@state/featureGates";
 import { SubscriptionTypes } from "@usertypes/commonEnums";
 import {
 	IRole,
@@ -54,6 +55,7 @@ const ViewSettingForm: FC<Props> = (props) => {
 	} = props;
 
 	const [showSearchForm, setShowSearchForm] = useState(false);
+	const featureGates = useFeatureGates();
 
 	return (
 		<FansView>
@@ -78,7 +80,6 @@ const ViewSettingForm: FC<Props> = (props) => {
 						Choose who can see your post by selecting permissions
 						and roles for specific fans
 					</FansText>
-
 					<FansView padding={{ y: 16 }}>
 						<CustomRadio
 							label="All subscribers"
@@ -86,9 +87,7 @@ const ViewSettingForm: FC<Props> = (props) => {
 							onPress={() => onChangeViewType("All")}
 						/>
 					</FansView>
-
 					<FansDivider />
-
 					{subscriptionType === SubscriptionTypes.Tier ? (
 						<Fragment>
 							<FansView padding={{ y: 16 }}>
@@ -100,54 +99,55 @@ const ViewSettingForm: FC<Props> = (props) => {
 									}
 								/>
 							</FansView>
+
+							<PaymentFansForm
+								tiers={tiers}
+								tierIds={tierIds}
+								onToggleTier={onToggleTier}
+								collapsed={viewType !== "PaymentTiers"}
+								onPressCreateTier={onCreateTier}
+							/>
+							{viewType === "PaymentTiers" && (
+								<FansView style={tw.style("h-[22px] w-full")} />
+							)}
 							<FansDivider />
 						</Fragment>
 					) : null}
-
-					<FansView padding={{ b: 22 }}>
-						<FansView
-							padding={{ y: 16 }}
-							flexDirection="row"
-							alignItems="center"
-						>
-							<CustomRadio
-								label="Exclusive (Loyal fans)"
-								checked={viewType === "XPLevels"}
-								onPress={() => onChangeViewType("XPLevels")}
-							/>
-							<FypSvg
-								svg={LockSvg}
-								width={13.46}
-								height={17.57}
-								style={tw.style("ml-[30px]")}
-								color="fans-black dark:fans-white"
-							/>
+					{featureGates.has("2024_02-xp-system") && (
+						<FansView padding={{ b: 22 }}>
+							<FansView
+								padding={{ y: 16 }}
+								flexDirection="row"
+								alignItems="center"
+							>
+								<CustomRadio
+									label="Exclusive (Loyal fans)"
+									checked={viewType === "XPLevels"}
+									onPress={() => onChangeViewType("XPLevels")}
+								/>
+								<FypSvg
+									svg={LockSvg}
+									width={13.46}
+									height={17.57}
+									style={tw.style("ml-[30px]")}
+									color="fans-black dark:fans-white"
+								/>
+							</FansView>
+							<FansText
+								color="grey-70"
+								fontSize={16}
+								lineHeight={21}
+								style={tw.style(
+									"pl-10",
+									"text-fans-black dark:text-fans-white",
+								)}
+							>
+								Offer exclusive content to your loyal fans by
+								selecting specific fan levels that can access
+								the content
+							</FansText>
 						</FansView>
-						<FansText
-							color="grey-70"
-							fontSize={16}
-							lineHeight={21}
-							style={tw.style(
-								"pl-10",
-								"text-fans-black dark:text-fans-white",
-							)}
-						>
-							Offer exclusive content to your loyal fans by
-							selecting specific fan levels that can access the
-							content
-						</FansText>
-					</FansView>
-
-					<FansDivider />
-
-					<FansView padding={{ y: 16 }}>
-						<CustomRadio
-							label="Specific fans"
-							checked={viewType === "SpecificFans"}
-							onPress={() => onChangeViewType("SpecificFans")}
-						/>
-					</FansView>
-
+					)}
 					<ManageRolesForm
 						collapsed={viewType !== "XPLevels"}
 						roles={roles}
@@ -157,14 +157,18 @@ const ViewSettingForm: FC<Props> = (props) => {
 						onCreateRole={onCreateRole}
 					/>
 
-					<PaymentFansForm
-						tiers={tiers}
-						tierIds={tierIds}
-						onToggleTier={onToggleTier}
-						collapsed={viewType !== "PaymentTiers"}
-						onPressCreateTier={onCreateTier}
-					/>
+					{viewType === "XPLevels" && (
+						<FansView style={tw.style("h-[22px] w-full")} />
+					)}
+					<FansDivider />
 
+					<FansView padding={{ y: 16 }}>
+						<CustomRadio
+							label="Specific fans"
+							checked={viewType === "SpecificFans"}
+							onPress={() => onChangeViewType("SpecificFans")}
+						/>
+					</FansView>
 					<FypCollapsible collapsed={viewType !== "SpecificFans"}>
 						<FansView>
 							<FypText

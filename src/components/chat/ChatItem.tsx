@@ -1,4 +1,13 @@
-import { BlockSvg, LockSvg, PlaySvg, ReplyArrowSvg } from "@assets/svgs/common";
+import {
+	BlockSvg,
+	Calendar1Svg,
+	Check1Svg,
+	Clock1Svg,
+	Dollar1Svg,
+	LockSvg,
+	PlaySvg,
+	ReplyArrowSvg,
+} from "@assets/svgs/common";
 import UserAvatar from "@components/avatar/UserAvatar";
 import { FypSvg } from "@components/common/base/svg";
 import {
@@ -11,6 +20,7 @@ import { cdnURL, urlOrBlurHash } from "@helper/Utils";
 import tw from "@lib/tailwind";
 import { MediaType } from "@usertypes/commonEnums";
 import { IMedia, IMessage, MessageType } from "@usertypes/types";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useRef } from "react";
 import { Animated, Image, TouchableOpacity, View } from "react-native";
 import { TapGestureHandler } from "react-native-gesture-handler";
@@ -231,9 +241,11 @@ const FromMessage = ({
 const FromNotPaidPostMessage = ({
 	message,
 	onPressImage,
+	onPurchasePost,
 }: {
 	message: IMessage;
 	onPressImage: (data: IMessage, index: number) => void;
+	onPurchasePost: (message: IMessage) => void;
 }) => {
 	return (
 		<View style={tw.style("flex-row gap-2.5", "self-start")}>
@@ -261,7 +273,14 @@ const FromNotPaidPostMessage = ({
 														message.media?.[0]
 															?.blurhash,
 												  )
-												: message.previewImages![0],
+												: urlOrBlurHash(
+														message
+															.previewMedia?.[0]
+															?.url,
+														message
+															.previewMedia?.[0]
+															?.blurhash,
+												  ),
 									}}
 									style={tw.style("h-[400px] rounded-t-2xl")}
 									resizeMode="cover"
@@ -332,7 +351,13 @@ const FromNotPaidPostMessage = ({
 											style={tw.style("text-center ml-1")}
 											fontFamily="inter-bold"
 										>
-											12
+											{
+												message.media?.filter(
+													(m) =>
+														m.type ===
+														MediaType.Image,
+												).length
+											}
 										</FansText>
 										<FansText
 											fontFamily="inter-bold"
@@ -351,7 +376,13 @@ const FromNotPaidPostMessage = ({
 											style={tw.style("text-center ml-1")}
 											fontFamily="inter-bold"
 										>
-											9
+											{
+												message.media?.filter(
+													(m) =>
+														m.type ===
+														MediaType.Video,
+												).length
+											}
 										</FansText>
 										<View style={tw.style("flex-grow")} />
 										<BlockSvg size={16} color="white" />
@@ -361,12 +392,12 @@ const FromNotPaidPostMessage = ({
 											style={tw.style("text-center ml-1")}
 											fontFamily="inter-bold"
 										>
-											9
+											{message.media?.length}
 										</FansText>
 									</View>
 									<FansButton3
 										height={40}
-										onPress={() => {}}
+										onPress={() => onPurchasePost(message)}
 										style={tw.style(
 											"bg-fans-purple",
 											"px-2.5",
@@ -443,7 +474,14 @@ const FromPaidPostMessage = ({
 														message.media?.[0]
 															?.blurhash,
 												  )
-												: message.previewImages![0],
+												: urlOrBlurHash(
+														message
+															.previewMedia?.[0]
+															?.url,
+														message
+															.previewMedia?.[0]
+															?.blurhash,
+												  ),
 									}}
 									style={tw.style("h-[400px] rounded-t-2xl")}
 									resizeMode="cover"
@@ -466,7 +504,12 @@ const FromPaidPostMessage = ({
 										color="white"
 										style={tw.style("text-center ml-1")}
 									>
-										12
+										{
+											message.media?.filter(
+												(m) =>
+													m.type === MediaType.Image,
+											).length
+										}
 									</FansText>
 									<FansText
 										fontFamily="inter-bold"
@@ -484,7 +527,12 @@ const FromPaidPostMessage = ({
 										color="white"
 										style={tw.style("text-center ml-1")}
 									>
-										9
+										{
+											message.media?.filter(
+												(m) =>
+													m.type === MediaType.Video,
+											).length
+										}
 									</FansText>
 								</View>
 							</View>
@@ -550,7 +598,14 @@ const SelfPaidPostMessage = ({
 														message.media?.[0]
 															?.blurhash,
 												  )
-												: message.previewImages![0],
+												: urlOrBlurHash(
+														message
+															.previewMedia?.[0]
+															?.url,
+														message
+															.previewMedia?.[0]
+															?.blurhash,
+												  ),
 									}}
 									style={tw.style("h-[400px] rounded-t-2xl")}
 									resizeMode="cover"
@@ -580,7 +635,13 @@ const SelfPaidPostMessage = ({
 											style={tw.style("text-center ml-1")}
 											fontFamily="inter-bold"
 										>
-											12
+											{
+												message.media?.filter(
+													(m) =>
+														m.type ===
+														MediaType.Image,
+												).length
+											}
 										</FansText>
 										<FansText
 											fontFamily="inter-bold"
@@ -599,7 +660,13 @@ const SelfPaidPostMessage = ({
 											style={tw.style("text-center ml-1")}
 											fontFamily="inter-bold"
 										>
-											9
+											{
+												message.media?.filter(
+													(m) =>
+														m.type ===
+														MediaType.Video,
+												).length
+											}
 										</FansText>
 										<View style={tw.style("flex-grow")} />
 										<BlockSvg size={16} color="white" />
@@ -609,7 +676,7 @@ const SelfPaidPostMessage = ({
 											style={tw.style("text-center ml-1")}
 											fontFamily="inter-bold"
 										>
-											9
+											{message.media?.length}
 										</FansText>
 									</View>
 									<FansButton3
@@ -633,11 +700,13 @@ const SelfPaidPostMessage = ({
 								</View>
 							</View>
 						</View>
-						<View>
-							<FansText style={tw`p-[15px]`} fontSize={18}>
-								{message.content}
-							</FansText>
-						</View>
+						{message.content && (
+							<View>
+								<FansText style={tw`p-[15px]`} fontSize={18}>
+									{message.content}
+								</FansText>
+							</View>
+						)}
 					</View>
 					{message.emoji && (
 						<View
@@ -758,6 +827,459 @@ const TipMessage = ({ message }: { message: IMessage }) => (
 	</View>
 );
 
+const SelfVideoCallNotificationMessage = ({
+	message,
+	onBookAgain,
+	onCancelVideoCall,
+}: {
+	message: IMessage;
+	onBookAgain: () => void;
+	onCancelVideoCall: (message: IMessage) => void;
+}) => {
+	const status = message.videoCallNotification?.status ?? "Pending";
+
+	const gradientColors = {
+		Pending: ["#d885ff", "#a854f5", "#1d21e5"],
+		Accepted: ["#24a2ff", "#23c9b1", "#89f276"],
+		Cancelled: ["#eb2121", "#e53ec6", "#f98c28"],
+		Declined: ["#eb2121", "#e53ec6", "#f98c28"],
+	};
+
+	const titles = {
+		Pending: "AWAITING ACCEPTANCE",
+		Accepted: "ACCEPTED",
+		Cancelled: "CANCELLED",
+		Delined: "DECLINED",
+	};
+
+	const subtitle = {
+		Pending: `You've booked \n a video call`,
+		Accepted: `You've booked \n a video call`,
+		Cancelled: `Video call \n was cancelled`,
+		Declined: `Video call \n was declined`,
+	};
+
+	return (
+		<View style={tw`flex-row gap-2.5 self-end`}>
+			<View style={tw`justify-center items-center`}>
+				<LinearGradient
+					colors={gradientColors[status]}
+					start={{ x: 0.5, y: 0 }}
+					end={{ x: 0.5, y: 1 }}
+					style={tw`rounded-2xl p-1`}
+				>
+					<View style={tw`w-[300px]`}>
+						<View
+							style={tw`py-1 px-1 mb-1 rounded-t-2xl bg-transparent items-center justify-center flex-row`}
+						>
+							<FypSvg
+								svg={Check1Svg}
+								width={20}
+								height={20}
+								color="white"
+							/>
+							<FansText
+								style={tw`ml-2 font-bold`}
+								fontFamily="inter-bold"
+								fontSize={16}
+								color="white"
+							>
+								{titles[status]}
+							</FansText>
+						</View>
+					</View>
+					<View
+						style={tw`p-5 bg-white rounded-2xl justify-center items-center w-[300px]`}
+					>
+						<UserAvatar
+							size="76px"
+							image={message.user.avatar ?? undefined}
+						/>
+						<FansText
+							style={tw`text-center mt-4 mb-4 font-bold`}
+							fontSize={18}
+							fontFamily="inter-bold"
+						>
+							{subtitle[status]}
+						</FansText>
+						<View style={tw`mt-5 w-full`}>
+							<View style={tw`mb-2.5 flex-row items-center`}>
+								<FypSvg
+									svg={Calendar1Svg}
+									width={16}
+									height={16}
+									color="fans-purple"
+								/>
+								<FansText
+									style={tw`ml-3.375 font-semibold`}
+									fontFamily="inter-semibold"
+									fontSize={16}
+									color="black"
+								>
+									Date:
+								</FansText>
+								<FansText
+									style={tw`ml-2`}
+									fontFamily="inter-regular"
+									fontSize={16}
+									color="grey-48"
+								>
+									{message.videoCallNotification?.date}
+								</FansText>
+							</View>
+							<View style={tw`mt-2 mb-2 w-full`}>
+								<View
+									style={tw`h-[1px] bg-fans-grey w-full`}
+								></View>
+							</View>
+							<View style={tw`mb-2.5 flex-row items-center`}>
+								<FypSvg
+									svg={Clock1Svg}
+									width={16}
+									height={16}
+									color="fans-purple"
+								/>
+								<FansText
+									style={tw`ml-3.375 font-semibold`}
+									fontFamily="inter-semibold"
+									fontSize={16}
+									color="black"
+								>
+									Time:
+								</FansText>
+								<FansText
+									style={tw`ml-2`}
+									fontFamily="inter-regular"
+									fontSize={16}
+									color="grey-48"
+								>
+									{message.videoCallNotification?.time}
+								</FansText>
+							</View>
+							<View style={tw`mt-2 mb-2 w-full`}>
+								<View
+									style={tw`h-[1px] bg-fans-grey w-full`}
+								></View>
+							</View>
+							<View style={tw`mb-2.5 flex-row items-center`}>
+								<FypSvg
+									svg={Dollar1Svg}
+									width={16}
+									height={16}
+									color="fans-purple"
+								/>
+								<FansText
+									style={tw`ml-3.375 font-semibold`}
+									fontFamily="inter-semibold"
+									fontSize={16}
+									color="black"
+								>
+									Amount:
+								</FansText>
+								<FansText
+									style={tw`ml-2`}
+									fontFamily="inter-regular"
+									fontSize={16}
+									color="grey-48"
+								>
+									{message.videoCallNotification?.amount}
+								</FansText>
+							</View>
+						</View>
+						{status === "Accepted" && (
+							<TouchableOpacity
+								style={tw`bg-black rounded-full p-2 mt-4 w-full items-center`}
+								onPress={() => {}}
+							>
+								<FansText
+									style={tw`text-white font-bold`}
+									fontFamily="inter-bold"
+									fontSize={16}
+								>
+									Add To Calendar
+								</FansText>
+							</TouchableOpacity>
+						)}
+						{(status === "Pending" || status === "Accepted") && (
+							<TouchableOpacity
+								style={tw`border border-black rounded-full p-1.5 mt-2 w-full items-center bg-white`}
+								onPress={() => onCancelVideoCall(message)}
+							>
+								<FansText
+									style={tw`text-black font-bold`}
+									fontFamily="inter-bold"
+									fontSize={16}
+								>
+									Cancel
+								</FansText>
+							</TouchableOpacity>
+						)}
+						{status === "Cancelled" && (
+							<TouchableOpacity
+								style={tw`bg-black rounded-full p-2 mt-4 w-full items-center`}
+								onPress={onBookAgain}
+							>
+								<FansText
+									style={tw`text-white font-bold`}
+									fontFamily="inter-bold"
+									fontSize={16}
+								>
+									Book again
+								</FansText>
+							</TouchableOpacity>
+						)}
+					</View>
+				</LinearGradient>
+			</View>
+		</View>
+	);
+};
+
+const FromVideoCallNotificationMessage = ({
+	message,
+	onAcceptVideoCall,
+	onRejectVideoCall,
+	onAddToCalendar,
+}: {
+	message: IMessage;
+	onAcceptVideoCall: (message: IMessage) => void;
+	onRejectVideoCall: (message: IMessage) => void;
+	onAddToCalendar: (message: IMessage) => void;
+}) => {
+	const status = message.videoCallNotification?.status ?? "Pending";
+
+	const gradientColors = {
+		Pending: ["#d885ff", "#a854f5", "#1d21e5"],
+		Accepted: ["#24a2ff", "#23c9b1", "#89f276"],
+		Cancelled: ["#eb2121", "#e53ec6", "#f98c28"],
+		Declined: ["#eb2121", "#e53ec6", "#f98c28"],
+	};
+
+	const titles = {
+		Pending: "AWAITING ACCEPTANCE",
+		Accepted: "ACCEPTED",
+		Cancelled: "CANCELLED",
+		Declined: "DECLINED",
+	};
+
+	const subtitle = {
+		Pending: `${message.user.username} booked \n a video call`,
+		Accepted: `${message.user.username} booked \n a video call`,
+		Cancelled: `${message.user.username} video call \n was cancelled`,
+		Declined: `${message.user.username} video call \n was declined`,
+	};
+
+	return (
+		<View style={tw`flex-row gap-2.5 self-start`}>
+			<View style={tw`justify-center items-center`}>
+				<LinearGradient
+					colors={gradientColors[status]}
+					start={{ x: 0.5, y: 0 }}
+					end={{ x: 0.5, y: 1 }}
+					style={tw`rounded-2xl p-1`}
+				>
+					<View style={tw`w-[300px]`}>
+						<View
+							style={tw`py-1 px-1 mb-1 rounded-t-2xl bg-transparent items-center justify-center flex-row`}
+						>
+							<FypSvg
+								svg={Check1Svg}
+								width={20}
+								height={20}
+								color="white"
+							/>
+							<FansText
+								style={tw`ml-2 font-bold`}
+								fontFamily="inter-bold"
+								fontSize={16}
+								color="white"
+							>
+								{titles[status]}
+							</FansText>
+						</View>
+					</View>
+					<View
+						style={tw`p-5 bg-white rounded-2xl justify-center items-center w-[300px]`}
+					>
+						<UserAvatar
+							size="76px"
+							image={message.user.avatar ?? undefined}
+						/>
+						<FansText
+							style={tw`text-center mt-4 mb-4 font-bold`}
+							fontSize={18}
+							fontFamily="inter-bold"
+						>
+							{subtitle[status]}
+						</FansText>
+						<View style={tw`mt-5 w-full`}>
+							<View style={tw`mb-2.5 flex-row items-center`}>
+								<FypSvg
+									svg={Calendar1Svg}
+									width={16}
+									height={16}
+									color="fans-purple"
+								/>
+								<FansText
+									style={tw`ml-3.375 font-semibold`}
+									fontFamily="inter-semibold"
+									fontSize={16}
+									color="black"
+								>
+									Date:
+								</FansText>
+								<FansText
+									style={tw`ml-2`}
+									fontFamily="inter-regular"
+									fontSize={16}
+									color="grey-48"
+								>
+									{message.videoCallNotification?.date}
+								</FansText>
+							</View>
+							<View style={tw`mt-2 mb-2 w-full`}>
+								<View
+									style={tw`h-[1px] bg-fans-grey w-full`}
+								></View>
+							</View>
+							<View style={tw`mb-2.5 flex-row items-center`}>
+								<FypSvg
+									svg={Clock1Svg}
+									width={16}
+									height={16}
+									color="fans-purple"
+								/>
+								<FansText
+									style={tw`ml-3.375 font-semibold`}
+									fontFamily="inter-semibold"
+									fontSize={16}
+									color="black"
+								>
+									Time:
+								</FansText>
+								<FansText
+									style={tw`ml-2`}
+									fontFamily="inter-regular"
+									fontSize={16}
+									color="grey-48"
+								>
+									{message.videoCallNotification?.time}
+								</FansText>
+							</View>
+							<View style={tw`mt-2 mb-2 w-full`}>
+								<View
+									style={tw`h-[1px] bg-fans-grey w-full`}
+								></View>
+							</View>
+							<View style={tw`mb-2.5 flex-row items-center`}>
+								<FypSvg
+									svg={Dollar1Svg}
+									width={16}
+									height={16}
+									color="fans-purple"
+								/>
+								<FansText
+									style={tw`ml-3.375 font-semibold`}
+									fontFamily="inter-semibold"
+									fontSize={16}
+									color="black"
+								>
+									Amount:
+								</FansText>
+								<FansText
+									style={tw`ml-2`}
+									fontFamily="inter-regular"
+									fontSize={16}
+									color="grey-48"
+								>
+									{message.videoCallNotification?.amount}
+								</FansText>
+							</View>
+						</View>
+						<View style={tw`mt-4 w-full flex justify-start`}>
+							<FansText
+								style={tw`text-left font-normal`}
+								fontSize={16}
+								fontFamily="inter-regular"
+							>
+								{message.content}
+							</FansText>
+						</View>
+						<TouchableOpacity
+							style={tw`w-full flex justify-start mt-2`}
+							onPress={() => {}}
+						>
+							<FansText
+								style={tw`text-left text-fans-purple font-semibold`}
+								fontSize={15}
+								fontFamily="inter-semibold"
+							>
+								View details
+							</FansText>
+						</TouchableOpacity>
+						{status === "Pending" && (
+							<>
+								<TouchableOpacity
+									style={tw`bg-black rounded-full p-2 mt-4 w-full items-center`}
+									onPress={() => onAcceptVideoCall(message)}
+								>
+									<FansText
+										style={tw`text-white font-bold`}
+										fontFamily="inter-bold"
+										fontSize={16}
+									>
+										Accept
+									</FansText>
+								</TouchableOpacity>
+								<TouchableOpacity
+									style={tw`border border-black rounded-full p-1.5 mt-2 w-full items-center bg-white`}
+									onPress={() => onRejectVideoCall(message)}
+								>
+									<FansText
+										style={tw`text-black font-bold`}
+										fontFamily="inter-bold"
+										fontSize={16}
+									>
+										Reject
+									</FansText>
+								</TouchableOpacity>
+							</>
+						)}
+						{status === "Accepted" && (
+							<>
+								<TouchableOpacity
+									style={tw`bg-black rounded-full p-2 mt-4 w-full items-center`}
+									onPress={() => onAddToCalendar(message)}
+								>
+									<FansText
+										style={tw`text-white font-bold`}
+										fontFamily="inter-bold"
+										fontSize={16}
+									>
+										Add to calendar
+									</FansText>
+								</TouchableOpacity>
+								<TouchableOpacity
+									style={tw`border border-black rounded-full p-1.5 mt-2 w-full items-center bg-white`}
+									onPress={() => onRejectVideoCall(message)}
+								>
+									<FansText
+										style={tw`text-black font-bold`}
+										fontFamily="inter-bold"
+										fontSize={16}
+									>
+										Cancel video call
+									</FansText>
+								</TouchableOpacity>
+							</>
+						)}
+					</View>
+				</LinearGradient>
+			</View>
+		</View>
+	);
+};
+
 const ChatItem = ({
 	message,
 	isSelf,
@@ -768,6 +1290,12 @@ const ChatItem = ({
 	onDeleteMessage,
 	onReplyMessage,
 	onReportMessage,
+	onPurchasePost,
+	onBookAgain,
+	onCancelVideoCall,
+	onAcceptVideoCall,
+	onRejectVideoCall,
+	onAddToCalendar,
 }: {
 	message: IMessage;
 	isSelf: boolean;
@@ -778,6 +1306,12 @@ const ChatItem = ({
 	onDeleteMessage: (message: IMessage) => void;
 	onReplyMessage: (message: IMessage) => void;
 	onReportMessage: (message: IMessage) => void;
+	onPurchasePost: (message: IMessage) => void;
+	onBookAgain: () => void;
+	onCancelVideoCall: (message: IMessage) => void;
+	onAcceptVideoCall: (message: IMessage) => void;
+	onRejectVideoCall: (message: IMessage) => void;
+	onAddToCalendar: (message: IMessage) => void;
 }) => {
 	return (
 		<Animated.View style={[tw.style("my-[4px]")]}>
@@ -826,6 +1360,22 @@ const ChatItem = ({
 					<FromNotPaidPostMessage
 						message={message}
 						onPressImage={onPressMedia}
+						onPurchasePost={onPurchasePost}
+					/>
+				))}
+			{message.messageType === MessageType.VIDEO_CALL_NOTIFICATION &&
+				(isSelf ? (
+					<SelfVideoCallNotificationMessage
+						message={message}
+						onBookAgain={onBookAgain}
+						onCancelVideoCall={onCancelVideoCall}
+					/>
+				) : (
+					<FromVideoCallNotificationMessage
+						message={message}
+						onAcceptVideoCall={onAcceptVideoCall}
+						onRejectVideoCall={onRejectVideoCall}
+						onAddToCalendar={onAddToCalendar}
 					/>
 				))}
 		</Animated.View>

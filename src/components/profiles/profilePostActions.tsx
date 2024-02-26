@@ -22,6 +22,7 @@ import {
 	updatePostById,
 } from "@helper/endpoints/post/apis";
 import tw from "@lib/tailwind";
+import { useFeatureGates } from "@state/featureGates";
 import { IPost, IPostAdvanced } from "@usertypes/types";
 import useClipboard from "@utils/useClipboard";
 import { createURL } from "expo-linking";
@@ -85,6 +86,7 @@ const ProfilePostActions: FC<Props> = (props) => {
 
 	const router = useRouter();
 	const { copyString } = useClipboard();
+	const featureGates = useFeatureGates();
 
 	const onCopyPostLink = async () => {
 		const url = createURL(`p/${post?.id}`);
@@ -187,11 +189,13 @@ const ProfilePostActions: FC<Props> = (props) => {
 						"flex-row justify-center pb-5 gap-4 mx-auto",
 					)}
 				>
-					<FunctionButton
-						title="Edit"
-						icon={<EditSvg color="#fff" size={22} />}
-						onPress={onEditPostCallback}
-					/>
+					{featureGates.has("2024_02-edit-post") && (
+						<FunctionButton
+							title="Edit"
+							icon={<EditSvg color="#fff" size={22} />}
+							onPress={onEditPostCallback}
+						/>
+					)}
 					<FunctionButton
 						title={post?.isPinned ? "Unpin" : "Pin"}
 						icon={

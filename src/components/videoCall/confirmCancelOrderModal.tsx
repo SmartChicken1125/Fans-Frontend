@@ -8,6 +8,7 @@ import {
 	FypButton2,
 } from "@components/common/base";
 import { FansIconButton, FansView } from "@components/controls";
+import { formatPrice } from "@helper/Utils";
 import tw from "@lib/tailwind";
 import { IProfile, IVideoCallMeeting } from "@usertypes/types";
 import React, { FC } from "react";
@@ -97,7 +98,8 @@ const ConfirmCancelOrderModal: FC<Props> = (props) => {
 					margin={{ b: 26 }}
 					textAlign="center"
 				>
-					A full refund of {`$${meeting?.price.amount}`} will be
+					A full refund of{" "}
+					{`${formatPrice(meeting?.price.amount ?? 0)}`} will be
 					issued. Note: Frequent cancellations may lead to removal of
 					this feature from your creator account
 				</FypText>

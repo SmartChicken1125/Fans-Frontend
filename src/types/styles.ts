@@ -25,6 +25,7 @@ export type Colors =
 	| "green-65"
 	| "green-29"
 	| "grey"
+	| "grey-48"
 	| "grey-66"
 	| "grey-70"
 	| "grey-b1"

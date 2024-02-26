@@ -93,6 +93,7 @@ export const testStoryFeeds: IProfile[] = [
 			},
 		],
 		isDisplayShop: false,
+		review: { score: 0, total: 0 },
 	},
 	{
 		id: "115164232302080000",
@@ -155,5 +156,6 @@ export const testStoryFeeds: IProfile[] = [
 			},
 		],
 		isDisplayShop: false,
+		review: { score: 0, total: 0 },
 	},
 ];

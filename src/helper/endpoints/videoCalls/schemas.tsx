@@ -31,6 +31,7 @@ export interface VideoCallMeetingReqBody {
 }
 
 export type VideoCallMeetingsRespBody = PaginatedRespBody & {
+	totalPrice: number;
 	meetings: IVideoCallMeeting[];
 };
 

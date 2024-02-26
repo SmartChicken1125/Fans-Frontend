@@ -17,10 +17,12 @@ import {
 	ChatIdParams,
 	ChatNoteReqBody,
 	ChatNoteRespBody,
+	ChatPaidPostPriceResBody,
 	ChatUserIdParams,
 	ChatWSInfoRespBody,
 	CreateMessageReportReqBody,
 	MediasRespBody,
+	PurchaseChatPaidPostReqBody,
 } from "./schemas";
 
 export const getWSInfo = createGET<ChatWSInfoRespBody>("/chat/ws-info", false);
@@ -87,3 +89,13 @@ export const getChannelMedias = createGETWithParams<
 	MediasRespBody,
 	ChatIdParams
 >("/chat/conversation/:id/medias", true);
+
+export const getChatPaidPostPrice = createGET<ChatPaidPostPriceResBody>(
+	"/chat/paid-post/price",
+	true,
+);
+
+export const purchaseChatPaidPost = createPOST<PurchaseChatPaidPostReqBody>(
+	"/chat/paid-post/purchase",
+	true,
+);

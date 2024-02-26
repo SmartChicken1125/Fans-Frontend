@@ -1,16 +1,29 @@
 import { RedirectSvg, CopySvg, CheckSvg } from "@assets/svgs/common";
 import RoundButton from "@components/common/RoundButton";
-import { FypText, FypSvg } from "@components/common/base";
+import RoundTextInput from "@components/common/RoundTextInput";
+import {
+	FypText,
+	FypSvg,
+	FypCollapsible,
+	FypButton2,
+} from "@components/common/base";
 import {
 	FansView,
 	FansSwitch,
 	FansDivider,
 	FansIconButton,
 } from "@components/controls";
-import { ProfileActionType, useAppContext } from "@context/useAppContext";
+import { useAppContext } from "@context/useAppContext";
 import { updateVideoCallSettings } from "@helper/endpoints/videoCalls/apis";
 import tw from "@lib/tailwind";
+import {
+	IVideoDurationForm,
+	ITimeframeInterval,
+	IVideoCallSetting,
+} from "@usertypes/types";
+import { useBlankLink } from "@utils/useBlankLink";
 import useClipboard from "@utils/useClipboard";
+import { createURL } from "expo-linking";
 import React, { FC, useState } from "react";
 import Toast from "react-native-toast-message";
 import ContentPreferenceForm from "./contentPreferenceForm";
@@ -20,23 +33,43 @@ import TitleForm from "./titleForm";
 
 interface Props {
 	handleNext: () => void;
+	durations: IVideoDurationForm[];
+	updateDurationsCallback: (durations: IVideoDurationForm[]) => void;
+	timeframes: ITimeframeInterval[];
+	videoCallSettings: IVideoCallSetting;
+	fetchTimeframes: () => void;
+	updateTimeframesCallback: (timeframes: ITimeframeInterval[]) => void;
+	updateVideoCallSettingsCallback: (
+		videoCallSettings: IVideoCallSetting,
+	) => void;
 }
 
 const SettingsForm: FC<Props> = (props) => {
-	const { handleNext } = props;
-	const { state, dispatch } = useAppContext();
-	const { video } = state.profile.settings;
+	const {
+		handleNext,
+		durations,
+		updateDurationsCallback,
+		timeframes,
+		videoCallSettings,
+		fetchTimeframes,
+		updateTimeframesCallback,
+		updateVideoCallSettingsCallback,
+	} = props;
+	const { state } = useAppContext();
 	const { copyString } = useClipboard();
+	const [openLink] = useBlankLink();
 
 	const {
-		vacationMode,
+		vacationEnabled,
 		videoCallsEnabled,
 		notificationNewRequests,
 		notificationsByEmail,
 		notificationsByPhone,
-	} = video;
+	} = videoCallSettings;
 
 	const [copied, setCopied] = useState(false);
+	const [showPhoneForm, setShowPhoneForm] = useState(false);
+	const [phoneNumber, setPhoneNumber] = useState("");
 
 	const handleSelectAll = async () => {
 		const postbody = {
@@ -47,14 +80,9 @@ const SettingsForm: FC<Props> = (props) => {
 		};
 		const resp = await updateVideoCallSettings(postbody);
 		if (resp.ok) {
-			dispatch.setProfile({
-				type: ProfileActionType.updateSettings,
-				data: {
-					video: {
-						...state.profile.settings.video,
-						...postbody,
-					},
-				},
+			updateVideoCallSettingsCallback({
+				...videoCallSettings,
+				...postbody,
 			});
 		} else {
 			Toast.show({
@@ -67,14 +95,9 @@ const SettingsForm: FC<Props> = (props) => {
 	const handleUpdate = async (name: string, val: boolean) => {
 		const resp = await updateVideoCallSettings({ [name]: val });
 		if (resp.ok) {
-			dispatch.setProfile({
-				type: ProfileActionType.updateSettings,
-				data: {
-					video: {
-						...state.profile.settings.video,
-						[name]: val,
-					},
-				},
+			updateVideoCallSettingsCallback({
+				...videoCallSettings,
+				[name]: val,
 			});
 		} else {
 			Toast.show({
@@ -85,8 +108,24 @@ const SettingsForm: FC<Props> = (props) => {
 	};
 
 	const handleCopy = async () => {
-		await copyString("fyp.fans/videocall/jane");
+		await copyString(createURL(`/videocall/${state.profile.profileLink}`));
 		setCopied(true);
+	};
+
+	const handleOpenVideoOrderLink = () => {
+		openLink(createURL(`/videocall/${state.profile.profileLink}`));
+	};
+
+	const handleSavePhoneNumber = async () => {
+		const pattern = /^[+]?(?:[0-9\-\\(\\)\\/.]\s?){6,15}[0-9]{1}$/;
+		if (!pattern.test(phoneNumber)) {
+			Toast.show({
+				type: "error",
+				text1: "Please enter valid phonenumber",
+			});
+			return;
+		}
+		console.log(phoneNumber);
 	};
 
 	return (
@@ -112,9 +151,9 @@ const SettingsForm: FC<Props> = (props) => {
 			<FansView height={52} justifyContent="center" margin={{ b: 35 }}>
 				<FansSwitch
 					text="Vacation mode"
-					value={vacationMode}
+					value={vacationEnabled}
 					onValueChange={(value: boolean) =>
-						handleUpdate("vacationMode", value)
+						handleUpdate("vacationEnabled", value)
 					}
 				/>
 			</FansView>
@@ -147,7 +186,7 @@ const SettingsForm: FC<Props> = (props) => {
 						style={tw.style("relative pr-[42px]")}
 						onPress={handleCopy}
 					>
-						fyp.fans/videocall/jane
+						{`fyp.fans/videocall/${state.profile.profileLink}`}
 						{copied ? (
 							<FypSvg
 								svg={CheckSvg}
@@ -175,6 +214,7 @@ const SettingsForm: FC<Props> = (props) => {
 					<FansIconButton
 						size={34}
 						backgroundColor="bg-fans-grey-f0 dark:bg-fans-grey-43"
+						onPress={handleOpenVideoOrderLink}
 					>
 						<FypSvg
 							svg={RedirectSvg}
@@ -279,14 +319,17 @@ const SettingsForm: FC<Props> = (props) => {
 						>
 							Phone
 						</FypText>
-						<FypText
-							fontSize={18}
-							lineHeight={24}
-							fontWeight={600}
-							style={tw.style("text-fans-purple")}
-						>
-							+Add phone number
-						</FypText>
+						{!showPhoneForm ? (
+							<FypText
+								fontSize={18}
+								lineHeight={24}
+								fontWeight={600}
+								style={tw.style("text-fans-purple")}
+								onPress={() => setShowPhoneForm(true)}
+							>
+								+Add phone number
+							</FypText>
+						) : null}
 					</FansView>
 					<FansSwitch
 						value={notificationsByPhone}
@@ -295,6 +338,34 @@ const SettingsForm: FC<Props> = (props) => {
 						}
 					/>
 				</FansView>
+				<FypCollapsible collapsed={!showPhoneForm}>
+					<FansView gap={14}>
+						<RoundTextInput
+							value={phoneNumber}
+							onChangeText={setPhoneNumber}
+							placeholder="Enter phone number"
+						/>
+
+						<FypButton2
+							style={tw.style("border border-fans-purple")}
+							textStyle={tw.style("text-fans-purple")}
+							pressableProps={{
+								onPress: handleSavePhoneNumber,
+							}}
+						>
+							Save phone
+						</FypButton2>
+
+						<FypButton2
+							textStyle={tw.style("text-fans-purple")}
+							pressableProps={{
+								onPress: () => setShowPhoneForm(false),
+							}}
+						>
+							Cancel
+						</FypButton2>
+					</FansView>
+				</FypCollapsible>
 			</FansView>
 
 			<FansDivider style={tw.style("mt-9 mb-[30px]")} />
@@ -308,7 +379,12 @@ const SettingsForm: FC<Props> = (props) => {
 				>
 					Title & description
 				</FypText>
-				<TitleForm />
+				<TitleForm
+					videoCallSettings={videoCallSettings}
+					updateVideoCallSettingsCallback={
+						updateVideoCallSettingsCallback
+					}
+				/>
 			</FansView>
 
 			<FansDivider style={tw.style("mt-9 mb-7")} />
@@ -331,7 +407,10 @@ const SettingsForm: FC<Props> = (props) => {
 					Create prices for different video call durations. Provide up
 					to 10 time options for fans to buy
 				</FypText>
-				<PricesForm />
+				<PricesForm
+					durations={durations}
+					updateDurationsCallback={updateDurationsCallback}
+				/>
 			</FansView>
 
 			<FansDivider style={tw.style("mt-10 mb-[30px]")} />
@@ -340,7 +419,15 @@ const SettingsForm: FC<Props> = (props) => {
 				<FypText fontWeight={600} fontSize={19} margin={{ b: 26 }}>
 					Availability
 				</FypText>
-				<TimeframeForm />
+				<TimeframeForm
+					timeframes={timeframes}
+					videoCallSettings={videoCallSettings}
+					fetchTimeframes={fetchTimeframes}
+					updateTimeframesCallback={updateTimeframesCallback}
+					updateVideoCallSettingsCallback={
+						updateVideoCallSettingsCallback
+					}
+				/>
 			</FansView>
 
 			<FansDivider style={tw.style("mt-[70px] mb-[30px]")} />
@@ -349,7 +436,12 @@ const SettingsForm: FC<Props> = (props) => {
 				<FypText fontWeight={600} fontSize={19} margin={{ b: 26 }}>
 					Content preferences
 				</FypText>
-				<ContentPreferenceForm />
+				<ContentPreferenceForm
+					videoCallSettings={videoCallSettings}
+					updateVideoCallSettingsCallback={
+						updateVideoCallSettingsCallback
+					}
+				/>
 			</FansView>
 
 			<RoundButton onPress={handleNext}>Next</RoundButton>

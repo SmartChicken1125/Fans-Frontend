@@ -1,6 +1,9 @@
 import { FypSortButton, FypText } from "@components/common/base";
 import { FansView } from "@components/controls";
-import { OrderCard, ConfirmCancelOrderModal } from "@components/videoCall";
+import {
+	VideoCallOrderCard,
+	ConfirmCancelOrderModal,
+} from "@components/videoCall";
 import { useAppContext } from "@context/useAppContext";
 import {
 	getVideoCallMeetings,
@@ -27,6 +30,7 @@ const ActiveOrdersForm = () => {
 		page: 1,
 		size: 10,
 		total: 0,
+		totalPrice: 0,
 		meetings: [],
 	});
 	const [orderBy, setOrderBy] = useState<SortType>("Newest");
@@ -114,9 +118,9 @@ const ActiveOrdersForm = () => {
 	const handleAccept = (meeting: IVideoCallMeeting) => {
 		if (getEnableJoin(meeting)) {
 			router.replace({
-				pathname: "video-call",
+				pathname: "videocall",
 				params: {
-					screen: "Creator",
+					screen: "CreatorCall",
 					id: meeting.id,
 				},
 			});
@@ -152,7 +156,7 @@ const ActiveOrdersForm = () => {
 					contentContainerStyle={tw.style("gap-[14px]")}
 				>
 					{meetings.meetings.map((meeting) => (
-						<OrderCard
+						<VideoCallOrderCard
 							title={
 								getEnableJoin(meeting)
 									? "Now"

@@ -77,6 +77,12 @@ const ChatSection: FC<Props> = (props) => {
 							onDeleteMessage={handleDeleteMessage}
 							onReplyMessage={handleReplyMessage}
 							onReportMessage={handleReportMessage}
+							onPurchasePost={() => {}}
+							onBookAgain={() => {}}
+							onCancelVideoCall={() => {}}
+							onAcceptVideoCall={() => {}}
+							onRejectVideoCall={() => {}}
+							onAddToCalendar={() => {}}
 						/>
 					)}
 					style={tw.style("pt-5")}

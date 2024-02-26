@@ -1,6 +1,6 @@
 import { FypSortButton, FypText } from "@components/common/base";
 import { FansView } from "@components/controls";
-import { OrderCard } from "@components/videoCall";
+import { VideoCallOrderCard } from "@components/videoCall";
 import { useAppContext } from "@context/useAppContext";
 import { getVideoCallMeetings } from "@helper/endpoints/videoCalls/apis";
 import { VideoCallMeetingsRespBody } from "@helper/endpoints/videoCalls/schemas";
@@ -20,6 +20,7 @@ const RefundedOrdersForm = () => {
 		page: 1,
 		size: 10,
 		total: 0,
+		totalPrice: 0,
 		meetings: [],
 	});
 	const [orderBy, setOrderBy] = useState<SortType>("Newest");
@@ -90,7 +91,7 @@ const RefundedOrdersForm = () => {
 					contentContainerStyle={tw.style("gap-[14px]")}
 				>
 					{meetings.meetings.map((meeting) => (
-						<OrderCard
+						<VideoCallOrderCard
 							title="REFUNDED"
 							key={meeting.id}
 							profile={profile}

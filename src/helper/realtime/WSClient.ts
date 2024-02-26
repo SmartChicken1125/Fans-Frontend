@@ -40,7 +40,6 @@ class RTWebSocketManager {
 		if (this.state !== RTSocketState.Disconnected) {
 			return;
 		}
-		return;
 
 		const cookie = ++this.cookie;
 
