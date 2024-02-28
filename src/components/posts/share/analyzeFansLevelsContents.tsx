@@ -5,16 +5,25 @@ import { FansDivider } from "@components/controls";
 import { IndividualFan, OverviewFansLevel } from "@components/posts/common";
 import { defaultAnalyzeFans } from "@constants/common";
 import { getAnalyzeFans, getFansUsers } from "@helper/endpoints/post/apis";
+import { FansUsersRespBody } from "@helper/endpoints/post/schemas";
 import tw from "@lib/tailwind";
 import { IAnalyzeFans, IFansUser } from "@usertypes/types";
 import React, { useEffect, useState } from "react";
-import { View } from "react-native";
+import { View, ScrollView, NativeScrollEvent } from "react-native";
+
+const SCROLL_SIZE = 10;
 
 const AnalyzeFansLevelsContents = () => {
 	const [overViewData, setOverViewData] =
 		useState<IAnalyzeFans[]>(defaultAnalyzeFans);
 	const [searchKey, setSearchKey] = useState("");
-	const [fanUsers, setFanUsers] = useState<IFansUser[]>([]);
+	const [inLoadingMore, setInLoadingMore] = useState(false);
+	const [fanUsers, setFanUsers] = useState<FansUsersRespBody>({
+		fans: [],
+		page: 1,
+		size: SCROLL_SIZE,
+		total: 0,
+	});
 
 	const fetchAnalyzeFans = async () => {
 		const resp = await getAnalyzeFans();
@@ -58,10 +67,39 @@ const AnalyzeFansLevelsContents = () => {
 		}
 	};
 
-	const fetchFanUsers = async () => {
-		const resp = await getFansUsers({ query: searchKey });
+	const fetchFanUsers = async (page: number) => {
+		const filterObject = {
+			page: page,
+			size: SCROLL_SIZE,
+			query: searchKey,
+		};
+
+		const resp = await getFansUsers(filterObject);
+		setInLoadingMore(false);
 		if (resp.ok) {
-			setFanUsers(resp.data.fans);
+			setFanUsers({
+				...resp.data,
+				fans:
+					resp.data.page === 1
+						? resp.data.fans
+						: [...fanUsers.fans, ...resp.data.fans],
+			});
+		}
+	};
+
+	const onScrollView = (nativeEvent: NativeScrollEvent) => {
+		const paddingToBottom = 20;
+		const isScrollEnd =
+			nativeEvent.layoutMeasurement.height +
+				nativeEvent.contentOffset.y >=
+			nativeEvent.contentSize.height - paddingToBottom;
+		if (
+			isScrollEnd &&
+			!inLoadingMore &&
+			fanUsers.total > SCROLL_SIZE * fanUsers.page
+		) {
+			setInLoadingMore(true);
+			fetchFanUsers(fanUsers.page + 1);
 		}
 	};
 
@@ -70,7 +108,7 @@ const AnalyzeFansLevelsContents = () => {
 	}, []);
 
 	useEffect(() => {
-		fetchFanUsers();
+		fetchFanUsers(1);
 	}, [searchKey]);
 
 	return (
@@ -132,11 +170,19 @@ const AnalyzeFansLevelsContents = () => {
 					customStyles="pl-11"
 				/>
 
-				<View style={tw.style("mt-3")}>
-					{fanUsers.map((user) => (
-						<IndividualFan key={user.id} data={user} />
-					))}
-				</View>
+				<ScrollView
+					style={tw.style("max-h-[480px]")}
+					onScroll={({ nativeEvent }) => onScrollView(nativeEvent)}
+					scrollEventThrottle={16}
+					showsVerticalScrollIndicator
+					showsHorizontalScrollIndicator={false}
+				>
+					<View style={tw.style("mt-3")}>
+						{fanUsers.fans.map((user) => (
+							<IndividualFan key={user.id} data={user} />
+						))}
+					</View>
+				</ScrollView>
 			</View>
 		</View>
 	);
