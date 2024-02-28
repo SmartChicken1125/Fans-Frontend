@@ -43,6 +43,9 @@ export const FypDropdown: IFypDropdown = (props) => {
 						"text-fans-black dark:text-fans-white text-[18px] leading-6",
 					),
 				]}
+				selectedTextProps={{
+					numberOfLines: 1,
+				}}
 				inputSearchStyle={[
 					tw.style(
 						"text-fans-black dark:text-fans-white h-10",

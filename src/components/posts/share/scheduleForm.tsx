@@ -48,7 +48,7 @@ const ScheduleForm: FC<Props> = (props) => {
 						"mb-4 font-semibold text-fans-black dark:text-fans-white",
 					)}
 				>
-					Start time
+					Posting date:
 				</FansText>
 				<DatePicker
 					value={data.startDate}
@@ -66,7 +66,7 @@ const ScheduleForm: FC<Props> = (props) => {
 						"font-semibold mb-[15px] text-fans-black dark:text-fans-white",
 					)}
 				>
-					Time
+					Time:
 				</FansText>
 				<TimePicker
 					value={data.time}
@@ -82,7 +82,7 @@ const ScheduleForm: FC<Props> = (props) => {
 						"font-semibold mb-[15px] text-fans-black dark:text-fans-white",
 					)}
 				>
-					Time Zone
+					Time Zone:
 				</FansText>
 				<FypDropdown
 					search

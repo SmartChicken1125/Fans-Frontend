@@ -9,7 +9,7 @@ import { FypLink, FypText, FypModal, FypSvg } from "@components/common/base";
 import { FansView, FansIconButton } from "@components/controls";
 import { PostsActionType, useAppContext } from "@context/useAppContext";
 import tw from "@lib/tailwind";
-import { ActionType } from "@usertypes/commonEnums";
+import { ActionType, PostType } from "@usertypes/commonEnums";
 import { useBlankLink } from "@utils/useBlankLink";
 import useClipboard from "@utils/useClipboard";
 import { createURL } from "expo-linking";
@@ -27,12 +27,14 @@ const PostLiveDialog: FC<Props> = (props) => {
 	const { copyString } = useClipboard();
 	const [copied, setCopied] = useState(false);
 	const { state, dispatch } = useAppContext();
+	const { profile } = state;
 
 	const {
 		visible,
 		postId,
 		action = ActionType.Create,
 		schedule,
+		postType = PostType.Media,
 	} = state.posts.liveModal;
 
 	const onClose = () => {
@@ -48,7 +50,15 @@ const PostLiveDialog: FC<Props> = (props) => {
 	};
 
 	const onClickCopy = async () => {
-		const url = createURL(`p/${postId}`);
+		let url = "";
+		if (postType === PostType.Story) {
+			url = createURL(
+				`stories?userId=${profile.userId}&storyId=${postId}&screen=Profile`,
+			);
+		} else {
+			url = createURL(`p/${postId}`);
+		}
+
 		await copyString(url);
 		setCopied(true);
 	};
@@ -127,18 +137,21 @@ const PostLiveDialog: FC<Props> = (props) => {
 						Spread the word and inspire your community to be active
 						fans by sharing your fresh content
 					</FypText>
-					<FypLink
-						fontSize={16}
-						lineHeight={21}
-						fontWeight={500}
-						textAlign="center"
-						margin={{ t: 20 }}
-						hideUnderline
-						color="purple"
-						onPress={onClickCopy}
-					>
-						{copied ? "Copied" : "Copy Link"}
-					</FypLink>
+					{schedule ? null : (
+						<FypLink
+							fontSize={16}
+							lineHeight={21}
+							fontWeight={500}
+							textAlign="center"
+							margin={{ t: 20 }}
+							hideUnderline
+							color="purple"
+							onPress={onClickCopy}
+						>
+							{copied ? "Copied" : "Copy Link"}
+						</FypLink>
+					)}
+
 					{/* <View style={tw.style("flex-row justify-between")}>
 							<View style={tw.style("items-center")}>
 								<Pressable

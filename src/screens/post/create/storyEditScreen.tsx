@@ -32,7 +32,7 @@ import { getUsers } from "@helper/endpoints/users/apis";
 import { UsersRespBody } from "@helper/endpoints/users/schemas";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { MediaType, PostStepTypes } from "@usertypes/commonEnums";
+import { MediaType, PostStepTypes, PostType } from "@usertypes/commonEnums";
 import { PostsNavigationStacks } from "@usertypes/navigations";
 import { FontFamilyStyle } from "@usertypes/styles";
 import { IUserInfo } from "@usertypes/types";
@@ -397,6 +397,7 @@ const StoryEditScreen = (
 				data: {
 					visible: true,
 					postId: resp.data.id,
+					postType: PostType.Story,
 				},
 			});
 		} else {

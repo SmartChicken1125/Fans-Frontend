@@ -373,6 +373,7 @@ export interface ITabCell {
 	data: string;
 	label: string;
 	hide?: boolean;
+	icon?: React.ReactNode;
 }
 
 export interface IAudio {

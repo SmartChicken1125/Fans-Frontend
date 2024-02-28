@@ -92,7 +92,7 @@ export const fulfillCustomVideoOrderById = createPOSTWithParams<
 	IdParams
 >("/cameo/orders/:id/fulfill", true);
 
-export const updateCustomVideoOrderVideoById = createPUTWithParams<
+export const createCustomVideoMediaRequest = createPUTWithParams<
 	CustomVideoOrderVideoReqBody,
 	null,
 	IdParams

@@ -1176,11 +1176,7 @@ const ProfileScreen = (
 															{
 																data: "shop",
 																label: "SHOP",
-																hide:
-																	!profile.isDisplayShop ||
-																	!featureGates.has(
-																		"2023_12-shop-tab-on-creators-profile",
-																	),
+																hide: !profile.isDisplayShop,
 															},
 															{
 																data: "playlists",

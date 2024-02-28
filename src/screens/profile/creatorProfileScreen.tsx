@@ -8,6 +8,7 @@ import {
 	Star1Svg,
 	StarCheckSvg,
 	StatisticsSvg,
+	EyeHideSvg,
 } from "@assets/svgs/common";
 import AvatarWithStatus from "@components/common/AvatarWithStatus";
 import RoundButton from "@components/common/RoundButton";
@@ -1060,6 +1061,7 @@ const CreatorProfileScreen = (
 								data={socialLinks}
 								onClickLink={onClickSocialLink}
 							/>
+							<FansGap height={24} />
 							<FansView
 								margin={{ b: 24 }}
 								style={tw.style(
@@ -1145,8 +1147,13 @@ const CreatorProfileScreen = (
 										{
 											data: "shop",
 											label: "SHOP",
-											hide: !featureGates.has(
-												"2023_12-shop-tab-on-creators-profile",
+											icon: profile.isDisplayShop ? null : (
+												<FypSvg
+													svg={EyeHideSvg}
+													width={14}
+													height={12}
+													color="fans-black dark:fans-white"
+												/>
 											),
 										},
 										{

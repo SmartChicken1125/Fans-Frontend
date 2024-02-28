@@ -159,20 +159,25 @@ const VaultScreen = (
 				<FansView margin={{ b: 30 }}>
 					<FypSortButton value={orderBy} handleToggle={setOrderBy} />
 				</FansView>
-				<FypHorizontalScrollView2>
-					<FansView flexDirection="row" gap={5}>
-						{[MediaType.All, MediaType.Image, MediaType.Video].map(
-							(el) => (
+				<FansView>
+					<FypHorizontalScrollView2>
+						<FansView flexDirection="row" gap={5}>
+							{[
+								MediaType.All,
+								MediaType.Image,
+								MediaType.Video,
+							].map((el) => (
 								<FilterButton
 									title={el}
 									selected={filter === el}
 									onClick={() => handleFilter(el)}
 									key={el}
 								/>
-							),
-						)}
-					</FansView>
-				</FypHorizontalScrollView2>
+							))}
+						</FansView>
+					</FypHorizontalScrollView2>
+				</FansView>
+
 				<FansView
 					flex="1"
 					style={tw.style("mx-[-18px] md:mx-0 mt-[22px] md:mt-10")}

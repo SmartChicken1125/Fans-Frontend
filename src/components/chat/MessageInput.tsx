@@ -390,6 +390,8 @@ const MessageInput: FC<IMessageInput> = (props) => {
 		} else {
 			handleOpenGemModal();
 		}
+
+		if (isAddSheetOpened) handleCloseAddSheet();
 	};
 
 	const handlePressPhoto = async (index?: number) => {
@@ -514,8 +516,14 @@ const MessageInput: FC<IMessageInput> = (props) => {
 
 	const handlePressSend = async () => {
 		if (!onSend) return;
-		const uploadedFiles = await handleUploadMedia();
-		const uploadedPreviewImages = await handleUploadPreviewImages();
+		let uploadedFiles: IUploadedFile[] = [];
+		let uploadedPreviewImages: IUploadedFile[] = [];
+		if (images.length > 0 || videos.length > 0) {
+			uploadedFiles = await handleUploadMedia();
+		}
+		if (previewFiles.length > 0) {
+			uploadedPreviewImages = await handleUploadPreviewImages();
+		}
 		onSend({
 			message,
 			uploadedFiles,
@@ -819,10 +827,8 @@ const MessageInput: FC<IMessageInput> = (props) => {
 					open={isAddSheetOpened}
 					onClose={handleCloseAddSheet}
 					onPressPhoto={handlePressPhoto}
-					onGifSelect={(gif: IGif) => {
-						console.log("GIF selected", gif);
-						setGif(gif);
-					}}
+					onGifSelect={(gif: IGif) => setGif(gif)}
+					onTipSelect={handleDollarPress}
 				/>
 				<PaidPostCreateSheet
 					open={isPaidPostCreateSheetOpened}

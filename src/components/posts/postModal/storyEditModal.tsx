@@ -32,7 +32,7 @@ import { LinkPreviewRespBody } from "@helper/endpoints/stories/schemas";
 import { getUsers } from "@helper/endpoints/users/apis";
 import { UsersRespBody } from "@helper/endpoints/users/schemas";
 import tw from "@lib/tailwind";
-import { MediaType, PostStepTypes } from "@usertypes/commonEnums";
+import { MediaType, PostStepTypes, PostType } from "@usertypes/commonEnums";
 import { FontFamilyStyle } from "@usertypes/styles";
 import { IUserInfo } from "@usertypes/types";
 import useUploadFiles from "@utils/useUploadFile";
@@ -412,6 +412,7 @@ const StoryEditModal = () => {
 				data: {
 					visible: true,
 					postId: resp.data.id,
+					postType: PostType.Story,
 				},
 			});
 		} else {

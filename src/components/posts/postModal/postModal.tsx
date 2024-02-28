@@ -310,6 +310,7 @@ const PostModal = () => {
 							? resp.data.id
 							: selectedId,
 					schedule: resp.data.schedule,
+					postType: postForm.type,
 				},
 			});
 		} else {
@@ -362,6 +363,7 @@ const PostModal = () => {
 				data: {
 					visible: true,
 					postId: resp.data.id,
+					postType: PostType.Poll,
 				},
 			});
 		} else {
@@ -429,6 +431,7 @@ const PostModal = () => {
 				data: {
 					visible: true,
 					postId: resp.data.id,
+					postType: PostType.Fundraiser,
 				},
 			});
 		} else {

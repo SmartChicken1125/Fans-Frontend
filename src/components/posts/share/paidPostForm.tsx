@@ -143,95 +143,83 @@ const PaidPostForm: FC<Props> = (props) => {
 					styles="mb-7"
 					onPointerLeave={handleSaveData}
 				/>
-				<FypNullableView
-					visible={featureGates.has(
-						"2023_12-shop-tab-on-creators-profile",
-					)}
-				>
-					<FansView>
-						<FypText
-							fontSize={17}
-							lineHeight={22}
-							fontWeight={600}
-							margin={{ b: 15 }}
-						>
-							Who has access
-						</FypText>
-						<FansView
-							height={42}
-							justifyContent="center"
-							padding={{ l: 20 }}
-							borderRadius={42}
-							style={tw.style(
-								"bg-fans-grey dark:bg-fans-grey-43",
-							)}
-							pressableProps={{
-								onPress: handlePressAccess,
-							}}
-						>
+				<FansView>
+					<FypText
+						fontSize={17}
+						lineHeight={22}
+						fontWeight={600}
+						margin={{ b: 15 }}
+					>
+						Who has access
+					</FypText>
+					<FansView
+						height={42}
+						justifyContent="center"
+						padding={{ l: 20 }}
+						borderRadius={42}
+						style={tw.style("bg-fans-grey dark:bg-fans-grey-43")}
+						pressableProps={{
+							onPress: handlePressAccess,
+						}}
+					>
+						<FypText fontSize={18} fontWeight={600} lineHeight={24}>
+							Add:{" "}
 							<FypText
 								fontSize={18}
-								fontWeight={600}
+								fontWeight={400}
 								lineHeight={24}
+								style={tw.style(
+									"text-fans-grey-70 dark:text-fans-grey-b1",
+								)}
 							>
-								Add:{" "}
-								<FypText
-									fontSize={18}
-									fontWeight={400}
-									lineHeight={24}
-									style={tw.style(
-										"text-fans-grey-70 dark:text-fans-grey-b1",
-									)}
-								>
-									Member/Role/Tier
-								</FypText>
+								Member/Role/Tier
 							</FypText>
-						</FansView>
-						<FansView margin={{ t: 9 }}>
-							{tiers
-								.filter((el) => tierIds.includes(el.id))
-								.map((tier) => (
-									<AccessItem
-										key={tier.id}
-										selected={true}
-										title={tier.title}
-										subTitle="0 fans"
-										image={tier.cover}
-										handleSelect={() =>
-											handleRemoveTier(tier.id)
-										}
-									/>
-								))}
-							{roles
-								.filter((el) => roleIds.includes(el.id))
-								.map((role) => (
-									<AccessItem
-										key={role.id}
-										selected={true}
-										title={role.name}
-										subTitle={`${role.fans} fans`}
-										image={role.icon}
-										role={role}
-										handleSelect={() =>
-											handleRemoveRole(role.id)
-										}
-									/>
-								))}
-							{fanUsers.map((user) => (
+						</FypText>
+					</FansView>
+					<FansView margin={{ t: 9 }}>
+						{tiers
+							.filter((el) => tierIds.includes(el.id))
+							.map((tier) => (
 								<AccessItem
-									key={user.id}
+									key={tier.id}
 									selected={true}
-									title={user.displayName ?? ""}
-									subTitle={user.username}
-									image={user.avatar ?? ""}
+									title={tier.title}
+									subTitle="0 fans"
+									image={tier.cover}
 									handleSelect={() =>
-										handleRemoveFanUser(user.id)
+										handleRemoveTier(tier.id)
 									}
 								/>
 							))}
-						</FansView>
+						{roles
+							.filter((el) => roleIds.includes(el.id))
+							.map((role) => (
+								<AccessItem
+									key={role.id}
+									selected={true}
+									title={role.name}
+									subTitle={`${role.fans} fans`}
+									image={role.icon}
+									role={role}
+									handleSelect={() =>
+										handleRemoveRole(role.id)
+									}
+								/>
+							))}
+						{fanUsers.map((user) => (
+							<AccessItem
+								key={user.id}
+								selected={true}
+								title={user.displayName ?? ""}
+								subTitle={user.username}
+								image={user.avatar ?? ""}
+								handleSelect={() =>
+									handleRemoveFanUser(user.id)
+								}
+							/>
+						))}
 					</FansView>
-				</FypNullableView>
+				</FansView>
 			</FansView>
 
 			<FypNullableView visible={postForm.type !== PostType.Text}>

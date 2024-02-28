@@ -38,7 +38,7 @@ const SelfMessage = ({
 	onReportMessage: (message: IMessage) => void;
 }) => (
 	<View
-		style={tw`flex-row items-center self-end max-w-full md:max-w-[80%] ${
+		style={tw`flex-row items-center self-end max-w-full md:max-w-[70%] ${
 			message.parentMessage ? "mt-[40px]" : ""
 		}`}
 	>
@@ -54,7 +54,7 @@ const SelfMessage = ({
 				{message.parentMessage && (
 					<View
 						style={tw.style(
-							"flex-row items-center gap-2.5 max-w-full md:max-w-[80%] absolute top-[-40px] right-0 justify-end",
+							"flex-row items-center gap-2.5 max-w-full md:max-w-[70%] absolute top-[-40px] right-0 justify-end",
 						)}
 					>
 						<UserAvatar
@@ -157,7 +157,7 @@ const FromMessage = ({
 
 	return (
 		<View
-			style={tw`flex-row items-center gap-2.5 self-start max-w-full md:max-w-[80%] ${
+			style={tw`flex-row items-center gap-2.5 self-start max-w-full md:max-w-[70%] ${
 				message.parentMessage ? "mt-[40px]" : ""
 			}`}
 		>

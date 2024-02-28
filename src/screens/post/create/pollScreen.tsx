@@ -121,6 +121,7 @@ const PollScreen = (
 				data: {
 					visible: true,
 					postId: resp.data.id,
+					postType: PostType.Poll,
 				},
 			});
 			router.push({

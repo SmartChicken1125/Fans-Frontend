@@ -207,6 +207,17 @@ export const MessagesScreenContent = (props: MessagesScreenContentProps) => {
 			}
 			return;
 		}
+		setInbox(
+			inbox.sorted.map((conversation) =>
+				conversation.id === meta.id
+					? {
+							...conversation,
+							unreadCount: 0,
+							lastReadMessageId: undefined,
+					  }
+					: conversation,
+			),
+		);
 		props.navigationRef.navigate("Chat", { id: meta.id });
 		router.push(`/chat/${meta.id}`);
 	};

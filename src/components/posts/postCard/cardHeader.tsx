@@ -24,8 +24,20 @@ const CardHeader: FC<Props> = (props) => {
 	const [width, setWidth] = useState(0);
 
 	const onGoToProfile = () => {
-		const profileLink = data.profile?.profileLink;
-		if (profileLink) {
+		const profileLink = data.profile.profileLink;
+		if (
+			data.profile.activeStories &&
+			data.profile.activeStories.length > 0
+		) {
+			router.replace({
+				pathname: "stories",
+				params: {
+					screen: "Profile",
+					userId: data.profile.userId,
+					storyId: data.profile.activeStories[0].id,
+				},
+			});
+		} else {
 			router.push(`/${profileLink}`);
 		}
 	};

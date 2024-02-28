@@ -51,7 +51,7 @@ import { cdnURL, formatPrice } from "@helper/Utils";
 import {
 	getCreatorCustomVideoSettings,
 	createCustomVideoOrder,
-	updateCustomVideoOrderVideoById,
+	createCustomVideoMediaRequest,
 } from "@helper/endpoints/cameo/apis";
 import { getCreatorProfileByLink } from "@helper/endpoints/profile/apis";
 import { getPaymentMethods } from "@helper/endpoints/subscriptions/apis";
@@ -329,11 +329,10 @@ const CustomVideoScreen = (
 				);
 				console.log(uploadResp);
 				if (uploadResp.ok) {
-					const orderUpdateResp =
-						await updateCustomVideoOrderVideoById(
-							{ uploadId: uploadResp.data[0].id },
-							{ id: resp.data.id },
-						);
+					const orderUpdateResp = await createCustomVideoMediaRequest(
+						{ uploadId: uploadResp.data[0].id },
+						{ id: resp.data.id },
+					);
 					setIsLoading(false);
 					console.log(orderUpdateResp);
 					if (!orderUpdateResp.ok) {

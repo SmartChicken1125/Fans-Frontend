@@ -19,10 +19,11 @@ interface Props {
 	onClose: () => void;
 	onPressPhoto: () => void;
 	onGifSelect: (gif: IGif) => void;
+	onTipSelect: () => void;
 }
 
 const AddSheet: FC<Props> = (props) => {
-	const { open, onClose, onPressPhoto, onGifSelect } = props;
+	const { open, onClose, onPressPhoto, onGifSelect, onTipSelect } = props;
 
 	const [gifOpen, setGifOpen] = useState(false);
 
@@ -62,7 +63,7 @@ const AddSheet: FC<Props> = (props) => {
 					Video Call
 				</Text>
 </View>*/}
-				<TouchableOpacity>
+				<TouchableOpacity onPress={onTipSelect}>
 					<View style={tw.style("flex gap-[10px] items-center")}>
 						<OutlinedDollarSvg size={36} color={Colors.Purple} />
 						<FansText fontSize={19}>Send tip</FansText>

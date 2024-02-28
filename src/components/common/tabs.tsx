@@ -8,16 +8,21 @@ interface TabProps {
 	title: string;
 	onClick: () => void;
 	isSelected: boolean;
+	icon?: React.ReactNode;
 }
 
 export const Tab: FC<TabProps> = (props) => {
-	const { title, onClick, isSelected } = props;
+	const { title, onClick, isSelected, icon } = props;
 
 	return (
 		<FansView
 			flex="1"
 			padding={{ y: 14 }}
 			position="relative"
+			gap={7}
+			flexDirection="row"
+			alignItems="center"
+			justifyContent="center"
 			touchableOpacityProps={{
 				onPress: onClick,
 			}}
@@ -35,7 +40,7 @@ export const Tab: FC<TabProps> = (props) => {
 			>
 				{title}
 			</FypText>
-
+			{icon}
 			<FansView
 				height={2}
 				width="full"
@@ -71,6 +76,7 @@ const Tabs: FC<Props> = (props) => {
 						title={tab.label}
 						onClick={() => onChangeTab(tab.data)}
 						isSelected={tab.data === selectedTab}
+						icon={tab.icon}
 						key={tab.data}
 					/>
 				))}

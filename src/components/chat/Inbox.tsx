@@ -31,7 +31,7 @@ const enum IconType {
 	Tip,
 }
 
-const InboxIcon = memo((props: { type: IconType }) => {
+const InboxIcon = memo((props: { type: IconType; active?: boolean }) => {
 	if (props.type === IconType.None) return null;
 	else if (props.type === IconType.Picture)
 		return (
@@ -123,7 +123,7 @@ const Inbox = (props: InboxProps) => {
 		<FansView
 			style={tw.style(
 				"bg-fans-white dark:bg-fans-black-1d",
-				isBlocked ? "opacity-50" : "",
+				isBlocked ? "opacity-70" : "",
 			)}
 		>
 			<View style={tw.style("flex-row gap-[10px] items-center")}>
@@ -145,7 +145,7 @@ const Inbox = (props: InboxProps) => {
 						>
 							{name}
 						</FansText>
-						{unread && (
+						{unread && !isBlocked && (
 							<FansView
 								style={tw.style(
 									"bg-fans-purple",
@@ -214,13 +214,15 @@ const Inbox = (props: InboxProps) => {
 											: lastMessage?.messageType ===
 											  MessageType.TIP
 											? IconType.Tip
-											: IconType.Read
+											: unread && !isBlocked
+											? IconType.Read
+											: IconType.None
 									}
 								/>
 								{lastMessage?.content}
 							</FansText>
 						</FansView>
-						{isCreator && earnings && earnings !== 0 && (
+						{isCreator && Number(earnings) > 0 && (
 							<FansView
 								style={tw.style(
 									"bg-fans-green/10",

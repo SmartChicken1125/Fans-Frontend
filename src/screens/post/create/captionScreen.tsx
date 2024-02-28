@@ -208,6 +208,7 @@ const CaptionScreen = (
 							? resp.data.id
 							: selectedId,
 					schedule: resp.data.schedule,
+					postType: postForm.type,
 				},
 			});
 

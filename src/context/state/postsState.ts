@@ -1,5 +1,10 @@
 import { defaultPostFormData } from "@constants/defaultFormData";
-import { ActionType, MediaType, PostStepTypes } from "@usertypes/commonEnums";
+import {
+	ActionType,
+	MediaType,
+	PostStepTypes,
+	PostType,
+} from "@usertypes/commonEnums";
 import {
 	ICategory,
 	IPost,
@@ -22,6 +27,7 @@ export interface ILiveModal {
 	visible: boolean;
 	postId: string;
 	schedule?: IPostSchedule;
+	postType: PostType;
 }
 
 export interface IMediaModal {
@@ -57,6 +63,7 @@ export const postsInitialState: IPostsState = {
 	liveModal: {
 		visible: false,
 		postId: "0",
+		postType: PostType.Media,
 	},
 	mediaModal: {
 		visible: false,

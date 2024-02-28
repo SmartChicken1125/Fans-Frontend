@@ -243,8 +243,8 @@ export class MessageView implements MessageViewData {
 
 	async deleteMessageById(messageId: string) {
 		const resp = await deleteMessage(
-			{ id: this.channelId },
 			{ messageId: messageId },
+			{ id: this.channelId },
 		);
 
 		if (!resp.ok) {

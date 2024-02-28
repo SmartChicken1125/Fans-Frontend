@@ -12,7 +12,7 @@ import {
 	ChatConversationByUserRespBody,
 	ChatConversationMessagesPostReqBody,
 	ChatConversationMessagesRespBody,
-	ChatDeleteMessageIdParams,
+	ChatDeleteMessageId,
 	ChatFansListRespBody,
 	ChatIdParams,
 	ChatNoteReqBody,
@@ -50,9 +50,10 @@ export const createTextMessage = createPOSTWithParams<
 >("/chat/conversations/:id/messages", true);
 
 export const deleteMessage = createDELETEWithParams<
-	ChatIdParams,
-	ChatDeleteMessageIdParams
->("/chat/conversations/:id/messages/:messageId", true);
+	ChatDeleteMessageId,
+	unknown,
+	ChatIdParams
+>("/chat/conversations/:id/messages", true);
 
 export const getNotes = createGET<ChatNoteRespBody>("/chat/notes", true);
 

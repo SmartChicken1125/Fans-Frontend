@@ -27,6 +27,7 @@ module.exports = {
 					"1D": "#1D21E5",
 				},
 				"fans-blue-6d": "#6D83F7",
+				"fans-blue-80": "#80C8F9",
 				"fans-brown-3b": "#3b2121",
 				"fans-red": {
 					DEFAULT: "#EB2121",
@@ -34,6 +35,7 @@ module.exports = {
 				},
 				"fans-red-eb": "#EB2121",
 				"fans-red-fd": "#FDE8E8",
+				"fans-red-f4": "#F44545",
 				"dark-cyan": "#0EAAC9",
 				"fans-purple": {
 					DEFAULT: "#A854F5",
@@ -48,6 +50,7 @@ module.exports = {
 				"fans-purple-76": "#7642EF",
 				"fans-purple-84": "#8447F1",
 				"fans-purple-f1": "#F1E2FF",
+				"fans-purple-7c": "#7C7FF5",
 				"fans-green": "#4DCC36",
 				"fans-green-4d": "#4DCC36",
 				"fans-green-65": "#65D072",
@@ -55,6 +58,9 @@ module.exports = {
 				"fans-green-29": "#29AA7D",
 				"fans-green-1f": "#1f2317",
 				"fans-green-37": "#373b33",
+				"fans-green-04": "#04B3BA",
+				"fans-green-8d": "#8DDCCC",
+				"fans-green-94": "#94D8CB",
 				"fans-grey": {
 					DEFAULT: "#F0F0F0",
 					dark: "#707070",

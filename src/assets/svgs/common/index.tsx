@@ -334,3 +334,7 @@ export { default as StoryEditScanColorSvg } from "./StoryEditScanColor";
 export { default as WhiteLogoSvg } from "./WhiteLogo";
 
 export { default as Over18Svg } from "./Over18";
+export { default as DiscoverSvg } from "./Discover";
+export { default as PciDssSvg } from "./PciDss";
+export { default as GDPRSvg } from "./Gdpr";
+export { default as MinusSvg } from "./Minus";

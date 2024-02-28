@@ -152,10 +152,13 @@ const MainMenu: FC<Props> = (props) => {
 						/>
 					)}
 					<MenuItem title="Payouts" onPress={onPressPayouts} />
-					<MenuItem
-						title={video ? "Video Calls" : "Setup Video Calls"}
-						onPress={onPressVideoCalls}
-					/>
+					{featureGates.has("2023_10-video-calls") ? (
+						<MenuItem
+							title={video ? "Video Calls" : "Setup Video Calls"}
+							onPress={onPressVideoCalls}
+						/>
+					) : null}
+
 					<MenuItem title="Settings" onPress={onPressSettings} />
 					<FansDivider />
 					<MenuItem title="Your cards" onPress={onPressYourCard} />

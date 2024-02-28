@@ -35,6 +35,44 @@ import UploadProgress from "../common/uploadProgress";
 import AddResourceBar from "./addResourceBar";
 import ModalHeader from "./modalHeader";
 
+interface FileDropzoneProps {
+	onPress: () => void;
+}
+
+const FileDropzone: FC<FileDropzoneProps> = (props) => {
+	const { onPress } = props;
+	return (
+		<FansView alignItems="center" justifyContent="center" height="full">
+			<TouchableOpacity onPress={onPress}>
+				<FansView
+					style={tw.style(
+						"h-[162px] w-70",
+						"border border-fans-grey-dark border-dashed rounded-[7px]",
+						"flex justify-center items-center",
+					)}
+				>
+					<FansSvg width={77.44} height={70.96} svg={Photos1Svg} />
+					<FansGap height={13.3} />
+					<FansText style={tw.style("text-[17px]")}>
+						Drop image here or{" "}
+						<FansText
+							style={tw.style(
+								"font-inter-semibold",
+								"text-[17px] text-fans-purple",
+							)}
+						>
+							browse
+						</FansText>
+					</FansText>
+				</FansView>
+			</TouchableOpacity>
+			<FansView style={tw.style("w-70 mt-5")}>
+				<RoundButton onPress={onPress}>Pick from computer</RoundButton>
+			</FansView>
+		</FansView>
+	);
+};
+
 interface Props {
 	data: IPostForm;
 	inProgress: boolean;
@@ -256,46 +294,7 @@ const ThumbnailScreen: FC<Props> = (props) => {
 						}
 					>
 						<FypNullableView visible={pickerMedias.length === 0}>
-							<FansView
-								alignItems="center"
-								justifyContent="center"
-								height="full"
-							>
-								<TouchableOpacity onPress={handleClickPicker}>
-									<FansView
-										style={tw.style(
-											"h-[162px] w-70",
-											"border border-fans-grey-dark border-dashed rounded-[7px]",
-											"flex justify-center items-center",
-										)}
-									>
-										<FansSvg
-											width={77.44}
-											height={70.96}
-											svg={Photos1Svg}
-										/>
-										<FansGap height={13.3} />
-										<FansText
-											style={tw.style("text-[17px]")}
-										>
-											Drop image here or{" "}
-											<FansText
-												style={tw.style(
-													"font-inter-semibold",
-													"text-[17px] text-fans-purple",
-												)}
-											>
-												browse
-											</FansText>
-										</FansText>
-									</FansView>
-								</TouchableOpacity>
-								<FansView style={tw.style("w-70 mt-5")}>
-									<RoundButton onPress={handleClickPicker}>
-										Pick from computer
-									</RoundButton>
-								</FansView>
-							</FansView>
+							<FileDropzone onPress={handleClickPicker} />
 						</FypNullableView>
 						{pickerMedias.length > 0 && (
 							<FypNullableView visible={pickerMedias.length > 0}>
@@ -456,7 +455,12 @@ const ThumbnailScreen: FC<Props> = (props) => {
 									dispatch={dispatch}
 								/>
 								<FypNullableView
-									visible={type === PostType.Photo}
+									// visible={type === PostType.Photo}
+									visible={
+										pickerMedias[carouselIndex] &&
+										pickerMedias[carouselIndex].type ===
+											MediaType.Image
+									}
 								>
 									<FansIconButton
 										size={40}

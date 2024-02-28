@@ -141,10 +141,10 @@ const SubscribeDialog: FC = () => {
 			};
 
 			const getPaidPostPriceData = async () => {
-				if (!message) return;
+				if (!post) return;
 
 				const paidPostPriceData = await getPaidPostPrice({
-					id: message.id,
+					id: post.id,
 					customerPaymentProfileId: payment,
 				});
 				if (paidPostPriceData.ok) {

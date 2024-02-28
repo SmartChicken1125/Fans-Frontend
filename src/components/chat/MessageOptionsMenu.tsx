@@ -11,7 +11,6 @@ import tw from "@lib/tailwind";
 import { Colors } from "@usertypes/enums";
 import { IMessage } from "@usertypes/types";
 import useClipboard from "@utils/useClipboard";
-import { createURL } from "expo-linking";
 import React, { useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Menu } from "react-native-paper";
@@ -38,8 +37,7 @@ export const MessageOptionsMenu = ({
 	const onClose = () => hide();
 
 	const onCopy = async () => {
-		const url = createURL(message.content);
-		await copyString(url);
+		await copyString(message.content);
 		Toast.show({
 			type: "success",
 			text1: "Message copied",
@@ -67,32 +65,32 @@ export const MessageOptionsMenu = ({
 			ref={ref}
 			action="press"
 			position={isSelf ? "left" : "right"}
-			style={tw.style("w-100")}
+			style={tw.style("w-auto")}
 			content={
 				<View style={tw.style("bg-fans-black-1d rounded-[10px] p-2")}>
-					<View style={tw.style("flex-row justify-evenly")}>
+					<View style={tw.style("flex-row")}>
 						<FansText
 							onPress={onCopy}
-							style={tw.style("text-white text-sm ml-1")}
+							style={tw.style("text-white text-sm ml-1 mr-2")}
 						>
 							Copy
 						</FansText>
-						<FansText style={tw.style("text-white text-sm")}>
+						<FansText style={tw.style("text-white text-sm mr-2")}>
 							Like
 						</FansText>
 						<FansText
-							style={tw.style("text-white text-sm")}
+							style={tw.style("text-white text-sm mr-2")}
 							onPress={onReply}
 						>
 							Reply
 						</FansText>
-						<FansText style={tw.style("text-white text-sm")}>
+						<FansText style={tw.style("text-white text-sm mr-2")}>
 							Pin
 						</FansText>
 						{isSelf && (
 							<FansText
 								onPress={onUnsend}
-								style={tw.style("text-white text-sm")}
+								style={tw.style("text-white text-sm mr-2")}
 							>
 								Unsend
 							</FansText>

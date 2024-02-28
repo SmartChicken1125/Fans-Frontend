@@ -212,7 +212,7 @@ const PostsHomeScreen = (
 			setOpenPostActions(false);
 			setPosts({
 				...posts,
-				page: 1,
+				posts: posts.posts.filter((p) => p.id !== selectedPostId),
 			});
 		}
 	};

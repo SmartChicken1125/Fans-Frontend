@@ -118,6 +118,7 @@ const NewFundraiserPostScreen = (
 				data: {
 					visible: true,
 					postId: resp.data.id,
+					postType: PostType.Fundraiser,
 				},
 			});
 			router.push({
