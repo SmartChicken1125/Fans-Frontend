@@ -164,6 +164,7 @@ export enum IconTypes {
 	Edit = "Edit",
 	Statistics = "Statistics",
 	Vault = "Vault",
+	Replace = "Replace",
 }
 
 export enum PostStepTypes {
@@ -216,6 +217,8 @@ export enum ReportType {
 export enum PaymentMethodType {
 	PayPal = "PayPal",
 	Bank = "Bank",
+	Payoneer = "Payoneer",
+	Revolut = "Revolut",
 }
 
 export enum DurationType {

@@ -2,8 +2,6 @@ export { default as EditProfileScreen } from "./editProfileScreen";
 export { default as SocialMediaLinkInput } from "./addSocialMediaLinksScreen";
 export { default as AddCoverImagesScreen } from "./addCoverImagesScreen";
 export { default as FansLevelsScreen } from "./fansLevelsScreen";
-export { default as GetPaidScreen } from "./getPaidScreen";
-export { default as PayoutSetupScreen } from "./payoutSetupScreen";
 export { default as PreviewScreen } from "./previewScreen";
 export { default as SubscriptionScreen } from "./subscriptionScreen";
 export { default as BundleScreen } from "./bundleScreen";

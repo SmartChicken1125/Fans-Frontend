@@ -150,6 +150,15 @@ const LoginScreen = () => {
 				username: resp.data.username,
 				email: resp.data.email,
 			});
+
+			if (!resp.data.verifiedAt) {
+				router.push({
+					pathname: "/auth/verifyAccount",
+					params: {
+						otpType: OTPPageTypes.VerifyAccountOTP,
+					},
+				});
+			}
 		}
 	};
 
@@ -175,15 +184,6 @@ const LoginScreen = () => {
 			router.replace(redirectUrl);
 		} else {
 			Toast.show({ type: "error", text1: resp.data.message });
-			if (resp.data.code === 2011) {
-				router.push({
-					pathname: "/auth/verifyAccount",
-					params: {
-						otpType: OTPPageTypes.VerifyAccountOTP,
-						email,
-					},
-				});
-			}
 			setAuth(undefined);
 			setStorage(StorageKeyTypes.AccessToken, null);
 			setObjectStorage(StorageKeyTypes.UserInfo, null);
@@ -192,7 +192,7 @@ const LoginScreen = () => {
 	};
 
 	const handleForgot = () => {
-		router.push("/auth/resetPassword");
+		router.push("/auth/forgotPassword");
 	};
 
 	const handleSignup = () => {

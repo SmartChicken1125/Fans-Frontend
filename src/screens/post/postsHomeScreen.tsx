@@ -64,7 +64,12 @@ import { ICardAction, IPost, IProfile } from "@usertypes/types";
 import useClipboard from "@utils/useClipboard";
 import useDocumentPicker from "@utils/useDocumentPicker";
 import { createURL } from "expo-linking";
-import { useRouter, useFocusEffect, useGlobalSearchParams } from "expo-router";
+import {
+	useRouter,
+	useFocusEffect,
+	useGlobalSearchParams,
+	usePathname,
+} from "expo-router";
 import React, { Fragment, useEffect, useState } from "react";
 import {
 	NativeScrollEvent,
@@ -83,6 +88,7 @@ const PostsHomeScreen = (
 	const router = useRouter();
 	const { screen } = useGlobalSearchParams();
 	const insets = useSafeAreaInsets();
+	const pathname = usePathname();
 	const { useImagePicker } = useDocumentPicker();
 	const { copyString } = useClipboard();
 	const { state, dispatch } = useAppContext();
@@ -438,7 +444,7 @@ const PostsHomeScreen = (
 	}, [state.posts.modal.visible]);
 
 	useFocusEffect(() => {
-		if (screen && screen !== "Home") {
+		if (pathname === "/posts" && screen && screen !== "Home") {
 			router.replace({ pathname: "posts", params: { screen: "Home" } });
 		}
 	});

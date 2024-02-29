@@ -90,7 +90,9 @@ const MembershipSection = () => {
 
 	return (
 		<FansView
-			style={tw.style("min-h-screen pb-[22px] md:pb-10 md:pt-10")}
+			style={tw.style(
+				"md:min-h-screen pb-[72px] pt-[50px] md:pb-0 md:pt-10",
+			)}
 			alignItems="center"
 			justifyContent="center"
 			padding={{ x: 18 }}
@@ -582,6 +584,7 @@ const CreatorCard: FC<CreatorProps> = (props) => {
 				/>
 			</FansView>
 			<FansView
+				flex="1"
 				style={tw.style(
 					"pt-[14px] px-4 pb-5 md:pt-[18px] md:px-4 md:pb-[24px]",
 				)}
@@ -605,7 +608,12 @@ const CreatorCard: FC<CreatorProps> = (props) => {
 					{description}
 				</FypText>
 				<FypNullableView visible={!!count}>
-					<FansView flexDirection="row" alignItems="center" gap={5}>
+					<FansView
+						flexDirection="row"
+						alignItems="center"
+						gap={5}
+						style={tw.style("mt-auto")}
+					>
 						{/* <FypSvg svg={Gem2Image} width={16} height={15} /> */}
 						<Image
 							source={{
@@ -638,7 +646,8 @@ const CreatorsSection = () => {
 			background="fans-white"
 			justifyContent="center"
 			style={tw.style(
-				"min-h-screen md:px-5 lg:px-[60px] xl:px-[148px] md:py-10",
+				"md:min-h-screen md:px-5 lg:px-[60px] xl:px-[148px]",
+				"pt-9 pb-10 md:pt-10",
 			)}
 		>
 			<FansView>
@@ -731,7 +740,7 @@ const CreatorsSection = () => {
 				</ScrollView>
 				<FansView
 					flexDirection="row"
-					gap={63}
+					gap={{ md: 24, lg: 63 }}
 					style={tw.style("hidden md:flex")}
 				>
 					{creatorsData
@@ -933,7 +942,7 @@ const BannerSection = () => {
 		<FansView
 			position="relative"
 			style={tw.style(
-				"pb-4 md:pb-0 pt-0 md:pt-[86px] min-h-screen justify-end md:justify-center",
+				"pb-4 md:pb-0 pt-[327px] md:pt-[86px] md:min-h-screen md:justify-center",
 			)}
 		>
 			<Image
@@ -1283,9 +1292,9 @@ const SmarterSection = () => {
 			position="relative"
 			gap={{ xs: 58, lg: 133 }}
 			style={tw.style(
-				"min-h-screen flex-col-reverse lg:flex-row justify-center lg:justify-between lg:items-center",
+				"md:min-h-screen flex-col-reverse lg:flex-row md:justify-center lg:justify-between lg:items-center",
 				"px-[18px] md:px-5 lg:px-[60px] xl:px-[148px]",
-				"md:py-10 lg:py-0",
+				"pt-[50px] pb-[72px] md:pt-10 md:pb-10 lg:py-0",
 			)}
 		>
 			<FypLinearGradientView
@@ -1374,9 +1383,9 @@ const EarningsSection = () => {
 			position="relative"
 			gap={{ xs: 80, lg: 109 }}
 			style={tw.style(
-				"bg-fans-black-1d min-h-screen lg:flex-row justify-center lg:justify-between lg:items-center",
+				"bg-fans-black-1d md:min-h-screen lg:flex-row justify-center lg:justify-between lg:items-center",
 				"px-[18px] md:px-5 lg:px-[60px] xl:px-[148px]",
-				"md:py-10 lg:py-0",
+				"pt-25 pb-12 md:pt-10 md:pb-10 lg:py-0",
 			)}
 		>
 			<FansView
@@ -1456,9 +1465,9 @@ const SmartDataSection = () => {
 			position="relative"
 			gap={{ xs: 55, lg: 0 }}
 			style={tw.style(
-				"min-h-screen flex-col-reverse lg:flex-row justify-center lg:justify-between",
+				"md:min-h-screen flex-col-reverse lg:flex-row justify-center lg:justify-between",
 				"px-[18px] md:px-5 lg:px-[60px] xl:px-[148px]",
-				"md:py-10 lg:py-0",
+				"pt-[62px] pb-[38px] md:py-10 lg:py-0",
 			)}
 		>
 			<FypLinearGradientView
@@ -1535,13 +1544,13 @@ const SmartDataSection = () => {
 			</FansView>
 			<FansView
 				style={tw.style(
-					"md:flex-1 lg:w-[41%] md:mt-auto md:max-w-[670px]",
+					"lg:w-[41%] md:mt-auto items-center lg:items-start",
 				)}
 			>
 				<FansView
 					width="full"
 					height={{ xs: 313, sm: 450, lg: imgRate * imgWidth }}
-					style={tw.style("md:ml-5")}
+					style={tw.style("lg:ml-5 w-full md:max-w-[670px]")}
 					onLayout={(e) => setImgWidth(e.nativeEvent.layout.width)}
 				>
 					<Image
@@ -1601,7 +1610,7 @@ const PlatformsSection = () => {
 	return (
 		<FansView
 			style={tw.style(
-				"min-h-screen bg-fans-black-1d justify-center",
+				"md:min-h-screen bg-fans-black-1d justify-center",
 				"px-[18px] md:px-5 lg:px-[60px] xl:px-[148px]",
 				"pt-[50px] pb-12 lg:pt-0 lg:pb-0",
 			)}
@@ -1794,7 +1803,7 @@ const FaqSection = () => {
 	return (
 		<FansView
 			style={tw.style(
-				"min-h-screen justify-center",
+				"md:min-h-screen justify-center",
 				"px-[18px] md:px-5 lg:px-[60px] xl:px-[148px]",
 				"pt-[68px] pb-[58px]",
 			)}
@@ -2145,12 +2154,12 @@ const FirstStepToSuccess = () => {
 				</FypText>
 				<FansGap height={{ xs: 36, md: 130 }} />
 				<FansView
-					gap={{ xs: 36, md: 0 }}
-					style={tw.style("md:flex-row md:items-center")}
+					gap={{ xs: 36, lg: 0 }}
+					style={tw.style("lg:flex-row lg:items-center")}
 				>
 					<FansView
 						flex="1"
-						style={tw.style("items-center md:items-end md:pr-20")}
+						style={tw.style("items-center lg:items-end lg:pr-20")}
 					>
 						<FansView
 							width={{ xs: 264, md: 450 }}
@@ -2200,7 +2209,7 @@ const FirstStepToSuccess = () => {
 					>
 						<SuccessStepMilestone step={0} />
 
-						<FansView flex="1" style={tw.style("md:max-w-[570px]")}>
+						<FansView flex="1" style={tw.style("lg:max-w-[570px]")}>
 							<FypText
 								fontSize={{ xs: 17, md: 31 }}
 								lineHeight={{ xs: 22, md: 41 }}
@@ -2264,12 +2273,12 @@ const SecondStepToSuccess = () => {
 				</FypText>
 				<FansGap height={{ xs: 36, md: 130 }} />
 				<FansView
-					gap={{ xs: 36, md: 0 }}
-					style={tw.style("md:flex-row md:items-center")}
+					gap={{ xs: 36, lg: 0 }}
+					style={tw.style("lg:flex-row lg:items-center")}
 				>
 					<FansView
 						flex="1"
-						style={tw.style("items-center md:items-end md:pr-20")}
+						style={tw.style("items-center lg:items-end lg:pr-20")}
 					>
 						<FansView
 							width={{ xs: 264, md: 444 }}
@@ -2319,7 +2328,7 @@ const SecondStepToSuccess = () => {
 					>
 						<SuccessStepMilestone step={1} />
 
-						<FansView flex="1" style={tw.style("md:max-w-[570px]")}>
+						<FansView flex="1" style={tw.style("lg:max-w-[570px]")}>
 							<FypText
 								fontSize={{ xs: 17, md: 31 }}
 								lineHeight={{ xs: 22, md: 41 }}
@@ -2374,12 +2383,12 @@ const ThirdStepToSuccess = () => {
 				</FypText>
 				<FansGap height={{ xs: 36, md: 130 }} />
 				<FansView
-					gap={{ xs: 36, md: 0 }}
-					style={tw.style("md:flex-row md:items-center")}
+					gap={{ xs: 36, lg: 0 }}
+					style={tw.style("lg:flex-row lg:items-center")}
 				>
 					<FansView
 						flex="1"
-						style={tw.style("items-center md:items-end md:pr-20")}
+						style={tw.style("items-center lg:items-end lg:pr-20")}
 					>
 						<FansView
 							width={{ xs: 264, md: 445 }}
@@ -2429,7 +2438,7 @@ const ThirdStepToSuccess = () => {
 					>
 						<SuccessStepMilestone step={2} />
 
-						<FansView flex="1" style={tw.style("md:max-w-[570px]")}>
+						<FansView flex="1" style={tw.style("lg:max-w-[570px]")}>
 							<FypText
 								fontSize={{ xs: 17, md: 31 }}
 								lineHeight={{ xs: 22, md: 41 }}

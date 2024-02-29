@@ -4,11 +4,9 @@ import { SUBSCRIBE_LOGIN_DIALOG_ID } from "@constants/modal";
 import { IAppDispatch } from "@context/appContext";
 import { ModalState } from "@context/state/modalState";
 import { CommonActionType } from "@context/useAppContext";
-import { atoburl } from "@helper/Utils";
 import {
 	authResendVerifyCode,
 	authVerifyAccount,
-	authVerifyRegister,
 } from "@helper/endpoints/auth/apis";
 import tw from "@lib/tailwind";
 import { OTPPageTypes, StorageKeyTypes } from "@usertypes/commonEnums";
@@ -44,10 +42,6 @@ const VerifyAccountView: FC<Props> = (_props) => {
 		otpType: OTPPageTypes;
 	}>;
 
-	const email = !!modal && modal.payload?.email;
-	const username = !!modal && modal.payload?.username;
-	const password = !!modal && modal.payload?.password;
-
 	const [value, setValue] = useState<string>("");
 	const [loading, setLoading] = useState<boolean>(false);
 	const [submitted, setSubmitted] = useState<boolean>(false);
@@ -63,50 +57,12 @@ const VerifyAccountView: FC<Props> = (_props) => {
 		setSubmitted(true);
 		if (value.length !== 6) {
 			setValidateStr("Please enter a valid code.");
-		} else if (!email) {
-			setValidateStr("Please enter a valid email.");
 		} else {
 			setLoading(true);
-			if (!username || !password) {
-				authVerifyAccount({
-					email,
-					code: value,
-				})
-					.then(async (resp) => {
-						if (!resp.ok) {
-							Toast.show({
-								type: "error",
-								text1: resp.data.message,
-							});
-							setLoading(false);
-							return;
-						}
-
-						const token = resp.data.token;
-						await setStorage(StorageKeyTypes.AccessToken, token);
-
-						await dispatch.fetchProfile();
-						await dispatch.fetchUserInfo();
-
-						setLoading(false);
-						handleClose();
-						dispatch.setCommon({
-							type: CommonActionType.toggleSubscribeModal,
-							data: {
-								visible: true,
-							},
-						});
-					})
-					.finally(() => {
-						setLoading(false);
-					});
-			} else {
-				authVerifyRegister({
-					code: value,
-					email,
-					username,
-					password: atoburl(password),
-				}).then(async (resp) => {
+			authVerifyAccount({
+				code: value,
+			})
+				.then(async (resp) => {
 					if (!resp.ok) {
 						Toast.show({
 							type: "error",
@@ -130,38 +86,33 @@ const VerifyAccountView: FC<Props> = (_props) => {
 							visible: true,
 						},
 					});
-				});
-			}
-		}
-	};
-
-	const handleResend = () => {
-		setLoading(true);
-		if (!email) {
-			setValidateStr("Please enter a valid email.");
-		} else {
-			authResendVerifyCode({
-				email,
-				username,
-			})
-				.then((resp) => {
-					if (!resp.ok) {
-						Toast.show({
-							type: "error",
-							text1: resp.data.message,
-						});
-						return;
-					}
-
-					Toast.show({
-						type: "success",
-						text1: "Verification code has been sent to your email!",
-					});
 				})
 				.finally(() => {
 					setLoading(false);
 				});
 		}
+	};
+
+	const handleResend = () => {
+		setLoading(true);
+		authResendVerifyCode({})
+			.then((resp) => {
+				if (!resp.ok) {
+					Toast.show({
+						type: "error",
+						text1: resp.data.message,
+					});
+					return;
+				}
+
+				Toast.show({
+					type: "success",
+					text1: "Verification code has been sent to your email!",
+				});
+			})
+			.finally(() => {
+				setLoading(false);
+			});
 	};
 
 	const handleTryAnotherEmail = () => {

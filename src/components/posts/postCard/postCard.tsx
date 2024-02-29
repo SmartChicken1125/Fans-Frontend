@@ -36,11 +36,10 @@ import CardHeader from "./cardHeader";
 import Fundraiser from "./fundraiser";
 import FundraiserContent from "./fundraiserContent";
 import Giveaway from "./giveaway";
-import ImageContent from "./imageContent";
+import MediaContent from "./mediaContent";
 import Poll from "./poll";
 import PollContent from "./pollContent";
 import TextContent from "./textContent";
-import VideoContent from "./videoContent";
 
 interface Props {
 	data: IPost;
@@ -369,19 +368,7 @@ const PostCard: FC<Props> = (props) => {
 			</FypNullableView>
 
 			<FansView position="relative">
-				{(data.type === PostType.Video ||
-					(data.type === PostType.Media &&
-						data.medias[0].type === "Video")) && (
-					<VideoContent data={data} />
-				)}
-				{(data.type === PostType.Photo ||
-					(data.type === PostType.Media &&
-						data.medias[0].type === "Image")) && (
-					<ImageContent
-						data={data}
-						onClickMedia={handleOpenMediaModal}
-					/>
-				)}
+				{data.type === PostType.Media && <MediaContent data={data} />}
 				{data.type === PostType.Audio && <AudioContent data={data} />}
 				{data.type === PostType.Fundraiser && (
 					<FundraiserContent data={data} />

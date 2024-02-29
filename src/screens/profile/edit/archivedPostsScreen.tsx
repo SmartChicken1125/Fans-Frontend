@@ -1,10 +1,10 @@
-import { FypVideo } from "@components/common/base";
 import CustomTopNavBar from "@components/common/customTopNavBar";
 import AppLayout, { LayoutContentsContainer } from "@components/common/layout";
 import SearchTextInput from "@components/common/searchTextInput";
 import Tabs from "@components/common/tabs";
 import { ArchivedPostActions } from "@components/profiles";
 import { useAppContext } from "@context/useAppContext";
+import { decodeToDataURL } from "@helper/BlurHash";
 import { cdnURL } from "@helper/Utils";
 import {
 	deletePostById,
@@ -16,7 +16,7 @@ import { deleteStory, getStories } from "@helper/endpoints/stories/apis";
 import { StoriesRespBody } from "@helper/endpoints/stories/schemas";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { PostType, ResizeMode } from "@usertypes/commonEnums";
+import { PostType } from "@usertypes/commonEnums";
 import { ProfileNavigationStacks } from "@usertypes/navigations";
 import { IPostFilterQuery } from "@usertypes/params";
 import React, { useEffect, useState } from "react";
@@ -211,6 +211,7 @@ const ArchivedPostsScreen = (
 	useEffect(() => {
 		fetchArchivedPosts();
 	}, [posts.page]);
+
 	return (
 		<AppLayout
 			title="Edit Profile | FYP.Fans"
@@ -276,20 +277,17 @@ const ArchivedPostsScreen = (
 											}
 										>
 											{post.type === PostType.Video ? (
-												<FypVideo
+												<Image
 													source={{
-														uri:
-															cdnURL(
-																post.medias[0]
-																	.url,
-															) ?? "",
+														uri: decodeToDataURL(
+															post.medias[0]
+																.blurhash,
+														),
 													}}
-													resizeMode={
-														ResizeMode.CONTAIN
-													}
 													style={tw.style(
 														"w-full h-full",
 													)}
+													resizeMode="cover"
 												/>
 											) : (
 												<Image

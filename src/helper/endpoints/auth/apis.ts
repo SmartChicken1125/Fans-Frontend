@@ -5,6 +5,7 @@ import {
 	createPOSTWithParams,
 } from "@helper/RequesterBase";
 import {
+	AuthCheckResetPasswordReqBody,
 	AuthForgotPasswordReqBody,
 	AuthOAuth2AuthorizeReqBody,
 	AuthOAuth2AuthorizeReqParams,
@@ -18,7 +19,6 @@ import {
 	AuthResetPasswordReqBody,
 	AuthUserInfoRespBody,
 	AuthVerifyCodeReqBody,
-	AuthVerifyRegisterReqBody,
 	TokenRespBody,
 } from "./schemas";
 
@@ -26,9 +26,10 @@ export const authLogin = createPOST<AuthPasswordLoginReqBody, TokenRespBody>(
 	"/auth/login",
 );
 
-export const authRegister = createPOST<AuthPasswordRegisterReqBody, never>(
-	"/auth/register",
-);
+export const authRegister = createPOST<
+	AuthPasswordRegisterReqBody,
+	TokenRespBody
+>("/auth/register");
 
 export const authLogout = createPOST<null, null>("/auth/logout", true);
 
@@ -45,23 +46,24 @@ export const authVerifyCode = createPOST<AuthVerifyCodeReqBody, TokenRespBody>(
 	"/auth/verify-code",
 );
 
-export const authResetPassword = createPOST<AuthResetPasswordReqBody, never>(
-	"/auth/reset-password",
-	true,
-);
+export const authResetPassword = createPOST<
+	AuthResetPasswordReqBody,
+	TokenRespBody
+>("/auth/reset-password");
+
+export const authCheckResetPassword = createPOST<
+	AuthCheckResetPasswordReqBody,
+	never
+>("/auth/check-reset-password");
 
 export const authVerifyAccount = createPOST<
 	AuthVerifyCodeReqBody,
 	TokenRespBody
->("/auth/verify-account");
-
-export const authVerifyRegister = createPOST<
-	AuthVerifyRegisterReqBody,
-	TokenRespBody
->("/auth/verify-register");
+>("/auth/verify-account", true);
 
 export const authResendVerifyCode = createPOST<AuthResendReqBody, never>(
 	"/auth/resend-verify-code",
+	true,
 );
 
 export const authOAuth2Authorize = createPOSTWithParams<

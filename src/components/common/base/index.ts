@@ -20,3 +20,4 @@ export { FypRadio } from "./radio";
 export { default as FypStepper } from "./stepper";
 export { default as FypCheckbox } from "./checkbox";
 export { default as FypSortButton } from "./sortButton";
+export { default as FypRotateIcon } from "./rotateIcon";

@@ -248,6 +248,12 @@ const ThumbnailScreen: FC<Props> = (props) => {
 		offset.value = carouselIndex;
 	}, [carouselIndex]);
 
+	useEffect(() => {
+		if (pickerMedias.length >= 0 && type === PostType.Media) {
+			handleSubmit();
+		}
+	}, [pickerMedias, type]);
+
 	return (
 		<FansView
 			style={tw.style(

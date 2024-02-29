@@ -28,8 +28,6 @@ import {
 	CategoriesScreen,
 	EditProfileScreen,
 	FansLevelsScreen,
-	GetPaidScreen,
-	PayoutSetupScreen,
 	PlaylistScreen,
 	PreviewScreen,
 	ProfileAddPostsScreen,
@@ -45,6 +43,7 @@ import {
 	HighlightSelectImagesScreen,
 	HighlightsScreen,
 } from "./highlights";
+import { GetPaidScreen, PayoutSetupScreen } from "./payouts";
 import PurchasesScreen from "./purchasesScreen";
 
 const Stack = createNativeStackNavigator<ProfileNavigationStacks>();

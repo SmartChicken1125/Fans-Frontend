@@ -5,16 +5,12 @@ import TextButton from "@components/common/TextButton";
 import { FypText, FypSvg } from "@components/common/base";
 import { FansSvg } from "@components/controls";
 import { useAppContext } from "@context/useAppContext";
-import { atoburl } from "@helper/Utils";
 import {
 	authResendVerifyCode,
 	authVerifyAccount,
-	authVerifyRegister,
 } from "@helper/endpoints/auth/apis";
 import tw from "@lib/tailwind";
-import { OTPPageTypes, StorageKeyTypes } from "@usertypes/commonEnums";
-import { setStorage, takeVolatileStorage } from "@utils/storage";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { ImageBackground, Pressable, ScrollView, View } from "react-native";
 import {
@@ -30,12 +26,6 @@ const VerifyAccountScreen = () => {
 	const router = useRouter();
 	const { dispatch } = useAppContext();
 
-	const { email, username, password, otpType } = useLocalSearchParams<{
-		email: string;
-		username?: string;
-		password?: string;
-		otpType: OTPPageTypes;
-	}>();
 	const [value, setValue] = useState<string>("");
 	const [loading, setLoading] = useState<boolean>(false);
 	const [submitted, setSubmitted] = useState<boolean>(false);
@@ -51,52 +41,12 @@ const VerifyAccountScreen = () => {
 		setSubmitted(true);
 		if (value.length !== 6) {
 			setValidateStr("Please enter a valid code.");
-		} else if (!email) {
-			setValidateStr("Please enter a valid email.");
 		} else {
 			setLoading(true);
-			if (!username || !password) {
-				authVerifyAccount({
-					email,
-					code: value,
-				})
-					.then(async (resp) => {
-						if (!resp.ok) {
-							Toast.show({
-								type: "error",
-								text1: "Invalid verification code.",
-							});
-							setLoading(false);
-							return;
-						}
-
-						Toast.show({
-							type: "success",
-							text1: "Your account has been activated successfully.",
-						});
-
-						const token = resp.data.token;
-						await setStorage(StorageKeyTypes.AccessToken, token);
-
-						await dispatch.fetchUserInfo();
-
-						setLoading(false);
-						// router.replace("/");
-						router.replace({
-							pathname: "profile",
-							params: { screen: "ProfileName" },
-						});
-					})
-					.finally(() => {
-						setLoading(false);
-					});
-			} else {
-				authVerifyRegister({
-					code: value,
-					email,
-					username,
-					password: atoburl(password),
-				}).then(async (resp) => {
+			authVerifyAccount({
+				code: value,
+			})
+				.then(async (resp) => {
 					if (!resp.ok) {
 						Toast.show({
 							type: "error",
@@ -105,54 +55,47 @@ const VerifyAccountScreen = () => {
 						setLoading(false);
 						return;
 					}
+
 					Toast.show({
 						type: "success",
-						text1: "Your account has been created successfully.",
+						text1: "Your account has been activated successfully.",
 					});
-					const token = resp.data.token;
-					await setStorage(StorageKeyTypes.AccessToken, token);
 
 					await dispatch.fetchUserInfo();
 
 					setLoading(false);
-
-					const redirectUrl =
-						takeVolatileStorage(
-							StorageKeyTypes.RedirectAfterLogin,
-						) ?? "/posts";
-					router.replace(redirectUrl);
-				});
-			}
-		}
-	};
-
-	const handleResend = () => {
-		setLoading(true);
-		if (!email) {
-			setValidateStr("Please enter a valid email.");
-		} else {
-			authResendVerifyCode({
-				email,
-				username,
-			})
-				.then((resp) => {
-					if (!resp.ok) {
-						Toast.show({
-							type: "error",
-							text1: resp.data.message,
-						});
-						return;
-					}
-
-					Toast.show({
-						type: "success",
-						text1: "Verification code has been sent to your email!",
+					// router.replace("/");
+					router.replace({
+						pathname: "profile",
+						params: { screen: "ProfileName" },
 					});
 				})
 				.finally(() => {
 					setLoading(false);
 				});
 		}
+	};
+
+	const handleResend = () => {
+		setLoading(true);
+		authResendVerifyCode({})
+			.then((resp) => {
+				if (!resp.ok) {
+					Toast.show({
+						type: "error",
+						text1: resp.data.message,
+					});
+					return;
+				}
+
+				Toast.show({
+					type: "success",
+					text1: "Verification code has been sent to your email!",
+				});
+			})
+			.finally(() => {
+				setLoading(false);
+			});
 	};
 
 	const handleTryAnotherEmail = () => {

@@ -150,20 +150,6 @@ const LoginView: FC<Props> = (props) => {
 			});
 		} else {
 			Toast.show({ type: "error", text1: resp.data.message });
-			if (resp.data.code === 2011) {
-				dispatch.setModal({
-					type: ModalActionType.showModal,
-					data: {
-						id: SUBSCRIBE_LOGIN_DIALOG_ID,
-						show: true,
-						payload: {
-							tab: "verify-account",
-							email: email,
-							avatar,
-						},
-					},
-				});
-			}
 			setAuth(undefined);
 			setStorage(StorageKeyTypes.AccessToken, null);
 			setObjectStorage(StorageKeyTypes.UserInfo, null);

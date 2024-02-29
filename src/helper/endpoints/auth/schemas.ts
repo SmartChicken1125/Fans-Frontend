@@ -29,24 +29,21 @@ export interface AuthForgotPasswordReqBody {
 
 export interface AuthVerifyCodeReqBody {
 	code: string;
-	email: string;
-}
-
-export interface AuthVerifyRegisterReqBody {
-	code: string;
-	email: string;
-	username: string;
-	password: string;
+	email?: string;
 }
 
 export interface AuthResendReqBody {
-	email: string;
+	email?: string;
 	username?: string;
 }
 
 export interface AuthResetPasswordReqBody {
-	email: string;
+	code: string;
 	password: string;
+}
+
+export interface AuthCheckResetPasswordReqBody {
+	code: string;
 }
 
 export type AuthUserInfoRespBody = IUserInfo & {
@@ -56,6 +53,7 @@ export type AuthUserInfoRespBody = IUserInfo & {
 	gemsAmount: number;
 	payoutBalance: number;
 	bookmarkPostIds: string[];
+	verifiedAt?: string;
 };
 
 export interface AuthOAuth2AuthorizeReqParams {

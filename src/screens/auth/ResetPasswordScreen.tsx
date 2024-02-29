@@ -1,14 +1,21 @@
 import { ChevronLeftSvg, TitleSvg } from "@assets/svgs/common";
 import FormControl from "@components/common/FormControl";
 import RoundButton from "@components/common/RoundButton";
-import { FypText, FypSvg } from "@components/common/base";
+import TextButton from "@components/common/TextButton";
+import { FypModal, FypText, FypSvg } from "@components/common/base";
 import CustomTopNavBar from "@components/common/customTopNavBar";
+import { FansView } from "@components/controls";
 import { useAppContext } from "@context/useAppContext";
-import { authForgotPassword } from "@helper/endpoints/auth/apis";
+import {
+	authCheckResetPassword,
+	authResetPassword,
+} from "@helper/endpoints/auth/apis";
 import tw from "@lib/tailwind";
-import { validateEmail } from "@utils/validateHelper";
-import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { StorageKeyTypes } from "@usertypes/commonEnums";
+import { setStorage } from "@utils/storage";
+import { validateResetPassword } from "@utils/validateHelper";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { FC, useEffect, useState } from "react";
 import {
 	ImageBackground,
 	Pressable,
@@ -19,55 +26,131 @@ import {
 import Spinner from "react-native-loading-spinner-overlay";
 import Toast from "react-native-toast-message";
 
+interface SuccessDialogProps {
+	visible: boolean;
+	onDismiss: () => void;
+}
+
+export const SuccessDialog: FC<SuccessDialogProps> = (props) => {
+	const { visible, onDismiss } = props;
+	const router = useRouter();
+
+	const onPressOk = () => {
+		onDismiss();
+		router.push("/auth/login");
+	};
+
+	return (
+		<FypModal
+			visible={visible}
+			onDismiss={onDismiss}
+			width={{ xs: "full", lg: 600 }}
+		>
+			<FansView gap={16} padding={{ t: 36, b: 12, x: 24 }}>
+				<FypText
+					fontSize={24}
+					lineHeight={32}
+					fontWeight={600}
+					textAlign="center"
+				>
+					Your password changed successfully
+				</FypText>
+				<FypText fontSize={18} lineHeight={28} textAlign="center">
+					Please login with new password
+				</FypText>
+				<View
+					style={tw.style(
+						"flex-row gap-4 items-center justify-center",
+					)}
+				>
+					<RoundButton onPress={onPressOk}>Ok</RoundButton>
+				</View>
+			</FansView>
+		</FypModal>
+	);
+};
+
 const ResetPasswordScreen = () => {
 	const router = useRouter();
+	const { code } = useLocalSearchParams<{ code: string }>();
+	const [isCodeValid, setIsCodeValid] = useState<boolean | undefined>(
+		undefined,
+	);
 	const { dispatch } = useAppContext();
-	const [email, setEmail] = useState<string>("");
+	const [password, setPassword] = useState<string>("");
+	const [confirmPassword, setConfirmPassword] = useState<string>("");
 	const [submitted, setSubmitted] = useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(false);
+	const [isShowDlg, setIsShowDlg] = useState(false);
 
 	useEffect(() => {
-		setEmail("");
-	}, []);
-
-	const handleSendEmail = () => {
-		setSubmitted(true);
-		if (validateEmail(email).length > 0) return;
-
-		setLoading(true);
-		authForgotPassword({ email })
-			.then((resp) => {
-				if (!resp.ok) {
-					Toast.show({ type: "error", text1: resp.data.message });
-					return;
-				}
-
-				router.push({
-					pathname: "/auth/checkYourEmail",
-					params: { email },
+		setIsCodeValid(undefined);
+		if (code) {
+			authCheckResetPassword({ code })
+				.then((resp) => {
+					setIsCodeValid(resp.ok);
+				})
+				.catch(() => {
+					setIsCodeValid(false);
 				});
-			})
-			.finally(() => {
-				setLoading(false);
+		} else {
+			setIsCodeValid(false);
+		}
+	}, [code]);
+
+	const handleResetPassword = () => {
+		if (code) {
+			setSubmitted(true);
+			const validate = validateResetPassword({
+				password,
+				confirmPassword,
 			});
+			if (
+				validate.password.length > 0 ||
+				validate.confirmPassword.length > 0
+			)
+				return;
+			setLoading(true);
+			authResetPassword({ code, password })
+				.then(async (resp) => {
+					setIsShowDlg(true);
+					if (resp.ok) {
+						const token = resp.data.token;
+						await setStorage(StorageKeyTypes.AccessToken, token);
+					}
+				})
+				.catch((err) => {
+					Toast.show({
+						type: "error",
+						text1: "Email does not exist.",
+					});
+				})
+				.finally(() => {
+					setLoading(false);
+				});
+		}
+	};
+
+	const handleForgot = () => {
+		router.push("/auth/forgotPassword");
 	};
 
 	return (
 		<SafeAreaView
-			style={tw`flex-1 bg-white relative dark:bg-fans-black-1d`}
+			style={tw`flex-1 flex relative bg-white dark:bg-fans-black-1d`}
 		>
+			<Spinner
+				visible={loading}
+				overlayColor="rgba(0,0,0,.5)"
+				color="white"
+				textStyle={tw`text-white dark:text-fans-black-1d`}
+			/>
 			<CustomTopNavBar
-				title="Reset password"
+				title="Create new password"
 				onClickLeft={() => router.back()}
 				onClickRight={() => {}}
 				style="md:hidden"
 			/>
-			{/* <Stack.Screen
-				options={{
-					headerShown: true,
-					title: "Reset Password",
-				}}
-			/> */}
 			<ImageBackground
 				source={require("@assets/images/background/auth-bg-2.jpg")}
 				style={tw.style(
@@ -75,10 +158,14 @@ const ResetPasswordScreen = () => {
 				)}
 				resizeMode="cover"
 			/>
-			<ScrollView contentContainerStyle={tw.style("flex-1")}>
+			<ScrollView
+				contentContainerStyle={tw.style(
+					"flex-1 py-6 px-[18px] px-[18px]",
+				)}
+			>
 				<View
 					style={tw.style(
-						"flex-1 md:w-[616px] md:mx-auto md:my-auto md:py-20",
+						"md:w-[616px] md:my-auto md:py-20 md:max-w-none md:mx-auto",
 					)}
 				>
 					<TitleSvg
@@ -87,7 +174,12 @@ const ResetPasswordScreen = () => {
 						style={tw.style("mx-auto hidden md:flex")}
 					/>
 					<View
-						style={tw`flex-1 flex py-6 px-[18px] md:bg-white md:dark:bg-fans-black-1d md:mt-13 md:rounded-[15px] md:px-10 md:mb-10`}
+						style={[
+							tw.style(
+								"md:bg-white md:dark:bg-fans-black-1d md:rounded-[15px] md:px-10 md:pt-9 md:pb-10 md:mt-13 relative",
+							),
+							isCodeValid !== false && tw.style("md:h-[600px]"),
+						]}
 					>
 						<View
 							style={tw.style(
@@ -95,11 +187,11 @@ const ResetPasswordScreen = () => {
 							)}
 						>
 							<FypText
-								style={tw.style(
-									"text-[23px] leading-[31px] font-semibold text-black dark:text-fans-white",
-								)}
+								fontSize={23}
+								lineHeight={31}
+								fontWeight={600}
 							>
-								Reset password
+								Create new password
 							</FypText>
 							<Pressable
 								style={tw.style("absolute left-0 top-2")}
@@ -113,49 +205,105 @@ const ResetPasswordScreen = () => {
 								/>
 							</Pressable>
 						</View>
+						{isCodeValid === undefined && (
+							<Spinner
+								visible={loading}
+								overlayColor="rgba(0,0,0,.5)"
+								color="white"
+								textStyle={tw`text-white dark:text-fans-black-1d`}
+							/>
+						)}
+						{isCodeValid === false && (
+							<>
+								<FypText
+									textAlign="center"
+									fontSize={16}
+									lineHeight={21}
+								>
+									Your password reset link appears to be
+									invalid. Please request a new link below.
+								</FypText>
+								<TextButton
+									customStyle="w-auto mx-auto md:mt-[10px]"
+									onPress={handleForgot}
+								>
+									Request password reset
+								</TextButton>
+							</>
+						)}
+						{isCodeValid === true && (
+							<>
+								<FypText
+									textAlign="center"
+									fontSize={16}
+									lineHeight={21}
+								>
+									Your new password must be different from
+									previous passwords
+								</FypText>
+								<FypText
+									fontSize={17}
+									lineHeight={22}
+									fontWeight={600}
+									margin={{ b: 4, t: 35 }}
+								>
+									New password
+								</FypText>
+								<FormControl
+									placeholder="Password"
+									value={password}
+									onChangeText={setPassword}
+									secureTextEntry={true}
+									hasError={
+										submitted &&
+										validateResetPassword({
+											password,
+											confirmPassword,
+										}).password.length > 0
+									}
+									validateString={
+										validateResetPassword({
+											password,
+											confirmPassword,
+										}).password
+									}
+								/>
+								<FormControl
+									styles={tw`mt-2.5`}
+									label=""
+									placeholder="Confirm password"
+									value={confirmPassword}
+									onChangeText={setConfirmPassword}
+									secureTextEntry={true}
+									hasError={
+										submitted &&
+										validateResetPassword({
+											password,
+											confirmPassword,
+										}).confirmPassword.length > 0
+									}
+									validateString={
+										validateResetPassword({
+											password,
+											confirmPassword,
+										}).confirmPassword
+									}
+								/>
 
-						<FypText
-							fontSize={16}
-							lineHeight={21}
-							textAlign="center"
-						>
-							Enter the email address linked to your account, and
-							we will send you an email with instructions to reset
-							your password.
-						</FypText>
-						<FypText
-							fontSize={17}
-							lineHeight={22}
-							margin={{ b: 14, t: 35 }}
-							fontWeight={600}
-						>
-							Email address
-						</FypText>
-						<FormControl
-							placeholder="e.g hello@fyp.fans"
-							value={email}
-							onChangeText={setEmail}
-							hasError={
-								submitted && validateEmail(email).length > 0
-							}
-							validateString={validateEmail(email)}
-						/>
-
-						<RoundButton
-							customStyles={"mt-[21px] md:mt-4"}
-							onPress={handleSendEmail}
-						>
-							Send email
-						</RoundButton>
+								<RoundButton
+									customStyles={"mt-5"}
+									onPress={handleResetPassword}
+								>
+									Confirm
+								</RoundButton>
+							</>
+						)}
 					</View>
 				</View>
 			</ScrollView>
-
-			<Spinner
-				visible={loading}
-				overlayColor="rgba(0,0,0,.5)"
-				color="white"
-				textStyle={tw`text-white`}
+			<SuccessDialog
+				visible={isShowDlg}
+				onDismiss={() => setIsShowDlg(false)}
 			/>
 		</SafeAreaView>
 	);

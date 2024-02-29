@@ -29,7 +29,7 @@ import {
 	NativeStackNavigationProp,
 	createNativeStackNavigator,
 } from "@react-navigation/native-stack";
-import GetPaidScreen from "@screens/profile/edit/getPaidScreen";
+import GetPaidScreen from "@screens/profile/payouts/getPaidScreen";
 import { useFeatureGates } from "@state/featureGates";
 import { RoundButtonType } from "@usertypes/commonEnums";
 import {

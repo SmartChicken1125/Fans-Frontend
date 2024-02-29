@@ -141,7 +141,7 @@ const SignupView: FC<Props> = (props) => {
 			email: formData.email,
 			password: formData.password,
 		})
-			.then((resp) => {
+			.then(async (resp) => {
 				if (!resp.ok) {
 					const code = resp.data.code;
 					if (code === 1020) {
@@ -163,6 +163,9 @@ const SignupView: FC<Props> = (props) => {
 					return;
 				}
 
+				const token = resp.data.token;
+				await setStorage(StorageKeyTypes.AccessToken, token);
+
 				dispatch.setModal({
 					type: ModalActionType.showModal,
 					data: {
@@ -171,9 +174,6 @@ const SignupView: FC<Props> = (props) => {
 						payload: {
 							tab: "verify-account",
 							otpType: OTPPageTypes.VerifyAccountOTP,
-							email: formData.email,
-							username: formData.username,
-							password: btoaurl(formData.password),
 							avatar,
 						},
 					},

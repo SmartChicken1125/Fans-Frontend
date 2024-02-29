@@ -217,14 +217,12 @@ const PostModal = () => {
 		let uploadMedias: IUploadedFile[];
 
 		if (action === ActionType.Create) {
-			const mediaType = postForm.medias[0]?.type;
-
 			const files: IUploadFileParam[] = medias.map((uri) => ({
 				uri,
 				type: MediaType.Image,
 			}));
 			for (const idx of mediasIdx) {
-				files[idx].type = mediaType;
+				files[idx].type = postForm.medias[idx]?.type;
 			}
 			const uploadResp = await uploadFiles(files);
 			if (files.length > 0 && !uploadResp.ok) {

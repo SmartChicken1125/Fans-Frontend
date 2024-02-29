@@ -73,7 +73,7 @@ const AppLayout: FC<Props> = (props) => {
 			background="relative"
 			flexDirection="row"
 			style={tw.style(
-				"md:pl-[251px] lg:pl-[343px] xl:pl-[417px]",
+				"md:pl-[251px] lg:pl-[327px] xl:pl-[417px]",
 				"bg-fans-white dark:bg-fans-black-1d",
 			)}
 		>

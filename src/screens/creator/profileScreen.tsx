@@ -89,6 +89,7 @@ import {
 	MediaType,
 	SortType,
 	SubscribeActionType,
+	SubscriptionTypes,
 	UserRoleTypes,
 } from "@usertypes/commonEnums";
 import { CreatorProfileNavigationStacks } from "@usertypes/navigations";
@@ -566,10 +567,12 @@ const ProfileScreen = (
 				subscribeActionType: _subscribeType,
 				bundleId: _bundleId,
 				subscribeTierId: _subscribeTierId,
-				defaultTab:
-					_subscribeType === SubscribeActionType.Post
-						? "form"
-						: "start",
+				defaultTab: [
+					SubscribeActionType.Post,
+					SubscribeActionType.Tier,
+				].includes(_subscribeType)
+					? "form"
+					: "start",
 				checkAccessSubscribedUser: checkAccessSubscribedUser,
 			},
 		});
@@ -733,6 +736,16 @@ const ProfileScreen = (
 			}
 		}
 	}, []);
+
+	const handlePressTabsSubscribe = () => {
+		if (profile.subscriptionType === SubscriptionTypes.Flat) {
+			handleOpenSubscribe(
+				SubscribeActionType.Subscribe,
+				profile.subscriptions[0].id,
+				"",
+			);
+		}
+	};
 
 	useEffect(() => {
 		initState();
@@ -1261,14 +1274,8 @@ const ProfileScreen = (
 																profile
 																	.subscriptions[0]
 															}
-															onClickSubscribe={() =>
-																handleOpenSubscribe(
-																	SubscribeActionType.Subscribe,
-																	profile
-																		.subscriptions[0]
-																		.id,
-																	"",
-																)
+															onClickSubscribe={
+																handlePressTabsSubscribe
 															}
 															onClickPostAction={
 																onClickPostAction
@@ -1316,14 +1323,8 @@ const ProfileScreen = (
 															needToSubscribe={
 																!hasAccess
 															}
-															onClickSubscribe={() =>
-																handleOpenSubscribe(
-																	SubscribeActionType.Subscribe,
-																	profile
-																		.subscriptions[0]
-																		.id,
-																	"",
-																)
+															onClickSubscribe={
+																handlePressTabsSubscribe
 															}
 															subscription={
 																profile
@@ -1343,14 +1344,8 @@ const ProfileScreen = (
 															onClickMenus={() => {}}
 															handleAdd={() => {}}
 															handleEdit={() => {}}
-															onClickSubscribe={() =>
-																handleOpenSubscribe(
-																	SubscribeActionType.Subscribe,
-																	profile
-																		.subscriptions[0]
-																		.id,
-																	"",
-																)
+															onClickSubscribe={
+																handlePressTabsSubscribe
 															}
 														/>
 													)}

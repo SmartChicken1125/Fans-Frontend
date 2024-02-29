@@ -1,5 +1,5 @@
 import React from "react";
-import { Svg, Path, SvgProps } from "react-native-svg";
+import { Svg, Path, SvgProps, G } from "react-native-svg";
 
 interface FansSvgProps extends SvgProps {
 	size?: number;
@@ -20,6 +20,59 @@ export default function BankSvg({ ...props }: FansSvgProps) {
 				stroke="#a854f5"
 				strokeWidth="0.5"
 			/>
+		</Svg>
+	);
+}
+
+export function Bank2Svg({ ...props }: FansSvgProps) {
+	return (
+		<Svg
+			width={props.width ?? props.size}
+			height={props.height ?? props.size}
+			viewBox="0 0 21.728 23.717"
+			{...props}
+		>
+			<G
+				id="Group_60347"
+				data-name="Group 60347"
+				transform="translate(-612.548 -450)"
+			>
+				<Path
+					id="Path_50424"
+					data-name="Path 50424"
+					d="M623.421,457.714q-4.636,0-9.273,0a1.629,1.629,0,0,1-1.033-.3,1.422,1.422,0,0,1,.068-2.312,4.265,4.265,0,0,1,.373-.208q4.345-2.289,8.69-4.579a2.319,2.319,0,0,1,2.3-.018q4.416,2.326,8.835,4.648a1.473,1.473,0,0,1,.891,1.27,1.425,1.425,0,0,1-1.366,1.493c-.1.007-.2,0-.295,0Z"
+					transform="translate(-0.002)"
+					fill={props.color ?? "#fff"}
+				/>
+				<Path
+					id="Path_50425"
+					data-name="Path 50425"
+					d="M623.411,482.048q-4.5,0-9,0a1.842,1.842,0,0,1-1.2-.366,1.716,1.716,0,0,1,.992-3.064c.1-.007.2,0,.294,0q8.91,0,17.821,0a3.509,3.509,0,0,1,.48.026,1.709,1.709,0,0,1-.189,3.4c-.1,0-.2,0-.295,0Z"
+					transform="translate(0 -8.333)"
+					fill={props.color ?? "#fff"}
+				/>
+				<Path
+					id="Path_50426"
+					data-name="Path 50426"
+					d="M619.193,468.114c0,.795.016,1.59,0,2.384a1.669,1.669,0,0,1-1.393,1.577,1.711,1.711,0,0,1-2.026-1.7c-.014-.589,0-1.179,0-1.768,0-.911-.006-1.822,0-2.733A1.711,1.711,0,0,1,617,464.174a1.694,1.694,0,0,1,2.194,1.554c.024.795,0,1.59,0,2.385Z"
+					transform="translate(-0.936 -4.106)"
+					fill={props.color ?? "#fff"}
+				/>
+				<Path
+					id="Path_50427"
+					data-name="Path 50427"
+					d="M628.873,468.131c0,.795.017,1.59,0,2.384a1.67,1.67,0,0,1-1.383,1.559,1.713,1.713,0,0,1-2.036-1.694c-.013-.446,0-.893,0-1.34,0-1.054-.006-2.108,0-3.162a1.714,1.714,0,0,1,1.244-1.71,1.694,1.694,0,0,1,2.177,1.55c.026.8,0,1.608,0,2.411Z"
+					transform="translate(-3.755 -4.106)"
+					fill={props.color ?? "#fff"}
+				/>
+				<Path
+					id="Path_50428"
+					data-name="Path 50428"
+					d="M638.554,468.1c0,.8.017,1.609-.005,2.412a1.67,1.67,0,0,1-1.381,1.56,1.714,1.714,0,0,1-2.038-1.693c-.012-.42,0-.84,0-1.259,0-1.081-.005-2.162,0-3.243a1.714,1.714,0,0,1,1.243-1.71,1.694,1.694,0,0,1,2.178,1.549c.025.794,0,1.59,0,2.384Z"
+					transform="translate(-6.575 -4.106)"
+					fill={props.color ?? "#fff"}
+				/>
+			</G>
 		</Svg>
 	);
 }

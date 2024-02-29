@@ -344,7 +344,7 @@ const CreatorProfileScreen = (
 			type: ModalActionType.showModal,
 			data: { id: PROFILE_THREE_DOTS_DIALOG_ID, show: false },
 		});
-		router.push({ pathname: "settings", params: { screen: "Analytics" } });
+		router.replace("/analytics");
 	};
 
 	const onGoToEdit = () => {

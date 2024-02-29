@@ -9,7 +9,6 @@ import {
 	useGoogleAuthRequest,
 	useTwitterAuthRequest,
 } from "@helper/OAuth2";
-import { btoaurl } from "@helper/Utils";
 import { authOAuth2Authorize, authRegister } from "@helper/endpoints/auth/apis";
 import { AuthOAuth2AuthorizeReqBody } from "@helper/endpoints/auth/schemas";
 import tw from "@lib/tailwind";
@@ -147,7 +146,7 @@ const RegisterScreen = () => {
 			email: formData.email,
 			password: formData.password,
 		})
-			.then((resp) => {
+			.then(async (resp) => {
 				if (!resp.ok) {
 					Toast.show({
 						type: "error",
@@ -177,14 +176,15 @@ const RegisterScreen = () => {
 					text1: "Verification code is sent to your email, check your email!",
 				});
 
+				const token = resp.data.token;
+				await setStorage(StorageKeyTypes.AccessToken, token);
+
 				router.push({
 					pathname: "/auth/verifyAccount",
 					params: {
 						otpType: OTPPageTypes.VerifyAccountOTP,
 						email: formData.email,
 						username: formData.username,
-						// We need to encode it in some URL-compatible way, because characters like ':' or '!' break stuff
-						password: btoaurl(formData.password),
 					},
 				});
 			})
