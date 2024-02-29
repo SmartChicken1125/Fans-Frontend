@@ -15,8 +15,12 @@ const FilterButton: FC<Props> = (props) => {
 
 	return (
 		<FansView
+			flexDirection="row"
+			alignItems="center"
+			borderRadius={40}
+			padding={{ y: 6, x: 16 }}
+			gap={8}
 			style={tw.style(
-				"py-[6px] px-4 rounded-full flex-row items-center",
 				isSelected
 					? "bg-fans-purple"
 					: "bg-fans-grey-f0 dark:bg-fans-grey-43",
@@ -29,7 +33,6 @@ const FilterButton: FC<Props> = (props) => {
 				fontSize={17}
 				lineHeight={22}
 				style={tw.style(
-					"pr-2",
 					isSelected
 						? "text-fans-white"
 						: "text-fans-black dark:text-fans-white",

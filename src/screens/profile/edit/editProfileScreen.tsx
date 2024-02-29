@@ -11,7 +11,7 @@ import {
 } from "@components/common/base";
 import CustomMaskInput from "@components/common/customMaskInput";
 import AppLayout, { LayoutContentsContainer } from "@components/common/layout";
-import { FansIconButton, FansView } from "@components/controls";
+import { FansButton3, FansIconButton, FansView } from "@components/controls";
 import {
 	BackgroundColor,
 	EditSubLink,
@@ -606,7 +606,9 @@ const EditProfileScreen = (
 										}}
 									/>
 								</FypNullableView>
-
+								{tw.prefixMatch("md") && (
+									<FansButton3 height={42} title="Review" />
+								)}
 								<EditSubLink
 									title="Preview"
 									onPress={() => {

@@ -11,6 +11,7 @@ export interface PostReviewReqBody {
 	creatorId: string;
 	score: number;
 	text: string;
+	tip: number;
 }
 
 export const postReview = createPOST<PostReviewReqBody, never>(

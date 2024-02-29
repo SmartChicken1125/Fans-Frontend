@@ -1,6 +1,6 @@
 import { FansText } from "@components/controls";
 import tw from "@lib/tailwind";
-import { ICalendarDate, IDatePickerVaildRange } from "@usertypes/types";
+import { ICalendarDate, IDatePickerValidRange } from "@usertypes/types";
 import moment from "moment";
 import React, { FC, useCallback, useState } from "react";
 import { Pressable, View } from "react-native";
@@ -9,7 +9,7 @@ interface Props {
 	value: ICalendarDate;
 	onChangeValue: (val: ICalendarDate) => void;
 	hasError?: boolean;
-	validRange?: IDatePickerVaildRange;
+	validRange?: IDatePickerValidRange;
 }
 
 const DatePicker: FC<Props> = (props) => {

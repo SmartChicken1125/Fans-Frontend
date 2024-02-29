@@ -17,7 +17,7 @@ import TaggedPeople from "./taggedPeople";
 const VideoContent: IFypPostContent = (props) => {
 	const { data } = props;
 
-	const [width, setWidth] = useState(100);
+	const [width, setWidth] = useState(0);
 	const [showTooltip, setShowTooltip] = useState(false);
 
 	const handleToggleTooltip = () => {
@@ -36,7 +36,12 @@ const VideoContent: IFypPostContent = (props) => {
 		>
 			<FansView height={width} position="relative" margin={0}>
 				<FypNullableView
-					visible={data.isSelf || data.isPaidOut || !data.isPaidPost}
+					visible={
+						data.isSelf ||
+						data.isPaidOut ||
+						!data.isPaidPost ||
+						width !== 0
+					}
 				>
 					{isDesktop ? (
 						<FansCarousel
@@ -91,26 +96,6 @@ const VideoContent: IFypPostContent = (props) => {
 						/>
 					)}
 				</FypNullableView>
-				{/* <OptionalView visible={!data.isPaidPost || data.isPaidOut}>
-					<IconButton
-						mode="contained"
-						icon={() => (
-							<PlaySvg width={24.42} height={27} color="#fff" />
-						)}
-						style={[
-							tw.style(
-								"w-[68px] h-[68px] rounded-full absolute top-1/2 left-1/2",
-							),
-							{
-								transform: [
-									{ translateX: -34 },
-									{ translateY: -34 },
-								],
-							},
-						]}
-						containerColor="#a854f5"
-					/>
-				</OptionalView> */}
 
 				<TaggedPeople data={data} onPress={handleToggleTooltip} />
 			</FansView>

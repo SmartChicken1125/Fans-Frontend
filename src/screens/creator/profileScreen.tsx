@@ -17,6 +17,7 @@ import AppLayout, {
 } from "@components/common/layout";
 import Tabs from "@components/common/tabs";
 import {
+	FansButton3,
 	FansDivider,
 	FansGap,
 	FansIconButton,
@@ -106,7 +107,7 @@ import { useBlankLink } from "@utils/useBlankLink";
 import useClipboard from "@utils/useClipboard";
 import { createURL } from "expo-linking";
 import { useRouter } from "expo-router";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
 import { NativeScrollEvent, ScrollView, TouchableOpacity } from "react-native";
 import { Button } from "react-native-paper";
 import Toast, { default as ToastMessage } from "react-native-toast-message";
@@ -716,6 +717,23 @@ const ProfileScreen = (
 		}
 	};
 
+	const handleGoBack = useCallback(() => {
+		if (router.canGoBack()) {
+			router.back();
+		} else {
+			if (state.user.userInfo.id === "0") {
+				router.replace({
+					pathname: "/",
+				});
+			} else {
+				router.replace({
+					pathname: "posts",
+					params: { screen: "Home" },
+				});
+			}
+		}
+	}, []);
+
 	useEffect(() => {
 		initState();
 		if (username) {
@@ -824,6 +842,28 @@ const ProfileScreen = (
 															flexDirection="row"
 															gap={7}
 														>
+															{featureGates.has(
+																"2024_02-review",
+															) &&
+																tw.prefixMatch(
+																	"md",
+																) && (
+																	<FansButton3
+																		height={
+																			42
+																		}
+																		title="Review"
+																		buttonStyle={{
+																			backgroundColor:
+																				"black",
+																			borderColor:
+																				"black",
+																		}}
+																		onPress={
+																			handlePressReview
+																		}
+																	/>
+																)}
 															{hasAccess && (
 																<FansIconButton
 																	onPress={
@@ -872,7 +912,7 @@ const ProfileScreen = (
 																	onClickPreview
 																}
 																style={tw.style(
-																	"items-center h-[34px] flex-row border-fans-purple",
+																	"items-center h-[42px] flex-row border-fans-purple",
 																	profile
 																		.previews
 																		.length ===
@@ -972,79 +1012,92 @@ const ProfileScreen = (
 													<FansGap height={18} />
 													{featureGates.has(
 														"2024_02-review",
-													) && (
-														<>
-															<FansView
-																alignItems="center"
-																flexDirection="row"
-															>
-																<FansSvg
-																	width={11.9}
-																	height={
-																		11.4
-																	}
-																	svg={
-																		Star2Svg
-																	}
-																	color1="purple-a8"
-																/>
-																<FansGap
-																	width={4}
-																/>
-																<FansText
-																	fontFamily="inter-semibold"
-																	fontSize={
-																		15
-																	}
-																>
-																	{
-																		profile
-																			.review
-																			.score
-																	}
-																</FansText>
-																<FansGap
-																	width={4}
-																/>
-																<FansText
-																	color="grey-48"
-																	fontSize={
-																		15
-																	}
-																>
-																	(
-																	{
-																		profile
-																			.review
-																			.total
-																	}
-																	)
-																</FansText>
-																<FansGap
-																	width={4}
-																/>
+													) &&
+														!tw.prefixMatch(
+															"md",
+														) && (
+															<>
 																<FansView
-																	touchableOpacityProps={{
-																		onPress:
-																			handlePressReview,
-																	}}
+																	alignItems="center"
+																	flexDirection="row"
 																>
+																	<FansSvg
+																		width={
+																			11.9
+																		}
+																		height={
+																			11.4
+																		}
+																		svg={
+																			Star2Svg
+																		}
+																		color1="purple-a8"
+																	/>
+																	<FansGap
+																		width={
+																			4
+																		}
+																	/>
 																	<FansText
-																		color="purple-a8"
 																		fontFamily="inter-semibold"
 																		fontSize={
 																			15
 																		}
 																	>
-																		Review
+																		{
+																			profile
+																				.review
+																				.score
+																		}
 																	</FansText>
+																	<FansGap
+																		width={
+																			4
+																		}
+																	/>
+																	<FansText
+																		color="grey-48"
+																		fontSize={
+																			15
+																		}
+																	>
+																		(
+																		{
+																			profile
+																				.review
+																				.total
+																		}
+																		)
+																	</FansText>
+																	<FansGap
+																		width={
+																			4
+																		}
+																	/>
+																	<FansView
+																		touchableOpacityProps={{
+																			onPress:
+																				handlePressReview,
+																		}}
+																	>
+																		<FansText
+																			color="purple-a8"
+																			fontFamily="inter-semibold"
+																			fontSize={
+																				15
+																			}
+																		>
+																			Review
+																		</FansText>
+																	</FansView>
 																</FansView>
-															</FansView>
-															<FansGap
-																height={21.5}
-															/>
-														</>
-													)}
+																<FansGap
+																	height={
+																		21.5
+																	}
+																/>
+															</>
+														)}
 													<SocialLinkList
 														data={
 															profile.socialLinks
@@ -1440,8 +1493,7 @@ const ProfileScreen = (
 				/>
 			</AppLayout>
 
-			{featureGates.has("2024_02-NSFW-indicator") &&
-				profile.isNSFW &&
+			{profile.isNSFW &&
 				((state.user.userInfo.id === "0" &&
 					localStorage.getItem("is_older_than_18") !== "1") ||
 					(state.user.userInfo.id !== "0" &&
@@ -1507,16 +1559,7 @@ const ProfileScreen = (
 
 							<TouchableOpacity
 								style={tw.style("mt-[18px] ml-auto mr-auto")}
-								onPress={() => {
-									if (router.canGoBack()) {
-										router.back();
-									} else {
-										router.replace({
-											pathname: "posts",
-											params: { screen: "Home" },
-										});
-									}
-								}}
+								onPress={handleGoBack}
 							>
 								<FansText
 									color={"white"}

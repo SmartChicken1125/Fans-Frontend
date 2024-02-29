@@ -409,7 +409,7 @@ const HighlightStoryScreen = (
 				onCopyLink={onCopyStory}
 			/>
 			<StoryCommentDialog
-				storyId={paramStoryId ?? stories[storyIndex].id}
+				storyId={paramStoryId ?? stories[storyIndex]?.id}
 				visible={openCommentModal}
 				onDismiss={() => setOpenCommentModal(false)}
 				onCallback={commentCallback}

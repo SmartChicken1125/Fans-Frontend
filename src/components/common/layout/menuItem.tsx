@@ -138,7 +138,7 @@ const MenuItem: FC<Props> = (props) => {
 						svg={LanguageSvg}
 					/>
 				);
-			case "Purchases":
+			case "Posts purchased":
 				return (
 					<FypSvg
 						width={19}

@@ -366,7 +366,7 @@ export interface IComment {
 	replies: IComment[];
 	isLiked: boolean;
 	parentCommentId?: string;
-	profile?: IProfile;
+	profile: IProfile;
 }
 
 export interface ITabCell {
@@ -783,6 +783,7 @@ export interface IStoryReply {
 	createdAt: string;
 	updatedAt: string;
 	replies: IStoryReply[];
+	profile: IProfile;
 }
 
 export interface IStoryCommentLike {
@@ -1467,7 +1468,7 @@ export interface IVideoCallAttendant {
 	isOlderThan18: boolean;
 }
 
-export interface IDatePickerVaildRange {
+export interface IDatePickerValidRange {
 	startDate?: Date;
 	endDate?: Date;
 	disabledDates?: Date[];

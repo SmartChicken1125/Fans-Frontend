@@ -10,10 +10,12 @@ interface Props<T extends IComment | IStoryReply> {
 	onClickReply: (commentId: string) => void;
 	onClickLike: (comment: T) => void;
 	onDelete: (commentId: string) => void;
+	onCloseModal: () => void;
 }
 
 function CommentParent<T extends IComment | IStoryReply>(props: Props<T>) {
-	const { data, onClickReply, onClickLike, onDelete, userId } = props;
+	const { data, onClickReply, onClickLike, onDelete, userId, onCloseModal } =
+		props;
 
 	return (
 		<FansView
@@ -28,6 +30,7 @@ function CommentParent<T extends IComment | IStoryReply>(props: Props<T>) {
 				onClickLike={() => onClickLike(data)}
 				onDelete={onDelete}
 				userId={userId}
+				onCloseModal={onCloseModal}
 			>
 				{data.replies.map((reply) => (
 					<Comment
@@ -38,6 +41,7 @@ function CommentParent<T extends IComment | IStoryReply>(props: Props<T>) {
 						isChildren
 						onDelete={onDelete}
 						userId={userId}
+						onCloseModal={onCloseModal}
 					></Comment>
 				))}
 			</Comment>

@@ -31,6 +31,7 @@ const ReviewSheet: IFansSheet = (props) => {
 			creatorId: props.profile?.id ?? "",
 			score: numRating,
 			text: "review",
+			tip: [0, 1, 5, 0][indexTip],
 		});
 		onSubmit("");
 		onClose();
@@ -104,8 +105,11 @@ const ReviewSheet: IFansSheet = (props) => {
 			<FansGap height={26} />
 			<FansTextInput6
 				height={97}
-				viewStyle={{ borderRadius: 15 }}
-				textInputStyle={{ placeholder: "Leave a review" }}
+				viewStyle={{ borderRadius: 15, padding: { y: 14 } }}
+				textInputStyle={{
+					multiline: true,
+					placeholder: "Leave a review...",
+				}}
 			/>
 			<FansGap height={39.2} />
 			<FansText fontFamily="inter-semibold" fontSize={17}>

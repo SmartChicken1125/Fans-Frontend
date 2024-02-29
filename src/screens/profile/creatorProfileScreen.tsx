@@ -18,6 +18,7 @@ import CopyLink from "@components/common/copyLink";
 import AppLayout, { LayoutContentsContainer } from "@components/common/layout";
 import Tabs from "@components/common/tabs";
 import {
+	FansButton3,
 	FansDivider,
 	FansGap,
 	FansIconButton,
@@ -971,20 +972,25 @@ const CreatorProfileScreen = (
 									<FansText color="grey-48" fontSize={15}>
 										({profile.review.total})
 									</FansText>
-									<FansGap width={4} />
-									<FansView
-										touchableOpacityProps={{
-											onPress: handlePressViewReviews,
-										}}
-									>
-										<FansText
-											color="purple-a8"
-											fontFamily="inter-semibold"
-											fontSize={15}
-										>
-											View reviews
-										</FansText>
-									</FansView>
+									{!tw.prefixMatch("md") && (
+										<>
+											<FansGap width={4} />
+											<FansView
+												touchableOpacityProps={{
+													onPress:
+														handlePressViewReviews,
+												}}
+											>
+												<FansText
+													color="purple-a8"
+													fontFamily="inter-semibold"
+													fontSize={15}
+												>
+													View reviews
+												</FansText>
+											</FansView>
+										</>
+									)}
 								</FansView>
 							)}
 							<FansView margin={{ t: 15.5 }}>

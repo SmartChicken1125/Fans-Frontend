@@ -23,6 +23,15 @@ import {
 	GDPRCardImage,
 	MasterCardImage,
 	VisaCardImage,
+	PrivacyImage,
+	TwoStarsImage,
+	ShopImage,
+	FirstSuccessStepTitleImage,
+	SecondSuccessStepTitleImage,
+	ThirdSuccessStepTitleImage,
+	FaqTitlePCImage,
+	FaqTitleMobileImage,
+	Gem2Image,
 } from "@assets/svgs/images";
 import UserAvatar from "@components/avatar/UserAvatar";
 import {
@@ -63,38 +72,14 @@ import {
 	TextInput,
 	TouchableOpacity,
 	View,
-	Dimensions,
-	ViewProps,
 } from "react-native";
+import OutsidePressHandler from "react-native-outside-press";
 import Animated, {
 	Easing,
 	useAnimatedStyle,
 	useSharedValue,
 	withTiming,
 } from "react-native-reanimated";
-
-const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
-
-const BorderLine: FC<ViewProps> = (props) => {
-	const { style } = props;
-	return (
-		<FansView
-			flexDirection="row"
-			alignItems="center"
-			style={[tw.style("overflow-hidden"), style]}
-			gap={29}
-		>
-			{[...Array(Math.ceil(windowWidth / 58))].map((el, index) => (
-				<FansView
-					key={index}
-					height={1}
-					width={29}
-					style={tw.style("bg-fans-red-f4")}
-				></FansView>
-			))}
-		</FansView>
-	);
-};
 
 const MembershipSection = () => {
 	const router = useRouter();
@@ -621,6 +606,7 @@ const CreatorCard: FC<CreatorProps> = (props) => {
 				</FypText>
 				<FypNullableView visible={!!count}>
 					<FansView flexDirection="row" alignItems="center" gap={5}>
+						{/* <FypSvg svg={Gem2Image} width={16} height={15} /> */}
 						<Image
 							source={{
 								uri: require("@assets/images/common/gem.webp"),
@@ -644,7 +630,7 @@ const CreatorCard: FC<CreatorProps> = (props) => {
 	);
 };
 
-export const CreatorsSection = () => {
+const CreatorsSection = () => {
 	const [role, setRole] = useState(creatorRoles[0]);
 
 	return (
@@ -663,7 +649,7 @@ export const CreatorsSection = () => {
 					textAlign="center"
 					style={tw.style("text-fans-black-1d")}
 				>
-					Meet out creators
+					Meet our creators
 				</FypText>
 				<FansGap height={{ xs: 23, md: 38 }} />
 				<FypText
@@ -684,13 +670,14 @@ export const CreatorsSection = () => {
 					this month
 				</FypText>
 				<FansGap height={{ xs: 22, md: 64 }} />
-				<FansView style={tw.style("mb-8 md:mb-12 px-[18px] md:px-0")}>
+				<FansView style={tw.style("mb-8 md:mb-12")}>
 					<FypNullableView visible={!tw.prefixMatch("md")}>
 						<ScrollView style={tw.style("w-full")} horizontal>
 							<FansView
 								flexDirection="row"
 								gap={7}
 								justifyContent="center"
+								padding={{ x: 18 }}
 							>
 								{creatorRoles.map((el) => (
 									<RoleButton
@@ -820,7 +807,7 @@ export const CreatorUser: FC<CreatorUserInfo> = (props) => {
 	);
 };
 
-export const BannerSection = () => {
+const BannerSection = () => {
 	const router = useRouter();
 
 	const [showSearchForm, setShowSearchForm] = useState(false);
@@ -1001,81 +988,89 @@ export const BannerSection = () => {
 							</Animated.View>
 						</FypNullableView>
 						<FypNullableView visible={showSearchForm}>
-							<Animated.View
-								style={[tw.style("relative"), searchFormStyle]}
+							<OutsidePressHandler
+								onOutsidePress={onCancelSearch}
 							>
-								<FansView
-									width={{ xs: 14, md: 22 }}
-									height={{ xs: 14, md: 22 }}
-									position="absolute"
-									style={tw.style(
-										"top-[14px] left-[18px] md:top-[22px] md:left-[26px]",
-									)}
-								>
-									<SearchSvg color="#fff" />
-								</FansView>
-								<TextInput
+								<Animated.View
 									style={[
-										tw.style(
-											"text-[17px] leading-[22px] md:text-[24px] md:leading-[32px] text-white font-medium bg-fans-white/30 rounded-[100px]",
-											"px-11 md:px-[59px] h-[42px] md:h-[66px]",
-										),
-										Platform.OS === "web" && {
-											outlineColor:
-												"rgba(255,255,255,0.3)",
-										},
+										tw.style("relative"),
+										searchFormStyle,
 									]}
-									value={searchQuery}
-									onChangeText={(val) => onChangeSearch(val)}
-								/>
-								<FansIconButton
-									backgroundColor="bg-fans-black"
-									style={tw.style(
-										"absolute top-2 right-[10px] md:top-[18px] md:right-5",
-									)}
-									size={tw.prefixMatch("md") ? 30 : 26}
-									onPress={onCancelSearch}
 								>
 									<FansView
-										width={{ xs: 10, md: 13 }}
-										height={{ xs: 10, md: 13 }}
+										width={{ xs: 14, md: 22 }}
+										height={{ xs: 14, md: 22 }}
+										position="absolute"
+										style={tw.style(
+											"top-[14px] left-[18px] md:top-[22px] md:left-[26px]",
+										)}
 									>
-										<CloseSvg color="#fff" />
+										<SearchSvg color="#fff" />
 									</FansView>
-								</FansIconButton>
-							</Animated.View>
-
-							<FypNullableView
-								visible={users.profiles.length > 0}
-							>
-								<FansView
-									background="fans-white"
-									borderRadius={15}
-									style={tw.style(
-										"pt-7 pb-[30px] px-[18px] mt-[17px] md:p-7 md:mt-6 max-h-[536px] md:max-h-[740px] z-90",
-									)}
-								>
-									<ScrollView
-										style={tw.style("")}
-										showsVerticalScrollIndicator={true}
-										onScroll={({ nativeEvent }) =>
-											onScrollView(nativeEvent)
+									<TextInput
+										style={[
+											tw.style(
+												"text-[17px] leading-[22px] md:text-[24px] md:leading-[32px] text-white font-medium bg-fans-white/30 rounded-[100px]",
+												"px-11 md:px-[59px] h-[42px] md:h-[66px]",
+											),
+											Platform.OS === "web" && {
+												outlineColor:
+													"rgba(255,255,255,0.3)",
+											},
+										]}
+										value={searchQuery}
+										onChangeText={(val) =>
+											onChangeSearch(val)
 										}
-										scrollEventThrottle={30}
+									/>
+									<FansIconButton
+										backgroundColor="bg-fans-black"
+										style={tw.style(
+											"absolute top-2 right-[10px] md:top-[18px] md:right-5",
+										)}
+										size={tw.prefixMatch("md") ? 30 : 26}
+										onPress={onCancelSearch}
 									>
-										<FansView gap={17}>
-											{users.profiles.map(
-												(user, index) => (
-													<CreatorUser
-														data={user}
-														key={`${user.id}-${index}`}
-													/>
-												),
-											)}
+										<FansView
+											width={{ xs: 10, md: 13 }}
+											height={{ xs: 10, md: 13 }}
+										>
+											<CloseSvg color="#fff" />
 										</FansView>
-									</ScrollView>
-								</FansView>
-							</FypNullableView>
+									</FansIconButton>
+								</Animated.View>
+
+								<FypNullableView
+									visible={users.profiles.length > 0}
+								>
+									<FansView
+										background="fans-white"
+										borderRadius={15}
+										style={tw.style(
+											"pt-7 md:pb-[30px] px-[18px] mt-[17px] md:p-7 md:mt-6 max-h-[536px] md:max-h-[740px] z-90",
+										)}
+									>
+										<ScrollView
+											showsVerticalScrollIndicator={true}
+											onScroll={({ nativeEvent }) =>
+												onScrollView(nativeEvent)
+											}
+											scrollEventThrottle={30}
+										>
+											<FansView gap={17}>
+												{users.profiles.map(
+													(user, index) => (
+														<CreatorUser
+															data={user}
+															key={`${user.id}-${index}`}
+														/>
+													),
+												)}
+											</FansView>
+										</ScrollView>
+									</FansView>
+								</FypNullableView>
+							</OutsidePressHandler>
 						</FypNullableView>
 					</FansView>
 
@@ -1084,7 +1079,12 @@ export const BannerSection = () => {
 							position="absolute"
 							style={tw.style("left-0 md:hidden")}
 						>
-							<SingleGem color="#fff" size={45} />
+							<FypSvg
+								svg={SingleGem}
+								color="fans-white"
+								width={37}
+								height={34}
+							/>
 						</FansView>
 					</FypNullableView>
 					<DiamondTextLogoSvg
@@ -1135,7 +1135,7 @@ export const BannerSection = () => {
 							onPress={onClickFindCreator}
 							style={tw.style("md:hidden")}
 						>
-							<SearchSvg size={15} color="#fff" />
+							<SearchSvg size={17} color="#fff" />
 						</FansIconButton>
 					</FansView>
 				</FansView>
@@ -1154,17 +1154,27 @@ export const BannerSection = () => {
 				>
 					{`Make money creating${`\n`}the content you love`}
 				</FypText>
-				<FypText
-					fontSize={{ xs: 16, md: 27 }}
-					lineHeight={{ xs: 29, md: 43 }}
-					color="white"
-					textAlign="center"
-					fontWeight={500}
-					margin={{ b: 60 }}
-					style={tw.style("hidden md:flex")}
-				>
-					{`Start a membership, set up a digital shop, accept donations.${`\n`}Sell anything you like. It’s easier than you think`}
-				</FypText>
+				<FansView margin={{ b: 60 }} style={tw.style("hidden md:flex")}>
+					<FypText
+						fontSize={{ xs: 16, md: 27 }}
+						lineHeight={{ xs: 29, md: 43 }}
+						color="white"
+						textAlign="center"
+						fontWeight={500}
+					>
+						Start a membership, set up a digital shop, accept
+						donations.
+					</FypText>
+					<FypText
+						fontSize={{ xs: 16, md: 27 }}
+						lineHeight={{ xs: 29, md: 43 }}
+						color="white"
+						textAlign="center"
+						fontWeight={500}
+					>
+						Sell anything you like. It’s easier than you think
+					</FypText>
+				</FansView>
 
 				<FansView
 					position="relative"
@@ -1297,16 +1307,30 @@ const SmarterSection = () => {
 					}not harder`}
 				</FypText>
 				<FansGap height={{ xs: 16, md: 36 }} />
-				<FypText
-					fontSize={{ xs: 17, md: 27 }}
-					lineHeight={{ xs: 26, md: 42 }}
-					color="black-1d"
-				>
-					Effortlessly sell exclusive content on our platform with
-					flexible pricing and easy management. Let our tools handle
-					the complexity, allowing you to focus on creativity while
-					watching your fanbase and finances grow
-				</FypText>
+				<FansView>
+					<FypText
+						fontSize={{ xs: 17, md: 27 }}
+						lineHeight={{ xs: 26, md: 42 }}
+						color="black-1d"
+						style={tw.style("hidden md:flex")}
+					>
+						Effortlessly sell exclusive content on our platform with
+						flexible pricing and easy management. Let our tools
+						handle the complexity, allowing you to focus on
+						creativity while watching your fanbase and finances grow
+					</FypText>
+					<FypText
+						fontSize={{ xs: 17, md: 27 }}
+						lineHeight={{ xs: 26, md: 42 }}
+						color="black-1d"
+						style={tw.style("md:hidden")}
+					>
+						Effortlessly sell exclusive content on our platform. Let
+						our tools handle the complexity, allowing you to focus
+						on creating content
+					</FypText>
+				</FansView>
+
 				<FansGap height={{ xs: 48, md: 50 }} />
 				<FypButton2
 					style={tw.style(
@@ -1361,7 +1385,9 @@ const EarningsSection = () => {
 			>
 				<Image
 					source={{
-						uri: require("@assets/images/landing/double-earning.webp"),
+						uri: tw.prefixMatch("md")
+							? require("@assets/images/landing/double-earning.webp")
+							: require("@assets/images/landing/double-earning-mobile.webp"),
 					}}
 					style={tw.style("w-full h-full")}
 					resizeMode="contain"
@@ -1428,7 +1454,7 @@ const SmartDataSection = () => {
 	return (
 		<FansView
 			position="relative"
-			gap={{ xs: 55, lg: 245 }}
+			gap={{ xs: 55, lg: 0 }}
 			style={tw.style(
 				"min-h-screen flex-col-reverse lg:flex-row justify-center lg:justify-between",
 				"px-[18px] md:px-5 lg:px-[60px] xl:px-[148px]",
@@ -1442,26 +1468,56 @@ const SmartDataSection = () => {
 				position="absolute"
 				style={tw.style("w-full h-full top-0 left-0 opacity-40")}
 			></FypLinearGradientView>
-			<FansView style={tw.style("md:flex-1 md:my-auto")}>
-				<FypText
-					fontSize={{ xs: 30, md: 85 }}
-					lineHeight={{ xs: 40, md: 100 }}
-					fontWeight={500}
-					color="black-1d"
-				>
-					{`Growth through,${`\n`}smart data`}
-				</FypText>
+			<FansView style={tw.style("md:flex-1 lg:w-[44%] md:my-auto")}>
+				<FansView>
+					<FypText
+						fontSize={{ xs: 30, md: 85 }}
+						lineHeight={{ xs: 40, md: 100 }}
+						fontWeight={500}
+						color="black-1d"
+						numberOfLines={1}
+						style={tw.style("overflow-visible whitespace-nowrap")}
+					>
+						{tw.prefixMatch("md")
+							? `Growth through,`
+							: "Growth through"}
+					</FypText>
+					<FypText
+						fontSize={{ xs: 30, md: 85 }}
+						lineHeight={{ xs: 40, md: 100 }}
+						fontWeight={500}
+						color="black-1d"
+					>
+						smart data
+					</FypText>
+				</FansView>
+
 				<FansGap height={{ xs: 18, md: 37 }} />
-				<FypText
-					fontSize={{ xs: 17, md: 27 }}
-					lineHeight={{ xs: 26, md: 42 }}
-					color="black-1d"
-				>
-					Utilize our advanced analytics for clear insights into
-					audience behaviors and preferences. Make informed decisions
-					with easy-to-understand metrics, predict trends, and stay
-					ahead of the game!
-				</FypText>
+				<FansView>
+					<FypText
+						fontSize={{ xs: 17, md: 27 }}
+						lineHeight={{ xs: 26, md: 42 }}
+						color="black-1d"
+						style={tw.style("lg:max-w-[710px] hidden md:flex")}
+					>
+						Utilize our advanced analytics for clear insights into
+						audience behaviors and preferences. Make informed
+						decisions with easy-to-understand metrics, predict
+						trends, and stay ahead of the game!
+					</FypText>
+					<FypText
+						fontSize={{ xs: 17, md: 27 }}
+						lineHeight={{ xs: 26, md: 42 }}
+						color="black-1d"
+						style={tw.style("md:hidden")}
+					>
+						Utilize our advanced analytics for clear insights into
+						your audience. Make informed decisions with
+						easy-to-understand metrics, predict trends, and stay
+						ahead of the game!
+					</FypText>
+				</FansView>
+
 				<FansGap height={{ xs: 23, md: 58 }} />
 				<FypButton2
 					style={tw.style(
@@ -1477,10 +1533,15 @@ const SmartDataSection = () => {
 					Start creating
 				</FypButton2>
 			</FansView>
-			<FansView style={tw.style("md:flex-1 md:mt-auto md:pl-5")}>
+			<FansView
+				style={tw.style(
+					"md:flex-1 lg:w-[41%] md:mt-auto md:max-w-[670px]",
+				)}
+			>
 				<FansView
 					width="full"
 					height={{ xs: 313, sm: 450, lg: imgRate * imgWidth }}
+					style={tw.style("md:ml-5")}
 					onLayout={(e) => setImgWidth(e.nativeEvent.layout.width)}
 				>
 					<Image
@@ -1508,7 +1569,7 @@ interface PlatformItemProps {
 const PlatformItem: FC<PlatformItemProps> = (props) => {
 	const { icon, title, description, children } = props;
 	return (
-		<FansView flex="1">
+		<FansView style={tw.style("md:flex-1")}>
 			<FansView height={{ xs: 51, md: 58 }}>{icon}</FansView>
 			<FansGap height={{ xs: 18, md: 23 }} />
 			<FypText
@@ -1567,54 +1628,33 @@ const PlatformsSection = () => {
 			<FansView style={tw.style("lg:flex-row")} gap={{ xs: 50, md: 109 }}>
 				<PlatformItem
 					icon={
-						<FansView
+						<FypSvg
+							svg={ShopImage}
 							width={{ xs: 36, md: 44 }}
 							height={{ xs: 46, md: 55 }}
-						>
-							<Image
-								source={{
-									uri: require("@assets/images/landing/shop.webp"),
-								}}
-								resizeMode="contain"
-								style={tw.style("w-full h-full")}
-							/>
-						</FansView>
+						/>
 					}
 					title="More selling options"
 					description="Unlike competitors, we have packed our platform with ways to sell your content and likeness. Sell Video Calls, Custom Cameo’s, Messages, Live Streams, and more"
 				/>
 				<PlatformItem
 					icon={
-						<FansView
+						<FypSvg
+							svg={TwoStarsImage}
 							width={{ xs: 50, md: 59 }}
 							height={{ xs: 50, md: 59 }}
-						>
-							<Image
-								source={{
-									uri: require("@assets/images/landing/memberships.webp"),
-								}}
-								resizeMode="contain"
-								style={tw.style("w-full h-full")}
-							/>
-						</FansView>
+						/>
 					}
 					title="More than just memberships"
 					description="Content creators who formerly relied solely on Patreon or OnlyFans experienced a significant boost in their income by introducing options for one-time contributions"
 				/>
 				<PlatformItem
 					icon={
-						<FansView
+						<FypSvg
+							svg={PrivacyImage}
 							width={{ xs: 43, md: 48 }}
 							height={{ xs: 51, md: 56 }}
-						>
-							<Image
-								source={{
-									uri: require("@assets/images/landing/privacy.webp"),
-								}}
-								resizeMode="contain"
-								style={tw.style("w-full h-full")}
-							/>
-						</FansView>
+						/>
 					}
 					title="Privacy & security as a priority"
 					description="With our cutting-edge payment security, you will not have to worry about anything. Let us do the heavy lifting so you can focus on creating"
@@ -1759,19 +1799,15 @@ const FaqSection = () => {
 				"pt-[68px] pb-[58px]",
 			)}
 		>
-			<FansView
-				width={{ xs: 240, md: 724 }}
-				height={{ xs: 65, md: 53 }}
-				alignSelf="center"
-			>
-				<Image
-					source={{
-						uri: tw.prefixMatch("md")
-							? require("@assets/images/landing/faq-title.webp")
-							: require("@assets/images/landing/faq-title-mobile.webp"),
-					}}
-					style={tw.style("w-full h-full")}
-					resizeMode="contain"
+			<FansView alignItems="center">
+				<FypSvg
+					svg={
+						tw.prefixMatch("md")
+							? FaqTitlePCImage
+							: FaqTitleMobileImage
+					}
+					width={{ xs: 240, md: 724 }}
+					height={{ xs: 65, md: 53 }}
 				/>
 			</FansView>
 			<FansGap height={{ xs: 52, lg: 90 }} />
@@ -2009,16 +2045,22 @@ const FaqSection = () => {
 				<FansView
 					flex="1"
 					padding={{ l: 168 }}
-					style={tw.style("hidden lg:flex")}
+					style={tw.style("hidden lg:flex lg:h-full")}
 				>
-					<FansView width="full" height={{ md: 631 }}>
-						<Image
-							source={{
-								uri: require("@assets/images/landing/faq.webp"),
-							}}
-							style={tw.style("w-full h-full")}
-							resizeMode="contain"
-						/>
+					<FansView position="relative">
+						<FansView
+							width="full"
+							height={{ md: 631 }}
+							style={tw.style("lg:absolute lg:top-0 lg:left-0")}
+						>
+							<Image
+								source={{
+									uri: require("@assets/images/landing/faq.webp"),
+								}}
+								style={tw.style("w-full h-full")}
+								resizeMode="contain"
+							/>
+						</FansView>
 					</FansView>
 				</FansView>
 			</FansView>
@@ -2033,7 +2075,7 @@ interface SuccessStepMilestoneProps {
 const SuccessStepMilestone: FC<SuccessStepMilestoneProps> = (props) => {
 	const { step } = props;
 	return (
-		<FansView position="relative" width={3} height={{ xs: 274, md: 430 }}>
+		<FansView position="relative" width={3} height={{ xs: 274, md: 437 }}>
 			<FypLinearGradientView
 				colors={["#90DDCE", "#80C8F9", "#7C7FF5"]}
 				start={[0, 0]}
@@ -2070,7 +2112,7 @@ const SuccessStepMilestone: FC<SuccessStepMilestoneProps> = (props) => {
 			></FansView>
 			<FansView
 				position="absolute"
-				bottom={0}
+				bottom={step === 2 ? 0 : -4}
 				left={step === 2 ? -9.5 : -8.5}
 				width={step === 2 ? 22 : 20}
 				height={step === 2 ? 22 : 20}
@@ -2111,16 +2153,44 @@ const FirstStepToSuccess = () => {
 						style={tw.style("items-center md:items-end md:pr-20")}
 					>
 						<FansView
-							width={{ xs: 255, md: 450 }}
-							height={{ xs: 229, md: 437 }}
+							width={{ xs: 264, md: 450 }}
+							height={{ xs: 240, md: 437 }}
+							position="relative"
 						>
-							<Image
-								source={{
-									uri: require("@assets/images/landing/success-step-1.webp"),
-								}}
-								style={tw.style("w-full h-full")}
-								resizeMode="contain"
-							/>
+							<FansView
+								width={{ xs: 123, md: 213 }}
+								height={{ xs: 166, md: 286 }}
+								position="absolute"
+								bottom={0}
+								right={0}
+							>
+								<Image
+									source={{
+										uri: tw.prefixMatch("md")
+											? require("@assets/images/landing/success-step-1-2.webp")
+											: require("@assets/images/landing/success-step-mobile-1-2.webp"),
+									}}
+									style={tw.style("w-full h-full")}
+									resizeMode="contain"
+								/>
+							</FansView>
+							<FansView
+								width={{ xs: 188, md: 320 }}
+								height={{ xs: 208, md: 360 }}
+								position="absolute"
+								top={0}
+								left={0}
+							>
+								<Image
+									source={{
+										uri: tw.prefixMatch("md")
+											? require("@assets/images/landing/success-step-1-1.webp")
+											: require("@assets/images/landing/success-step-mobile-1-1.png"),
+									}}
+									style={tw.style("w-full h-full")}
+									resizeMode="contain"
+								/>
+							</FansView>
 						</FansView>
 					</FansView>
 					<FansView
@@ -2140,24 +2210,34 @@ const FirstStepToSuccess = () => {
 								STEP 1
 							</FypText>
 							<FansGap height={{ xs: 34, md: 46 }} />
-							<Image
-								source={{
-									uri: require("@assets/images/landing/success-step-1-title.webp"),
-								}}
-								style={tw.style(
-									"w-[140px] md:w-[386px] h-[69px] md:h-[173px]",
-								)}
-								resizeMode="contain"
+							<FypSvg
+								svg={FirstSuccessStepTitleImage}
+								width={{ xs: 140, md: 386 }}
+								height={{ xs: 69, md: 173 }}
 							/>
 							<FansGap height={{ xs: 20, md: 36 }} />
-							<FypText
-								fontSize={{ xs: 17, md: 27 }}
-								lineHeight={{ xs: 26, md: 42 }}
-								color="black-1d"
-							>
-								Start by Signing up with your email and
-								password. Click Become a Creator on the homepage
-							</FypText>
+							<FansView>
+								<FypText
+									fontSize={{ xs: 17, md: 27 }}
+									lineHeight={{ xs: 26, md: 42 }}
+									color="black-1d"
+									style={tw.style("hidden md:flex")}
+								>
+									Start by Signing up with your email and
+									password. Click Become a Creator on the
+									homepage
+								</FypText>
+								<FypText
+									fontSize={{ xs: 17, md: 27 }}
+									lineHeight={{ xs: 26, md: 42 }}
+									color="black-1d"
+									style={tw.style("md:hidden")}
+								>
+									Sign up with your email and click Become a
+									Creator on the homepage to start a
+									membership
+								</FypText>
+							</FansView>
 						</FansView>
 					</FansView>
 				</FansView>
@@ -2192,16 +2272,44 @@ const SecondStepToSuccess = () => {
 						style={tw.style("items-center md:items-end md:pr-20")}
 					>
 						<FansView
-							width={{ xs: 255, md: 444 }}
-							height={{ xs: 229, md: 436 }}
+							width={{ xs: 264, md: 444 }}
+							height={{ xs: 240, md: 437 }}
+							position="relative"
 						>
-							<Image
-								source={{
-									uri: require("@assets/images/landing/success-step-2.webp"),
-								}}
-								style={tw.style("w-full h-full")}
-								resizeMode="contain"
-							/>
+							<FansView
+								position="absolute"
+								bottom={0}
+								left={0}
+								width={{ xs: 123, md: 255 }}
+								height={{ xs: 165, md: 343 }}
+							>
+								<Image
+									source={{
+										uri: tw.prefixMatch("md")
+											? require("@assets/images/landing/success-step-2-1.webp")
+											: require("@assets/images/landing/success-step-mobile-2-1.webp"),
+									}}
+									style={tw.style("w-full h-full")}
+									resizeMode="contain"
+								/>
+							</FansView>
+							<FansView
+								position="absolute"
+								top={0}
+								right={0}
+								width={{ xs: 188, md: 320 }}
+								height={{ xs: 208, md: 360 }}
+							>
+								<Image
+									source={{
+										uri: tw.prefixMatch("md")
+											? require("@assets/images/landing/success-step-2-2.webp")
+											: require("@assets/images/landing/success-step-mobile-2-2.webp"),
+									}}
+									style={tw.style("w-full h-full")}
+									resizeMode="contain"
+								/>
+							</FansView>
 						</FansView>
 					</FansView>
 					<FansView
@@ -2211,7 +2319,7 @@ const SecondStepToSuccess = () => {
 					>
 						<SuccessStepMilestone step={1} />
 
-						<FansView style={tw.style("md:max-w-[570px]")}>
+						<FansView flex="1" style={tw.style("md:max-w-[570px]")}>
 							<FypText
 								fontSize={{ xs: 17, md: 31 }}
 								lineHeight={{ xs: 22, md: 41 }}
@@ -2221,15 +2329,12 @@ const SecondStepToSuccess = () => {
 								STEP 2
 							</FypText>
 							<FansGap height={{ xs: 34, md: 46 }} />
-							<Image
-								source={{
-									uri: require("@assets/images/landing/success-step-2-title.webp"),
-								}}
-								style={tw.style(
-									"w-[160px] md:w-[452px] h-[69px] md:h-[173px]",
-								)}
-								resizeMode="contain"
+							<FypSvg
+								svg={SecondSuccessStepTitleImage}
+								width={{ xs: 160, md: 452 }}
+								height={{ xs: 69, md: 173 }}
 							/>
+
 							<FansGap height={{ xs: 20, md: 36 }} />
 							<FypText
 								fontSize={{ xs: 17, md: 27 }}
@@ -2248,6 +2353,10 @@ const SecondStepToSuccess = () => {
 };
 
 const ThirdStepToSuccess = () => {
+	const router = useRouter();
+	const handleStart = () => {
+		router.push("/auth/register");
+	};
 	return (
 		<FansView
 			padding={{ x: 40 }}
@@ -2273,16 +2382,44 @@ const ThirdStepToSuccess = () => {
 						style={tw.style("items-center md:items-end md:pr-20")}
 					>
 						<FansView
-							width={{ xs: 255, md: 445 }}
-							height={{ xs: 229, md: 440 }}
+							width={{ xs: 264, md: 445 }}
+							height={{ xs: 240, md: 437 }}
+							position="relative"
 						>
-							<Image
-								source={{
-									uri: require("@assets/images/landing/success-step-3.webp"),
-								}}
-								style={tw.style("w-full h-full")}
-								resizeMode="contain"
-							/>
+							<FansView
+								position="absolute"
+								top={0}
+								left={0}
+								width={{ xs: 123, md: 219 }}
+								height={{ xs: 165, md: 295 }}
+							>
+								<Image
+									source={{
+										uri: tw.prefixMatch("md")
+											? require("@assets/images/landing/success-step-3-1.webp")
+											: require("@assets/images/landing/success-step-mobile-3-1.webp"),
+									}}
+									style={tw.style("w-full h-full")}
+									resizeMode="contain"
+								/>
+							</FansView>
+							<FansView
+								position="absolute"
+								bottom={0}
+								right={0}
+								width={{ xs: 187, md: 320 }}
+								height={{ xs: 208, md: 360 }}
+							>
+								<Image
+									source={{
+										uri: tw.prefixMatch("md")
+											? require("@assets/images/landing/success-step-3-2.webp")
+											: require("@assets/images/landing/success-step-mobile-3-2.webp"),
+									}}
+									style={tw.style("w-full h-full")}
+									resizeMode="contain"
+								/>
+							</FansView>
 						</FansView>
 					</FansView>
 					<FansView
@@ -2292,7 +2429,7 @@ const ThirdStepToSuccess = () => {
 					>
 						<SuccessStepMilestone step={2} />
 
-						<FansView style={tw.style("md:max-w-[570px]")}>
+						<FansView flex="1" style={tw.style("md:max-w-[570px]")}>
 							<FypText
 								fontSize={{ xs: 17, md: 31 }}
 								lineHeight={{ xs: 22, md: 41 }}
@@ -2302,15 +2439,12 @@ const ThirdStepToSuccess = () => {
 								STEP 3
 							</FypText>
 							<FansGap height={{ xs: 34, md: 46 }} />
-							<Image
-								source={{
-									uri: require("@assets/images/landing/success-step-3-title.webp"),
-								}}
-								style={tw.style(
-									"w-[178px] md:w-[500px] h-[69px] md:h-[172px]",
-								)}
-								resizeMode="contain"
+							<FypSvg
+								svg={ThirdSuccessStepTitleImage}
+								width={{ xs: 178, md: 500 }}
+								height={{ xs: 69, md: 172 }}
 							/>
+
 							<FansGap height={{ xs: 20, md: 36 }} />
 							<FypText
 								fontSize={{ xs: 17, md: 27 }}
@@ -2320,6 +2454,17 @@ const ThirdStepToSuccess = () => {
 								Start posting content and promoting your link to
 								fans. Cash out earnings effortlessly with
 								payouts to banks, Revolut, or Payoneer
+								{tw.prefixMatch("md") ? "" : ". "}
+								<FypText
+									fontSize={{ xs: 17, md: 27 }}
+									lineHeight={{ xs: 26, md: 42 }}
+									color="black-1d"
+									fontWeight={600}
+									style={tw.style("md:hidden underline")}
+									onPress={handleStart}
+								>
+									Start now
+								</FypText>
 							</FypText>
 						</FansView>
 					</FansView>
@@ -2339,17 +2484,11 @@ const LandingScreen = () => {
 				decelerationRate="normal"
 			>
 				<BannerSection />
-				<BorderLine />
 				<MembershipSection />
-				<BorderLine />
 				<CreatorsSection />
-				<BorderLine />
 				<SmarterSection />
-				<BorderLine style={tw.style("mt-[-1px]")} />
 				<EarningsSection />
-				<BorderLine style={tw.style("mt-[-1px]")} />
 				<SmartDataSection />
-				<BorderLine style={tw.style("mt-[-1px]")} />
 
 				<ScrollView
 					style={tw.style("h-screen")}
@@ -2362,23 +2501,18 @@ const LandingScreen = () => {
 					<SecondStepToSuccess />
 					<ThirdStepToSuccess />
 				</ScrollView>
-				<BorderLine />
 				<ScrollView
 					style={tw.style("h-screen")}
 					showsVerticalScrollIndicator={false}
 				>
 					<PlatformsSection />
 				</ScrollView>
-
-				<BorderLine style={tw.style("mt-[-1px]")} />
 				<ScrollView
-					style={tw.style("h-screen")}
+					style={tw.style(tw.prefixMatch("lg") ? "" : "h-screen")}
 					showsVerticalScrollIndicator={false}
 				>
 					<FaqSection />
 				</ScrollView>
-
-				<BorderLine />
 				<FooterSection />
 			</ScrollView>
 		</FansScreen1>

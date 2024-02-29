@@ -178,6 +178,7 @@ const StoryCommentDialog: FC<Props> = (props) => {
 								onClickReply={onClickReply}
 								onClickLike={handleToggleLike}
 								onDelete={handleDeleteComment}
+								onCloseModal={onDismiss}
 							/>
 						))}
 					</ScrollView>

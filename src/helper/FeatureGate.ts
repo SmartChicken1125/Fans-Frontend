@@ -205,10 +205,6 @@ export const featureGates = {
 		description: "show scheduled post on settings page",
 		production: false,
 	},
-	"2024_02-NSFW-indicator": {
-		description: "enable 18+ indicator functionality on profile page",
-		production: false,
-	},
 	"2024_02-edit-post": {
 		description: "enable post editing functionality",
 		production: false,

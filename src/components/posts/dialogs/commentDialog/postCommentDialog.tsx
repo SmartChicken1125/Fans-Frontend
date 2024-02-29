@@ -18,7 +18,6 @@ import {
 } from "@helper/endpoints/post/apis";
 import tw from "@lib/tailwind";
 import { IComment } from "@usertypes/types";
-import { usePathname } from "expo-router";
 import React, { FC, useEffect, useState, useCallback } from "react";
 import { Pressable, ScrollView, View, useWindowDimensions } from "react-native";
 import Toast from "react-native-toast-message";
@@ -37,7 +36,6 @@ const PostCommentDialog: FC<Props> = (props) => {
 	const { userId } = state.profile;
 	const { userInfo } = state.user;
 	const { height } = useWindowDimensions();
-	const pathname = usePathname();
 
 	const [totalCounts, setTotalCounts] = useState(0);
 	const [comments, setComments] = useState<IComment[]>([]);
@@ -121,18 +119,6 @@ const PostCommentDialog: FC<Props> = (props) => {
 		}
 	};
 
-	const checkEnableDelete = (comment: IComment) => {
-		if (pathname === "/profile") {
-			return true;
-		} else {
-			if (comment.userId === state.profile.userId) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-	};
-
 	const handleClose = () => {
 		if (onCallback) onCallback(postId, totalCounts);
 		onDismiss();
@@ -150,7 +136,7 @@ const PostCommentDialog: FC<Props> = (props) => {
 		if (postId) {
 			fetchComments();
 		}
-	}, [postId]);
+	}, [postId, visible]);
 
 	return (
 		<BottomSheetWrapper open={visible} onClose={handleClose}>
@@ -186,6 +172,7 @@ const PostCommentDialog: FC<Props> = (props) => {
 								onClickReply={onClickReply}
 								onClickLike={handleToggleLike}
 								onDelete={handleDeleteComment}
+								onCloseModal={onDismiss}
 							/>
 						))}
 					</ScrollView>

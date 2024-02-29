@@ -41,7 +41,7 @@ export const FypText: IFypText = (props) => {
 
 	return (
 		<Text
-			style={[tw.style(styles), style, { overflow: "hidden" }]}
+			style={[tw.style(styles), { overflow: "hidden" }, style]}
 			{...props_}
 		>
 			{children}

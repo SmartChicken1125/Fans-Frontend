@@ -14,6 +14,7 @@ import { FansText, FansView, FansIconButton } from "@components/controls";
 import tw from "@lib/tailwind";
 import { IComment, IStoryReply } from "@usertypes/types";
 import { getAgoTime } from "@utils/common";
+import { useRouter } from "expo-router";
 import React, { FC, useState } from "react";
 import { Pressable, TouchableOpacity } from "react-native";
 
@@ -25,6 +26,7 @@ interface Props {
 	isChildren?: boolean;
 	onDelete: (commentId: string) => void;
 	userId: string;
+	onCloseModal: () => void;
 }
 
 const Comment: FC<Props> = (props) => {
@@ -36,8 +38,32 @@ const Comment: FC<Props> = (props) => {
 		onClickLike,
 		onDelete,
 		userId,
+		onCloseModal,
 	} = props;
+	const router = useRouter();
 	const [hideReplies, setHideReplies] = useState(true);
+
+	const handlePressAvatar = () => {
+		const profileLink = data.profile.profileLink;
+		if (
+			data.profile.activeStories &&
+			data.profile.activeStories.length > 0
+		) {
+			router.replace({
+				pathname: "stories",
+				params: {
+					screen: "Profile",
+					userId: data.profile.userId,
+					storyId: data.profile.activeStories[0].id,
+				},
+			});
+			onCloseModal();
+		} else {
+			router.push(`/${profileLink}`);
+			onCloseModal();
+		}
+	};
+
 	return (
 		<FansView flexDirection="row">
 			<FansView width={34} height={34} position="relative">
@@ -53,7 +79,11 @@ const Comment: FC<Props> = (props) => {
 					/>
 				</FypNullableView>
 
-				<AvatarWithStatus avatar={data.user.avatar ?? ""} size={34} />
+				<AvatarWithStatus
+					avatar={data.user.avatar ?? ""}
+					size={34}
+					onPress={handlePressAvatar}
+				/>
 			</FansView>
 
 			<FansView flex="1" margin={{ l: 12 }}>
@@ -67,6 +97,7 @@ const Comment: FC<Props> = (props) => {
 							fontSize={15}
 							lineHeight={20}
 							style={tw.style("font-semibold text-fans-purple")}
+							onPress={handlePressAvatar}
 						>
 							{data.user.username}
 						</FansText>

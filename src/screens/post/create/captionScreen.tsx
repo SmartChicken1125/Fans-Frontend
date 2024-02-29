@@ -83,7 +83,9 @@ const CaptionScreen = (
 			),
 		];
 
-		const thumbIdx = medias.findIndex((el) => el === postForm.thumb.uri);
+		const thumbIdx = postForm.thumb.uri
+			? medias.findIndex((el) => el === postForm.thumb.uri)
+			: 0;
 		const paidPostThumbIdx = postForm.paidPost
 			? medias.findIndex((el) => el === postForm.paidPost?.thumb.uri)
 			: -1;

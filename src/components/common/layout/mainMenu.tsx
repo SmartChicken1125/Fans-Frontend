@@ -135,11 +135,15 @@ const MainMenu: FC<Props> = (props) => {
 						title="Subscriptions"
 						onPress={onPressSubscriptions}
 					/>
+					<MenuItem title="Your cards" onPress={onPressYourCard} />
 					<MenuItem
 						title="Collections"
 						onPress={onPressCollections}
 					/>
-					<MenuItem title="Purchases" onPress={onPressPurchases} />
+					<MenuItem
+						title="Posts purchased"
+						onPress={onPressPurchases}
+					/>
 					<MenuItem title="Vault" onPress={onPressVault} />
 					{featureGates.has("2023_12-fans-referral") && isCreator && (
 						<MenuItem
@@ -161,7 +165,6 @@ const MainMenu: FC<Props> = (props) => {
 
 					<MenuItem title="Settings" onPress={onPressSettings} />
 					<FansDivider />
-					<MenuItem title="Your cards" onPress={onPressYourCard} />
 					<MenuItem
 						title={
 							user.userInfo.type === UserRoleTypes.Creator

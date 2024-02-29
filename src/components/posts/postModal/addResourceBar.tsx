@@ -18,42 +18,24 @@ interface Props {
 const AddResourceBar: FC<Props> = (props) => {
 	const { data, dispatch } = props;
 	const { type, medias, carouselIndex } = data;
-	const { useVideoPicker, useImagePicker } = useDocumentPicker();
+	const { useMediaPicker } = useDocumentPicker();
 	const [resourceWidth, setResourceWidth] = useState(100);
 
 	const onClickAdd = async () => {
-		if (type === PostType.Video) {
-			const vResult = await useVideoPicker(true);
-			if (vResult.ok) {
-				const addedResources = [...medias, ...vResult.data];
-				dispatch.setPosts({
-					type: PostsActionType.updatePostForm,
-					data: {
-						medias: addedResources,
-					},
-				});
-			} else {
-				Toast.show({
-					type: "error",
-					text1: vResult?.message ?? "",
-				});
-			}
+		const result = await useMediaPicker();
+		if (result.ok) {
+			const addedResources = [...medias, ...result.data];
+			dispatch.setPosts({
+				type: PostsActionType.updatePostForm,
+				data: {
+					medias: addedResources,
+				},
+			});
 		} else {
-			const iResult = await useImagePicker(true);
-			if (iResult.ok) {
-				const addedResources = [...medias, ...iResult.data];
-				dispatch.setPosts({
-					type: PostsActionType.updatePostForm,
-					data: {
-						medias: addedResources,
-					},
-				});
-			} else {
-				Toast.show({
-					type: "error",
-					text1: iResult?.message ?? "",
-				});
-			}
+			Toast.show({
+				type: "error",
+				text1: result?.message ?? "",
+			});
 		}
 	};
 
