@@ -29,6 +29,7 @@ const AddResourceBar: FC<Props> = (props) => {
 				type: PostsActionType.updatePostForm,
 				data: {
 					medias: addedResources,
+					carouselIndex: addedResources.length - 1,
 				},
 			});
 		} else {
@@ -96,11 +97,7 @@ const AddResourceBar: FC<Props> = (props) => {
 				<ResourceItem
 					key={`${media.id}`}
 					data={media}
-					mediaType={
-						type === PostType.Video
-							? MediaType.Video
-							: MediaType.Image
-					}
+					mediaType={media.type}
 					onClose={() => onRemove(media.id ?? "")}
 					onSelect={() => onSelectMedia(index)}
 				/>
