@@ -9,6 +9,7 @@ import {
 	FansSwitch,
 	FansSwitch1,
 	FansText,
+	FansTextInput,
 	FansView,
 } from "@components/controls";
 import {
@@ -17,6 +18,7 @@ import {
 } from "@components/modals/settings/automatedChats";
 import {
 	createWelcomeAutomatedMessage,
+	updateWelcomeAutomatedMessageSettings,
 	getWelcomeAutomatedMessage,
 } from "@helper/endpoints/chat/apis";
 import tw from "@lib/tailwind";
@@ -50,6 +52,9 @@ const AutomatedChatsScreen = (
 	] = useState(false);
 	const [isWelcomeMessageModalVisible, setWelcomeMessageModalVisible] =
 		useState(false);
+	const [welcomeMessageDelayEnabled, setWelcomeMessageDelayEnabled] =
+		useState(false);
+	const [welcomeMessageDelay, setWelcomeMessageDelay] = useState("30");
 
 	useEffect(() => {
 		const fetchWelcomeAutomatedMessage = async () => {
@@ -57,7 +62,11 @@ const AutomatedChatsScreen = (
 			if (result.ok) {
 				setWelcomeText(result.data?.text);
 				setWelcomeImage(result.data?.image);
-				setWelcomeMessage(result.data?.enabled);
+				setWelcomeMessage(Boolean(result.data?.enabled));
+				setWelcomeMessageDelayEnabled(
+					Boolean(result.data?.isDelayEnabled),
+				);
+				setWelcomeMessageDelay(result.data?.delay.toString() ?? "30");
 			}
 		};
 		fetchWelcomeAutomatedMessage();
@@ -114,13 +123,15 @@ const AutomatedChatsScreen = (
 				});
 				return;
 			}
-			image = uploadResult.data?.[0].url;
+			image = uploadResult.data?.[0].id;
 		}
 
 		const result = await createWelcomeAutomatedMessage({
 			text: text,
 			image: image,
 			enabled: isWelcomeMessage,
+			isDelayEnabled: welcomeMessageDelayEnabled,
+			delay: parseInt(welcomeMessageDelay),
 		});
 
 		if (result.ok) {
@@ -142,6 +153,25 @@ const AutomatedChatsScreen = (
 		image: "https://i.postimg.cc/J7vXYBL0/image.png",
 		text: "Hey there! Here’s a little surprise gift for you. Hope you enjoy it! Xx",
 	};
+
+	useEffect(() => {
+		const handleUpdateWelcomeMessageSettings = async () => {
+			const result = await updateWelcomeAutomatedMessageSettings({
+				enabled: isWelcomeMessage,
+				isDelayEnabled: welcomeMessageDelayEnabled,
+				delay: parseInt(welcomeMessageDelay),
+			});
+
+			if (!result.ok) {
+				Toast.show({
+					type: "error",
+					text1: "Error",
+					text2: result.data?.message,
+				});
+			}
+		};
+		handleUpdateWelcomeMessageSettings();
+	}, [isWelcomeMessage, welcomeMessageDelayEnabled, welcomeMessageDelay]);
 
 	return (
 		<FansScreen3 contentStyle={tw.style("lg:max-w-[670px]")}>
@@ -240,6 +270,39 @@ const AutomatedChatsScreen = (
 				</FansView>
 			</FansView>
 			{/* ~ Welcome message */}
+			<FansGap height={32} />
+			<FansHorizontalDivider />
+			<FansGap height={26.3} />
+			<FansView>
+				<FansView flexDirection="row" justifyContent="between">
+					<FansView>
+						<FansText fontFamily="inter-semibold" fontSize={19}>
+							Sent Delay
+						</FansText>
+						<FansGap height={11} />
+						<FansText
+							fontSize={16}
+							style={tw.style(
+								"text-fans-grey-70 dark:text-fans-grey-b1",
+							)}
+						>
+							You can add a delay so this welcome message looks
+							more natural
+						</FansText>
+					</FansView>
+					<FansSwitch1
+						value={welcomeMessageDelayEnabled}
+						onValueChange={setWelcomeMessageDelayEnabled}
+					/>
+				</FansView>
+				<FansGap height={11} />
+				<FansTextInput
+					iconNode="MIN"
+					keyboardType="numeric"
+					value={welcomeMessageDelay}
+					onChangeText={setWelcomeMessageDelay}
+				/>
+			</FansView>
 			<FansGap height={32} />
 			<FansHorizontalDivider />
 			<FansGap height={26.3} />

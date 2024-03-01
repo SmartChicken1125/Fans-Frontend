@@ -217,6 +217,10 @@ export const featureGates = {
 		description: "enable xp system",
 		production: false,
 	},
+	"2024_02-new-payout-screen": {
+		description: "Redesigned payout screen",
+		production: false,
+	},
 } satisfies Record<string, IFeatureGateData>; // Note, it's year_month-feature-name, not year_month_feature-name!!!
 
 export type ValidFeatureGateNames = keyof typeof featureGates;

@@ -528,7 +528,7 @@ const MessageInput: FC<IMessageInput> = (props) => {
 			message,
 			uploadedFiles,
 			previewUploadedFiles: uploadedPreviewImages,
-			value: price,
+			value: price !== "0" ? price : undefined,
 			gif: gif && {
 				source: "giphy",
 				id: String(gif.id),

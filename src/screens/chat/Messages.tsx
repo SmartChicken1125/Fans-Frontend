@@ -213,7 +213,7 @@ export const MessagesScreenContent = (props: MessagesScreenContentProps) => {
 					? {
 							...conversation,
 							unreadCount: 0,
-							lastReadMessageId: undefined,
+							lastReadMessageId: conversation.lastMessage?.id,
 					  }
 					: conversation,
 			),
@@ -243,8 +243,9 @@ export const MessagesScreenContent = (props: MessagesScreenContentProps) => {
 	};
 
 	const handlePressUser = (index: number) => {
-		setNote(notes[index]);
-		openShareNoteDialogYN(true);
+		router.push(`/${notes[index].name}`);
+		// setNote(notes[index]);
+		// openShareNoteDialogYN(true);
 	};
 
 	return (

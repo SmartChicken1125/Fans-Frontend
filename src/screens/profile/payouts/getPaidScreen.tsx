@@ -33,6 +33,7 @@ import {
 } from "@helper/endpoints/payout/apis";
 import tw from "@lib/tailwind";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useFeatureGates } from "@state/featureGates";
 import { IconTypes, PaymentMethodType } from "@usertypes/commonEnums";
 import { SettingsReferralProgramNativeStackParams } from "@usertypes/navigations";
 import { ICardAction, PayPalPayoutMethod, SortType } from "@usertypes/types";
@@ -42,6 +43,7 @@ import React, { useEffect, useState, FC } from "react";
 import { ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
+import OldGetPaidScreen from "./oldGetPaidScreen";
 
 const payments = [
 	{
@@ -293,7 +295,7 @@ const PayoutCard: FC<PayoutCardProps> = () => {
 	);
 };
 
-const GetPaidScreen = () => {
+const NewGetPaidScreen = () => {
 	const navigation =
 		useNavigation<
 			NativeStackNavigationProp<SettingsReferralProgramNativeStackParams>
@@ -815,4 +817,13 @@ const GetPaidScreen = () => {
 	);
 };
 
-export default GetPaidScreen;
+const GetPaidScreenWrapper = () => {
+	const featureGates = useFeatureGates();
+	return featureGates.has("2024_02-new-payout-screen") ? (
+		<NewGetPaidScreen />
+	) : (
+		<OldGetPaidScreen />
+	);
+};
+
+export default GetPaidScreenWrapper;

@@ -368,7 +368,11 @@ const PostCard: FC<Props> = (props) => {
 			</FypNullableView>
 
 			<FansView position="relative">
-				{data.type === PostType.Media && <MediaContent data={data} />}
+				{(data.type === PostType.Media ||
+					data.type === PostType.Photo ||
+					data.type === PostType.Video) && (
+					<MediaContent data={data} />
+				)}
 				{data.type === PostType.Audio && <AudioContent data={data} />}
 				{data.type === PostType.Fundraiser && (
 					<FundraiserContent data={data} />

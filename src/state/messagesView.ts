@@ -66,6 +66,11 @@ export class MessageView implements MessageViewData {
 		this.initIfNeeded();
 	}
 
+	forceRetry() {
+		this.state = MessageViewState.Uninitialized;
+		this.initIfNeeded();
+	}
+
 	async initIfNeeded() {
 		if (this.state !== MessageViewState.Uninitialized) return;
 
@@ -218,7 +223,12 @@ export class MessageView implements MessageViewData {
 		const { message, uploadedFiles, previewUploadedFiles, value, gif } =
 			options;
 
-		if (value && uploadedFiles && uploadedFiles.length > 0) {
+		if (
+			value &&
+			value !== "0" &&
+			uploadedFiles &&
+			uploadedFiles.length > 0
+		) {
 			await this.sendPaidPostMessage(
 				value,
 				uploadedFiles,

@@ -4,6 +4,7 @@ import {
 	createGETWithParams,
 	createPOST,
 	createPOSTWithParams,
+	createPUT,
 } from "@helper/RequesterBase";
 import { IMessage } from "@usertypes/types";
 import {
@@ -23,6 +24,7 @@ import {
 	CreateMessageReportReqBody,
 	MediasRespBody,
 	PurchaseChatPaidPostReqBody,
+	UpdateChatAutomatedMessageWelcomeReqBody,
 } from "./schemas";
 
 export const getWSInfo = createGET<ChatWSInfoRespBody>("/chat/ws-info", false);
@@ -68,6 +70,12 @@ export const getWelcomeAutomatedMessage =
 export const createWelcomeAutomatedMessage =
 	createPOST<ChatAutomatedMessageWelcomeReqBody>(
 		"/chat/automated-messages/welcome",
+		true,
+	);
+
+export const updateWelcomeAutomatedMessageSettings =
+	createPUT<UpdateChatAutomatedMessageWelcomeReqBody>(
+		"/chat/automated-messages/welcome/settings",
 		true,
 	);
 

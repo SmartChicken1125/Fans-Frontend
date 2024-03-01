@@ -75,17 +75,11 @@ export const MessageOptionsMenu = ({
 						>
 							Copy
 						</FansText>
-						<FansText style={tw.style("text-white text-sm mr-2")}>
-							Like
-						</FansText>
 						<FansText
-							style={tw.style("text-white text-sm mr-2")}
 							onPress={onReply}
+							style={tw.style("text-white text-sm mr-2")}
 						>
 							Reply
-						</FansText>
-						<FansText style={tw.style("text-white text-sm mr-2")}>
-							Pin
 						</FansText>
 						{isSelf && (
 							<FansText
@@ -107,12 +101,14 @@ export const MessageOptionsMenu = ({
 				</View>
 			}
 		>
-			<FansSvg
-				width={4}
-				height={16}
-				svg={ThreeDotsVerticalSvg}
-				color1="grey-70"
-			/>
+			<View style={tw.style("p-3")}>
+				<FansSvg
+					width={4}
+					height={16}
+					svg={ThreeDotsVerticalSvg}
+					color1="grey-70"
+				/>
+			</View>
 		</Popable>
 	);
 };

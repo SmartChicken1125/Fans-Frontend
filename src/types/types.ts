@@ -888,6 +888,7 @@ export const enum MessageType {
 	PAID_POST = 3,
 	GIF = 4,
 	VIDEO_CALL_NOTIFICATION = 5,
+	TOP_FAN_NOTIFICATION = 6,
 }
 
 export const enum MessageChannelType {

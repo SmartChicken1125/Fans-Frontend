@@ -225,11 +225,6 @@ const PostTypesDialog = () => {
 			onClose();
 			let postStep: PostStepTypes = PostStepTypes.Thumbnail;
 			switch (postType) {
-				case PostType.Media:
-					if (state.posts.modal.step === PostStepTypes.PaidPost)
-						postStep = PostStepTypes.PaidPost;
-					else postStep = PostStepTypes.Caption;
-					break;
 				case PostType.Poll:
 					postStep = PostStepTypes.NewPollPost;
 					break;

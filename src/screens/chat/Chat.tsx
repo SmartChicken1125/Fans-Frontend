@@ -297,7 +297,7 @@ const ChatScreen = (
 				subscribeActionType: SubscribeActionType.ChatPost,
 				message: message,
 				defaultTab: "form",
-				onSuccess: () => messagesView.initIfNeeded(),
+				onSuccess: () => messagesView.forceRetry(),
 			},
 		});
 	};
@@ -540,7 +540,7 @@ const ChatScreen = (
 					),
 					headerRight: () => (
 						<View style={tw.style("flex-row gap-1 justify-end")}>
-							<TouchableOpacity
+							{/* <TouchableOpacity
 								style={tw.style(
 									"flex justify-center items-center w-8 h-8",
 								)}
@@ -554,7 +554,7 @@ const ChatScreen = (
 									height={17}
 									color="fans-black dark:fans-white"
 								/>
-							</TouchableOpacity>
+							</TouchableOpacity> */}
 							<TouchableOpacity
 								style={tw.style(
 									"flex justify-center items-center w-8 h-8",
@@ -582,7 +582,7 @@ const ChatScreen = (
                                     <Note1Svg />
                                 </FansView>
                             </TouchableOpacity> */}
-							<TouchableOpacity
+							{/* <TouchableOpacity
 								style={tw.style(
 									"flex justify-center items-center w-8 h-8",
 								)}
@@ -594,7 +594,7 @@ const ChatScreen = (
 									height={17}
 									color="fans-black dark:fans-white"
 								/>
-							</TouchableOpacity>
+							</TouchableOpacity> */}
 							<TouchableOpacity
 								style={tw.style(
 									"flex justify-center items-center w-8 h-8",

@@ -43,7 +43,7 @@ const SelfMessage = ({
 		}`}
 	>
 		<View style={tw`flex-1 min-w-0`}>
-			<View style={tw`flex-row justify-end items-center gap-2.5`}>
+			<View style={tw`flex-row justify-end items-center`}>
 				<MessageOptionsMenu
 					message={message}
 					onDeleteMessage={onDeleteMessage}
@@ -157,7 +157,7 @@ const FromMessage = ({
 
 	return (
 		<View
-			style={tw`flex-row items-center gap-2.5 self-start max-w-full md:max-w-[70%] ${
+			style={tw`flex-row items-center self-start max-w-full md:max-w-[70%] ${
 				message.parentMessage ? "mt-[40px]" : ""
 			}`}
 		>
@@ -258,7 +258,7 @@ const FromNotPaidPostMessage = ({
 					)}
 				>
 					<View
-						style={tw`bg-fans-grey rounded-2xl w-[400px] dark:bg-fans-grey-43`}
+						style={tw`bg-fans-grey rounded-2xl w-[300px] md:w-[400px] dark:bg-fans-grey-43`}
 					>
 						<View style={tw.style("relative")}>
 							<TouchableOpacity
@@ -269,14 +269,19 @@ const FromNotPaidPostMessage = ({
 										uri:
 											message.status === "Successful"
 												? urlOrBlurHash(
-														message.media?.[0]?.url,
+														cdnURL(
+															message.media?.[0]
+																?.url,
+														),
 														message.media?.[0]
 															?.blurhash,
 												  )
 												: urlOrBlurHash(
-														message
-															.previewMedia?.[0]
-															?.url,
+														cdnURL(
+															message
+																.previewMedia?.[0]
+																?.url,
+														),
 														message
 															.previewMedia?.[0]
 															?.blurhash,
@@ -460,7 +465,9 @@ const FromPaidPostMessage = ({
 						message.emoji ? "mb-5" : undefined,
 					)}
 				>
-					<View style={tw`bg-fans-grey rounded-2xl w-[400px]`}>
+					<View
+						style={tw`bg-fans-grey rounded-2xl w-[300px] md:w-[400px]`}
+					>
 						<View style={tw.style("relative")}>
 							<TouchableOpacity
 								onPress={() => onPressImage(message, 0)}
@@ -470,14 +477,19 @@ const FromPaidPostMessage = ({
 										uri:
 											message.status === "Successful"
 												? urlOrBlurHash(
-														message.media?.[0]?.url,
+														cdnURL(
+															message.media?.[0]
+																?.url,
+														),
 														message.media?.[0]
 															?.blurhash,
 												  )
 												: urlOrBlurHash(
-														message
-															.previewMedia?.[0]
-															?.url,
+														cdnURL(
+															message
+																.previewMedia?.[0]
+																?.url,
+														),
 														message
 															.previewMedia?.[0]
 															?.blurhash,
@@ -584,7 +596,9 @@ const SelfPaidPostMessage = ({
 						message.emoji ? "mb-5" : undefined,
 					)}
 				>
-					<View style={tw`bg-fans-grey rounded-2xl w-[400px]`}>
+					<View
+						style={tw`bg-fans-grey rounded-2xl w-[300px] md:w-[400px]`}
+					>
 						<View style={tw.style("relative")}>
 							<TouchableOpacity
 								onPress={() => onPressImage(message, 0)}
@@ -594,14 +608,19 @@ const SelfPaidPostMessage = ({
 										uri:
 											message.status === "Successful"
 												? urlOrBlurHash(
-														message.media?.[0]?.url,
+														cdnURL(
+															message.media?.[0]
+																?.url,
+														),
 														message.media?.[0]
 															?.blurhash,
 												  )
 												: urlOrBlurHash(
-														message
-															.previewMedia?.[0]
-															?.url,
+														cdnURL(
+															message
+																.previewMedia?.[0]
+																?.url,
+														),
 														message
 															.previewMedia?.[0]
 															?.blurhash,
