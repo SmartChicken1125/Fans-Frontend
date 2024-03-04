@@ -10,6 +10,7 @@ module.exports = {
 			"inter-medium": "Inter-Medium",
 			"inter-semibold": "Inter-SemiBold",
 			"inter-bold": "Inter-Bold",
+			"inter-v": "Inter-Variable",
 		},
 		extend: {
 			colors: {

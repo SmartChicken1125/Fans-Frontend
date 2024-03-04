@@ -1,6 +1,7 @@
+import { FansView } from "@components/controls";
 import tw from "@lib/tailwind";
 import React, { FC } from "react";
-import { View, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
 
 interface Props {
 	children: React.ReactNode;
@@ -10,12 +11,14 @@ const ScreenWrapper: FC<Props> = (props) => {
 	const { children } = props;
 
 	return (
-		<View style={tw.style("flex-row h-screen md:h-[600px] xl:h-[670px]")}>
-			<View
-				style={tw.style(
-					"hidden md:flex w-[600px] xl:w-[670px] relative",
-				)}
-			></View>
+		<FansView
+			flexDirection="row"
+			style={tw.style("h-screen md:h-[600px] xl:h-[770px]")}
+		>
+			<FansView
+				position="relative"
+				style={tw.style("hidden md:flex w-[600px] xl:w-[770px]")}
+			></FansView>
 			<ScrollView
 				style={tw.style(
 					"md:border-l border-fans-grey dark:border-fans-grey-43",
@@ -24,11 +27,11 @@ const ScreenWrapper: FC<Props> = (props) => {
 					flex: 1,
 				}}
 			>
-				<View style={[tw.style("px-5 xl:px-10 pt-10 pb-10")]}>
+				<FansView style={[tw.style("px-5 xl:px-10 pt-10 pb-10")]}>
 					{children}
-				</View>
+				</FansView>
 			</ScrollView>
-		</View>
+		</FansView>
 	);
 };
 

@@ -7,25 +7,22 @@ import { PostsActionType, useAppContext } from "@context/useAppContext";
 import { cdnURL } from "@helper/Utils";
 import tw from "@lib/tailwind";
 import { MediaType, ResizeMode } from "@usertypes/commonEnums";
-import { isDesktop } from "@utils/global";
-import React, { FC, useState, useEffect } from "react";
+import React, { FC, useState } from "react";
 import {
+	Dimensions,
+	Image,
 	Modal,
 	Pressable,
 	View,
 	useWindowDimensions,
-	Image,
-	Dimensions,
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
-	useSharedValue,
 	useAnimatedStyle,
+	useSharedValue,
 	withSpring,
 	withTiming,
 } from "react-native-reanimated";
-
-const { width, height } = Dimensions.get("window");
 
 interface MediaItemProps {
 	url: string;
@@ -155,6 +152,8 @@ const DesktopScreen: FC<DesktopScreenProps> = (props) => {
 	// 	}
 	// }, [mediaUrls, mediaType]);
 
+	const { width, height } = Dimensions.get("window");
+
 	return (
 		<FansView
 			width="screen"
@@ -220,6 +219,7 @@ const PostMediaDialog = () => {
 		watermark,
 	} = state.posts.mediaModal;
 	const { height } = useWindowDimensions();
+	const isDesktop = tw.prefixMatch("lg");
 
 	const [imgWidth, setImgWidth] = useState(100);
 

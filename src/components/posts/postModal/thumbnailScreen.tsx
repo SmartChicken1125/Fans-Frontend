@@ -1,6 +1,17 @@
-import { Photos1Svg, TransformSvg } from "@assets/svgs/common";
+import {
+	Photos1Svg,
+	TransformSvg,
+	ImageSvg,
+	LockSvg,
+	Check1Svg,
+} from "@assets/svgs/common";
 import RoundButton from "@components/common/RoundButton";
-import { FypNullableView, FypVideo } from "@components/common/base";
+import {
+	FypNullableView,
+	FypSvg,
+	FypVideo,
+	FypText,
+} from "@components/common/base";
 import { ImageEditor } from "@components/common/imageEditor/imageEditor";
 import {
 	FansGap,
@@ -20,9 +31,11 @@ import {
 	PostStepTypes,
 	PostType,
 	ResizeMode,
+	UserRoleTypes,
 } from "@usertypes/commonEnums";
 import { IPickerMedia, IPostForm } from "@usertypes/types";
 import useDocumentPicker from "@utils/useDocumentPicker";
+import { Image as ExpoImage } from "expo-image";
 import React, { FC, useEffect, useState } from "react";
 import { Image, TouchableOpacity } from "react-native";
 import Animated, {
@@ -31,6 +44,7 @@ import Animated, {
 	withSpring,
 } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
+import PostLockIcon from "../common/postLockIcon";
 import UploadProgress from "../common/uploadProgress";
 import AddResourceBar from "./addResourceBar";
 import ModalHeader from "./modalHeader";
@@ -73,6 +87,240 @@ const FileDropzone: FC<FileDropzoneProps> = (props) => {
 	);
 };
 
+interface PaidPostViewTypeProps {
+	viewType: UserRoleTypes;
+	onChange: (val: UserRoleTypes) => void;
+	post: IPostForm;
+}
+
+const PaidPostViewType: FC<PaidPostViewTypeProps> = (props) => {
+	const { viewType, onChange, post } = props;
+
+	return (
+		<FansView padding={{ t: 14, x: 75 }}>
+			<FansView
+				flexDirection="row"
+				alignItems="center"
+				justifyContent="between"
+			>
+				<FansView flexDirection="row" alignItems="center" gap={8}>
+					<FypSvg
+						svg={ImageSvg}
+						width={14}
+						height={14}
+						color="fans-grey-48 dark:fans-grey-b1"
+					/>
+					<FypText
+						fontSize={17}
+						fontWeight={500}
+						lineHeight={22}
+						style={tw.style(
+							"text-fans-grey-48 dark:text-fans-grey-b1",
+						)}
+					>
+						{post.medias.length}
+					</FypText>
+				</FansView>
+				<FansView flexDirection="row" alignItems="center" gap={7}>
+					<FypText
+						fontSize={17}
+						lineHeight={22}
+						fontWeight={500}
+						style={tw.style(
+							"text-fans-grey-48 dark:text-fans-grey-b1",
+						)}
+					>
+						{`$${post.paidPost?.price ?? 0}`}
+					</FypText>
+					<FypSvg
+						width={10}
+						height={13}
+						svg={LockSvg}
+						color="fans-grey-48 dark:fans-grey-b1"
+					/>
+				</FansView>
+			</FansView>
+			<FansGap height={14} />
+			<FypText
+				fontSize={17}
+				fontWeight={600}
+				lineHeight={22}
+				textAlign="center"
+				margin={{ b: 16 }}
+			>
+				Viewing as
+			</FypText>
+			<FansView
+				width={358}
+				height={42}
+				alignSelf="center"
+				flexDirection="row"
+				padding={{ x: 5, y: 4 }}
+				style={tw.style(
+					viewType === UserRoleTypes.Creator
+						? "bg-fans-grey-48 dark:bg-fans-grey-b1"
+						: "bg-fans-purple",
+				)}
+				borderRadius={42}
+			>
+				<FansView
+					flex="1"
+					alignItems="center"
+					justifyContent="center"
+					position="relative"
+					borderRadius={40}
+					style={tw.style(
+						viewType === UserRoleTypes.Creator
+							? "bg-fans-white dark:bg-fans-black-1d"
+							: "",
+					)}
+					pressableProps={{
+						onPress: () => onChange(UserRoleTypes.Creator),
+					}}
+				>
+					<FypSvg
+						svg={Check1Svg}
+						width={18}
+						height={14}
+						color="fans-black dark:fans-white"
+						style={tw.style(
+							"absolute left-[14px] top-[10px]",
+							viewType === UserRoleTypes.Fan ? "hidden" : "",
+						)}
+					/>
+					<FypText
+						fontSize={18}
+						fontWeight={
+							viewType === UserRoleTypes.Creator ? 600 : 500
+						}
+						lineHeight={24}
+						style={tw.style(
+							viewType === UserRoleTypes.Creator
+								? "text-fans-black dark:text-fans-white"
+								: "text-fans-white",
+						)}
+					>
+						Creator
+					</FypText>
+				</FansView>
+				<FansView
+					flex="1"
+					alignItems="center"
+					justifyContent="center"
+					position="relative"
+					borderRadius={40}
+					style={tw.style(
+						viewType === UserRoleTypes.Fan
+							? "bg-fans-white dark:bg-fans-black-1d"
+							: "",
+					)}
+					pressableProps={{
+						onPress: () => onChange(UserRoleTypes.Fan),
+					}}
+				>
+					<FypSvg
+						svg={Check1Svg}
+						width={18}
+						height={14}
+						color="fans-black dark:fans-white"
+						style={tw.style(
+							"absolute left-[14px] top-[10px]",
+							viewType === UserRoleTypes.Creator ? "hidden" : "",
+						)}
+					/>
+					<FypText
+						fontSize={18}
+						fontWeight={viewType === UserRoleTypes.Fan ? 600 : 500}
+						lineHeight={24}
+						style={tw.style(
+							viewType === UserRoleTypes.Fan
+								? "text-fans-black dark:text-fans-white"
+								: "text-fans-white",
+						)}
+					>
+						Fans
+					</FypText>
+				</FansView>
+			</FansView>
+		</FansView>
+	);
+};
+
+interface MediaCarouselProps {
+	medias: IPickerMedia[];
+	carouselSize: number;
+	carouselIndex: number;
+}
+
+const MediaCarousel: FC<MediaCarouselProps> = (props) => {
+	const { medias, carouselSize, carouselIndex } = props;
+	const offset = useSharedValue(carouselIndex);
+	const carouselStyles = useAnimatedStyle(() => {
+		return {
+			transform: [
+				{
+					translateX: withSpring(offset.value * carouselSize * -1, {
+						damping: 100,
+						stiffness: 200,
+					}),
+				},
+			],
+		};
+	}, [offset.value]);
+
+	useEffect(() => {
+		offset.value = carouselIndex;
+	}, [carouselIndex]);
+
+	return (
+		<Animated.View
+			style={[
+				tw.style("absolute flex-row top-0 bg-fans-black left-0"),
+				carouselStyles,
+			]}
+		>
+			{medias.map((media, index) => (
+				<FansView
+					key={index}
+					width={carouselSize}
+					height={carouselSize}
+					style={[tw.style("bg-fans-black")]}
+				>
+					<FypNullableView visible={media.type === MediaType.Image}>
+						<Image
+							source={{
+								uri: cdnURL(media.uri),
+							}}
+							style={[
+								tw.style("w-full h-full"),
+								{
+									borderBottomLeftRadius: 15,
+								},
+							]}
+							resizeMode="contain"
+						/>
+					</FypNullableView>
+
+					<FypNullableView visible={media.type === MediaType.Video}>
+						<FypVideo
+							source={{
+								uri: cdnURL(media.uri),
+							}}
+							style={[
+								tw.style("w-full h-full"),
+								{
+									borderBottomLeftRadius: 15,
+								},
+							]}
+							resizeMode={ResizeMode.CONTAIN}
+						/>
+					</FypNullableView>
+				</FansView>
+			))}
+		</Animated.View>
+	);
+};
+
 interface Props {
 	data: IPostForm;
 	inProgress: boolean;
@@ -103,25 +351,16 @@ const ThumbnailScreen: FC<Props> = (props) => {
 	const { medias, type, carouselIndex } = data;
 	const [pickerMedias, setPickerMedias] = useState<IPickerMedia[]>([]);
 	const [openImageEditor, setOpenImageEditor] = useState(false);
+	const [viewType, setViewType] = useState<UserRoleTypes>(
+		UserRoleTypes.Creator,
+	);
 
-	const carouselSize = tw.prefixMatch("xl") ? 670 : 600;
-	const offset = useSharedValue(carouselIndex);
+	const carouselSize =
+		(tw.prefixMatch("xl") ? 770 : 600) -
+		(step === PostStepTypes.PaidPost ? 150 : 0);
 
 	const { useVideoPicker, useAudioPicker, useImagePicker, useMediaPicker } =
 		useDocumentPicker();
-
-	const carouselStyles = useAnimatedStyle(() => {
-		return {
-			transform: [
-				{
-					translateX: withSpring(offset.value * carouselSize * -1, {
-						damping: 100,
-						stiffness: 200,
-					}),
-				},
-			],
-		};
-	}, [offset.value]);
 
 	const handleImageOpenPicker = async () => {
 		const result = await useImagePicker(type === PostType.Photo);
@@ -245,12 +484,10 @@ const ThumbnailScreen: FC<Props> = (props) => {
 	}, [medias]);
 
 	useEffect(() => {
-		offset.value = carouselIndex;
-	}, [carouselIndex]);
-
-	useEffect(() => {
-		if (pickerMedias.length >= 0 && type === PostType.Media) {
-			handleSubmit();
+		if (step === PostStepTypes.Thumbnail) {
+			if (pickerMedias.length >= 0 && type === PostType.Media) {
+				handleSubmit();
+			}
 		}
 	}, [pickerMedias, type]);
 
@@ -259,7 +496,7 @@ const ThumbnailScreen: FC<Props> = (props) => {
 			style={tw.style(
 				step === PostStepTypes.Thumbnail
 					? "relative"
-					: "absolute bottom-0 z-10",
+					: "absolute top-[101px] z-10",
 			)}
 		>
 			<FypNullableView visible={step === PostStepTypes.Thumbnail}>
@@ -284,7 +521,10 @@ const ThumbnailScreen: FC<Props> = (props) => {
 			>
 				<FansView
 					style={tw.style(
-						"w-150 xl:w-[670px] h-150 xl:h-[670px] mx-auto",
+						"w-150 h-150 mx-auto",
+						step === PostStepTypes.Thumbnail
+							? "xl:w-[670px] xl:h-[670px]"
+							: "xl:w-[770px] xl:h-[770px]",
 					)}
 				>
 					<FypNullableView visible={inProgress}>
@@ -378,75 +618,58 @@ const ThumbnailScreen: FC<Props> = (props) => {
 								<FypNullableView
 									visible={type !== PostType.Audio}
 								>
-									<Animated.View
-										style={[
-											tw.style(
-												"absolute flex-row top-0 left-0 bg-fans-black",
-											),
-											carouselStyles,
-										]}
+									<FansView
+										width={carouselSize}
+										height={carouselSize}
+										position="relative"
+										style={tw.style(
+											"mx-auto overflow-hidden",
+										)}
 									>
-										{pickerMedias.map((media, index) => (
-											<FansView
-												key={index}
-												width={carouselSize}
-												height={carouselSize}
-												style={[
-													tw.style("bg-fans-black"),
-												]}
-											>
-												<FypNullableView
-													visible={
-														media.type ===
-														MediaType.Image
-													}
-												>
-													<Image
-														source={{
-															uri: cdnURL(
-																media.uri,
-															),
-														}}
-														style={[
-															tw.style(
-																"w-full h-full",
-															),
-															{
-																borderBottomLeftRadius: 15,
-															},
-														]}
-														resizeMode="contain"
-													/>
-												</FypNullableView>
+										<FypNullableView
+											visible={
+												step !==
+													PostStepTypes.PaidPost ||
+												viewType ===
+													UserRoleTypes.Creator
+											}
+										>
+											<MediaCarousel
+												medias={pickerMedias}
+												carouselIndex={carouselIndex}
+												carouselSize={carouselSize}
+											/>
+										</FypNullableView>
 
-												<FypNullableView
-													visible={
-														media.type ===
-														MediaType.Video
-													}
-												>
-													<FypVideo
-														source={{
-															uri: cdnURL(
-																media.uri,
-															),
-														}}
-														style={[
-															tw.style(
-																"w-full h-full",
-															),
-															{
-																borderBottomLeftRadius: 15,
-															},
-														]}
-														resizeMode={
-															ResizeMode.CONTAIN
-														}
-													/>
-												</FypNullableView>
-											</FansView>
-										))}
-									</Animated.View>
+										<FypNullableView
+											visible={
+												step ===
+													PostStepTypes.PaidPost &&
+												viewType === UserRoleTypes.Fan
+											}
+										>
+											<ExpoImage
+												source={{
+													uri: data.paidPost?.thumbs
+														? data.paidPost
+																.thumbs[0]?.uri
+														: "",
+												}}
+												style={tw.style(
+													"w-full h-full",
+												)}
+												pointerEvents="none"
+											/>
+										</FypNullableView>
+
+										<FypNullableView
+											visible={
+												step === PostStepTypes.PaidPost
+											}
+										>
+											<PostLockIcon />
+										</FypNullableView>
+									</FansView>
 								</FypNullableView>
 
 								<FypNullableView
@@ -456,12 +679,18 @@ const ThumbnailScreen: FC<Props> = (props) => {
 										<AudioItem data={pickerMedias[0]} />
 									</FansView>
 								</FypNullableView>
+
 								<AddResourceBar
 									data={data}
 									dispatch={dispatch}
+									style={tw.style(
+										step === PostStepTypes.PaidPost
+											? "bottom-[186px]"
+											: "bottom-9",
+									)}
 								/>
+
 								<FypNullableView
-									// visible={type === PostType.Photo}
 									visible={
 										pickerMedias[carouselIndex] &&
 										pickerMedias[carouselIndex].type ===
@@ -473,11 +702,21 @@ const ThumbnailScreen: FC<Props> = (props) => {
 										backgroundColor="bg-fans-black/50 dark:bg-fans-white/50"
 										onPress={() => setOpenImageEditor(true)}
 										style={tw.style(
-											"absolute bottom-9 left-9",
+											"absolute bottom-9 left-9 z-1",
 										)}
 									>
 										<TransformSvg color="#fff" size={18} />
 									</FansIconButton>
+								</FypNullableView>
+
+								<FypNullableView
+									visible={step === PostStepTypes.PaidPost}
+								>
+									<PaidPostViewType
+										post={data}
+										viewType={viewType}
+										onChange={setViewType}
+									/>
 								</FypNullableView>
 							</FansView>
 						</FypNullableView>

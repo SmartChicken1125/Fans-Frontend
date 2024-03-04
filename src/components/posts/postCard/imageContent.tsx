@@ -53,7 +53,11 @@ const ImageContent: IFypPostContent = (props) => {
 					}
 				/>
 
-				<TaggedPeople data={data} onPress={handleToggleTooltip} />
+				<TaggedPeople
+					mediaIndex={0}
+					data={data}
+					onPress={handleToggleTooltip}
+				/>
 			</FansView>
 			{/* <TaggedPeoplePopover
 				visible={showTooltip}

@@ -855,28 +855,23 @@ const ProfileScreen = (
 															flexDirection="row"
 															gap={7}
 														>
-															{featureGates.has(
-																"2024_02-review",
-															) &&
-																tw.prefixMatch(
-																	"md",
-																) && (
-																	<FansButton3
-																		height={
-																			42
-																		}
-																		title="Review"
-																		buttonStyle={{
-																			backgroundColor:
-																				"black",
-																			borderColor:
-																				"black",
-																		}}
-																		onPress={
-																			handlePressReview
-																		}
-																	/>
-																)}
+															{tw.prefixMatch(
+																"md",
+															) && (
+																<FansButton3
+																	height={42}
+																	title="Review"
+																	buttonStyle={{
+																		backgroundColor:
+																			"black",
+																		borderColor:
+																			"black",
+																	}}
+																	onPress={
+																		handlePressReview
+																	}
+																/>
+															)}
 															{hasAccess && (
 																<FansIconButton
 																	onPress={
@@ -1023,94 +1018,79 @@ const ProfileScreen = (
 														/>
 													</FansView>
 													<FansGap height={18} />
-													{featureGates.has(
-														"2024_02-review",
-													) &&
-														!tw.prefixMatch(
-															"md",
-														) && (
-															<>
-																<FansView
-																	alignItems="center"
-																	flexDirection="row"
+													{!tw.prefixMatch("md") && (
+														<>
+															<FansView
+																alignItems="center"
+																flexDirection="row"
+															>
+																<FansSvg
+																	width={11.9}
+																	height={
+																		11.4
+																	}
+																	svg={
+																		Star2Svg
+																	}
+																	color1="purple-a8"
+																/>
+																<FansGap
+																	width={4}
+																/>
+																<FansText
+																	fontFamily="inter-semibold"
+																	fontSize={
+																		15
+																	}
 																>
-																	<FansSvg
-																		width={
-																			11.9
-																		}
-																		height={
-																			11.4
-																		}
-																		svg={
-																			Star2Svg
-																		}
-																		color1="purple-a8"
-																	/>
-																	<FansGap
-																		width={
-																			4
-																		}
-																	/>
+																	{
+																		profile
+																			.review
+																			.score
+																	}
+																</FansText>
+																<FansGap
+																	width={4}
+																/>
+																<FansText
+																	color="grey-48"
+																	fontSize={
+																		15
+																	}
+																>
+																	(
+																	{
+																		profile
+																			.review
+																			.total
+																	}
+																	)
+																</FansText>
+																<FansGap
+																	width={4}
+																/>
+																<FansView
+																	touchableOpacityProps={{
+																		onPress:
+																			handlePressReview,
+																	}}
+																>
 																	<FansText
+																		color="purple-a8"
 																		fontFamily="inter-semibold"
 																		fontSize={
 																			15
 																		}
 																	>
-																		{
-																			profile
-																				.review
-																				.score
-																		}
+																		Review
 																	</FansText>
-																	<FansGap
-																		width={
-																			4
-																		}
-																	/>
-																	<FansText
-																		color="grey-48"
-																		fontSize={
-																			15
-																		}
-																	>
-																		(
-																		{
-																			profile
-																				.review
-																				.total
-																		}
-																		)
-																	</FansText>
-																	<FansGap
-																		width={
-																			4
-																		}
-																	/>
-																	<FansView
-																		touchableOpacityProps={{
-																			onPress:
-																				handlePressReview,
-																		}}
-																	>
-																		<FansText
-																			color="purple-a8"
-																			fontFamily="inter-semibold"
-																			fontSize={
-																				15
-																			}
-																		>
-																			Review
-																		</FansText>
-																	</FansView>
 																</FansView>
-																<FansGap
-																	height={
-																		21.5
-																	}
-																/>
-															</>
-														)}
+															</FansView>
+															<FansGap
+																height={21.5}
+															/>
+														</>
+													)}
 													<SocialLinkList
 														data={
 															profile.socialLinks

@@ -26,6 +26,7 @@ interface Props {
 	defaultIndex?: number;
 	useButtons?: boolean;
 	watermark?: string;
+	carouselCallback?: (index: number) => void;
 }
 
 function MediaElement({
@@ -104,6 +105,7 @@ const FansCarousel: FC<Props> = (props) => {
 		defaultIndex = 0,
 		useButtons,
 		watermark,
+		carouselCallback,
 	} = props;
 	const [imgIndex, setImgIndex] = useState(0);
 	const offset = useSharedValue(0);
@@ -129,6 +131,9 @@ const FansCarousel: FC<Props> = (props) => {
 		}
 		setImgIndex(imgIndex - 1);
 		offset.value = offset.value - 1;
+		if (carouselCallback) {
+			carouselCallback(imgIndex - 1);
+		}
 	};
 
 	const handleNext = () => {
@@ -137,11 +142,17 @@ const FansCarousel: FC<Props> = (props) => {
 		}
 		setImgIndex(imgIndex + 1);
 		offset.value = offset.value + 1;
+		if (carouselCallback) {
+			carouselCallback(imgIndex + 1);
+		}
 	};
 
 	const handleGoToIndex = (index: number) => {
 		setImgIndex(index);
 		offset.value = index;
+		if (carouselCallback) {
+			carouselCallback(index);
+		}
 	};
 
 	const panGesture = Gesture.Pan()

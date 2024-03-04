@@ -54,6 +54,7 @@ export const postsData: IPost[] = [
 				id: "119569537614692352",
 				type: "Image",
 				url: "media/AEA7XtzLqAFiRkuxzSOibvSLmFdYrHBYMShfP9n09Oc",
+				tags: [],
 			},
 		],
 		advanced: {
@@ -74,9 +75,11 @@ export const postsData: IPost[] = [
 		isLiked: true,
 		isPaidOut: false,
 		isSelf: true,
-		taggedPeoples: [],
 		isExclusive: false,
 		isPosted: true,
+		imageCount: 0,
+		videoLength: 0,
+		taggedPeoples: [],
 	},
 	// {
 	// 	id: "2",

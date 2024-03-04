@@ -15,3 +15,4 @@ export { default as AudioItem } from "./audioItem";
 export { default as CreatorStoryFeed } from "./creatorStoryFeed";
 export { default as YouStoryFeed } from "./youStoryFeed";
 export { SelectableUserListItem } from "./userListItem";
+export { default as PostLockIcon } from "./postLockIcon";

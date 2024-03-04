@@ -158,7 +158,7 @@ export const FansSheet2: IFansSheet = (props) => {
 			? height.xs
 			: 0;
 
-	const snapPoints = useMemo(() => [snapPoint as number], []);
+	const snapPoints = useMemo(() => [snapPoint as number], [height]);
 
 	return (
 		<Modal transparent visible={visible}>

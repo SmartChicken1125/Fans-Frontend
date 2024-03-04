@@ -10,18 +10,20 @@ import {
 	FansTextInput6,
 	FansView,
 } from "@components/controls";
-import { postReview } from "@helper/endpoints/reviews";
+import { postReview } from "@helper/endpoints/review/apis";
+import { useFeatureGates } from "@state/featureGates";
 import { FansSheetProps, IFansSheet } from "@usertypes/components";
 import React, { useState } from "react";
 
 const ReviewSheet: IFansSheet = (props) => {
 	const { onClose, onSubmit } = props;
+	const featureGates = useFeatureGates();
 
 	const [indexTip, setTipIndex] = useState(0);
 	const [numRating, setRatingValue] = useState(0);
 
 	const props_: FansSheetProps = {
-		height: { xs: 563 },
+		height: { xs: featureGates.has("2024_02-review-payment") ? 563 : 460 },
 		sheetStyle: { alignItems: "stretch" },
 		...props,
 	};
@@ -112,32 +114,42 @@ const ReviewSheet: IFansSheet = (props) => {
 				}}
 			/>
 			<FansGap height={39.2} />
-			<FansText fontFamily="inter-semibold" fontSize={17}>
-				Do you want to leave a tip?
-			</FansText>
-			<FansGap height={14.7} />
-			<FansView flexDirection="row" justifyContent="between">
-				{["No tip", "$1 USD", "$5 USD", "Other"].map((value, index) => {
-					const isActive = indexTip === index;
-					return (
-						<FansView
-							width={84}
-							height={42}
-							touchableOpacityProps={{
-								onPress: () => setTipIndex(index),
-							}}
-							alignItems="center"
-							border={isActive ? 2.3 : 1}
-							borderColor={isActive ? "purple-a8" : "grey-f0"}
-							borderRadius={15}
-							justifyContent="center"
-						>
-							<FansText fontSize={16}>{value}</FansText>
-						</FansView>
-					);
-				})}
-			</FansView>
-			<FansGap height={34} />
+			{featureGates.has("2024_02-review-payment") && (
+				<>
+					<FansText fontFamily="inter-semibold" fontSize={17}>
+						Do you want to leave a tip?
+					</FansText>
+					<FansGap height={14.7} />
+					<FansView flexDirection="row" justifyContent="between">
+						{["No tip", "$1 USD", "$5 USD", "Other"].map(
+							(value, index) => {
+								const isActive = indexTip === index;
+								return (
+									<FansView
+										width={84}
+										height={42}
+										touchableOpacityProps={{
+											onPress: () => setTipIndex(index),
+										}}
+										alignItems="center"
+										border={isActive ? 2.3 : 1}
+										borderColor={
+											isActive ? "purple-a8" : "grey-f0"
+										}
+										borderRadius={15}
+										justifyContent="center"
+									>
+										<FansText fontSize={16}>
+											{value}
+										</FansText>
+									</FansView>
+								);
+							},
+						)}
+					</FansView>
+					<FansGap height={34} />
+				</>
+			)}
 			<FansButton3 title="Submit" onPress={handlePressSubmit} />
 		</FansSheet2>
 	);

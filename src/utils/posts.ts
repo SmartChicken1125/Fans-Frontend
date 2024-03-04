@@ -16,7 +16,8 @@ export const getCreatePostData = (data: {
 	thumbId: string | undefined;
 	mediaIds: string[];
 	formIds: string[];
-	paidPostThumbId?: string;
+	// paidPostThumbId?: string;
+	paidPostThumbIds: string[];
 	fundraiserCover?: string;
 	pollCover?: string;
 	giveawayCover?: string;
@@ -26,7 +27,7 @@ export const getCreatePostData = (data: {
 		thumbId,
 		mediaIds,
 		formIds,
-		paidPostThumbId,
+		paidPostThumbIds,
 		fundraiserCover,
 		pollCover,
 		giveawayCover,
@@ -75,8 +76,11 @@ export const getCreatePostData = (data: {
 	if (postForm.paidPost && !isNaN(paidPostPrice) && paidPostPrice > 0) {
 		postBody.paidPost = {
 			currency: "USD",
-			thumbId: paidPostThumbId ?? "",
+			thumbIds: paidPostThumbIds,
 			price: paidPostPrice,
+			tiers: postForm.paidPostAccess.tierIds,
+			roles: postForm.paidPostAccess.roleIds,
+			users: postForm.paidPostAccess.fanUsers.map((user) => user.id),
 		};
 	}
 

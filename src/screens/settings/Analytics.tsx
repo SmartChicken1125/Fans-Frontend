@@ -916,6 +916,8 @@ const Posts = () => {
 				isSelf: true,
 				isExclusive: false,
 				isPosted: true,
+				imageCount: 0,
+				videoLength: 0,
 			},
 			{
 				id: "2",
@@ -944,6 +946,8 @@ const Posts = () => {
 				isSelf: true,
 				isExclusive: false,
 				isPosted: true,
+				imageCount: 0,
+				videoLength: 0,
 			},
 			{
 				id: "3",
@@ -972,6 +976,8 @@ const Posts = () => {
 				isSelf: true,
 				isExclusive: false,
 				isPosted: true,
+				imageCount: 0,
+				videoLength: 0,
 			},
 			{
 				id: "4",
@@ -1000,6 +1006,8 @@ const Posts = () => {
 				isSelf: true,
 				isExclusive: false,
 				isPosted: true,
+				imageCount: 0,
+				videoLength: 0,
 			},
 			{
 				id: "5",
@@ -1028,6 +1036,8 @@ const Posts = () => {
 				isSelf: true,
 				isExclusive: false,
 				isPosted: true,
+				imageCount: 0,
+				videoLength: 0,
 			},
 		]);
 	}, [page, size]);

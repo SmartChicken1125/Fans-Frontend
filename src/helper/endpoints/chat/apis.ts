@@ -25,6 +25,8 @@ import {
 	MediasRespBody,
 	PurchaseChatPaidPostReqBody,
 	UpdateChatAutomatedMessageWelcomeReqBody,
+	TopFanNotificationReqBody,
+	UpdateTopFanNotificationReqBody,
 } from "./schemas";
 
 export const getWSInfo = createGET<ChatWSInfoRespBody>("/chat/ws-info", false);
@@ -76,6 +78,22 @@ export const createWelcomeAutomatedMessage =
 export const updateWelcomeAutomatedMessageSettings =
 	createPUT<UpdateChatAutomatedMessageWelcomeReqBody>(
 		"/chat/automated-messages/welcome/settings",
+		true,
+	);
+
+export const getTopFanNotification = createGET<TopFanNotificationReqBody>(
+	"/chat/automated-messages/topfan",
+	true,
+);
+
+export const createTopFanNotification = createPOST<TopFanNotificationReqBody>(
+	"/chat/automated-messages/topfan",
+	true,
+);
+
+export const updateTopFanNotification =
+	createPUT<UpdateTopFanNotificationReqBody>(
+		"/chat/automated-messages/topfan/settings",
 		true,
 	);
 

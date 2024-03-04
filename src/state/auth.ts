@@ -5,6 +5,7 @@ export const enum AuthState {
 	Loading,
 	Authenticated,
 	Unauthenticated,
+	Unverified,
 }
 
 export const authAtom = atom({

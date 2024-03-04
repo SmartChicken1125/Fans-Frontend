@@ -62,11 +62,7 @@ const CaptionForm: FC<Props> = (props) => {
 
 	const getPropertyLinks = () => {
 		let _postPropertyLinks = postPropertyLinks;
-		if (!featureGates.has("2023_12-poll-post-card")) {
-			_postPropertyLinks = _postPropertyLinks.filter(
-				(el) => el.stepType !== PostStepTypes.AddPoll,
-			);
-		}
+
 		if (!featureGates.has("2023_12-fundraiser-post-card")) {
 			_postPropertyLinks = _postPropertyLinks.filter(
 				(el) => el.stepType !== PostStepTypes.AddFundraiser,

@@ -709,26 +709,28 @@ export const getFontWeightStyle = (
 			return fontFamily ? `font-light ${fontFamily}` : "font-inter-light";
 		case 400:
 			return fontFamily
-				? `font-normal ${fontFamily}`
+				? `font-normal font-${fontFamily}`
 				: "font-inter-regular";
 		case 500:
 			return fontFamily
-				? `font-medium ${fontFamily}`
+				? `font-medium font-${fontFamily}`
 				: "font-inter-medium";
 		case 600:
 			return fontFamily
-				? `font-semibold ${fontFamily}`
+				? `font-semibold font-${fontFamily}`
 				: "font-inter-semibold";
 		case 700:
-			return fontFamily ? `font-bold ${fontFamily}` : "font-inter-bold";
+			return fontFamily
+				? `font-bold font-${fontFamily}`
+				: "font-inter-bold";
 		case 800:
 		case 900:
 			return fontFamily
-				? `font-bolder ${fontFamily}`
+				? `font-bolder font-${fontFamily}`
 				: "font-inter-black";
 		default:
 			return fontFamily
-				? `font-normal ${fontFamily}`
+				? `font-normal font-${fontFamily}`
 				: "font-inter-regular";
 	}
 };

@@ -6,7 +6,6 @@ import {
 	FontFamilyStyle,
 	getBorderColorStyle,
 } from "@usertypes/styles";
-import { osSelect } from "@utils/global";
 import React from "react";
 import { TouchableOpacity } from "react-native";
 import { FansText } from "./Text";
@@ -49,9 +48,7 @@ export const FansButton: IFansButton = (props) => {
 		);
 	}
 
-	const buttonStyles = [
-		osSelect("h-fans-button", { desktop: "h-fans-button-desktop" }),
-	];
+	const buttonStyles = ["h-fans-button lg:h-fans-button-desktop"];
 
 	!ver1 &&
 		buttonStyles.push(
@@ -76,9 +73,7 @@ export const FansButton: IFansButton = (props) => {
 						fontFamily="inter-bold"
 						style={[
 							tw.style(
-								osSelect("text-19px", {
-									desktop: "text-24px",
-								}),
+								"text-19px lg:text-24px",
 								"mt-auto",
 								"mb-auto",
 								"ml-auto",

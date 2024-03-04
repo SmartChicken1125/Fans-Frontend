@@ -42,10 +42,6 @@ export const authForgotPassword = createPOST<AuthForgotPasswordReqBody, never>(
 	"/auth/forgot-password",
 );
 
-export const authVerifyCode = createPOST<AuthVerifyCodeReqBody, TokenRespBody>(
-	"/auth/verify-code",
-);
-
 export const authResetPassword = createPOST<
 	AuthResetPasswordReqBody,
 	TokenRespBody
@@ -56,10 +52,10 @@ export const authCheckResetPassword = createPOST<
 	never
 >("/auth/check-reset-password");
 
-export const authVerifyAccount = createPOST<
-	AuthVerifyCodeReqBody,
-	TokenRespBody
->("/auth/verify-account", true);
+export const authVerifyAccount = createPOST<AuthVerifyCodeReqBody, never>(
+	"/auth/verify-account",
+	true,
+);
 
 export const authResendVerifyCode = createPOST<AuthResendReqBody, never>(
 	"/auth/resend-verify-code",

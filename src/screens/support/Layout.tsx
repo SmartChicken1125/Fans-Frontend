@@ -18,30 +18,30 @@ import LawEnforcementGuideScreen from "./LawEnforcementGuide";
 const ContactNativeStackNavigator =
 	createNativeStackNavigator<SupportNativeStackParams>();
 
-const router = useRouter();
+const SupportNativeStack = () => {
+	const router = useRouter();
 
-const SupportNativeStack = () => (
-	<ContactNativeStackNavigator.Navigator
-		screenOptions={{
-			header: (props) => SettingsNavigationHeader(props, router),
-		}}
-	>
-		<ContactNativeStackNavigator.Screen
-			name="ContactUs"
-			component={ContactUsScreen}
-			options={{ title: "Contact us" }}
-		/>
-		<ContactNativeStackNavigator.Screen
-			name="LawEnforcementGuide"
-			component={LawEnforcementGuideScreen}
-			options={{ title: "Low enforcement guide" }}
-		/>
-	</ContactNativeStackNavigator.Navigator>
-);
+	return (
+		<ContactNativeStackNavigator.Navigator
+			screenOptions={{
+				header: (props) => SettingsNavigationHeader(props, router),
+			}}
+		>
+			<ContactNativeStackNavigator.Screen
+				name="ContactUs"
+				component={ContactUsScreen}
+				options={{ title: "Contact us" }}
+			/>
+			<ContactNativeStackNavigator.Screen
+				name="LawEnforcementGuide"
+				component={LawEnforcementGuideScreen}
+				options={{ title: "Low enforcement guide" }}
+			/>
+		</ContactNativeStackNavigator.Navigator>
+	);
+};
 
 const SupportLayout = () => {
-	// useDeviceContext(tw);
-
 	return tw.prefixMatch("lg") ? (
 		<FansScreen3 contentStyle1={{ padding: 0 }}>
 			<FansView style={tw.style("mx-[140px]")} flexDirection="row" grow>

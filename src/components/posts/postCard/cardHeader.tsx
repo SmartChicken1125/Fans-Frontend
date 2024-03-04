@@ -132,7 +132,7 @@ const CardHeader: FC<Props> = (props) => {
 							"min-w-30 text-fans-grey-70 dark:text-fans-grey-b1 hidden md:flex",
 						)}
 					>
-						{getAgoTime(data.createdAt ?? "")}
+						{getAgoTime(data.updatedAt ?? "")}
 					</FypText>
 					<FypNullableView visible={data.isPinned}>
 						<FansView margin={{ l: 4 }}>

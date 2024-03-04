@@ -19,17 +19,20 @@ import {
 	FansVerticalDivider,
 	FansView,
 } from "@components/controls";
+import { UserBlockModal, UserUnblockModal } from "@components/modals";
 import { ProfileActionType, useAppContext } from "@context/useAppContext";
 import {
-	blockUser,
+	getBlockUserSearchUser,
 	getBlockedUsers,
 	getProfile,
-	searchUsersToBlock,
+	postBlockUser,
+	deleteBlockUser,
 	updateMyProfile,
 } from "@helper/endpoints/profile/apis";
 import { ProfileReqBody } from "@helper/endpoints/profile/schemas";
 import tw from "@lib/tailwind";
 import { useFeatureGates } from "@state/featureGates";
+import { UserRoleTypes } from "@usertypes/commonEnums";
 import { PrivacyNativeStackScreenProps } from "@usertypes/navigations";
 import { IUser } from "@usertypes/types";
 import { useRouter } from "expo-router";
@@ -158,11 +161,11 @@ const UserItem: FC<UserItem> = (props) => {
 					justifyContent="center"
 					style={tw.style("bg-fans-grey-f0 dark:bg-fans-grey-43")}
 				>
-					<FypSvg
+					<FansSvg
 						width={11.87}
 						height={14.76}
 						svg={Trash2Svg}
-						color="fans-black dark:fans-white"
+						color1="red-eb"
 					/>
 				</FansView>
 			</FansView>
@@ -211,7 +214,7 @@ const UserItem: FC<UserItem> = (props) => {
 
 const BlockedUsersTab = (props: {
 	blockedUsers: IUser[];
-	trigDeleteBlockedUser: (id: string) => void;
+	trigDeleteBlockedUser: (user: IUser) => void;
 }) => {
 	const { blockedUsers, trigDeleteBlockedUser } = props;
 
@@ -222,16 +225,15 @@ const BlockedUsersTab = (props: {
 			</FansText>
 			<FansGap height={13.5} />
 			<FansView>
-				{blockedUsers.map((item, index) => {
-					const { id } = item;
-					const handleDelete = () => trigDeleteBlockedUser(id);
+				{blockedUsers.map((user, index) => {
+					const handleDelete = () => trigDeleteBlockedUser(user);
 
 					return (
-						<Fragment key={id}>
+						<Fragment key={index}>
 							{index !== 0 && (
 								<FansHorizontalDivider height={2} />
 							)}
-							<UserItem data={item} onDelete={handleDelete} />
+							<UserItem data={user} onDelete={handleDelete} />
 						</Fragment>
 					);
 				})}
@@ -242,23 +244,23 @@ const BlockedUsersTab = (props: {
 
 const SearchResultSection = (props: {
 	users: IUser[];
-	trigBlockUser: (id: string) => void;
+	trigBlockUser: (user: IUser) => void;
 }) => {
 	const { users, trigBlockUser } = props;
 
 	return (
 		<Fragment>
 			<FansView>
-				{users.map((item, index) => {
-					const { id } = item;
-					const handleAdd = () => trigBlockUser(id);
+				{users.map((user, index) => {
+					const { id } = user;
+					const handleAdd = () => trigBlockUser(user);
 
 					return (
 						<Fragment key={id}>
 							{index !== 0 && (
 								<FansHorizontalDivider height={2} />
 							)}
-							<UserItem data={item} onAdd={handleAdd} />
+							<UserItem data={user} onAdd={handleAdd} />
 						</Fragment>
 					);
 				})}
@@ -285,6 +287,17 @@ const PrivacyScreen = (props: PrivacyNativeStackScreenProps<"Privacy">) => {
 		profile.isAllowedScreenshot ?? false,
 	);
 	const [isWatermark, setWatermark] = useState(profile.watermark ?? false);
+
+	const [isUserBlockModalVisible, setUserBlockModalVisible] = useState(false);
+	const [isUserUnblockModalVisible, setUserUnblockModalVisible] =
+		useState(false);
+	const [objUser, setUserObj] = useState<IUser>({
+		id: "",
+		type: UserRoleTypes.Fan,
+		username: "",
+		email: "",
+		createdAt: "",
+	});
 
 	const topSectionHeight = useRef(new Animated.Value(490)).current;
 	const cancelSearchButtonWidth = useRef(new Animated.Value(0)).current;
@@ -330,33 +343,14 @@ const PrivacyScreen = (props: PrivacyNativeStackScreenProps<"Privacy">) => {
 	};
 
 	const [blockedUsers, setBlockedUsers] = useState<IUser[]>([]);
-	const trigDeleteBlockedUser = async (id: string) => {
-		const resp = await blockUser({}, { id: id });
-
-		if (resp.ok) {
-			setSearchResult([
-				...searchResult,
-				...blockedUsers.filter((value) => value.id === id),
-			]);
-			setBlockedUsers((prev) => prev.filter((value) => value.id !== id));
-		}
+	const handleDeleteBlockedUser = async (user: IUser) => {
+		setUserObj(user);
+		setUserUnblockModalVisible(true);
+		/**/
 	};
 
-	const [keyword, setKeyword] = useState("");
+	const [strSearchUser, setSearchUserStr] = useState("");
 	const [searchResult, setSearchResult] = useState<IUser[]>([]);
-	const trigBlockUser = async (id: string) => {
-		const resp = await blockUser({}, { id: id });
-
-		if (resp.ok) {
-			setBlockedUsers([
-				...blockedUsers,
-				...searchResult.filter((value) => value.id === id),
-			]);
-			setSearchResult((prev) => prev.filter((value) => value.id !== id));
-
-			animateHideSearchUser();
-		}
-	};
 
 	const { navigation } = props;
 	const router = useRouter();
@@ -400,15 +394,13 @@ const PrivacyScreen = (props: PrivacyNativeStackScreenProps<"Privacy">) => {
 	}, []);
 
 	useEffect(() => {
-		const searchUsers = async () => {
-			const resp = await searchUsersToBlock({ query: keyword });
-			if (resp.ok) {
-				setSearchResult(resp.data.users);
+		(async () => {
+			const res = await getBlockUserSearchUser({ query: strSearchUser });
+			if (res.ok) {
+				setSearchResult(res.data.users);
 			}
-		};
-
-		searchUsers();
-	}, [keyword]);
+		})();
+	}, [strSearchUser]);
 
 	const handlePress = () => {
 		if (isSearching) {
@@ -424,6 +416,42 @@ const PrivacyScreen = (props: PrivacyNativeStackScreenProps<"Privacy">) => {
 					params: { screen: "Home" },
 				});
 			}
+		}
+	};
+
+	const handleBlockUser = (user: IUser) => {
+		animateHideSearchUser();
+		setUserObj(user);
+		setUserBlockModalVisible(true);
+	};
+
+	const handleCloseUserUnblockModal = () => setUserUnblockModalVisible(false);
+
+	const handleCloseUserBlockModal = () => setUserBlockModalVisible(false);
+
+	const handleSubmitUserBlockModal = async () => {
+		const { id } = objUser;
+		const res = await postBlockUser({}, { id: id });
+		if (res.ok) {
+			setBlockedUsers([
+				...blockedUsers,
+				...searchResult.filter((value) => value.id === id),
+			]);
+			setSearchResult((prev) => prev.filter((value) => value.id !== id));
+			setUserBlockModalVisible(false);
+		}
+	};
+
+	const handleSubmitUserUnblockModal = async () => {
+		const { id } = objUser;
+		const res = await deleteBlockUser({}, { id: id });
+		if (res.ok) {
+			setSearchResult([
+				...searchResult,
+				...blockedUsers.filter((value) => value.id === id),
+			]);
+			setBlockedUsers((prev) => prev.filter((value) => value.id !== id));
+			setUserUnblockModalVisible(false);
 		}
 	};
 
@@ -542,8 +570,8 @@ const PrivacyScreen = (props: PrivacyNativeStackScreenProps<"Privacy">) => {
 							"bg-fans-grey-f0 dark:bg-fans-grey-43 border-fans-grey-f0 dark:border-fans-grey-43",
 						),
 					}}
-					value={keyword}
-					onChangeText={setKeyword}
+					value={strSearchUser}
+					onChangeText={setSearchUserStr}
 				/>
 				<Animated.View
 					style={{
@@ -568,18 +596,30 @@ const PrivacyScreen = (props: PrivacyNativeStackScreenProps<"Privacy">) => {
 				{!isSearching && (
 					<BlockedUsersTab
 						blockedUsers={blockedUsers}
-						trigDeleteBlockedUser={trigDeleteBlockedUser}
+						trigDeleteBlockedUser={handleDeleteBlockedUser}
 					/>
 				)}
 
 				{isSearching && (
 					<SearchResultSection
 						users={searchResult}
-						trigBlockUser={trigBlockUser}
+						trigBlockUser={handleBlockUser}
 					/>
 				)}
 			</FansView>
 			<FansGap height={20} />
+			<UserBlockModal
+				visible={isUserBlockModalVisible}
+				user={objUser}
+				onClose={handleCloseUserBlockModal}
+				onSubmit={handleSubmitUserBlockModal}
+			/>
+			<UserUnblockModal
+				visible={isUserUnblockModalVisible}
+				user={objUser}
+				onClose={handleCloseUserUnblockModal}
+				onSubmit={handleSubmitUserUnblockModal}
+			/>
 		</FansScreen3>
 	);
 };

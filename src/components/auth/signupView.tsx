@@ -166,6 +166,9 @@ const SignupView: FC<Props> = (props) => {
 				const token = resp.data.token;
 				await setStorage(StorageKeyTypes.AccessToken, token);
 
+				await dispatch.fetchProfile();
+				await dispatch.fetchUserInfo();
+
 				dispatch.setModal({
 					type: ModalActionType.showModal,
 					data: {

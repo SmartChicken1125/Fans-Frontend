@@ -289,17 +289,18 @@ export const getBlockedUsers = createGET<GetBlockedUsersRespBody>(
 	true,
 );
 
-export const blockUser = createPOSTWithParams<unknown, unknown, IdParams>(
+export const postBlockUser = createPOSTWithParams<unknown, unknown, IdParams>(
 	"/profile/block-user/:id",
 	true,
 );
 
-export const unblockUser = createDELETEWithParams<unknown, unknown, IdParams>(
-	"/profile/block-user/:id",
-	true,
-);
+export const deleteBlockUser = createDELETEWithParams<
+	unknown,
+	unknown,
+	IdParams
+>("/profile/block-user/:id", true);
 
-export const searchUsersToBlock = createGET<SearchUsersToBlockRespBody>(
+export const getBlockUserSearchUser = createGET<SearchUsersToBlockRespBody>(
 	"/profile/block-user/search-user",
 	true,
 );

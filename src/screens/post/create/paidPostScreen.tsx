@@ -1,7 +1,6 @@
 import CustomTopNavBar from "@components/common/customTopNavBar";
 import { FansView } from "@components/controls";
 import { PaidPostForm } from "@components/posts/share";
-import { defaultPickerMedia } from "@constants/common";
 import { PostsAction } from "@context/reducer/postsReducer";
 import { useAppContext, PostsActionType } from "@context/useAppContext";
 import tw from "@lib/tailwind";
@@ -24,7 +23,7 @@ const PaidPostScreen = (
 
 	const [price, setPrice] = useState("");
 	const [isSubmitted, setIsSubmitted] = useState(false);
-	const [coverImg, setCoverImg] = useState<IPickerMedia>(defaultPickerMedia);
+	const [previews, setPreviews] = useState<IPickerMedia[]>([]);
 
 	const handleUpdatePostForm = (data: Partial<IPostForm>) => {
 		dispatch.setPosts({
@@ -38,7 +37,7 @@ const PaidPostScreen = (
 			paidPost: {
 				currency: "USD",
 				price: price,
-				thumb: coverImg,
+				thumbs: previews,
 			},
 		});
 		navigation.navigate("PaidPostAccess");
@@ -57,16 +56,35 @@ const PaidPostScreen = (
 			paidPost: {
 				currency: "USD",
 				price: price,
-				thumb: coverImg,
+				thumbs: previews,
 			},
 		});
 		navigation.navigate("Caption");
 	};
 
+	const handleChangePreview = (media: IPickerMedia) => {
+		const previewIds = previews.map((el) => el.id);
+		if (previewIds.includes(media.id)) {
+			setPreviews(
+				previews.map((el) => (el.id === media.id ? media : el)),
+			);
+		} else {
+			setPreviews([...previews, media]);
+		}
+	};
+
+	const handleDeletePreview = (mediaId: string) => {
+		setPreviews(previews.filter((el) => el.id !== mediaId));
+	};
+
+	const handleAddPreviews = (medias: IPickerMedia[]) => {
+		setPreviews([...previews, ...medias]);
+	};
+
 	useEffect(() => {
 		setPrice(postForm.paidPost?.price as string);
 		if (postForm.paidPost) {
-			setCoverImg(postForm.paidPost.thumb);
+			setPreviews(postForm.paidPost.thumbs);
 		}
 	}, []);
 
@@ -93,8 +111,10 @@ const PaidPostScreen = (
 					handlePressAccess={handlePressAccess}
 					handleSave={handleSave}
 					price={price}
-					coverImg={coverImg}
-					onChangeCoverImage={(img) => setCoverImg(img)}
+					previews={previews}
+					onChangePreview={handleChangePreview}
+					onRemovePreview={handleDeletePreview}
+					onAddPreviews={handleAddPreviews}
 					isSubmitted={isSubmitted}
 					onChangePrice={setPrice}
 				/>

@@ -30,7 +30,6 @@ import tw from "@lib/tailwind";
 import { useFeatureGates } from "@state/featureGates";
 import { UserRoleTypes } from "@usertypes/commonEnums";
 import { Colors } from "@usertypes/enums";
-import { isDesktop } from "@utils/global";
 import { useNavigation, useRouter, useSegments } from "expo-router";
 import React, { Fragment } from "react";
 import { TouchableOpacity } from "react-native";
@@ -257,10 +256,7 @@ export const SettingsScreenContent = () => {
 			)}
 			<FansDivider
 				ver1
-				style={tw.style(
-					"h-[1px]",
-					isDesktop && "ml-[37.5px] mr-[39.5px]",
-				)}
+				style={tw.style("h-[1px] lg:ml-[37.5px] lg:mr-[39.5px]")}
 			/>
 			<Item
 				text="Notifications"
@@ -338,7 +334,7 @@ export const SettingsScreenContent = () => {
 					onPress={() => handleMenuItemPress("/automated-chats")}
 				/>
 			)}
-			{featureGates.has("2024_02-scheduled-post") && isCreator && (
+			{isCreator && (
 				<Item
 					text="Scheduled posts"
 					icon={CalendarSvg}
@@ -352,10 +348,7 @@ export const SettingsScreenContent = () => {
 			<>
 				<FansDivider
 					ver1
-					style={tw.style(
-						"h-[1px]",
-						isDesktop && "ml-[37.5px] mr-[39.5px]",
-					)}
+					style={tw.style("h-[1px] lg:ml-[37.5px] lg:mr-[39.5px]")}
 				/>
 				<Item
 					text="Report abuse"

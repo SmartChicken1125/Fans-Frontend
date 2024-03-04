@@ -110,7 +110,11 @@ const AppProvider: FC<Props> = (props) => {
 				username: res.data.username,
 				email: res.data.email,
 			});
-			setAuthState(AuthState.Authenticated);
+			if (!res.data.verifiedAt) {
+				setAuthState(AuthState.Unverified);
+			} else {
+				setAuthState(AuthState.Authenticated);
+			}
 		} else {
 			setAuthState(AuthState.Unauthenticated);
 		}

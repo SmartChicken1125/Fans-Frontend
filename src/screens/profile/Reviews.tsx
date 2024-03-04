@@ -16,11 +16,15 @@ import {
 	FansTextInput6,
 	FansView,
 } from "@components/controls";
-import { getReviews } from "@helper/endpoints/Review";
+import { getReviews } from "@helper/endpoints/review/apis";
+import { ReviewsRespBody } from "@helper/endpoints/review/schemas";
+import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useFeatureGates } from "@state/featureGates";
 import { ProfileNavigationStacks } from "@usertypes/navigations";
-import { IReview } from "@usertypes/types";
+import { getAgoTime } from "@utils/common";
 import React, { useEffect, useState } from "react";
+import { NativeScrollEvent, ScrollView } from "react-native";
 
 const Rating = (props: { score: number }) => {
 	const { score } = props;
@@ -60,27 +64,67 @@ const Rating = (props: { score: number }) => {
 	);
 };
 
+const SCROLL_SIZE = 10;
+
 const ReviewsScreen = (
 	props: NativeStackScreenProps<ProfileNavigationStacks, "Reviews">,
 ) => {
+	const featureGates = useFeatureGates();
+
 	const [strType, setTypeValue] = useState("All");
-	const [objRatings, setRatings] = useState<IReview[]>([]);
+	const [searchKey, setSearchKey] = useState("");
+	const [inLoadingMore, setInLoadingMore] = useState(false);
+	const [reviews, setReviews] = useState<ReviewsRespBody>({
+		page: 1,
+		size: SCROLL_SIZE,
+		total: 0,
+		reviews: [],
+	});
 
-	useEffect(() => {
-		fetchReviews();
-	}, []);
+	const fetchReviews = async (page: number) => {
+		const filterObject = {
+			page: page,
+			size: SCROLL_SIZE,
+			query: searchKey,
+		};
 
-	const fetchReviews = async () => {
-		const res = await getReviews();
-		if (res.ok) {
-			setRatings(res.data.reviews);
+		const resp = await getReviews(filterObject);
+		setInLoadingMore(false);
+		if (resp.ok) {
+			setReviews({
+				...resp.data,
+				reviews:
+					resp.data.page === 1
+						? resp.data.reviews
+						: [...reviews.reviews, ...resp.data.reviews],
+			});
 		}
 	};
+
+	const onScrollView = (nativeEvent: NativeScrollEvent) => {
+		const paddingToBottom = 20;
+		const isScrollEnd =
+			nativeEvent.layoutMeasurement.height +
+				nativeEvent.contentOffset.y >=
+			nativeEvent.contentSize.height - paddingToBottom;
+		if (
+			isScrollEnd &&
+			!inLoadingMore &&
+			reviews.total > SCROLL_SIZE * reviews.page
+		) {
+			setInLoadingMore(true);
+			fetchReviews(reviews.page + 1);
+		}
+	};
+
+	useEffect(() => {
+		fetchReviews(1);
+	}, [searchKey]);
 
 	return (
 		<FansScreen4 contentStyle1={{ background: "grey-f0", grow: true }}>
 			<FansText fontFamily="inter-semibold" fontSize={17}>
-				Reviews ({objRatings.length})
+				Reviews ({reviews.reviews.length})
 			</FansText>
 			<FansGap height={15} />
 			<FansTextInput6
@@ -89,19 +133,23 @@ const ReviewsScreen = (
 					<FansSvg width={13.1} height={13.3} svg={Search1Svg} />
 				}
 			/>
-			<FansGap height={15} />
-			<FansView>
-				<FansChips4
-					data={[
-						{ text: "All" },
-						{ text: "Profile" },
-						{ text: "Video calls" },
-						{ text: "Custom" },
-					]}
-					value={strType}
-					onChangeValue={setTypeValue}
-				/>
-			</FansView>
+			{featureGates.has("2024_02-review-type") && (
+				<>
+					<FansGap height={15} />
+					<FansView>
+						<FansChips4
+							data={[
+								{ text: "All" },
+								{ text: "Profile" },
+								{ text: "Video calls" },
+								{ text: "Custom" },
+							]}
+							value={strType}
+							onChangeValue={setTypeValue}
+						/>
+					</FansView>
+				</>
+			)}
 			<FansGap height={23} />
 			<FansView flexDirection="row" gap={13}>
 				<FansSvg width={16.8} height={14} svg={SortAscSvg} />
@@ -110,46 +158,59 @@ const ReviewsScreen = (
 				</FansText>
 			</FansView>
 			<FansGap height={23} />
+
 			<FansView
 				backgroundColor="grey-f0"
-				gap={9}
 				grow
 				margin={{ x: -17 }}
 				padding={{ x: 17, y: 19 }}
 			>
-				{objRatings.map((rating, index) => {
-					return (
-						<FansView
-							key={index}
-							backgroundColor="white"
-							borderRadius={15}
-							padding={{ t: 17, r: 20, b: 21, l: 18 }}
-						>
-							<FansView flexDirection="row" gap={13}>
-								<UserAvatar size="34px" />
-								<FansView>
-									<FansText
-										fontFamily="inter-semibold"
-										fontSize={16}
-									>
-										{rating.creator.displayName}
-									</FansText>
-									<FansText color="grey-43" fontSize={14}>
-										a month ago
+				<ScrollView
+					style={tw.style("max-h-[480px]")}
+					onScroll={({ nativeEvent }) => onScrollView(nativeEvent)}
+					scrollEventThrottle={16}
+					showsVerticalScrollIndicator
+					showsHorizontalScrollIndicator={false}
+				>
+					<FansView gap={9}>
+						{reviews.reviews.map((rating, index) => {
+							return (
+								<FansView
+									key={index}
+									backgroundColor="white"
+									borderRadius={15}
+									padding={{ t: 17, r: 20, b: 21, l: 18 }}
+								>
+									<FansView flexDirection="row" gap={13}>
+										<UserAvatar size="34px" />
+										<FansView>
+											<FansText
+												fontFamily="inter-semibold"
+												fontSize={16}
+											>
+												{rating.user.displayName}
+											</FansText>
+											<FansText
+												color="grey-43"
+												fontSize={14}
+											>
+												{getAgoTime(rating.createdAt)}
+											</FansText>
+										</FansView>
+									</FansView>
+									<FansGap height={24.6} />
+									<FansView flexDirection="row" gap={7.4}>
+										<Rating score={rating.score} />
+									</FansView>
+									<FansGap height={21.5} />
+									<FansText color="grey-43" fontSize={16}>
+										{rating.text}
 									</FansText>
 								</FansView>
-							</FansView>
-							<FansGap height={24.6} />
-							<FansView flexDirection="row" gap={7.4}>
-								<Rating score={rating.score} />
-							</FansView>
-							<FansGap height={21.5} />
-							<FansText color="grey-43" fontSize={16}>
-								{rating.text}
-							</FansText>
-						</FansView>
-					);
-				})}
+							);
+						})}
+					</FansView>
+				</ScrollView>
 			</FansView>
 		</FansScreen4>
 	);

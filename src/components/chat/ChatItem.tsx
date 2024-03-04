@@ -7,13 +7,16 @@ import {
 	LockSvg,
 	PlaySvg,
 	ReplyArrowSvg,
+	Star1Svg,
 } from "@assets/svgs/common";
 import UserAvatar from "@components/avatar/UserAvatar";
 import { FypSvg } from "@components/common/base/svg";
 import {
 	FansButton3,
 	FansEmoji,
+	FansGap,
 	FansImage,
+	FansSvg,
 	FansText,
 } from "@components/controls";
 import { cdnURL, urlOrBlurHash } from "@helper/Utils";
@@ -88,54 +91,6 @@ const SelfMessage = ({
 		</View>
 	</View>
 );
-
-const layoutForOneImage = [
-	[tw`overflow-hidden w-full h-full bg-black rounded-2xl`],
-];
-
-const layoutForTwoImages = [
-	[
-		tw`overflow-hidden absolute w-[148px] h-full left-0 top-0 bg-black rounded-l-2xl`,
-	],
-	[
-		tw`overflow-hidden absolute w-[148px] h-full right-0 top-0 bg-black rounded-r-2xl`,
-	],
-];
-
-const layoutForThreeImages = [
-	[
-		tw`overflow-hidden absolute w-[148px] h-full left-0 top-0 bg-black rounded-l-2xl`,
-	],
-	[
-		tw`overflow-hidden absolute w-[148px] h-[98px] right-0 top-0 bg-black rounded-r-2xl`,
-	],
-	[
-		tw`overflow-hidden absolute w-[148px] h-[98px] right-0 bottom-0 bg-black rounded-r-2xl`,
-	],
-];
-
-const layoutForFourImages = [
-	[
-		tw`overflow-hidden absolute w-[148px] h-[98px] left-0 top-0 bg-black rounded-tl-2xl`,
-	],
-	[
-		tw`overflow-hidden absolute w-[148px] h-[98px] left-0 bottom-0 bg-black rounded-bl-2xl`,
-	],
-	[
-		tw`overflow-hidden absolute w-[148px] h-[98px] right-0 top-0 bg-black rounded-tr-2xl`,
-	],
-	[
-		tw`overflow-hidden absolute w-[148px] h-[98px] right-0 bottom-0 bg-black rounded-br-2xl`,
-	],
-];
-
-function layoutFunction(length: number, index: number) {
-	if (length === 1) return layoutForOneImage[index] ?? [];
-	else if (length === 2) return layoutForTwoImages[index] ?? [];
-	else if (length === 3) return layoutForThreeImages[index] ?? [];
-	else if (length === 4) return layoutForFourImages[index] ?? [];
-	return [];
-}
 
 const FromMessage = ({
 	message,
@@ -238,13 +193,61 @@ const FromMessage = ({
 	);
 };
 
+const layoutForOneImage = [
+	[tw`overflow-hidden w-full h-full bg-black rounded-2xl`],
+];
+
+const layoutForTwoImages = [
+	[
+		tw`overflow-hidden absolute w-[148px] h-full left-0 top-0 bg-black rounded-l-2xl`,
+	],
+	[
+		tw`overflow-hidden absolute w-[148px] h-full right-0 top-0 bg-black rounded-r-2xl`,
+	],
+];
+
+const layoutForThreeImages = [
+	[
+		tw`overflow-hidden absolute w-[148px] h-full left-0 top-0 bg-black rounded-l-2xl`,
+	],
+	[
+		tw`overflow-hidden absolute w-[148px] h-[98px] right-0 top-0 bg-black rounded-r-2xl`,
+	],
+	[
+		tw`overflow-hidden absolute w-[148px] h-[98px] right-0 bottom-0 bg-black rounded-r-2xl`,
+	],
+];
+
+const layoutForFourImages = [
+	[
+		tw`overflow-hidden absolute w-[148px] h-[98px] left-0 top-0 bg-black rounded-tl-2xl`,
+	],
+	[
+		tw`overflow-hidden absolute w-[148px] h-[98px] left-0 bottom-0 bg-black rounded-bl-2xl`,
+	],
+	[
+		tw`overflow-hidden absolute w-[148px] h-[98px] right-0 top-0 bg-black rounded-tr-2xl`,
+	],
+	[
+		tw`overflow-hidden absolute w-[148px] h-[98px] right-0 bottom-0 bg-black rounded-br-2xl`,
+	],
+];
+
+function layoutFunction(length: number, index: number) {
+	if (length === 1) return layoutForOneImage[index] ?? [];
+	else if (length === 2) return layoutForTwoImages[index] ?? [];
+	else if (length === 3) return layoutForThreeImages[index] ?? [];
+	else if (length === 4) return layoutForFourImages[index] ?? [];
+	return [];
+}
+
 const FromNotPaidPostMessage = ({
 	message,
-	onPressImage,
+	onPressMedia,
 	onPurchasePost,
 }: {
 	message: IMessage;
-	onPressImage: (data: IMessage, index: number) => void;
+	onPressMedia: (data: IMessage, index: number) => void;
 	onPurchasePost: (message: IMessage) => void;
 }) => {
 	return (
@@ -262,7 +265,7 @@ const FromNotPaidPostMessage = ({
 					>
 						<View style={tw.style("relative")}>
 							<TouchableOpacity
-								onPress={() => onPressImage(message, 0)}
+								onPress={() => onPressMedia(message, 0)}
 							>
 								<FansImage
 									source={{
@@ -450,10 +453,10 @@ const FromNotPaidPostMessage = ({
 
 const FromPaidPostMessage = ({
 	message,
-	onPressImage,
+	onPressMedia,
 }: {
 	message: IMessage;
-	onPressImage: (data: IMessage, index: number) => void;
+	onPressMedia: (data: IMessage, index: number) => void;
 }) => {
 	return (
 		<View style={tw.style("flex-row gap-2.5", "self-start")}>
@@ -470,7 +473,7 @@ const FromPaidPostMessage = ({
 					>
 						<View style={tw.style("relative")}>
 							<TouchableOpacity
-								onPress={() => onPressImage(message, 0)}
+								onPress={() => onPressMedia(message, 0)}
 							>
 								<FansImage
 									source={{
@@ -582,10 +585,10 @@ const FromPaidPostMessage = ({
 
 const SelfPaidPostMessage = ({
 	message,
-	onPressImage,
+	onPressMedia,
 }: {
 	message: IMessage;
-	onPressImage: (data: IMessage, index: number) => void;
+	onPressMedia: (data: IMessage, index: number) => void;
 }) => {
 	return (
 		<View style={tw`flex-row gap-2.5 self-end`}>
@@ -601,7 +604,7 @@ const SelfPaidPostMessage = ({
 					>
 						<View style={tw.style("relative")}>
 							<TouchableOpacity
-								onPress={() => onPressImage(message, 0)}
+								onPress={() => onPressMedia(message, 0)}
 							>
 								<FansImage
 									source={{
@@ -1089,7 +1092,8 @@ const FromVideoCallNotificationMessage = ({
 	};
 
 	return (
-		<View style={tw`flex-row gap-2.5 self-start`}>
+		<View style={tw`flex-row gap-2.5 items-end`}>
+			<UserAvatar size="34px" image={message.user.avatar ?? undefined} />
 			<View style={tw`justify-center items-center`}>
 				<LinearGradient
 					colors={gradientColors[status]}
@@ -1299,6 +1303,217 @@ const FromVideoCallNotificationMessage = ({
 	);
 };
 
+const SelfTopFanNotificationMessage = ({
+	message,
+	onPressMedia,
+}: {
+	message: IMessage;
+	onPressMedia: (data: IMessage, index: number) => void;
+}) => {
+	return (
+		<View style={tw`flex-row gap-2.5 self-end`}>
+			<View style={tw`justify-center items-center`}>
+				<LinearGradient
+					colors={["#1d21e5", "#a854f5", "#d885ff"]}
+					start={{ x: 0, y: 0 }}
+					end={{ x: 0, y: 0 }}
+					style={tw`rounded-2xl`}
+				>
+					<View style={tw`w-[300px]`}>
+						<View
+							style={tw`py-1 px-1 mb-1 rounded-t-2xl bg-transparent items-center justify-center flex-row`}
+						>
+							<FansText
+								style={tw`ml-2 font-bold mt-1`}
+								fontFamily="inter-bold"
+								fontSize={16}
+								color="white"
+							>
+								TOP {message.value}% FAN
+							</FansText>
+						</View>
+					</View>
+
+					<TouchableOpacity
+						activeOpacity={1}
+						onPress={() => onPressMedia(message, 0)}
+					>
+						<FansImage
+							style={tw`justify-center items-center w-[300px] h-[300px]`}
+							source={{
+								uri: message.media?.[0]?.url
+									? urlOrBlurHash(
+											cdnURL(message.media?.[0]?.url),
+											message.media?.[0]?.blurhash,
+									  )
+									: cdnURL(message.user.avatar ?? ""),
+							}}
+							resizeMode="cover"
+						/>
+					</TouchableOpacity>
+
+					<View
+						style={tw`relative p-5 rounded-b-2xl bg-fans-grey w-[300px]`}
+					>
+						<View
+							style={tw`absolute top-[-30px] z-10 self-center bg-fans-grey rounded-full p-2`}
+						>
+							<LinearGradient
+								colors={["#d885ff", "#a854f5", "#1d21e5"]}
+								start={{ x: 0.7, y: 0 }}
+								end={{ x: 0.3, y: 1 }}
+								style={tw`rounded-full p-2 w-10 h-10 justify-center items-center`}
+							>
+								<FansSvg
+									svg={Star1Svg}
+									width={25}
+									height={25}
+									color="white"
+									style={tw`self-center`}
+								/>
+							</LinearGradient>
+						</View>
+
+						<FansGap height={10} />
+						{message.content ? (
+							<FansText
+								style={tw`font-normal`}
+								fontSize={18}
+								fontFamily="inter-regular"
+							>
+								{message.content}
+							</FansText>
+						) : (
+							<>
+								<FansText
+									style={tw`text-center mb-2 font-normal`}
+									fontSize={20}
+									fontFamily="inter-regular"
+								>
+									Congratulations!
+								</FansText>
+								<FansText
+									style={tw`text-center font-normal`}
+									fontSize={19}
+									fontFamily="inter-regular"
+								>
+									You're in the top {message.value}% of fans!
+								</FansText>
+							</>
+						)}
+					</View>
+				</LinearGradient>
+			</View>
+		</View>
+	);
+};
+
+const FromTopFanNotificationMessage = ({
+	message,
+	onPressMedia,
+}: {
+	message: IMessage;
+	onPressMedia: (data: IMessage, index: number) => void;
+}) => {
+	return (
+		<View style={tw`flex-row gap-2.5 items-end`}>
+			<UserAvatar size="34px" image={message.user.avatar ?? undefined} />
+			<View style={tw`justify-center items-center`}>
+				<LinearGradient
+					colors={["#1d21e5", "#a854f5", "#d885ff"]}
+					start={{ x: 0, y: 0 }}
+					end={{ x: 0, y: 0 }}
+					style={tw`rounded-2xl`}
+				>
+					<View style={tw`w-[300px]`}>
+						<View
+							style={tw`py-1 px-1 mb-1 rounded-t-2xl bg-transparent items-center justify-center flex-row`}
+						>
+							<FansText
+								style={tw`ml-2 font-bold mt-1`}
+								fontFamily="inter-bold"
+								fontSize={16}
+								color="white"
+							>
+								TOP {message.value}% FAN
+							</FansText>
+						</View>
+					</View>
+
+					<TouchableOpacity
+						activeOpacity={1}
+						onPress={() => onPressMedia(message, 0)}
+					>
+						<FansImage
+							style={tw`justify-center items-center w-[300px] h-[300px]`}
+							source={{
+								uri: message.media?.[0]?.url
+									? urlOrBlurHash(
+											cdnURL(message.media?.[0]?.url),
+											message.media?.[0]?.blurhash,
+									  )
+									: cdnURL(message.user.avatar ?? ""),
+							}}
+							resizeMode="cover"
+						/>
+					</TouchableOpacity>
+
+					<View
+						style={tw`relative p-5 rounded-b-2xl bg-fans-grey w-[300px]`}
+					>
+						<View
+							style={tw`absolute top-[-30px] z-10 self-center bg-fans-grey rounded-full p-2`}
+						>
+							<LinearGradient
+								colors={["#d885ff", "#a854f5", "#1d21e5"]}
+								start={{ x: 0.7, y: 0 }}
+								end={{ x: 0.3, y: 1 }}
+								style={tw`rounded-full p-2 w-10 h-10 justify-center items-center`}
+							>
+								<FansSvg
+									svg={Star1Svg}
+									width={25}
+									height={25}
+									color="white"
+									style={tw`self-center`}
+								/>
+							</LinearGradient>
+						</View>
+
+						<FansGap height={10} />
+						{message.content ? (
+							<FansText
+								style={tw`font-normal`}
+								fontSize={18}
+								fontFamily="inter-regular"
+							>
+								{message.content}
+							</FansText>
+						) : (
+							<>
+								<FansText
+									style={tw`text-center mb-2 font-normal`}
+									fontSize={20}
+									fontFamily="inter-regular"
+								>
+									Congratulations!
+								</FansText>
+								<FansText
+									style={tw`text-center font-normal`}
+									fontSize={19}
+									fontFamily="inter-regular"
+								>
+									You're in the top {message.value}% of fans!
+								</FansText>
+							</>
+						)}
+					</View>
+				</LinearGradient>
+			</View>
+		</View>
+	);
+};
+
 const ChatItem = ({
 	message,
 	isSelf,
@@ -1368,17 +1583,17 @@ const ChatItem = ({
 				(isSelf ? (
 					<SelfPaidPostMessage
 						message={message}
-						onPressImage={onPressMedia}
+						onPressMedia={onPressMedia}
 					/>
 				) : message.status === "Successful" ? (
 					<FromPaidPostMessage
 						message={message}
-						onPressImage={onPressMedia}
+						onPressMedia={onPressMedia}
 					/>
 				) : (
 					<FromNotPaidPostMessage
 						message={message}
-						onPressImage={onPressMedia}
+						onPressMedia={onPressMedia}
 						onPurchasePost={onPurchasePost}
 					/>
 				))}
@@ -1395,6 +1610,19 @@ const ChatItem = ({
 						onAcceptVideoCall={onAcceptVideoCall}
 						onRejectVideoCall={onRejectVideoCall}
 						onAddToCalendar={onAddToCalendar}
+					/>
+				))}
+
+			{message.messageType === MessageType.TOP_FAN_NOTIFICATION &&
+				(isSelf ? (
+					<SelfTopFanNotificationMessage
+						message={message}
+						onPressMedia={onPressMedia}
+					/>
+				) : (
+					<FromTopFanNotificationMessage
+						message={message}
+						onPressMedia={onPressMedia}
 					/>
 				))}
 		</Animated.View>

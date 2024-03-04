@@ -79,6 +79,11 @@ import Animated, {
 	useAnimatedStyle,
 	useSharedValue,
 	withTiming,
+	PinwheelIn,
+	PinwheelOut,
+	FadeIn,
+	FadeOut,
+	Layout,
 } from "react-native-reanimated";
 
 const MembershipSection = () => {
@@ -111,7 +116,10 @@ const MembershipSection = () => {
 				fontSize={{ xs: 17, md: 27 }}
 				lineHeight={{ xs: 26, md: 43 }}
 				textAlign="center"
-				style={tw.style("text-fans-black-1d")}
+				style={tw.style(
+					"text-fans-black-1d",
+					tw.prefixMatch("sm") ? "" : "max-w-[354px] mx-auto",
+				)}
 			>
 				{`Create a recurring revenue stream by offering subscriptions.${
 					tw.prefixMatch("md") ? `\n` : " "
@@ -120,14 +128,14 @@ const MembershipSection = () => {
 			<FansGap height={{ xs: 46, md: 32 }} />
 			<FansView
 				alignSelf="center"
-				width="full"
-				height={{ xs: 318, md: 426 }}
-				style={tw.style("max-w-[1094px]")}
+				width={{ xs: "full", md: 950, lg: 1095 }}
+				height={{ xs: 338, md: 370, lg: 426 }}
+				style={tw.style("max-w-[1094px] md:ml-[55px] lg:ml-[72px]")}
 			>
 				{tw.prefixMatch("md") ? (
 					<Image
 						source={{
-							uri: require("@assets/images/landing/membership-pc.webp"),
+							uri: require("@assets/images/landing/membership-pc.png"),
 						}}
 						resizeMode="contain"
 						style={tw.style("w-full h-full")}
@@ -143,7 +151,11 @@ const MembershipSection = () => {
 				)}
 			</FansView>
 			<FansGap height={{ xs: 22, md: 47 }}></FansGap>
-			<FansView alignItems="center" width="full">
+			<FansView
+				alignItems="center"
+				width="full"
+				style={tw.style(tw.prefixMatch("sm") ? "" : "px-1")}
+			>
 				<FypButton2
 					style={tw.style(
 						"w-full md:w-[208px] bg-fans-black-1d h-[42px] md:h-[66px]",
@@ -665,7 +677,10 @@ const CreatorsSection = () => {
 					fontSize={{ xs: 17, md: 27 }}
 					lineHeight={{ xs: 26, md: 43 }}
 					textAlign="center"
-					style={tw.style("text-fans-black-1d")}
+					style={tw.style(
+						"text-fans-black-1d",
+						tw.prefixMatch("sm") ? "" : "max-w-[325px] mx-auto",
+					)}
 				>
 					Creators have earned{" "}
 					<FypText
@@ -953,7 +968,7 @@ const BannerSection = () => {
 				resizeMode="cover"
 			/>
 			<Image
-				source={require("@assets/images/landing/banner-bg-mobile.webp")}
+				source={require("@assets/images/landing/banner-bg-mobile.png")}
 				style={tw.style(
 					"w-full h-full absolute top-0 left-0 sm:hidden",
 				)}
@@ -987,7 +1002,7 @@ const BannerSection = () => {
 										"border border-white rounded-[100px] w-[234px] h-[66px] gap-[10px] hidden md:flex",
 									)}
 									textStyle={tw.style(
-										"text-[21px] leading-[28px] text-white font-medium",
+										"text-[21px] leading-[28px] text-white font-medium font-inter-v",
 									)}
 									icon={<SearchSvg color="#fff" size={18} />}
 									onPress={onClickFindCreator}
@@ -1117,7 +1132,7 @@ const BannerSection = () => {
 								"w-22 md:w-[126px] h-[42px] md:h-[66px] border border-fans-white",
 							)}
 							textStyle={tw.style(
-								"text-fans-white font-semibold text-[17px] md:leading-[22px] md:text-[21px] md:leading-[28px]",
+								"text-fans-white font-semibold font-inter-v text-[17px] md:leading-[22px] md:text-[21px] md:leading-[28px]",
 							)}
 							pressableProps={{
 								onPress: handlePressLogIn,
@@ -1130,7 +1145,7 @@ const BannerSection = () => {
 								"w-[132px] md:w-[174px] bg-fans-white h-[42px] md:h-[66px]",
 							)}
 							textStyle={tw.style(
-								"text-fans-black-2e font-semibold text-[17px] md:leading-[22px] md:text-[21px] md:leading-[28px]",
+								"text-fans-black-2e font-semibold font-inter-v text-[17px] md:leading-[22px] md:text-[21px] md:leading-[28px]",
 							)}
 							pressableProps={{
 								onPress: handlePressSignUp,
@@ -1298,11 +1313,11 @@ const SmarterSection = () => {
 			)}
 		>
 			<FypLinearGradientView
-				colors={["#D885FF", "#F98C28", "#5F17D3", "#F1E2FF"]}
+				colors={["#FDD1A9", "#C2A6EE", "#E7D8FC"]}
 				start={[0, 1]}
 				end={[1, 0]}
 				position="absolute"
-				style={tw.style("w-full h-full top-0 left-0 opacity-40")}
+				style={tw.style("w-full h-full top-0 left-0")}
 			></FypLinearGradientView>
 			<FansView style={tw.style("lg:flex-1")}>
 				<FypText
@@ -1471,11 +1486,11 @@ const SmartDataSection = () => {
 			)}
 		>
 			<FypLinearGradientView
-				colors={["#9DD8F5", "#91EBF3", "#2125EA", "#D885FF"]}
+				colors={["#C2D8F8", "#A6A8F6", "#E6C9FE"]}
 				start={[0, 1]}
 				end={[1, 0]}
 				position="absolute"
-				style={tw.style("w-full h-full top-0 left-0 opacity-40")}
+				style={tw.style("w-full h-full top-0 left-0")}
 			></FypLinearGradientView>
 			<FansView style={tw.style("md:flex-1 lg:w-[44%] md:my-auto")}>
 				<FansView>
@@ -1819,7 +1834,7 @@ const FaqSection = () => {
 					height={{ xs: 65, md: 53 }}
 				/>
 			</FansView>
-			<FansGap height={{ xs: 52, lg: 90 }} />
+			<FansGap height={{ xs: 40, lg: 90 }} />
 			<FansView flexDirection="row" alignItems="center">
 				<FansView flex="1">
 					<FaqItem title="How much does it cost to sign up for FYP.Fans?">
@@ -2137,6 +2152,10 @@ const SuccessStepMilestone: FC<SuccessStepMilestoneProps> = (props) => {
 };
 
 const FirstStepToSuccess = () => {
+	const router = useRouter();
+	const handleStart = () => {
+		router.push("/auth/register");
+	};
 	return (
 		<FansView
 			padding={{ x: 40 }}
@@ -2226,26 +2245,45 @@ const FirstStepToSuccess = () => {
 							/>
 							<FansGap height={{ xs: 20, md: 36 }} />
 							<FansView>
-								<FypText
-									fontSize={{ xs: 17, md: 27 }}
-									lineHeight={{ xs: 26, md: 42 }}
-									color="black-1d"
-									style={tw.style("hidden md:flex")}
-								>
-									Start by Signing up with your email and
-									password. Click Become a Creator on the
-									homepage
-								</FypText>
-								<FypText
-									fontSize={{ xs: 17, md: 27 }}
-									lineHeight={{ xs: 26, md: 42 }}
-									color="black-1d"
-									style={tw.style("md:hidden")}
-								>
-									Sign up with your email and click Become a
-									Creator on the homepage to start a
-									membership
-								</FypText>
+								{tw.prefixMatch("md") ? (
+									<FypText
+										fontSize={{ xs: 17, md: 27 }}
+										lineHeight={{ xs: 26, md: 42 }}
+										color="black-1d"
+										onPress={handleStart}
+										style={tw.style("max-w-[535px]")}
+									>
+										Start by Signing up with your email and
+										password. Click{" "}
+										<FypText
+											fontSize={{ xs: 17, md: 27 }}
+											lineHeight={{ xs: 26, md: 42 }}
+											color="black-1d"
+											fontWeight={600}
+										>
+											Become a Creator
+										</FypText>{" "}
+										on the homepage
+									</FypText>
+								) : (
+									<FypText
+										fontSize={{ xs: 17, md: 27 }}
+										lineHeight={{ xs: 26, md: 42 }}
+										color="black-1d"
+										onPress={handleStart}
+									>
+										Sign up with your email and click{" "}
+										<FypText
+											fontSize={{ xs: 17, md: 27 }}
+											lineHeight={{ xs: 26, md: 42 }}
+											color="black-1d"
+											fontWeight={600}
+										>
+											Become a Creator
+										</FypText>{" "}
+										on the homepage to start a membership
+									</FypText>
+								)}
 							</FansView>
 						</FansView>
 					</FansView>
@@ -2349,6 +2387,7 @@ const SecondStepToSuccess = () => {
 								fontSize={{ xs: 17, md: 27 }}
 								lineHeight={{ xs: 26, md: 42 }}
 								color="black-1d"
+								style={tw.style("md:max-w-[535px]")}
 							>
 								Choose your unique username and subscription
 								price to set up your page
@@ -2459,6 +2498,7 @@ const ThirdStepToSuccess = () => {
 								fontSize={{ xs: 17, md: 27 }}
 								lineHeight={{ xs: 26, md: 42 }}
 								color="black-1d"
+								style={tw.style("md:max-w-[535px]")}
 							>
 								Start posting content and promoting your link to
 								fans. Cash out earnings effortlessly with

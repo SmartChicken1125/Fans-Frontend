@@ -17,10 +17,12 @@ import {
 	FypLinearGradientView,
 } from "@components/common/base";
 import { FansDivider, FansView } from "@components/controls";
+import { useAppContext } from "@context/useAppContext";
 import tw from "@lib/tailwind";
 import { PostType } from "@usertypes/commonEnums";
 import { IPost } from "@usertypes/types";
 import { getAgoTime } from "@utils/common";
+import { convertTrackingTime } from "@utils/stringHelper";
 import React, { FC } from "react";
 
 interface Props {
@@ -44,6 +46,10 @@ const CardFooter: FC<Props> = (props) => {
 		onClickUnlock,
 	} = props;
 
+	const { state } = useAppContext();
+	const { profile } = state;
+	const { hideTips, hideComments } = profile;
+
 	return (
 		<FansView
 			style={tw.style("px-[18px] md:px-0", data.isExclusive && "px-0")}
@@ -61,58 +67,51 @@ const CardFooter: FC<Props> = (props) => {
 							alignItems="center"
 							gap={14}
 						>
-							<FypNullableView
-								visible={data.type === PostType.Photo}
+							<FansView
+								flexDirection="row"
+								alignItems="center"
+								gap={7}
 							>
-								<FansView
-									flexDirection="row"
-									alignItems="center"
-									gap={7}
+								<FypSvg
+									svg={ImageSvg}
+									width={14}
+									height={14}
+									color="fans-grey-48 dark:fans-grey-b1"
+								/>
+								<FypText
+									fontSize={17}
+									fontWeight={500}
+									lineHeight={22}
+									style={tw.style(
+										"text-fans-grey-48 dark:text-fans-grey-b1",
+									)}
 								>
-									<FypSvg
-										svg={ImageSvg}
-										width={14}
-										height={14}
-										color="fans-grey-48 dark:fans-grey-b1"
-									/>
-									<FypText
-										fontSize={17}
-										fontWeight={500}
-										lineHeight={22}
-										style={tw.style(
-											"text-fans-grey-48 dark:text-fans-grey-b1",
-										)}
-									>
-										{data.medias.length}
-									</FypText>
-								</FansView>
-							</FypNullableView>
-							<FypNullableView
-								visible={data.type === PostType.Video}
+									{data.imageCount}
+								</FypText>
+							</FansView>
+
+							<FansView
+								flexDirection="row"
+								alignItems="center"
+								gap={7}
 							>
-								<FansView
-									flexDirection="row"
-									alignItems="center"
-									gap={7}
+								<FypSvg
+									svg={RecordSvg}
+									width={19}
+									height={12}
+									color="fans-grey-48 dark:fans-grey-b1"
+								/>
+								<FypText
+									fontSize={17}
+									fontWeight={500}
+									lineHeight={22}
+									style={tw.style(
+										"text-fans-grey-48 dark:text-fans-grey-b1",
+									)}
 								>
-									<FypSvg
-										svg={RecordSvg}
-										width={19}
-										height={12}
-										color="fans-grey-48 dark:fans-grey-b1"
-									/>
-									<FypText
-										fontSize={17}
-										fontWeight={500}
-										lineHeight={22}
-										style={tw.style(
-											"text-fans-grey-48 dark:text-fans-grey-b1",
-										)}
-									>
-										{data.medias.length}
-									</FypText>
-								</FansView>
-							</FypNullableView>
+									{convertTrackingTime(data.videoLength)}
+								</FypText>
+							</FansView>
 						</FansView>
 
 						<FansView
@@ -220,33 +219,37 @@ const CardFooter: FC<Props> = (props) => {
 						</FypNullableView>
 					</FansView>
 
-					<FypNullableView visible={!data.advanced?.isTurnOffComment}>
-						<FansView
-							touchableOpacityProps={{
-								onPress: onClickComment,
-							}}
-							flexDirection="row"
-							alignItems="center"
+					{!hideComments && (
+						<FypNullableView
+							visible={!data.advanced?.isTurnOffComment}
 						>
-							<FypSvg
-								svg={CommentSvg}
-								width={21.3}
-								height={21.3}
-								color="fans-black dark:fans-white"
-							/>
-							<FypText
-								fontSize={13}
-								lineHeight={17}
-								fontWeight={700}
-								margin={{ l: 6 }}
-								style={tw.style(
-									"text-fans-black dark:text-fans-white",
-								)}
+							<FansView
+								touchableOpacityProps={{
+									onPress: onClickComment,
+								}}
+								flexDirection="row"
+								alignItems="center"
 							>
-								{data.commentCount}
-							</FypText>
-						</FansView>
-					</FypNullableView>
+								<FypSvg
+									svg={CommentSvg}
+									width={21.3}
+									height={21.3}
+									color="fans-black dark:fans-white"
+								/>
+								<FypText
+									fontSize={13}
+									lineHeight={17}
+									fontWeight={700}
+									margin={{ l: 6 }}
+									style={tw.style(
+										"text-fans-black dark:text-fans-white",
+									)}
+								>
+									{data.commentCount}
+								</FypText>
+							</FansView>
+						</FypNullableView>
+					)}
 
 					<FypNullableView visible={data.type !== PostType.Text}>
 						<FansView
@@ -303,29 +306,33 @@ const CardFooter: FC<Props> = (props) => {
 					</FypNullableView>
 				</FansView>
 
-				<FansView
-					touchableOpacityProps={{
-						onPress: onClickSendTip,
-					}}
-					flexDirection="row"
-					alignItems="center"
-				>
-					<FypText
-						fontSize={14}
-						lineHeight={19}
-						fontWeight={600}
-						margin={{ r: 8 }}
-						style={tw.style("text-fans-black dark:text-fans-white")}
+				{!hideTips && (
+					<FansView
+						touchableOpacityProps={{
+							onPress: onClickSendTip,
+						}}
+						flexDirection="row"
+						alignItems="center"
 					>
-						Send tip
-					</FypText>
-					<FypSvg
-						svg={RoundedTipSvg}
-						width={23}
-						height={23}
-						color="fans-black dark:fans-white"
-					/>
-				</FansView>
+						<FypText
+							fontSize={14}
+							lineHeight={19}
+							fontWeight={600}
+							margin={{ r: 8 }}
+							style={tw.style(
+								"text-fans-black dark:text-fans-white",
+							)}
+						>
+							Send tip
+						</FypText>
+						<FypSvg
+							svg={RoundedTipSvg}
+							width={23}
+							height={23}
+							color="fans-black dark:fans-white"
+						/>
+					</FansView>
+				)}
 			</FansView>
 
 			<FypText

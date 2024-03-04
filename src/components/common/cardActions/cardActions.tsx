@@ -1,7 +1,6 @@
 import BottomSheetWrapper from "@components/common/bottomSheetWrapper";
 import tw from "@lib/tailwind";
 import { ICardAction } from "@usertypes/types";
-import { isDesktop } from "@utils/global";
 import React, { FC } from "react";
 import { View } from "react-native";
 import MenuItem from "./menuItem";
@@ -17,7 +16,7 @@ const CardActions: FC<Props> = (props) => {
 
 	return (
 		<BottomSheetWrapper open={open} onClose={onClose}>
-			<View style={tw.style(!isDesktop && "pb-10")}>
+			<View style={tw.style("pb-10 lg:pb-0")}>
 				{actions
 					.filter((el) => !el.hide)
 					.map((action) => (

@@ -2,10 +2,11 @@ import { FansView } from "@components/controls";
 import { IAppDispatch } from "@context/appContext";
 import { PostsActionType } from "@context/reducer/postsReducer";
 import tw from "@lib/tailwind";
-import { MediaType, PostType } from "@usertypes/commonEnums";
+import { PostType } from "@usertypes/commonEnums";
 import { IPostForm } from "@usertypes/types";
 import useDocumentPicker from "@utils/useDocumentPicker";
 import React, { FC, useCallback, useState } from "react";
+import { ViewStyle } from "react-native";
 import Toast from "react-native-toast-message";
 import AddResource from "./addResource";
 import ResourceItem from "./resourceItem";
@@ -13,10 +14,11 @@ import ResourceItem from "./resourceItem";
 interface Props {
 	data: IPostForm;
 	dispatch: IAppDispatch;
+	style: ViewStyle;
 }
 
 const AddResourceBar: FC<Props> = (props) => {
-	const { data, dispatch } = props;
+	const { data, dispatch, style } = props;
 	const { type, medias, carouselIndex } = data;
 	const { useMediaPicker } = useDocumentPicker();
 	const [resourceWidth, setResourceWidth] = useState(100);
@@ -86,10 +88,11 @@ const AddResourceBar: FC<Props> = (props) => {
 			padding={10}
 			flexDirection="row"
 			style={[
-				tw.style("bg-[rgba(0,0,0,0.5)] bottom-9 left-1/2"),
+				tw.style("bg-[rgba(0,0,0,0.5)] left-1/2"),
 				{
 					transform: [{ translateX: resourceWidth / -2 }],
 				},
+				style,
 			]}
 			onLayout={(e) => setResourceWidth(e.nativeEvent.layout.width)}
 		>

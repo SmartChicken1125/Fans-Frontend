@@ -109,10 +109,6 @@ export const featureGates = {
 		description: "Fundraiser content in post card",
 		production: false,
 	},
-	"2023_12-poll-post-card": {
-		description: "Poll content in post card",
-		production: false,
-	},
 	"2023_12-giveaway-post-card": {
 		description: "Giveaway content in post card",
 		production: false,
@@ -131,10 +127,6 @@ export const featureGates = {
 	},
 	"2023_12-get-gems-stripe-method": {
 		description: "Checkout methods in get gems screen",
-		production: false,
-	},
-	"2024_01-new-exclusive-post": {
-		description: "New exclusive post form",
 		production: false,
 	},
 	"2024_01-rejoin-active-video-call": {
@@ -177,10 +169,6 @@ export const featureGates = {
 		description: "Post type poll",
 		production: false,
 	},
-	"2024_02-review": {
-		description: "Profile review",
-		production: false,
-	},
 	"2024_02-delete-vault-medias": {
 		description: "delete medias function in vault screen",
 		production: false,
@@ -201,10 +189,6 @@ export const featureGates = {
 		description: "show reviews option in video call set up page",
 		production: false,
 	},
-	"2024_02-scheduled-post": {
-		description: "show scheduled post on settings page",
-		production: false,
-	},
 	"2024_02-edit-post": {
 		description: "enable post editing functionality",
 		production: false,
@@ -219,6 +203,14 @@ export const featureGates = {
 	},
 	"2024_02-new-payout-screen": {
 		description: "Redesigned payout screen",
+		production: false,
+	},
+	"2024_02-review-payment": {
+		description: "Review Payment system",
+		production: false,
+	},
+	"2024_02-review-type": {
+		description: "Review Filter Options - all, profile, video call, etc",
 		production: false,
 	},
 } satisfies Record<string, IFeatureGateData>; // Note, it's year_month-feature-name, not year_month_feature-name!!!

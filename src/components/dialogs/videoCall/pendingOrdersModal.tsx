@@ -1,32 +1,31 @@
 import {
-	ShopSvg,
 	BlockSvg,
-	CloseSvg,
-	VideoRecordSvg,
 	CalendarSvg,
 	ClockSvg,
+	CloseSvg,
 	RoundedTipSvg,
+	ShopSvg,
+	VideoRecordSvg,
 } from "@assets/svgs/common";
 import UserAvatar from "@components/avatar/UserAvatar";
 import {
+	FypButton2,
+	FypLinearGradientView,
 	FypModal,
 	FypSvg,
-	FypLinearGradientView,
 	FypText,
-	FypButton2,
 } from "@components/common/base";
 import { FansDivider, FansIconButton, FansView } from "@components/controls";
 import { VideoCallOrderCard } from "@components/videoCall";
-import { testPaymentToken } from "@constants/common";
 import { PENDING_ORDERS_DIALOG_ID } from "@constants/modal";
 import { ModalState } from "@context/state/modalState";
-import { useAppContext, ModalActionType } from "@context/useAppContext";
+import { ModalActionType, useAppContext } from "@context/useAppContext";
 import { formatPrice } from "@helper/Utils";
 import {
-	getVideoCallMeetings,
 	acceptMeetingById,
-	declineMeetingById,
 	cancelMeetingById,
+	declineMeetingById,
+	getVideoCallMeetings,
 	updateVideoCallSettings,
 } from "@helper/endpoints/videoCalls/apis";
 import { VideoCallMeetingsRespBody } from "@helper/endpoints/videoCalls/schemas";
@@ -36,19 +35,18 @@ import {
 	VideoCallOrderCardType,
 } from "@usertypes/commonEnums";
 import { IProfile } from "@usertypes/types";
-import { isDesktop } from "@utils/global";
-import React, { FC, useState, useRef, useEffect } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import {
-	Image,
-	ScrollView,
 	Dimensions,
 	FlatList,
+	Image,
 	NativeScrollEvent,
 	NativeSyntheticEvent,
+	ScrollView,
 } from "react-native";
 import Animated, {
-	useSharedValue,
 	useAnimatedStyle,
+	useSharedValue,
 	withSpring,
 } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
@@ -75,6 +73,7 @@ const OrderCardGroup: FC<OrderCardGroupProps> = (props) => {
 		data,
 		profile,
 	} = props;
+	const isDesktop = tw.prefixMatch("lg");
 	const modalWidth = tw.prefixMatch("md") ? 740 : windowWidth - 36;
 	const cardWidth = modalWidth - 36;
 

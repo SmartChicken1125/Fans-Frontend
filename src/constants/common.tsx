@@ -675,12 +675,14 @@ export const emptyPostData: IPost = {
 	createdAt: "2023-09-05T23:39:10.318Z",
 	updatedAt: "2023-09-05T23:39:10.318Z",
 	bookmarkCount: 0,
-	taggedPeoples: [],
 	isPaidOut: false,
 	isPinned: false,
 	isSelf: true,
 	isExclusive: false,
 	isPosted: true,
+	imageCount: 0,
+	videoLength: 0,
+	taggedPeoples: [],
 };
 
 export const allowedAudioFileTypes = [

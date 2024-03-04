@@ -119,6 +119,22 @@ export interface ChatAutomatedMessageWelcomeRespBody {
 	delay: number;
 }
 
+export interface TopFanNotificationReqBody {
+	top1Enabled: boolean;
+	top5Enabled: boolean;
+	top10Enabled: boolean;
+	customMessageEnabled: boolean;
+	text?: string;
+	image?: string;
+}
+
+export interface UpdateTopFanNotificationReqBody {
+	top1Enabled: boolean;
+	top5Enabled: boolean;
+	top10Enabled: boolean;
+	customMessageEnabled: boolean;
+}
+
 export interface CreateMessageReportReqBody {
 	messageId: string;
 	reportFlag: MessageReportFlag;

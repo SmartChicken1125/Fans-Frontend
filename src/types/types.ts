@@ -266,11 +266,22 @@ export interface ITaggedPeople {
 	tags: IUserTag[];
 }
 
+export interface IPostMediaTag {
+	id: string;
+	postMediaId: string;
+	userId: string;
+	user: IUserInfo;
+	pointX: number;
+	pointY: number;
+	updatedAt: string;
+}
+
 export interface Media {
 	id: string;
 	blurhash?: string;
 	type: string;
 	url?: string;
+	tags: IPostMediaTag[];
 }
 
 export interface IPost {
@@ -294,7 +305,6 @@ export interface IPost {
 	username?: string;
 	bookmarkCount: number;
 	profile: IProfile;
-	taggedPeoples: ITaggedPeople[];
 	isBookmarked?: boolean;
 	isLiked?: boolean;
 	isPaidPost: boolean;
@@ -307,6 +317,9 @@ export interface IPost {
 	fundraiser?: IFundraiser;
 	poll?: IPoll;
 	giveaway?: IGiveaway;
+	imageCount: number;
+	videoLength: number;
+	taggedPeoples: ITaggedPeople[];
 	// audio?: IAudio;
 }
 
@@ -318,7 +331,7 @@ export interface AnalyticsIPost extends IPost {
 export interface IPaidPostForm {
 	currency: string;
 	price: string;
-	thumb: IPickerMedia;
+	thumbs: IPickerMedia[];
 }
 
 export interface ISuggestedProfile extends IUser {
@@ -514,9 +527,11 @@ export interface IThumbImage {
 }
 
 export interface IPaidPost {
+	id: string;
+	postId: string;
 	currency: string;
 	price: number | string;
-	thumb?: IThumbImage;
+	thumbs?: IThumbImage[];
 }
 
 export interface IFundraiser {
@@ -1498,4 +1513,6 @@ export interface IReview {
 	creator: IProfile;
 	score: number;
 	text: string;
+	user: IUser;
+	createdAt: string;
 }

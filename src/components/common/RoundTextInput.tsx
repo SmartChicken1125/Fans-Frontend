@@ -1,6 +1,6 @@
 import { EyeHideSvg, EyeShowSvg } from "@assets/svgs/common";
 import tw from "@lib/tailwind";
-import React, { useMemo, useState } from "react";
+import React, { FC, useMemo, useState } from "react";
 import {
 	View,
 	TextInput,
@@ -8,6 +8,7 @@ import {
 	TextInputProps,
 	Platform,
 } from "react-native";
+import { FansView } from "../controls";
 import { FypText, FypSvg } from "./base";
 
 interface Props extends TextInputProps {
@@ -273,3 +274,50 @@ export function RoundTextInput2({
 		</View>
 	);
 }
+
+interface RoundTextInput3Props {
+	label: string;
+	optionalLabel?: string;
+	value: string;
+	onChangeText: (val: string) => void;
+}
+
+export const RoundTextInput3: FC<RoundTextInput3Props> = (props) => {
+	const { label, optionalLabel, value, onChangeText } = props;
+	return (
+		<FansView
+			padding={{ y: 10, x: 20 }}
+			borderRadius={15}
+			style={tw.style("bg-fans-grey-f0 dark:bg-fans-grey-43")}
+		>
+			<FypText
+				fontSize={14}
+				lineHeight={19}
+				fontFamily="inter-v"
+				style={tw.style("text-fans-grey-48 dark:text-fans-grey-b1")}
+			>
+				{label}
+				{optionalLabel ? (
+					<FypText
+						fontSize={14}
+						lineHeight={19}
+						fontFamily="inter-v"
+						style={tw.style("text-fans-purple-5f")}
+					>
+						{` ${optionalLabel}`}
+					</FypText>
+				) : null}
+			</FypText>
+			<TextInput
+				value={value}
+				onChangeText={onChangeText}
+				style={[
+					tw.style(
+						"border-0 p-0 text-[18px] text-fans-black dark:text-fans-white leading-[24px]",
+					),
+					{ outline: "none" },
+				]}
+			/>
+		</FansView>
+	);
+};

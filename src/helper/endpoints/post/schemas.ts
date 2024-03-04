@@ -33,7 +33,7 @@ export interface PostLocation {
 export interface PaidPost {
 	price: number;
 	currency: string;
-	thumbId?: string;
+	thumbIds: string[];
 	tiers?: string[];
 	roles?: string[];
 	users?: string[];

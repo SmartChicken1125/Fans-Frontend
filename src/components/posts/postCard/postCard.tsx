@@ -1,7 +1,6 @@
 import {
 	AddressSvg,
 	ChevronRightSvg,
-	GemLockSvg,
 	StatisticsSvg,
 	ShopSvg,
 } from "@assets/svgs/common";
@@ -17,7 +16,6 @@ import {
 	PostsActionType,
 	useAppContext,
 } from "@context/useAppContext";
-import { cdnURL } from "@helper/Utils";
 import {
 	deleteBookmark,
 	likePostWithPostId,
@@ -28,8 +26,7 @@ import tw from "@lib/tailwind";
 import { useFeatureGates } from "@state/featureGates";
 import { MediaType, PostType } from "@usertypes/commonEnums";
 import { IPost } from "@usertypes/types";
-import { Image as ExpoImage } from "expo-image";
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import AudioContent from "./audioContent";
 import CardFooter from "./cardFooter";
 import CardHeader from "./cardHeader";
@@ -37,6 +34,7 @@ import Fundraiser from "./fundraiser";
 import FundraiserContent from "./fundraiserContent";
 import Giveaway from "./giveaway";
 import MediaContent from "./mediaContent";
+import PaidPostLockView from "./paidPostLockView";
 import Poll from "./poll";
 import PollContent from "./pollContent";
 import TextContent from "./textContent";
@@ -69,6 +67,8 @@ const PostCard: FC<Props> = (props) => {
 	const { dispatch } = useAppContext();
 
 	const isUnpaidPost = data.isPaidPost && !data.isPaidOut;
+
+	const [width, setWidth] = useState(0);
 
 	const handleOpenMediaModal = (index: number) => {
 		dispatch.setPosts({
@@ -334,7 +334,7 @@ const PostCard: FC<Props> = (props) => {
 
 			{featureGates.has("2023_12-fundraiser-post-card") &&
 				data.fundraiser && <Fundraiser data={data} />}
-			{featureGates.has("2023_12-poll-post-card") && data.poll && (
+			{data.poll && (
 				<Poll data={data} handleUpdatePost={updatePostCallback} />
 			)}
 			{featureGates.has("2023_12-giveaway-post-card") &&
@@ -367,96 +367,32 @@ const PostCard: FC<Props> = (props) => {
 				</FansView>
 			</FypNullableView>
 
-			<FansView position="relative">
-				{(data.type === PostType.Media ||
-					data.type === PostType.Photo ||
-					data.type === PostType.Video) && (
-					<MediaContent data={data} />
+			<FansView
+				position="relative"
+				onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
+				style={tw.style(
+					isUnpaidPost && !data.isSelf ? `min-h-[${width}px]` : "",
 				)}
+			>
+				<FypNullableView visible={!isUnpaidPost || data.isSelf}>
+					{(data.type === PostType.Media ||
+						data.type === PostType.Photo ||
+						data.type === PostType.Video) && (
+						<MediaContent data={data} />
+					)}
+				</FypNullableView>
+
 				{data.type === PostType.Audio && <AudioContent data={data} />}
 				{data.type === PostType.Fundraiser && (
 					<FundraiserContent data={data} />
 				)}
 				{data.type === PostType.Poll && <PollContent data={data} />}
 				{data.type === PostType.Text && <TextContent data={data} />}
-				<FypNullableView visible={isUnpaidPost}>
-					<FansView
-						position="absolute"
-						width="full"
-						height="full"
-						top={0}
-						left={0}
-						background={
-							!data.paidPost?.thumb && !data.isSelf
-								? `bg-fans-grey-70/50 dark:bg-fans-grey-b1/50`
-								: ""
-						}
-					>
-						<FypNullableView
-							visible={!!data.paidPost?.thumb && !data.isSelf}
-						>
-							<ExpoImage
-								source={cdnURL(data.paidPost?.thumb?.url)}
-								style={tw.style("w-full h-full")}
-								pointerEvents="none"
-							/>
-						</FypNullableView>
-
-						<FansView
-							width={120}
-							height={120}
-							borderRadius={120}
-							backgroundColor={{
-								color: "white",
-								opacity: 30,
-							}}
-							flexDirection="row"
-							alignItems="center"
-							justifyContent="center"
-							position="absolute"
-							style={[
-								tw.style("top-1/2 left-1/2"),
-								{
-									transform: [
-										{ translateX: -60 },
-										{ translateY: -60 },
-									],
-								},
-							]}
-						>
-							<FypSvg
-								width={70}
-								height={66}
-								svg={GemLockSvg}
-								color="fans-white dark:fans-black"
-							/>
-						</FansView>
-
-						<FypNullableView visible={!!shopCard}>
-							<FypLinearGradientView
-								colors={["#1D21E5", "#A854F5", "#D885FF"]}
-								start={[0, 1]}
-								end={[1, 0]}
-								width={100}
-								height={26}
-								borderRadius={26}
-								alignItems="center"
-								justifyContent="center"
-								position="absolute"
-								style={tw.style("top-[18px] left-[17px]")}
-							>
-								<FypText
-									fontSize={14}
-									lineHeight={19}
-									fontWeight={600}
-									style={tw.style("text-fans-white")}
-								>
-									PAID POST
-								</FypText>
-							</FypLinearGradientView>
-						</FypNullableView>
-					</FansView>
-				</FypNullableView>
+				<PaidPostLockView
+					isUnpaidPost={isUnpaidPost}
+					post={data}
+					showPaidPostText={!!shopCard}
+				/>
 			</FansView>
 
 			<CardFooter

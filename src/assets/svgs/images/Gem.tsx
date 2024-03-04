@@ -42,7 +42,7 @@ export const Gem2Image: IFansSvg = () => {
 	return (
 		<Svg viewBox="0 0 15.497 14.364">
 			<Defs>
-				<linearGradient
+				<LinearGradient
 					id="gem-2-image-linear-gradient"
 					x1="0.059"
 					y1="0.906"
@@ -53,7 +53,7 @@ export const Gem2Image: IFansSvg = () => {
 					<Stop offset="0" stopColor="#161fe4" />
 					<Stop offset="0.565" stopColor="#a854f5" />
 					<Stop offset="0.915" stopColor="#d885ff" />
-				</linearGradient>
+				</LinearGradient>
 			</Defs>
 			<Path
 				id="Path_50436"

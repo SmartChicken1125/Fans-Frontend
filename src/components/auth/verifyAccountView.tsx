@@ -72,9 +72,6 @@ const VerifyAccountView: FC<Props> = (_props) => {
 						return;
 					}
 
-					const token = resp.data.token;
-					await setStorage(StorageKeyTypes.AccessToken, token);
-
 					await dispatch.fetchProfile();
 					await dispatch.fetchUserInfo();
 

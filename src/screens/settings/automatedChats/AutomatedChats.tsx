@@ -15,11 +15,16 @@ import {
 import {
 	WelcomeMessageImageModal,
 	WelcomeMessageModal,
+	TopNotificationMessageImageModal,
+	TopNotificationMessageModal,
 } from "@components/modals/settings/automatedChats";
 import {
 	createWelcomeAutomatedMessage,
 	updateWelcomeAutomatedMessageSettings,
 	getWelcomeAutomatedMessage,
+	getTopFanNotification,
+	createTopFanNotification,
+	updateTopFanNotification,
 } from "@helper/endpoints/chat/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -55,6 +60,20 @@ const AutomatedChatsScreen = (
 	const [welcomeMessageDelayEnabled, setWelcomeMessageDelayEnabled] =
 		useState(false);
 	const [welcomeMessageDelay, setWelcomeMessageDelay] = useState("30");
+	const [topFanNotificationText, setTopFanNotificationText] =
+		useState<string>();
+	const [topFanNotificationImage, setTopFanNotificationImage] = useState<
+		string | undefined
+	>();
+	const [
+		isTopFanNotificationImageModalVisible,
+		setTopFanNotificationImageModalVisible,
+	] = useState(false);
+	const [isTopFanNotification, setTopFanNotification] = useState(false);
+	const [
+		isTopFanNotificationModalVisible,
+		setTopFanNotificationModalVisible,
+	] = useState(false);
 
 	useEffect(() => {
 		const fetchWelcomeAutomatedMessage = async () => {
@@ -69,6 +88,20 @@ const AutomatedChatsScreen = (
 				setWelcomeMessageDelay(result.data?.delay.toString() ?? "30");
 			}
 		};
+
+		const fetchTopFanNotification = async () => {
+			const result = await getTopFanNotification();
+			if (result.ok) {
+				setTopFanNotificationText(result.data?.text);
+				setTopFanNotificationImage(result.data?.image);
+				setTop1(Boolean(result.data?.top1Enabled));
+				setTop5(Boolean(result.data?.top5Enabled));
+				setTop10(Boolean(result.data?.top10Enabled));
+				setCustomMessage(Boolean(result.data?.customMessageEnabled));
+			}
+		};
+
+		fetchTopFanNotification();
 		fetchWelcomeAutomatedMessage();
 	}, []);
 
@@ -80,7 +113,7 @@ const AutomatedChatsScreen = (
 
 	const handlePressCustomMessage = () => {
 		tw.prefixMatch("lg")
-			? setWelcomeMessageImageModalVisible(true)
+			? setTopFanNotificationImageModalVisible(true)
 			: navigation.navigate("MessageImage", { type: "Custom" });
 	};
 
@@ -94,6 +127,12 @@ const AutomatedChatsScreen = (
 		setWelcomeMessageImageModalVisible(false);
 		setWelcomeMessageModalVisible(true);
 		setWelcomeImage(image);
+	};
+
+	const handleSubmitTopFanNotificationImageModal = (image?: string) => {
+		setTopFanNotificationImageModalVisible(false);
+		setTopFanNotificationModalVisible(true);
+		setTopFanNotificationImage(image);
 	};
 
 	const handleSubmitWelcomeMessageModal = async (text?: string) => {
@@ -149,9 +188,49 @@ const AutomatedChatsScreen = (
 		}
 	};
 
-	const topFansMessage = {
-		image: "https://i.postimg.cc/J7vXYBL0/image.png",
-		text: "Hey there! Here’s a little surprise gift for you. Hope you enjoy it! Xx",
+	const handleSubmitTopFanNotificationModal = async (text?: string) => {
+		setTopFanNotificationText(text);
+		setTopFanNotificationModalVisible(false);
+
+		let image: string | undefined;
+
+		if (topFanNotificationImage) {
+			const uploadResult = await uploadFiles([
+				{ uri: topFanNotificationImage, type: MediaType.Image },
+			]);
+			if (!uploadResult.ok) {
+				Toast.show({
+					type: "error",
+					text1: "Error",
+					text2: "Failed to upload image",
+				});
+				return;
+			}
+			image = uploadResult.data?.[0].id;
+		}
+
+		const result = await createTopFanNotification({
+			customMessageEnabled: isCustomMessage,
+			text: text,
+			image: image,
+			top1Enabled: isTop1,
+			top5Enabled: isTop5,
+			top10Enabled: isTop10,
+		});
+
+		if (result.ok) {
+			Toast.show({
+				type: "success",
+				text1: "Success",
+				text2: "Top Fan notification created",
+			});
+		} else {
+			Toast.show({
+				type: "error",
+				text1: "Error",
+				text2: result.data?.message,
+			});
+		}
 	};
 
 	useEffect(() => {
@@ -172,6 +251,26 @@ const AutomatedChatsScreen = (
 		};
 		handleUpdateWelcomeMessageSettings();
 	}, [isWelcomeMessage, welcomeMessageDelayEnabled, welcomeMessageDelay]);
+
+	useEffect(() => {
+		const handleUpdateTopFanNotificationSettings = async () => {
+			const result = await updateTopFanNotification({
+				top1Enabled: isTop1,
+				top5Enabled: isTop5,
+				top10Enabled: isTop10,
+				customMessageEnabled: isCustomMessage,
+			});
+
+			if (!result.ok) {
+				Toast.show({
+					type: "error",
+					text1: "Error",
+					text2: result.data?.message,
+				});
+			}
+		};
+		handleUpdateTopFanNotificationSettings();
+	}, [isTop1, isTop5, isTop10, isCustomMessage]);
 
 	return (
 		<FansScreen3 contentStyle={tw.style("lg:max-w-[670px]")}>
@@ -383,7 +482,9 @@ const AutomatedChatsScreen = (
 					<FansText fontFamily="inter-semibold" fontSize={17}>
 						Top fans message
 					</FansText>
-					<TouchableOpacity>
+					<TouchableOpacity
+						onPress={() => setTopFanNotificationModalVisible(true)}
+					>
 						<FansView
 							alignItems="center"
 							flexDirection="row"
@@ -417,7 +518,7 @@ const AutomatedChatsScreen = (
 					<FansImage2
 						width={250}
 						height={183}
-						source={{ uri: topFansMessage.image }}
+						source={{ uri: topFanNotificationImage }}
 						viewStyle={{ borderRadius: 15 }}
 					/>
 					<FansView
@@ -429,7 +530,7 @@ const AutomatedChatsScreen = (
 						backgroundColor="purple"
 					>
 						<FansText color="white" fontSize={18}>
-							{topFansMessage.text}
+							{topFanNotificationText}
 						</FansText>
 					</FansView>
 				</FansView>
@@ -448,6 +549,18 @@ const AutomatedChatsScreen = (
 				visible={isWelcomeMessageModalVisible}
 				onClose={handleCloseWelcomeMessageModal}
 				onSubmit={handleSubmitWelcomeMessageModal}
+			/>
+			<TopNotificationMessageImageModal
+				visible={isTopFanNotificationImageModalVisible}
+				onClose={() => setTopFanNotificationImageModalVisible(false)}
+				onSubmit={handleSubmitTopFanNotificationImageModal}
+			/>
+			<TopNotificationMessageModal
+				text={topFanNotificationText}
+				image={topFanNotificationImage}
+				visible={isTopFanNotificationModalVisible}
+				onClose={() => setTopFanNotificationModalVisible(false)}
+				onSubmit={handleSubmitTopFanNotificationModal}
 			/>
 			<FansGap height={20} />
 		</FansScreen3>

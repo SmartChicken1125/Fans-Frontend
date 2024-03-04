@@ -62,9 +62,9 @@ const CaptionScreen = (
 						.filter((media) => media.isPicker)
 						.map((el) => el.uri),
 					postForm.thumb.isPicker ? postForm.thumb.uri : undefined,
-					postForm.paidPost?.thumb.isPicker
-						? postForm.paidPost?.thumb.uri
-						: undefined,
+					...(postForm.paidPost?.thumbs ?? [])
+						.filter((media) => media.isPicker)
+						.map((el) => el.uri),
 					...postForm.uploadFiles.map((el) => el.url),
 					postForm.fundraiser?.cover
 						? postForm.fundraiser.cover.isPicker
@@ -86,9 +86,11 @@ const CaptionScreen = (
 		const thumbIdx = postForm.thumb.uri
 			? medias.findIndex((el) => el === postForm.thumb.uri)
 			: 0;
-		const paidPostThumbIdx = postForm.paidPost
-			? medias.findIndex((el) => el === postForm.paidPost?.thumb.uri)
-			: -1;
+		const paidPostThumbsIds = postForm.paidPost
+			? postForm.paidPost.thumbs
+					.map((el) => medias.findIndex((media) => media === el.uri))
+					.filter((idx) => idx >= 0)
+			: [];
 		const mediasIdx = postForm.medias
 			.map((el) => medias.findIndex((media) => media === el.uri))
 			.filter((idx) => idx >= 0);
@@ -105,12 +107,6 @@ const CaptionScreen = (
 			? medias.findIndex((el) => el === postForm.giveaway.cover.uri)
 			: -1;
 
-		// const mediaType =
-		// 	postForm.type === PostType.Video
-		// 		? MediaType.Video
-		// 		: postForm.type === PostType.Audio
-		// 		? MediaType.Audio
-		// 		: MediaType.Image;
 		let uploadMedias: IUploadedFile[];
 
 		if (action === ActionType.Create) {
@@ -141,10 +137,9 @@ const CaptionScreen = (
 		}
 
 		const thumb = thumbIdx >= 0 ? uploadMedias[thumbIdx].id : undefined;
-		const paidPostThumb =
-			paidPostThumbIdx >= 0
-				? uploadMedias[paidPostThumbIdx].id
-				: undefined;
+		const paidPostThumbIds = [
+			...paidPostThumbsIds.map((idx) => uploadMedias[idx].id),
+		];
 		const mediaIds = [
 			...postForm.medias
 				.filter((media) => !media.isPicker)
@@ -180,7 +175,7 @@ const CaptionScreen = (
 			thumbId: thumb,
 			mediaIds,
 			formIds,
-			paidPostThumbId: paidPostThumb,
+			paidPostThumbIds: paidPostThumbIds,
 			fundraiserCover,
 			pollCover,
 			giveawayCover,

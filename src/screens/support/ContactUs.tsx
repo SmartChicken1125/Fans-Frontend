@@ -17,10 +17,64 @@ import { sendMessageToContact } from "@helper/endpoints/contact/apis";
 import tw from "@lib/tailwind";
 import { SupportNativeStackScreenProps } from "@usertypes/navigations";
 import { ColorStyle1 } from "@usertypes/styles";
-import { isDesktop } from "@utils/global";
 import { useRouter } from "expo-router";
 import React, { Fragment, useCallback, useState } from "react";
-import { Linking } from "react-native";
+import { Linking, Text, View } from "react-native";
+
+const handlePressCallUs = () => Linking.openURL(`tel:${CONTACT_PHONE}`);
+
+const handlePressEmail = () => Linking.openURL(`mailto:${CONTACT_EMAIL}`);
+
+const handlePressJoin = () => Linking.openURL(`${DISCORD_LINK}`);
+
+const icons = [
+	{
+		// TODO: put this outside icon: () => (
+		icon: (
+			<FansSvg
+				width={23.57}
+				height={18.11}
+				svg={EmailSvg}
+				color={tw.color(ColorStyle1.White)}
+			/>
+		),
+		iconBackground: ColorStyle1.Purple,
+		text1: "Email address",
+		text2: CONTACT_EMAIL,
+		button: "Email",
+		onPress: handlePressEmail,
+	},
+	{
+		icon: (
+			<FansSvg
+				width={26.73}
+				height={20.21}
+				svg={DiscordSvg}
+				color={tw.color(ColorStyle1.White)}
+			/>
+		),
+		iconBackground: ColorStyle1.Blue,
+		text1: "Discord",
+		text2: DISCORD_LINK,
+		button: "Join",
+		onPress: handlePressJoin,
+	},
+	{
+		icon: (
+			<FansSvg
+				width={21.42}
+				height={23}
+				svg={CallSvg}
+				color={tw.color(ColorStyle1.White)}
+			/>
+		),
+		iconBackground: "fans-purple-D8",
+		text1: "Phone",
+		text2: CONTACT_PHONE,
+		button: "Call us",
+		onPress: handlePressCallUs,
+	},
+];
 
 const ContactUsScreen = ({
 	navigation,
@@ -31,16 +85,9 @@ const ContactUsScreen = ({
 	const [email, setEmail] = useState("");
 	const [subject, setSubject] = useState("");
 	const [question, setQuestion] = useState("");
-	const router = useRouter();
-
-	const handlePressCallUs = () => Linking.openURL(`tel:${CONTACT_PHONE}`);
-
-	const handlePressEmail = () => Linking.openURL(`mailto:${CONTACT_EMAIL}`);
 
 	const handlePressFillOutForm = () =>
 		navigation.navigate("LawEnforcementGuide");
-
-	const handlePressJoin = () => Linking.openURL(`${DISCORD_LINK}`);
 
 	const initializeForm = () => {
 		setName("");
@@ -85,68 +132,16 @@ const ContactUsScreen = ({
 
 	return (
 		<FansScreen3>
-			<FansText
-				fontFamily="inter-bold"
-				fontSize={23}
-				textAlign={isDesktop ? "left" : "center"}
+			<Text
+				style={tw`font-inter-bold text-[23px] text-center md:text-left`}
 			>
 				How can we help you?
-			</FansText>
-			<FansGap height={isDesktop ? 59 : 23} />
-			<FansView style={tw.style(isDesktop && "flex-row")}>
-				<FansView
-					style={tw.style(
-						"md:mt-auto md:min-w-[350px] lg:min-w-[400px]",
-					)}
-				>
-					<FansView style={tw.style("flex gap-[9px]")}>
-						{[
-							{
-								icon: (
-									<FansSvg
-										width={23.57}
-										height={18.11}
-										svg={EmailSvg}
-										color={tw.color(ColorStyle1.White)}
-									/>
-								),
-								iconBackground: ColorStyle1.Purple,
-								text1: "Email address",
-								text2: CONTACT_EMAIL,
-								button: "Email",
-								onPress: handlePressEmail,
-							},
-							{
-								icon: (
-									<FansSvg
-										width={26.73}
-										height={20.21}
-										svg={DiscordSvg}
-										color={tw.color(ColorStyle1.White)}
-									/>
-								),
-								iconBackground: ColorStyle1.Blue,
-								text1: "Discord",
-								text2: DISCORD_LINK,
-								button: "Join",
-								onPress: handlePressJoin,
-							},
-							{
-								icon: (
-									<FansSvg
-										width={21.42}
-										height={23}
-										svg={CallSvg}
-										color={tw.color(ColorStyle1.White)}
-									/>
-								),
-								iconBackground: "fans-purple-D8",
-								text1: "Phone",
-								text2: CONTACT_PHONE,
-								button: "Call us",
-								onPress: handlePressCallUs,
-							},
-						].map((item, index) => {
+			</Text>
+			<View style={tw`h-[23px] md:h-[59px]`} />
+			<View style={tw`md:flex-row`}>
+				<View style={tw`md:mt-auto md:min-w-[350px] lg:min-w-[400px]`}>
+					<View style={tw`flex gap-[9px]`}>
+						{icons.map((item, index) => {
 							const {
 								icon,
 								iconBackground,
@@ -197,12 +192,12 @@ const ContactUsScreen = ({
 								</FansView>
 							);
 						})}
-					</FansView>
+					</View>
 					<FansView style={tw.style("hidden sm:flex")}>
 						<FansView style={tw.style("h-[43px]")} />
 						<NeedLegalAssistance />
 					</FansView>
-				</FansView>
+				</View>
 				<FansGap
 					width={{ xs: 0, sm: 129 }}
 					height={{ xs: 32, sm: 0 }}
@@ -251,7 +246,7 @@ const ContactUsScreen = ({
 					<FansGap height={32.7} />
 					<NeedLegalAssistance />
 				</FansView>
-			</FansView>
+			</View>
 		</FansScreen3>
 	);
 };

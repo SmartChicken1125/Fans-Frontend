@@ -1,23 +1,17 @@
-import {
-	FypCarousel,
-	FypNullableView,
-	FypText,
-	FypVideo,
-} from "@components/common/base";
+import { FypNullableView } from "@components/common/base";
 import FansCarousel from "@components/common/carousel";
 import { FansView } from "@components/controls";
-import { cdnURL } from "@helper/Utils";
-import tw from "@lib/tailwind";
 import { MediaType, ResizeMode } from "@usertypes/commonEnums";
 import { IFypPostContent } from "@usertypes/components";
-import { isDesktop } from "@utils/global";
 import React, { useState } from "react";
+import TagItem from "./tagItem";
 import TaggedPeople from "./taggedPeople";
 
 const MediaContent: IFypPostContent = (props) => {
 	const { data } = props;
 
 	const [width, setWidth] = useState(0);
+	const [carouselIndex, setCarouselIndex] = useState(0);
 	const [showTooltip, setShowTooltip] = useState(false);
 
 	const handleToggleTooltip = () => {
@@ -43,62 +37,40 @@ const MediaContent: IFypPostContent = (props) => {
 						width !== 0
 					}
 				>
-					{isDesktop ? (
-						<FansCarousel
-							id={`post-video-${data.id}`}
-							width={width}
-							height={width}
-							resizeMode={ResizeMode.CONTAIN}
-							medias={data.medias.map((el) => ({
-								url: el.url,
-								mediaType: el.type as MediaType,
-							}))}
-							showBadge
-							useButtons
-							watermark={
-								props.data.profile.watermark === true
-									? `fyp.fans/${props.data.profile.profileLink}`
-									: undefined
-							}
-						/>
-					) : (
-						<FypCarousel
-							id={`carousel-${data.id}`}
-							data={data.medias.map((el, index) => ({
-								id: `${index}`,
-								blurhash: el.blurhash,
-								url: el.url,
-								mediaType: MediaType.Image,
-							}))}
-							width={width}
-							showBadge
-							renderItem={(data, index) => (
-								<FansView width={width} height={width}>
-									<FypVideo
-										id={`${data.id}-${index}`}
-										source={{
-											uri: cdnURL(data.url) ?? "",
-										}}
-										style={[tw.style("w-full h-full")]}
-										resizeMode={ResizeMode.CONTAIN}
-									/>
-									<FypText
-										fontSize={17}
-										color="white"
-										style={tw.style(
-											"right-[17px] bottom-[20px] absolute",
-										)}
-									>
-										{`fyp.fans/${props.data.profile.profileLink}`}
-									</FypText>
-								</FansView>
-							)}
-						/>
-					)}
+					<FansCarousel
+						id={`post-video-${data.id}`}
+						width={width}
+						height={width}
+						resizeMode={ResizeMode.CONTAIN}
+						medias={data.medias.map((el) => ({
+							url: el.url,
+							mediaType: el.type as MediaType,
+						}))}
+						showBadge
+						useButtons
+						watermark={
+							props.data.profile.watermark === true
+								? `fyp.fans/${props.data.profile.profileLink}`
+								: undefined
+						}
+						carouselCallback={(index) => setCarouselIndex(index)}
+					/>
 				</FypNullableView>
 
-				<TaggedPeople data={data} onPress={handleToggleTooltip} />
+				<TaggedPeople
+					data={data}
+					mediaIndex={carouselIndex}
+					onPress={handleToggleTooltip}
+				/>
 			</FansView>
+			{data.medias[carouselIndex]?.tags.map((tag) => (
+				<TagItem
+					key={tag.id}
+					tag={tag}
+					visible={showTooltip}
+					mediaSize={width}
+				/>
+			))}
 			{/* <TaggedPeoplePopover
 				visible={showTooltip}
 				taggedPeoples={data.taggedPeoples}

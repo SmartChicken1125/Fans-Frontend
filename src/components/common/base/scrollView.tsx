@@ -1,7 +1,6 @@
 import { ChevronLeftSvg, ChevronRightSvg } from "@assets/svgs/common";
 import { FansIconButton, FansView } from "@components/controls";
 import tw from "@lib/tailwind";
-import { isDesktop } from "@utils/global";
 import React, {
 	FC,
 	MutableRefObject,
@@ -199,6 +198,8 @@ export const FypHorizontalScrollView2: FC<FypHorizontalScrollView2Props> = (
 			setVisibleNext(true);
 		}
 	}, [contentWidth, wrapperWidth]);
+
+	const isDesktop = tw.prefixMatch("lg");
 
 	return isDesktop ? (
 		<FansView

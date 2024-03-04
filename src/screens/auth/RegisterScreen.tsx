@@ -4,6 +4,7 @@ import RoundButton from "@components/common/RoundButton";
 import TextButton from "@components/common/TextButton";
 import { FypText } from "@components/common/base";
 import { FansButton3, FansGap } from "@components/controls";
+import { useAppContext } from "@context/useAppContext";
 import {
 	useDiscordAuthRequest,
 	useGoogleAuthRequest,
@@ -36,6 +37,7 @@ import { useSetRecoilState } from "recoil";
 
 const RegisterScreen = () => {
 	const router = useRouter();
+	const { dispatch } = useAppContext();
 	const { username } = useLocalSearchParams();
 	const [openLink] = useBlankLink();
 	const setAuthState = useSetRecoilState(authStateAtom);
@@ -178,6 +180,8 @@ const RegisterScreen = () => {
 
 				const token = resp.data.token;
 				await setStorage(StorageKeyTypes.AccessToken, token);
+				await dispatch.fetchProfile();
+				await dispatch.fetchUserInfo();
 
 				router.push({
 					pathname: "/auth/verifyAccount",

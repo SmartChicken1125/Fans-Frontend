@@ -950,49 +950,44 @@ const CreatorProfileScreen = (
 							</FansView>
 							<CopyLink url={createURL(profile.profileLink)} />
 							<FansGap height={19.5} />
-							{featureGates.has("2024_02-review") && (
-								<FansView
-									alignItems="center"
-									flexDirection="row"
+
+							<FansView alignItems="center" flexDirection="row">
+								<FansSvg
+									width={11.9}
+									height={11.4}
+									svg={Star1Svg}
+									color1="purple-a8"
+								/>
+								<FansGap width={4} />
+								<FansText
+									fontFamily="inter-semibold"
+									fontSize={15}
 								>
-									<FansSvg
-										width={11.9}
-										height={11.4}
-										svg={Star1Svg}
-										color1="purple-a8"
-									/>
-									<FansGap width={4} />
-									<FansText
-										fontFamily="inter-semibold"
-										fontSize={15}
-									>
-										{profile.review.score}
-									</FansText>
-									<FansGap width={4} />
-									<FansText color="grey-48" fontSize={15}>
-										({profile.review.total})
-									</FansText>
-									{!tw.prefixMatch("md") && (
-										<>
-											<FansGap width={4} />
-											<FansView
-												touchableOpacityProps={{
-													onPress:
-														handlePressViewReviews,
-												}}
+									{profile.review.score}
+								</FansText>
+								<FansGap width={4} />
+								<FansText color="grey-48" fontSize={15}>
+									({profile.review.total})
+								</FansText>
+								{!tw.prefixMatch("md") && (
+									<>
+										<FansGap width={4} />
+										<FansView
+											touchableOpacityProps={{
+												onPress: handlePressViewReviews,
+											}}
+										>
+											<FansText
+												color="purple-a8"
+												fontFamily="inter-semibold"
+												fontSize={15}
 											>
-												<FansText
-													color="purple-a8"
-													fontFamily="inter-semibold"
-													fontSize={15}
-												>
-													View reviews
-												</FansText>
-											</FansView>
-										</>
-									)}
-								</FansView>
-							)}
+												View reviews
+											</FansText>
+										</FansView>
+									</>
+								)}
+							</FansView>
 							<FansView margin={{ t: 15.5 }}>
 								<BioText text={profile.bio} />
 							</FansView>
