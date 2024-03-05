@@ -137,7 +137,7 @@ const CaptionForm: FC<Props> = (props) => {
 							"bg-fans-purple-f6 dark:bg-fans-purple-47",
 						)}
 					>
-						<FansText
+						{/* <FansText
 							fontSize={16}
 							lineHeight={21}
 							style={tw.style(
@@ -145,7 +145,17 @@ const CaptionForm: FC<Props> = (props) => {
 							)}
 						>
 							{data.caption}
-						</FansText>
+						</FansText> */}
+						<RoundTextInput
+							value={caption}
+							onChangeText={(val) => onChangeCaption(val)}
+							placeholder="Write a caption..."
+							multiline
+							numberOfLines={4}
+							maxLength={1000}
+							customStyles="py-3 px-5 rounded-[7px] h-[128px]"
+							onPointerLeave={onPointerLeave}
+						/>
 					</FansView>
 				) : (
 					<RoundTextInput
