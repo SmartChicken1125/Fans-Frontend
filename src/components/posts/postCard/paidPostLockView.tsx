@@ -26,10 +26,8 @@ const PaidPostLockView: FC<Props> = (props) => {
 				cdnURL(post.paidPost.thumbs[0].url),
 				post.thumb?.blurhash,
 			);
-		} else if (post.paidPost && !post.paidPost.thumbs) {
-			return post.thumb?.blurhash;
 		}
-		return "";
+		return require("@assets/images/posts/paid-post-preview.webp");
 	};
 
 	if (!isUnpaidPost) {

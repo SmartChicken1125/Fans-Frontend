@@ -477,6 +477,15 @@ const ThumbnailScreen: FC<Props> = (props) => {
 		});
 	};
 
+	const getPaidPostPreview = () => {
+		if (data.paidPost && data.paidPost.thumbs) {
+			if (data.paidPost.thumbs[0]?.uri) {
+				return data.paidPost.thumbs[0].uri;
+			}
+		}
+		return require("@assets/images/posts/paid-post-preview.webp");
+	};
+
 	useEffect(() => {
 		if (medias) {
 			setPickerMedias(medias);
@@ -649,12 +658,7 @@ const ThumbnailScreen: FC<Props> = (props) => {
 											}
 										>
 											<ExpoImage
-												source={{
-													uri: data.paidPost?.thumbs
-														? data.paidPost
-																.thumbs[0]?.uri
-														: "",
-												}}
+												source={getPaidPostPreview()}
 												style={tw.style(
 													"w-full h-full",
 												)}

@@ -20,7 +20,7 @@ import {
 	IRole,
 } from "@usertypes/types";
 import useDocumentPicker from "@utils/useDocumentPicker";
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { Image } from "react-native";
 import Animated, {
 	useAnimatedStyle,
@@ -86,7 +86,7 @@ const PreviewField: FC<PreviewFieldProps> = (props) => {
 
 	const handleRemove = () => {
 		onRemovePreview(previews[previewIndex]?.id ?? "");
-		if (previewIndex === previews.length - 1) {
+		if (previewIndex === previews.length - 1 && previewIndex !== 0) {
 			setPreviewIndex(previewIndex - 1);
 		}
 	};

@@ -60,7 +60,7 @@ import { formatNumber } from "@utils/stringHelper";
 import { useBlankLink } from "@utils/useBlankLink";
 import { createURL } from "expo-linking";
 import { useRouter } from "expo-router";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useRef, useEffect, useState } from "react";
 import {
 	Image,
 	ImageSourcePropType,
@@ -72,6 +72,7 @@ import {
 	TextInput,
 	TouchableOpacity,
 	View,
+	NativeSyntheticEvent,
 } from "react-native";
 import OutsidePressHandler from "react-native-outside-press";
 import Animated, {
@@ -107,6 +108,7 @@ const MembershipSection = () => {
 				fontWeight={500}
 				lineHeight={{ md: 100 }}
 				textAlign="center"
+				fontFamily="inter-v"
 				style={tw.style("text-fans-black-1d")}
 			>
 				{`Start a membership${`\n`}for your biggest fans`}
@@ -116,6 +118,7 @@ const MembershipSection = () => {
 				fontSize={{ xs: 17, md: 27 }}
 				lineHeight={{ xs: 26, md: 43 }}
 				textAlign="center"
+				fontFamily="inter-v"
 				style={tw.style(
 					"text-fans-black-1d",
 					tw.prefixMatch("sm") ? "" : "max-w-[354px] mx-auto",
@@ -329,6 +332,7 @@ const FooterSection = () => {
 						fontWeight={tw.prefixMatch("md") ? 600 : 700}
 						lineHeight={{ xs: 40, md: 35 }}
 						color="black-1d"
+						fontFamily="inter-v"
 						style={tw.style("text-center lg:text-left")}
 					>
 						Where visionaries{"\n"}build empires
@@ -345,6 +349,7 @@ const FooterSection = () => {
 							fontSize={19}
 							lineHeight={33}
 							color="black"
+							fontFamily="inter-v"
 							style={tw.style("text-center lg:text-left")}
 						>
 							©2023 FYP.Fans
@@ -389,6 +394,7 @@ const FooterSection = () => {
 							lineHeight={33}
 							fontWeight={700}
 							color="black-2e"
+							fontFamily="inter-v"
 							style={tw.style("mb-[25px] md:mb-11")}
 						>
 							RESOURCES
@@ -432,6 +438,7 @@ const FooterSection = () => {
 							lineHeight={33}
 							fontWeight={700}
 							color="black-2e"
+							fontFamily="inter-v"
 							style={tw.style("mb-[25px] md:mb-11")}
 						>
 							POLICY
@@ -471,6 +478,7 @@ const FooterSection = () => {
 							lineHeight={33}
 							fontWeight={700}
 							color="black-2e"
+							fontFamily="inter-v"
 							style={tw.style("mb-[25px] md:mb-11")}
 						>
 							INFO
@@ -516,7 +524,12 @@ const FooterSection = () => {
 					<Socials />
 				</FansView>
 				<FansView margin={{ t: 20 }}>
-					<FypText fontSize={16} lineHeight={33} color="black">
+					<FypText
+						fontSize={16}
+						lineHeight={33}
+						color="black"
+						fontFamily="inter-v"
+					>
 						©2023 FYP.Fans
 					</FypText>
 				</FansView>
@@ -552,6 +565,7 @@ const RoleButton: FC<RoleButtonProps> = (props) => {
 				fontSize={{ xs: 17, md: 19 }}
 				lineHeight={{ xs: 22, md: 26 }}
 				fontWeight={500}
+				fontFamily="inter-v"
 				style={tw.style(
 					isSelected ? `text-fans-white` : "text-fans-black-2e",
 				)}
@@ -606,6 +620,7 @@ const CreatorCard: FC<CreatorProps> = (props) => {
 					lineHeight={{ xs: 28, md: 35 }}
 					color="black-2e"
 					fontWeight={700}
+					fontFamily="inter-v"
 					style={tw.style("mb-3 md:mb-[15px]")}
 				>
 					{name}
@@ -615,6 +630,7 @@ const CreatorCard: FC<CreatorProps> = (props) => {
 					lineHeight={{ xs: 23, md: 26 }}
 					color="black"
 					numberOfLines={2}
+					fontFamily="inter-v"
 					style={tw.style("mb-[15px] md:mb-4")}
 				>
 					{description}
@@ -640,6 +656,7 @@ const CreatorCard: FC<CreatorProps> = (props) => {
 							lineHeight={33}
 							fontWeight={500}
 							color="grey-48"
+							fontFamily="inter-v"
 						>
 							{`${formatNumber(count ?? null)} followers`}
 						</FypText>
@@ -668,6 +685,7 @@ const CreatorsSection = () => {
 					fontWeight={500}
 					lineHeight={{ md: 100 }}
 					textAlign="center"
+					fontFamily="inter-v"
 					style={tw.style("text-fans-black-1d")}
 				>
 					Meet our creators
@@ -677,6 +695,7 @@ const CreatorsSection = () => {
 					fontSize={{ xs: 17, md: 27 }}
 					lineHeight={{ xs: 26, md: 43 }}
 					textAlign="center"
+					fontFamily="inter-v"
 					style={tw.style(
 						"text-fans-black-1d",
 						tw.prefixMatch("sm") ? "" : "max-w-[325px] mx-auto",
@@ -687,6 +706,7 @@ const CreatorsSection = () => {
 						fontSize={{ xs: 17, md: 27 }}
 						lineHeight={{ xs: 26, md: 43 }}
 						fontWeight={600}
+						fontFamily="inter-v"
 						style={tw.style("text-fans-green-04")}
 					>
 						$1,000,000+
@@ -813,6 +833,7 @@ export const CreatorUser: FC<CreatorUserInfo> = (props) => {
 						fontWeight={700}
 						color="black-2e"
 						numberOfLines={1}
+						fontFamily="inter-v"
 					>
 						{data.displayName}
 					</FypText>
@@ -821,6 +842,7 @@ export const CreatorUser: FC<CreatorUserInfo> = (props) => {
 						lineHeight={21}
 						style={tw.style("text-fans-grey-48")}
 						numberOfLines={2}
+						fontFamily="inter-v"
 					>
 						{data.bio}
 					</FypText>
@@ -1174,6 +1196,8 @@ const BannerSection = () => {
 					fontWeight={500}
 					color="white"
 					textAlign="center"
+					fontFamily="inter-v"
+					letterSpacing={0.5}
 					style={tw.style("mb-[28px] md:mb-[40px]")}
 				>
 					{`Make money creating${`\n`}the content you love`}
@@ -1185,6 +1209,7 @@ const BannerSection = () => {
 						color="white"
 						textAlign="center"
 						fontWeight={500}
+						fontFamily="inter-v"
 					>
 						Start a membership, set up a digital shop, accept
 						donations.
@@ -1195,6 +1220,7 @@ const BannerSection = () => {
 						color="white"
 						textAlign="center"
 						fontWeight={500}
+						fontFamily="inter-v"
 					>
 						Sell anything you like. It’s easier than you think
 					</FypText>
@@ -1210,7 +1236,7 @@ const BannerSection = () => {
 							style={[
 								tw.style(
 									"bg-fans-white h-14 md:h-[82px] rounded-[100px] text-[21px] leading-[28px] md:text-[28px] md:leading-[37px] font-medium",
-									"pl-[117px] md:pl-[173px]",
+									"pl-[117px] md:pl-[173px] font-inter-v",
 								),
 								Platform.OS === "web" && {
 									outlineColor: "#fff",
@@ -1239,6 +1265,7 @@ const BannerSection = () => {
 								fontSize={{ xs: 21, md: 28 }}
 								lineHeight={{ xs: 28, md: 37 }}
 								fontWeight={600}
+								fontFamily="inter-v"
 								onLayout={(e) => {
 									setPrefixWidth(e.nativeEvent.layout.width);
 								}}
@@ -1271,6 +1298,7 @@ const BannerSection = () => {
 					)}
 					color="white"
 					textAlign="center"
+					fontFamily="inter-v"
 				>
 					It's free, and takes only one minute
 				</FypText>
@@ -1309,7 +1337,7 @@ const SmarterSection = () => {
 			style={tw.style(
 				"md:min-h-screen flex-col-reverse lg:flex-row md:justify-center lg:justify-between lg:items-center",
 				"px-[18px] md:px-5 lg:px-[60px] xl:px-[148px]",
-				"pt-[50px] pb-[72px] md:pt-10 md:pb-10 lg:py-0",
+				"pt-[50px] pb-[47px] md:pt-10 md:pb-10 lg:py-0",
 			)}
 		>
 			<FypLinearGradientView
@@ -1325,6 +1353,7 @@ const SmarterSection = () => {
 					lineHeight={{ xs: 40, md: 100 }}
 					fontWeight={500}
 					color="black-1d"
+					fontFamily="inter-v"
 				>
 					{`Sell smarter,${
 						tw.prefixMatch("md") ? `\n` : " "
@@ -1336,6 +1365,7 @@ const SmarterSection = () => {
 						fontSize={{ xs: 17, md: 27 }}
 						lineHeight={{ xs: 26, md: 42 }}
 						color="black-1d"
+						fontFamily="inter-v"
 						style={tw.style("hidden md:flex")}
 					>
 						Effortlessly sell exclusive content on our platform with
@@ -1348,6 +1378,7 @@ const SmarterSection = () => {
 						lineHeight={{ xs: 26, md: 42 }}
 						color="black-1d"
 						style={tw.style("md:hidden")}
+						fontFamily="inter-v"
 					>
 						Effortlessly sell exclusive content on our platform. Let
 						our tools handle the complexity, allowing you to focus
@@ -1355,7 +1386,7 @@ const SmarterSection = () => {
 					</FypText>
 				</FansView>
 
-				<FansGap height={{ xs: 48, md: 50 }} />
+				<FansGap height={{ xs: 47, md: 50 }} />
 				<FypButton2
 					style={tw.style(
 						"w-full md:w-[214px] h-[42px] md:h-[66px] border border-fans-black-1d",
@@ -1407,11 +1438,18 @@ const EarningsSection = () => {
 				height={{ xs: 320, md: 500, lg: 651 }}
 				style={tw.style("lg:flex-1")}
 			>
-				<Image
+				{/* <Image
 					source={{
 						uri: tw.prefixMatch("md")
 							? require("@assets/images/landing/double-earning.webp")
 							: require("@assets/images/landing/double-earning-mobile.webp"),
+					}}
+					style={tw.style("w-full h-full")}
+					resizeMode="contain"
+				/> */}
+				<Image
+					source={{
+						uri: require("@assets/images/landing/double-earning.webp"),
 					}}
 					style={tw.style("w-full h-full")}
 					resizeMode="contain"
@@ -1423,6 +1461,7 @@ const EarningsSection = () => {
 					lineHeight={{ xs: 40, md: 100 }}
 					fontWeight={500}
 					color="white"
+					fontFamily="inter-v"
 				>
 					{`Double${tw.prefixMatch("md") ? `\n` : " "}your earnings`}
 				</FypText>
@@ -1431,6 +1470,7 @@ const EarningsSection = () => {
 					fontSize={{ xs: 17, md: 27 }}
 					lineHeight={{ xs: 26, md: 42 }}
 					color="white"
+					fontFamily="inter-v"
 				>
 					Enjoy one of the industry’s lowest platform fees at just 7%.
 					Retain more of your earnings with FYP.Fans
@@ -1500,6 +1540,7 @@ const SmartDataSection = () => {
 						fontWeight={500}
 						color="black-1d"
 						numberOfLines={1}
+						fontFamily="inter-v"
 						style={tw.style("overflow-visible whitespace-nowrap")}
 					>
 						{tw.prefixMatch("md")
@@ -1511,6 +1552,7 @@ const SmartDataSection = () => {
 						lineHeight={{ xs: 40, md: 100 }}
 						fontWeight={500}
 						color="black-1d"
+						fontFamily="inter-v"
 					>
 						smart data
 					</FypText>
@@ -1522,6 +1564,7 @@ const SmartDataSection = () => {
 						fontSize={{ xs: 17, md: 27 }}
 						lineHeight={{ xs: 26, md: 42 }}
 						color="black-1d"
+						fontFamily="inter-v"
 						style={tw.style("lg:max-w-[710px] hidden md:flex")}
 					>
 						Utilize our advanced analytics for clear insights into
@@ -1533,6 +1576,7 @@ const SmartDataSection = () => {
 						fontSize={{ xs: 17, md: 27 }}
 						lineHeight={{ xs: 26, md: 42 }}
 						color="black-1d"
+						fontFamily="inter-v"
 						style={tw.style("md:hidden")}
 					>
 						Utilize our advanced analytics for clear insights into
@@ -1601,6 +1645,7 @@ const PlatformItem: FC<PlatformItemProps> = (props) => {
 				lineHeight={{ xs: 30, md: 40 }}
 				fontWeight={600}
 				color="white"
+				fontFamily="inter-v"
 			>
 				{title}
 			</FypText>
@@ -1609,6 +1654,7 @@ const PlatformItem: FC<PlatformItemProps> = (props) => {
 				fontSize={{ xs: 17, md: 27 }}
 				lineHeight={{ xs: 30, md: 42 }}
 				color="white"
+				fontFamily="inter-v"
 			>
 				{description}
 			</FypText>
@@ -1636,6 +1682,7 @@ const PlatformsSection = () => {
 				fontWeight={500}
 				color="white"
 				textAlign="center"
+				fontFamily="inter-v"
 			>
 				Make 200% or more,{`\n`}
 				<FypText
@@ -1644,6 +1691,7 @@ const PlatformsSection = () => {
 					fontWeight={500}
 					color="grey-70"
 					textAlign="center"
+					fontFamily="inter-v"
 				>
 					compared to other platforms
 				</FypText>
@@ -1687,6 +1735,7 @@ const PlatformsSection = () => {
 						flexDirection="row"
 						gap={20}
 						margin={{ t: 12 }}
+						alignItems="center"
 						style={tw.style("hidden md:flex")}
 					>
 						<FypSvg
@@ -1774,6 +1823,7 @@ const FaqItem: FC<FaqItemProps> = (props) => {
 					fontWeight={600}
 					lineHeight={{ xs: 26, md: 37 }}
 					color="black-1d"
+					fontFamily="inter-v"
 				>
 					{title}
 				</FypText>
@@ -1818,9 +1868,9 @@ const FaqSection = () => {
 	return (
 		<FansView
 			style={tw.style(
-				"md:min-h-screen justify-center",
+				"justify-center",
 				"px-[18px] md:px-5 lg:px-[60px] xl:px-[148px]",
-				"pt-[68px] pb-[58px]",
+				"pt-[68px] pb-[58px] md:pt-[124px] md:pb-[145px]",
 			)}
 		>
 			<FansView alignItems="center">
@@ -1842,6 +1892,7 @@ const FaqSection = () => {
 							fontSize={{ xs: 17, md: 24 }}
 							lineHeight={{ xs: 30, md: 38 }}
 							color="grey-70"
+							fontFamily="inter-v"
 						>
 							Joining FYP.Fans is absolutely free! We pride
 							ourselves on offering the lowest fees in the
@@ -1857,6 +1908,7 @@ const FaqSection = () => {
 							fontSize={{ xs: 17, md: 24 }}
 							lineHeight={{ xs: 30, md: 38 }}
 							color="grey-70"
+							fontFamily="inter-v"
 						>
 							With FYP.Fans, your earnings are directly deposited
 							into your choice of a Revolut, Bank account, or
@@ -1873,6 +1925,7 @@ const FaqSection = () => {
 							fontSize={{ xs: 17, md: 24 }}
 							lineHeight={{ xs: 30, md: 38 }}
 							color="grey-70"
+							fontFamily="inter-v"
 						>
 							We accept a wide variety of payment methods
 							including all major credit cards such as Visa,
@@ -1886,6 +1939,7 @@ const FaqSection = () => {
 							fontSize={{ xs: 17, md: 24 }}
 							lineHeight={{ xs: 30, md: 38 }}
 							color="grey-70"
+							fontFamily="inter-v"
 						>
 							Your security is our top priority. At FYP.Fans, we
 							do not store any credit card information on our
@@ -1909,6 +1963,7 @@ const FaqSection = () => {
 								fontSize={{ xs: 17, md: 24 }}
 								lineHeight={{ xs: 30, md: 38 }}
 								color="grey-70"
+								fontFamily="inter-v"
 							>
 								Absolutely. Your relationship with your
 								supporters is exclusively yours. We guarantee
@@ -1938,6 +1993,7 @@ const FaqSection = () => {
 								fontSize={{ xs: 17, md: 24 }}
 								lineHeight={{ xs: 30, md: 38 }}
 								color="grey-70"
+								fontFamily="inter-v"
 							>
 								FYP.Fans is proudly based in Colorado, United
 								States, and is the flagship project of our
@@ -1952,6 +2008,7 @@ const FaqSection = () => {
 									fontSize={{ xs: 17, md: 24 }}
 									lineHeight={{ xs: 30, md: 38 }}
 									color="purple"
+									fontFamily="inter-v"
 									style={tw.style("underline")}
 									onPress={() =>
 										openLink("https://www.fyp.llc/")
@@ -1976,6 +2033,7 @@ const FaqSection = () => {
 									fontSize={{ xs: 17, md: 24 }}
 									lineHeight={{ xs: 30, md: 38 }}
 									color="purple"
+									fontFamily="inter-v"
 									style={tw.style("underline")}
 									onPress={() =>
 										openLink(
@@ -2168,6 +2226,7 @@ const FirstStepToSuccess = () => {
 					fontWeight={500}
 					color="black-1d"
 					textAlign="center"
+					fontFamily="inter-v"
 				>
 					3 steps to success
 				</FypText>
@@ -2185,40 +2244,13 @@ const FirstStepToSuccess = () => {
 							height={{ xs: 240, md: 437 }}
 							position="relative"
 						>
-							<FansView
-								width={{ xs: 123, md: 213 }}
-								height={{ xs: 166, md: 286 }}
-								position="absolute"
-								bottom={0}
-								right={0}
-							>
-								<Image
-									source={{
-										uri: tw.prefixMatch("md")
-											? require("@assets/images/landing/success-step-1-2.webp")
-											: require("@assets/images/landing/success-step-mobile-1-2.webp"),
-									}}
-									style={tw.style("w-full h-full")}
-									resizeMode="contain"
-								/>
-							</FansView>
-							<FansView
-								width={{ xs: 188, md: 320 }}
-								height={{ xs: 208, md: 360 }}
-								position="absolute"
-								top={0}
-								left={0}
-							>
-								<Image
-									source={{
-										uri: tw.prefixMatch("md")
-											? require("@assets/images/landing/success-step-1-1.webp")
-											: require("@assets/images/landing/success-step-mobile-1-1.png"),
-									}}
-									style={tw.style("w-full h-full")}
-									resizeMode="contain"
-								/>
-							</FansView>
+							<Image
+								source={{
+									uri: require("@assets/images/landing/success-step-1.webp"),
+								}}
+								style={tw.style("w-full h-full")}
+								resizeMode="contain"
+							/>
 						</FansView>
 					</FansView>
 					<FansView
@@ -2234,6 +2266,7 @@ const FirstStepToSuccess = () => {
 								lineHeight={{ xs: 22, md: 41 }}
 								fontWeight={500}
 								color="grey-b1"
+								fontFamily="inter-v"
 							>
 								STEP 1
 							</FypText>
@@ -2250,6 +2283,7 @@ const FirstStepToSuccess = () => {
 										fontSize={{ xs: 17, md: 27 }}
 										lineHeight={{ xs: 26, md: 42 }}
 										color="black-1d"
+										fontFamily="inter-v"
 										onPress={handleStart}
 										style={tw.style("max-w-[535px]")}
 									>
@@ -2259,6 +2293,7 @@ const FirstStepToSuccess = () => {
 											fontSize={{ xs: 17, md: 27 }}
 											lineHeight={{ xs: 26, md: 42 }}
 											color="black-1d"
+											fontFamily="inter-v"
 											fontWeight={600}
 										>
 											Become a Creator
@@ -2270,6 +2305,7 @@ const FirstStepToSuccess = () => {
 										fontSize={{ xs: 17, md: 27 }}
 										lineHeight={{ xs: 26, md: 42 }}
 										color="black-1d"
+										fontFamily="inter-v"
 										onPress={handleStart}
 									>
 										Sign up with your email and click{" "}
@@ -2278,6 +2314,7 @@ const FirstStepToSuccess = () => {
 											lineHeight={{ xs: 26, md: 42 }}
 											color="black-1d"
 											fontWeight={600}
+											fontFamily="inter-v"
 										>
 											Become a Creator
 										</FypText>{" "}
@@ -2306,6 +2343,7 @@ const SecondStepToSuccess = () => {
 					fontWeight={500}
 					color="black-1d"
 					textAlign="center"
+					fontFamily="inter-v"
 				>
 					3 steps to success
 				</FypText>
@@ -2323,40 +2361,13 @@ const SecondStepToSuccess = () => {
 							height={{ xs: 240, md: 437 }}
 							position="relative"
 						>
-							<FansView
-								position="absolute"
-								bottom={0}
-								left={0}
-								width={{ xs: 123, md: 255 }}
-								height={{ xs: 165, md: 343 }}
-							>
-								<Image
-									source={{
-										uri: tw.prefixMatch("md")
-											? require("@assets/images/landing/success-step-2-1.webp")
-											: require("@assets/images/landing/success-step-mobile-2-1.webp"),
-									}}
-									style={tw.style("w-full h-full")}
-									resizeMode="contain"
-								/>
-							</FansView>
-							<FansView
-								position="absolute"
-								top={0}
-								right={0}
-								width={{ xs: 188, md: 320 }}
-								height={{ xs: 208, md: 360 }}
-							>
-								<Image
-									source={{
-										uri: tw.prefixMatch("md")
-											? require("@assets/images/landing/success-step-2-2.webp")
-											: require("@assets/images/landing/success-step-mobile-2-2.webp"),
-									}}
-									style={tw.style("w-full h-full")}
-									resizeMode="contain"
-								/>
-							</FansView>
+							<Image
+								source={{
+									uri: require("@assets/images/landing/success-step-2.webp"),
+								}}
+								style={tw.style("w-full h-full")}
+								resizeMode="contain"
+							/>
 						</FansView>
 					</FansView>
 					<FansView
@@ -2372,6 +2383,7 @@ const SecondStepToSuccess = () => {
 								lineHeight={{ xs: 22, md: 41 }}
 								fontWeight={500}
 								color="grey-b1"
+								fontFamily="inter-v"
 							>
 								STEP 2
 							</FypText>
@@ -2387,6 +2399,7 @@ const SecondStepToSuccess = () => {
 								fontSize={{ xs: 17, md: 27 }}
 								lineHeight={{ xs: 26, md: 42 }}
 								color="black-1d"
+								fontFamily="inter-v"
 								style={tw.style("md:max-w-[535px]")}
 							>
 								Choose your unique username and subscription
@@ -2417,6 +2430,7 @@ const ThirdStepToSuccess = () => {
 					fontWeight={500}
 					color="black-1d"
 					textAlign="center"
+					fontFamily="inter-v"
 				>
 					3 steps to success
 				</FypText>
@@ -2434,40 +2448,13 @@ const ThirdStepToSuccess = () => {
 							height={{ xs: 240, md: 437 }}
 							position="relative"
 						>
-							<FansView
-								position="absolute"
-								top={0}
-								left={0}
-								width={{ xs: 123, md: 219 }}
-								height={{ xs: 165, md: 295 }}
-							>
-								<Image
-									source={{
-										uri: tw.prefixMatch("md")
-											? require("@assets/images/landing/success-step-3-1.webp")
-											: require("@assets/images/landing/success-step-mobile-3-1.webp"),
-									}}
-									style={tw.style("w-full h-full")}
-									resizeMode="contain"
-								/>
-							</FansView>
-							<FansView
-								position="absolute"
-								bottom={0}
-								right={0}
-								width={{ xs: 187, md: 320 }}
-								height={{ xs: 208, md: 360 }}
-							>
-								<Image
-									source={{
-										uri: tw.prefixMatch("md")
-											? require("@assets/images/landing/success-step-3-2.webp")
-											: require("@assets/images/landing/success-step-mobile-3-2.webp"),
-									}}
-									style={tw.style("w-full h-full")}
-									resizeMode="contain"
-								/>
-							</FansView>
+							<Image
+								source={{
+									uri: require("@assets/images/landing/success-step-3.webp"),
+								}}
+								style={tw.style("w-full h-full")}
+								resizeMode="contain"
+							/>
 						</FansView>
 					</FansView>
 					<FansView
@@ -2483,6 +2470,7 @@ const ThirdStepToSuccess = () => {
 								lineHeight={{ xs: 22, md: 41 }}
 								fontWeight={500}
 								color="grey-b1"
+								fontFamily="inter-v"
 							>
 								STEP 3
 							</FypText>
@@ -2498,6 +2486,7 @@ const ThirdStepToSuccess = () => {
 								fontSize={{ xs: 17, md: 27 }}
 								lineHeight={{ xs: 26, md: 42 }}
 								color="black-1d"
+								fontFamily="inter-v"
 								style={tw.style("md:max-w-[535px]")}
 							>
 								Start posting content and promoting your link to
@@ -2509,6 +2498,7 @@ const ThirdStepToSuccess = () => {
 									lineHeight={{ xs: 26, md: 42 }}
 									color="black-1d"
 									fontWeight={600}
+									fontFamily="inter-v"
 									style={tw.style("md:hidden underline")}
 									onPress={handleStart}
 								>
@@ -2524,13 +2514,23 @@ const ThirdStepToSuccess = () => {
 };
 
 const LandingScreen = () => {
+	const scrollView = useRef<ScrollView>(null);
+	const [scrollEnabled, setScrollEnabled] = useState(true);
+	const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+		if (e.nativeEvent.contentOffset.y === 5479) {
+			// setScrollEnabled(false);
+		}
+	};
+
 	return (
 		<FansScreen1 contentStyle={tw.style("h-full", "p-0")}>
 			<ScrollView
+				ref={scrollView}
 				style={tw.style("grow")}
-				pagingEnabled
+				pagingEnabled={tw.prefixMatch("md")}
 				scrollEventThrottle={50}
 				decelerationRate="normal"
+				onScroll={(e) => handleScroll(e)}
 			>
 				<BannerSection />
 				<MembershipSection />
@@ -2550,18 +2550,17 @@ const LandingScreen = () => {
 					<SecondStepToSuccess />
 					<ThirdStepToSuccess />
 				</ScrollView>
-				<ScrollView
-					style={tw.style("h-screen")}
-					showsVerticalScrollIndicator={false}
-				>
+				{tw.prefixMatch("md") ? (
+					<ScrollView
+						style={tw.style("h-screen")}
+						showsVerticalScrollIndicator={false}
+					>
+						<PlatformsSection />
+					</ScrollView>
+				) : (
 					<PlatformsSection />
-				</ScrollView>
-				<ScrollView
-					style={tw.style(tw.prefixMatch("lg") ? "" : "h-screen")}
-					showsVerticalScrollIndicator={false}
-				>
-					<FaqSection />
-				</ScrollView>
+				)}
+				<FaqSection />
 				<FooterSection />
 			</ScrollView>
 		</FansScreen1>

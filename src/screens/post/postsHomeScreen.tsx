@@ -253,7 +253,7 @@ const PostsHomeScreen = (
 		const query = {
 			page: posts.page,
 			size: 10,
-			userListId: userListId !== "all" ? userListId : undefined,
+			userListId: userListId !== "" ? userListId : undefined,
 		};
 		const resp = await getPostFeedForHomepage(query);
 		setIsLoading(false);
