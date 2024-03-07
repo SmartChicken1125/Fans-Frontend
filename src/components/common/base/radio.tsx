@@ -10,6 +10,7 @@ interface Props {
 	svg?: React.ReactNode;
 	labelStyles?: string;
 	bgColor?: string;
+	hasError?: boolean;
 }
 
 export const FypRadio: FC<Props> = (props) => {
@@ -20,6 +21,7 @@ export const FypRadio: FC<Props> = (props) => {
 		svg,
 		labelStyles,
 		bgColor = "bg-fans-purple",
+		hasError = false,
 	} = props;
 
 	return (
@@ -36,6 +38,7 @@ export const FypRadio: FC<Props> = (props) => {
 				borderRadius={25}
 				style={tw.style(
 					"border border-fans-dark-grey dark:border-fans-grey-b1",
+					hasError ? "border-fans-red dark:border-fans-red" : "",
 				)}
 			>
 				{checked ? (

@@ -119,6 +119,9 @@ export interface StringIdParam {
 	id: string;
 }
 
+const payoutStatus = ["Completed", "Cancelled", "Pending"] as const;
+export type PayoutStatusType = (typeof payoutStatus)[number];
+
 export interface IProfilePreview {
 	id: string;
 	profileId: string;
@@ -571,6 +574,7 @@ export interface IPostSchedule {
 	postId: string;
 	startDate: string;
 	endDate: string;
+	timezone: string;
 	updatedAt: string;
 }
 
@@ -689,6 +693,11 @@ export interface IMedia {
 	isPinned: boolean;
 }
 
+export interface IMediaFile {
+	type: MediaType;
+	url: string;
+}
+
 export interface IUpload {
 	id: string;
 	userId: string;
@@ -753,8 +762,8 @@ export interface IStoryUrl {
 export interface IStoryTag {
 	id: string;
 	storyId: string;
-	creatorId: string;
-	creator: IProfile;
+	userId: string;
+	user: IUser;
 	color: string;
 	pointX: number;
 	pointY: number;
@@ -889,6 +898,34 @@ export interface PayPalPayoutMethod {
 	country: string;
 	entityType: string;
 	usCitizenOrResident: boolean;
+}
+
+export interface PayoutMethod {
+	id: string;
+	country: string;
+	state: string;
+	city: string;
+	street: string;
+	unit?: string;
+	zip: string;
+
+	entityType: string;
+	usCitizenOrResident?: boolean;
+
+	firstName?: string;
+	lastName?: string;
+	company?: string;
+
+	payoutMethod: string;
+
+	revolut?: string;
+	payoneer?: string;
+
+	routingNumber?: string;
+	accountNumber?: string;
+
+	iban?: string;
+	swift?: string;
 }
 
 export interface IBookmark {
@@ -1405,6 +1442,7 @@ export interface IPayoutLog {
 	id: string;
 	profileId: string;
 	payoutPaymentMethodId: string;
+	paymentInformation?: string;
 	amount: number;
 	processingFee: number;
 	currency: string;
@@ -1515,4 +1553,13 @@ export interface IReview {
 	text: string;
 	user: IUser;
 	createdAt: string;
+}
+
+export interface PayoutHistory {
+	id: string;
+	type: PayoutStatusType;
+	price: number;
+	bankInfo: string;
+	to: string;
+	initiatedDate: string;
 }

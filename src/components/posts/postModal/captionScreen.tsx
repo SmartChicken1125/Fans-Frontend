@@ -1,5 +1,10 @@
 import { defaultPostFormData } from "@constants/defaultFormData";
-import { IconTypes, PostStepTypes, PostType } from "@usertypes/commonEnums";
+import {
+	ActionType,
+	IconTypes,
+	PostStepTypes,
+	PostType,
+} from "@usertypes/commonEnums";
 import { IPostForm } from "@usertypes/types";
 import React, { FC, useState, useEffect } from "react";
 import { View } from "react-native";
@@ -41,10 +46,18 @@ const CaptionScreen: FC<Props> = (props) => {
 	};
 
 	const getRightLabel = () => {
+		const action =
+			data.id === defaultPostFormData.id
+				? ActionType.Create
+				: ActionType.Update;
 		if (data.type === PostType.Text) {
-			return "Share";
+			return action === ActionType.Create ? "Share" : "Save";
 		} else {
-			return data.medias.length > 0 ? "Share" : "";
+			return data.medias.length === 0
+				? ""
+				: action === ActionType.Create
+				? "Share"
+				: "Save";
 		}
 	};
 

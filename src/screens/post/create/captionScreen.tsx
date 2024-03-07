@@ -262,6 +262,14 @@ const CaptionScreen = (
 		setCaption(val);
 	};
 
+	const getRightLabel = () => {
+		const action =
+			postForm.id === defaultPostFormData.id
+				? ActionType.Create
+				: ActionType.Update;
+		return action === ActionType.Create ? "Share" : "Save";
+	};
+
 	useEffect(() => {
 		setCaption(postForm.caption);
 	}, [postForm.caption]);
@@ -277,7 +285,7 @@ const CaptionScreen = (
 				title="New post"
 				onClickLeft={handleCancel}
 				onClickRight={handleSubmit}
-				rightLabel="Share"
+				rightLabel={getRightLabel()}
 				titleIcon={getPostTitleIcon(postForm.type)}
 				loading={inProgress}
 			/>

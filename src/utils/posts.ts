@@ -10,6 +10,7 @@ import { PostCreateReqBody } from "@helper/endpoints/post/schemas";
 import { MediaType, PostType } from "@usertypes/commonEnums";
 import { IPost, IPostForm, Media } from "@usertypes/types";
 import moment from "moment";
+import momentTimezone from "moment-timezone";
 
 export const getCreatePostData = (data: {
 	postForm: IPostForm;
@@ -139,21 +140,18 @@ export const getCreatePostData = (data: {
 	}
 
 	if (postForm.schedule.startDate !== undefined) {
-		const offset =
-			timezones.find((tz) => tz.tzCode === postForm.schedule.timezone)
-				?.utc ?? "+00:00";
-		const startDate = moment({
+		momentTimezone.tz.setDefault(postForm.schedule.timezone);
+		const startDate = momentTimezone({
 			year: postForm.schedule.startDate.getFullYear(),
 			month: postForm.schedule.startDate.getMonth(),
 			day: postForm.schedule.startDate.getDate(),
 			hours: postForm.schedule.time.hours,
 			minutes: postForm.schedule.time.minutes,
-		})
-			.zone(offset)
-			.format();
+		}).format();
 		postBody.schedule = {
 			startDate: startDate,
 			endDate: startDate,
+			timezone: postForm.schedule.timezone,
 		};
 	}
 	if (
@@ -193,6 +191,9 @@ export const getPostTitleIcon = (postType: PostType) => {
 };
 
 export const post2PostFormData = (data: IPost): IPostForm => {
+	const date = momentTimezone(new Date(data.schedule?.startDate || "")).tz(
+		data.schedule?.timezone || "",
+	);
 	return {
 		id: data.id,
 		title: data.title,
@@ -250,19 +251,13 @@ export const post2PostFormData = (data: IPost): IPostForm => {
 			cover: defaultAddGiveawayFormData.cover,
 		},
 		schedule: {
-			startDate: data.schedule?.startDate
-				? new Date(data.schedule?.startDate)
-				: defaultPostFormData.schedule.startDate,
+			startDate: new Date(date.year(), date.month(), date.date()),
 			timezone:
-				// data.schedule?.timezone ??
+				data.schedule?.timezone ??
 				defaultPostFormData.schedule.timezone,
 			time: {
-				hours: data.schedule?.startDate
-					? new Date(data.schedule?.startDate).getHours()
-					: defaultPostFormData.schedule.time.hours,
-				minutes: data.schedule?.startDate
-					? new Date(data.schedule?.startDate).getMinutes()
-					: defaultPostFormData.schedule.time.minutes,
+				hours: date.hours(),
+				minutes: date.minutes(),
 			},
 		},
 		advanced: {

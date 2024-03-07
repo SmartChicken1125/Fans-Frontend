@@ -391,7 +391,7 @@ const PostCard: FC<Props> = (props) => {
 				<PaidPostLockView
 					isUnpaidPost={isUnpaidPost}
 					post={data}
-					showPaidPostText={!!shopCard}
+					showPaidPostText={data.isPaidPost}
 				/>
 			</FansView>
 

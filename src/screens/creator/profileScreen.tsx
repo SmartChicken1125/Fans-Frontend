@@ -1361,6 +1361,9 @@ const ProfileScreen = (
 																		true,
 																	);
 																}}
+																onClickUnlock={
+																	onClickPostUnlock
+																}
 															/>
 														)}
 												</FansView>

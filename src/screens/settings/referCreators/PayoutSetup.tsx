@@ -16,8 +16,8 @@ import {
 	FansView,
 } from "@components/controls";
 import {
-	createPayPalPayoutMethod,
-	fetchPayoutMethod,
+	createOrUpdatePayoutMethod,
+	fetchPayoutMethodById,
 	updatePayoutMethod,
 } from "@helper/endpoints/payout/apis";
 import tw from "@lib/tailwind";
@@ -64,7 +64,7 @@ const ReferCreatorsPayoutSetupScreen = () => {
 	const { id, isGreen = false } = useLocalSearchParams();
 	const insets = useSafeAreaInsets();
 
-	const [setUpMethod, setSetUpMethod] = useState("Individual");
+	const [entityType, setEntityType] = useState("Individual");
 	const [isUsCityzen, setIsUsCityzen] = useState(true);
 
 	const [paidMethod, setPaidMethod] = useState("PayPal");
@@ -89,13 +89,13 @@ const ReferCreatorsPayoutSetupScreen = () => {
 			try {
 				if (!id) return;
 
-				const response = await fetchPayoutMethod(
+				const response = await fetchPayoutMethodById(
 					{ id: id as string },
 					{ id: id as string },
 				);
 
 				if (response.ok) {
-					setSetUpMethod(response.data.entityType);
+					setEntityType(response.data.entityType);
 					setIsUsCityzen(response.data.usCitizenOrResident);
 					setCountry(response.data.country);
 					setPaidMethod(response.data.provider);
@@ -141,10 +141,15 @@ const ReferCreatorsPayoutSetupScreen = () => {
 			try {
 				const response = await updatePayoutMethod(
 					{
-						paypalEmail: paypalEmail,
 						country: country,
-						entityType: setUpMethod,
+						state: "",
+						city: "",
+						street: "",
+						zip: "",
+						payoutMethod: "PayPal",
+						entityType: entityType,
 						usCitizenOrResident: isUsCityzen,
+						paypalEmail: paypalEmail,
 					},
 					{ id: id as string },
 				);
@@ -164,11 +169,16 @@ const ReferCreatorsPayoutSetupScreen = () => {
 			}
 		} else {
 			try {
-				const response = await createPayPalPayoutMethod({
-					paypalEmail: paypalEmail,
+				const response = await createOrUpdatePayoutMethod({
 					country: country,
-					entityType: setUpMethod,
+					state: "",
+					city: "",
+					street: "",
+					zip: "",
+					payoutMethod: "PayPal",
+					entityType: entityType,
 					usCitizenOrResident: isUsCityzen,
+					paypalEmail: paypalEmail,
 				});
 
 				if (response.ok) {
@@ -291,8 +301,8 @@ const ReferCreatorsPayoutSetupScreen = () => {
 							>
 								<CustomRadio
 									label="I am an individual"
-									onPress={() => setSetUpMethod("Individual")}
-									checked={setUpMethod === "Individual"}
+									onPress={() => setEntityType("Individual")}
+									checked={entityType === "Individual"}
 									bgColor={
 										isGreen ? "fans-green" : "fans-purple"
 									}
@@ -306,10 +316,8 @@ const ReferCreatorsPayoutSetupScreen = () => {
 							>
 								<CustomRadio
 									label="I am or represent a corporation"
-									onPress={() =>
-										setSetUpMethod("Corporation")
-									}
-									checked={setUpMethod === "Corporation"}
+									onPress={() => setEntityType("Corporation")}
+									checked={entityType === "Corporation"}
 									bgColor={
 										isGreen
 											? "bg-fans-green dark:bg-fans-green-29"

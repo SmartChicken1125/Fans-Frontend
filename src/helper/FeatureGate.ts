@@ -193,10 +193,6 @@ export const featureGates = {
 		description: "enable post editing functionality",
 		production: false,
 	},
-	"2024_02-post-story": {
-		description: "enable story posting functionality",
-		production: false,
-	},
 	"2024_02-xp-system": {
 		description: "enable xp system",
 		production: false,

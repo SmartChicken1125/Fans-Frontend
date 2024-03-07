@@ -36,3 +36,4 @@ export { default as TopActions } from "./topActions";
 export { default as WelcomeModal } from "./welcomeModal";
 export { default as MediaItem } from "./mediaItem";
 export { default as BookVideoCallCard } from "./bookVideoCallCard";
+export { default as PayoutRequestSuccessModal } from "./payoutRequestSuccessModal";

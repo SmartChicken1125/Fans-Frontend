@@ -757,7 +757,6 @@ const getCallback = (notify: INotification, router: Router) => {
 
 const CreatorNotificationCard = (props: CreatorNotificationCardProps) => {
 	const router = useRouter();
-	const { dispatch } = useAppContext();
 	const markNotificationRead = useMarkNotificationAsRead();
 	const callback = useCallback(() => {
 		markNotificationRead(props.notify.id);

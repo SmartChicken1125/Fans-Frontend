@@ -26,7 +26,7 @@ import {
 	ProfileActionType,
 	useAppContext,
 } from "@context/useAppContext";
-import { cdnURL } from "@helper/Utils";
+import { cdnURL, generateObjectId } from "@helper/Utils";
 import { createStory, getLinkPreview } from "@helper/endpoints/stories/apis";
 import { LinkPreviewRespBody } from "@helper/endpoints/stories/schemas";
 import { getUsers } from "@helper/endpoints/users/apis";
@@ -34,12 +34,19 @@ import { UsersRespBody } from "@helper/endpoints/users/schemas";
 import tw from "@lib/tailwind";
 import { MediaType, PostStepTypes, PostType } from "@usertypes/commonEnums";
 import { FontFamilyStyle } from "@usertypes/styles";
-import { IUserInfo } from "@usertypes/types";
+import { IProfile, IUserInfo } from "@usertypes/types";
+import { useBlankLink } from "@utils/useBlankLink";
 import useUploadFiles from "@utils/useUploadFile";
 import { validateSocialLink } from "@utils/validateHelper";
-import { openURL } from "expo-linking";
 import { useRouter } from "expo-router";
-import React, { MutableRefObject, useEffect, useRef, useState } from "react";
+import React, {
+	MutableRefObject,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import {
 	FlatList,
 	Image,
@@ -50,9 +57,72 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
+import Draggable from "react-native-draggable";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
 import LinkPreviewCard from "./linkPreviewCard";
+
+enum StoryPanelObjectType {
+	text,
+	url,
+	tag,
+}
+
+type StoryPanelObject<T> = {
+	id: string;
+	type: StoryPanelObjectType;
+	initPosition: Position;
+	pointX: number;
+	pointY: number;
+	info: T;
+};
+
+type StoryText = {
+	id?: string;
+	text: string;
+	color: string;
+	font: string;
+};
+
+type StoryTag = {
+	id?: string;
+	user: IUserInfo;
+	color: string;
+};
+
+type StoryUrl = {
+	id?: string;
+	url: string;
+	metaInfo?: unknown;
+};
+
+const fonts: FontFamilyStyle[] = [
+	"inter-regular",
+	"inter-light",
+	"inter-bold",
+	"inter-medium",
+	"inter-semibold",
+	"inter-black",
+];
+
+const colors = [
+	"#ffffff",
+	"#c0c0c0",
+	"#808080",
+	"#000000",
+	"#ff0000",
+	"#800000",
+	"#ffff00",
+	"#808000",
+	"#00ff00",
+	"#008000",
+	"#00ffff",
+	"#008080",
+	"#0000ff",
+	"#000080",
+	"#ff00ff",
+	"#800080",
+];
 
 const StoryEditModal = () => {
 	const { state, dispatch } = useAppContext();
@@ -89,10 +159,48 @@ const StoryEditModal = () => {
 		});
 	};
 
+	const [panelObjects, setPanelObjects] = useState<
+		StoryPanelObject<StoryText | StoryTag | StoryUrl>[]
+	>([]);
+	const [selectedObjectId, setSelectedObjectId] = useState<string>();
+
+	useEffect(() => {
+		setPanelObjects([
+			{
+				id: generateObjectId(10),
+				type: StoryPanelObjectType.text,
+				initPosition: { x: 50, y: 150 },
+				pointX: 50,
+				pointY: 150,
+				info: {
+					id: "text_001",
+					text: "Sample Text",
+					font: "inter-regular",
+					color: "#FF0000",
+				},
+			},
+			{
+				id: generateObjectId(10),
+				type: StoryPanelObjectType.url,
+				initPosition: { x: 100, y: 200 },
+				pointX: 100,
+				pointY: 200,
+				info: {
+					id: "url_001",
+					url: "https://www.google.com",
+				},
+			},
+		]);
+	}, []);
+
 	const [isCrop, setIsCrop] = useState(false);
 	const [isText, setIsText] = useState(false);
 	const [isLink, setIsLink] = useState(false);
 	const [isMention, setIsMention] = useState(false);
+
+	const selectedObject = useMemo(() => {
+		return panelObjects.find((o) => o.id === selectedObjectId);
+	}, [panelObjects, selectedObjectId]);
 
 	const handleCrop = () => {
 		setIsCrop(!isCrop);
@@ -100,12 +208,45 @@ const StoryEditModal = () => {
 		setIsLink(false);
 		setIsMention(false);
 	};
-	const handleText = () => {
+
+	const handleText = useCallback(() => {
 		setIsCrop(false);
 		setIsText(!isText);
 		setIsLink(false);
 		setIsMention(false);
-	};
+
+		if (
+			!selectedObjectId ||
+			selectedObject?.type !== StoryPanelObjectType.text
+		) {
+			setPanelObjects((prev) => {
+				return [
+					...prev,
+					{
+						id: generateObjectId(10),
+						type: StoryPanelObjectType.text,
+						initPosition: { x: 100, y: 100 },
+						pointX: 100,
+						pointY: 100,
+						info: {
+							text: "Add text",
+							color: "#FF0000",
+							font: "inter-regular",
+						},
+					},
+				];
+			});
+		}
+	}, [
+		setIsCrop,
+		setIsText,
+		setIsLink,
+		setIsMention,
+		setPanelObjects,
+		selectedObjectId,
+		selectedObject?.type,
+	]);
+
 	const handleLink = () => {
 		setIsCrop(false);
 		setIsText(false);
@@ -153,45 +294,153 @@ const StoryEditModal = () => {
 	const [colorPage, setColorPage] = useState(0);
 	const [selectedTextColor, setSelectedTextColor] = useState("ffffff");
 	const [selectedMentionColor, setSelectedMentionColor] = useState("000000");
-	const colors = [
-		"ffffff",
-		"c0c0c0",
-		"808080",
-		"000000",
-		"ff0000",
-		"800000",
-		"ffff00",
-		"808000",
-		"00ff00",
-		"008000",
-		"00ffff",
-		"008080",
-		"0000ff",
-		"000080",
-		"ff00ff",
-		"800080",
-	];
-	const handleScanColor = () => {};
-	const handleSelectColor = (color: string) => {
-		if (isText) {
-			setSelectedTextColor(color);
-		} else if (isMention) {
-			setSelectedMentionColor(color);
-		}
-	};
 
-	const fonts: FontFamilyStyle[] = [
-		"inter-regular",
-		"inter-light",
-		"inter-bold",
-		"inter-medium",
-		"inter-semibold",
-		"inter-black",
-	];
+	const handleMoveObject = useCallback(
+		(id: string, dx: number, dy: number) => {
+			setPanelObjects((prev) =>
+				prev.map((o) =>
+					o.id === id
+						? {
+								...o,
+								pointX: o.pointX + dx,
+								pointY: o.pointY + dy,
+						  }
+						: o,
+				),
+			);
+		},
+		[setPanelObjects],
+	);
+
+	const handleSelectObject = useCallback(
+		(id: string) => {
+			console.log("====> id ", id);
+			setSelectedObjectId(id);
+		},
+		[setSelectedObjectId],
+	);
+
+	const handleDeleteObject = useCallback(
+		(id: string) => {
+			setPanelObjects((prev) => prev.filter((o) => o.id !== id));
+			if (selectedObjectId === id) {
+				setSelectedObjectId(undefined);
+			}
+		},
+		[setPanelObjects, setSelectedObjectId, setSelectedObjectId],
+	);
+
+	const handleEditObject = useCallback((id: string, value: string) => {
+		setPanelObjects((prev) => {
+			return prev.map((o) =>
+				o.id === id ? { ...o, info: { ...o.info, text: value } } : o,
+			);
+		});
+	}, []);
+
+	useEffect(() => {
+		switch (selectedObject?.type) {
+			case StoryPanelObjectType.tag:
+				setIsText(false);
+				setIsLink(false);
+				setIsMention(false);
+				break;
+			case StoryPanelObjectType.text:
+				setIsText(true);
+				setIsLink(false);
+				setIsMention(false);
+				break;
+			case StoryPanelObjectType.url:
+				setIsText(false);
+				setIsLink(false);
+				setIsMention(false);
+				break;
+			default:
+				setIsText(false);
+				setIsLink(false);
+				setIsMention(false);
+				break;
+		}
+	}, [selectedObject?.type]);
+
+	const handleScanColor = () => {};
+	// const handleSelectColor = (color: string) => {
+	// 	if (isText) {
+	// 		setSelectedTextColor(color);
+	// 	} else if (isMention) {
+	// 		setSelectedMentionColor(color);
+	// 	}
+	// };
+	const handleSelectColor = useCallback(
+		(color: string) => {
+			if (selectedObjectId) {
+				setSelectedTextColor(color);
+				setSelectedMentionColor(color);
+				setPanelObjects((prev) => {
+					return prev.map((o) =>
+						o.id === selectedObjectId &&
+						o.type !== StoryPanelObjectType.url
+							? {
+									...o,
+									info: { ...o.info, color: color },
+							  }
+							: o,
+					);
+				});
+			}
+		},
+		[
+			setSelectedTextColor,
+			setSelectedMentionColor,
+			setPanelObjects,
+			selectedObjectId,
+		],
+	);
+
 	const [selectedFont, setSelectedFont] = useState("inter-regular");
-	const handleSelectFont = (font: string) => {
-		setSelectedFont(font);
-	};
+	const handleSelectFont = useCallback(
+		(font: string) => {
+			if (selectedObjectId) {
+				setSelectedFont(font);
+				setPanelObjects((prev) => {
+					return prev.map((o) =>
+						o.id === selectedObjectId &&
+						o.type === StoryPanelObjectType.text
+							? {
+									...o,
+									info: { ...o.info, font: font },
+							  }
+							: o,
+					);
+				});
+			}
+		},
+		[selectedObjectId, setSelectedFont, setPanelObjects],
+	);
+
+	const handleSelectUser = useCallback((user: IUserInfo) => {
+		const newId = generateObjectId(10);
+		setPanelObjects((prev) => {
+			return [
+				...prev,
+				{
+					id: newId,
+					type: StoryPanelObjectType.tag,
+					initPosition: { x: 200, y: 200 },
+					pointX: 200,
+					pointY: 200,
+					info: {
+						user: user,
+						color: "FF0000",
+					},
+				},
+			];
+		});
+		setSelectedUser(user);
+		setSelectedObjectId(newId);
+		// mentionInput.current?.clear();
+		// setIsMention(false);
+	}, []);
 
 	const textInput =
 		useRef<TextInput | null>() as MutableRefObject<TextInput | null>;
@@ -306,11 +555,13 @@ const StoryEditModal = () => {
 	}, [links]);
 
 	const handleDone = () => {
+		setSelectedObjectId(undefined);
 		if (isText) {
 			setIsText(false);
 		}
 		if (isMention) {
 			setIsMention(false);
+			setSelectedUser(null);
 		}
 		if (isLink) {
 			let url = link;
@@ -336,6 +587,22 @@ const StoryEditModal = () => {
 				localStorage.setItem("recentStoryLinks", newLinks.join(" "));
 				setLinks(newLinks);
 				setIsLink(false);
+
+				setPanelObjects((prev) => {
+					return [
+						...prev,
+						{
+							id: generateObjectId(10),
+							type: StoryPanelObjectType.url,
+							initPosition: { x: 150, y: 150 },
+							pointX: 150,
+							pointY: 150,
+							info: {
+								url: url,
+							},
+						},
+					];
+				});
 			} else {
 				Toast.show({
 					type: "error",
@@ -344,6 +611,30 @@ const StoryEditModal = () => {
 			}
 		}
 	};
+
+	const handleSelectUrl = useCallback(
+		(url: string) => {
+			setSelectedLink(url);
+			setIsLink(false);
+
+			setPanelObjects((prev) => {
+				return [
+					...prev,
+					{
+						id: generateObjectId(10),
+						type: StoryPanelObjectType.url,
+						initPosition: { x: 150, y: 150 },
+						pointX: 150,
+						pointY: 150,
+						info: {
+							url: url,
+						},
+					},
+				];
+			});
+		},
+		[setSelectedLink, setIsLink, setPanelObjects],
+	);
 
 	const [inProgress, setInProgress] = useState(false);
 	const handleShareToStory = async () => {
@@ -361,32 +652,30 @@ const StoryEditModal = () => {
 		}
 		const postBody = {
 			mediaId: uploaded.data[0]?.id ?? "",
-			storyUrls:
-				selectedLink !== ""
-					? [{ url: selectedLink, pointX: 0, pointY: 0 }]
-					: [],
-			storyTags: selectedUser
-				? [
-						{
-							creatorId: selectedUser.profile?.id ?? "",
-							color: "0x" + selectedMentionColor,
-							pointX: 0,
-							pointY: 0,
-						},
-				  ]
-				: [],
-			storyTexts:
-				text !== ""
-					? [
-							{
-								text: text,
-								color: "0x" + selectedTextColor,
-								font: selectedFont,
-								pointX: 0,
-								pointY: 0,
-							},
-					  ]
-					: [],
+			storyUrls: panelObjects
+				.filter((o) => o.type === StoryPanelObjectType.url)
+				.map((o) => ({
+					url: (o as StoryPanelObject<StoryUrl>).info.url,
+					pointX: o.pointX,
+					pointY: o.pointY,
+				})),
+			storyTags: panelObjects
+				.filter((o) => o.type === StoryPanelObjectType.tag)
+				.map((o) => ({
+					pointX: o.pointX,
+					pointY: o.pointY,
+					userId: (o as StoryPanelObject<StoryTag>).info.user.id,
+					color: (o as StoryPanelObject<StoryTag>).info.color,
+				})),
+			storyTexts: panelObjects
+				.filter((o) => o.type === StoryPanelObjectType.text)
+				.map((o) => ({
+					pointX: o.pointX,
+					pointY: o.pointY,
+					text: (o as StoryPanelObject<StoryText>).info.text,
+					font: (o as StoryPanelObject<StoryText>).info.font,
+					color: (o as StoryPanelObject<StoryText>).info.color,
+				})),
 		};
 		const resp = await createStory(postBody);
 		setInProgress(false);
@@ -482,55 +771,33 @@ const StoryEditModal = () => {
 									/>
 								)}
 
-								{isText ? (
-									<TextInput
-										ref={textInput}
-										textAlign={"center"}
-										value={text}
-										style={[
-											tw.style(
-												`font-${selectedFont}`,
-												"text-[28px] ",
-												"absolute left-[20px] right-[20px] top-[110px] bottom-[110px] text-center",
-											),
-											{
-												color: `#${selectedTextColor}`,
-												outlineStyle: "none",
-											},
-										]}
-										onChangeText={setText}
-										onBlur={() =>
-											textInput.current?.focus()
+								{panelObjects.map((object) => (
+									<StoryObject
+										key={object.id}
+										object={object}
+										linkPreview={
+											object.type ===
+											StoryPanelObjectType.url
+												? linkPreviews[
+														(
+															object as StoryPanelObject<StoryUrl>
+														).info.url
+												  ] ?? {
+														url: (
+															object as StoryPanelObject<StoryUrl>
+														).info.url,
+												  }
+												: undefined
 										}
+										isDeletable
+										onPress={handleSelectObject}
+										onMove={handleMoveObject}
+										onDelete={handleDeleteObject}
+										onEdit={handleEditObject}
 									/>
-								) : (
-									!isLink &&
-									!isCrop &&
-									!isMention && (
-										<FansView
-											style={tw.style(
-												"absolute left-[20px] right-[20px] top-[110px] bottom-[110px]",
-											)}
-										>
-											<FansText
-												style={[
-													tw.style(
-														`font-${selectedFont}`,
-														"text-[28px] text-center",
-														"w-full mt-auto mb-auto",
-													),
-													{
-														color: `#${selectedTextColor}`,
-													},
-												]}
-											>
-												{text}
-											</FansText>
-										</FansView>
-									)
-								)}
+								))}
 
-								{isLink ? (
+								{isLink && (
 									<FansView
 										style={tw.style(
 											"absolute left-0 right-0 top-0 bottom-0 bg-black bg-opacity-85 pt-[133px] pl-[17px] pr-[5px] pb-[4px]",
@@ -576,10 +843,9 @@ const StoryEditModal = () => {
 													<TouchableOpacity
 														key={link.index}
 														onPress={() => {
-															setSelectedLink(
+															handleSelectUrl(
 																link.item,
 															);
-															setIsLink(false);
 														}}
 													>
 														<LinkPreviewCard
@@ -598,34 +864,9 @@ const StoryEditModal = () => {
 											)}
 										/>
 									</FansView>
-								) : (
-									!isText &&
-									!isMention &&
-									!isCrop &&
-									selectedLink !== "" && (
-										<TouchableOpacity
-											style={tw.style(
-												"absolute w-[245px] h-[85px] bg-black bg-opacity-75 rounded-[7px] left-[60px] top-[160px]",
-											)}
-											onPress={() =>
-												openURL(selectedLink)
-											}
-										>
-											<LinkPreviewCard
-												preview={
-													linkPreviews[
-														selectedLink
-													] ?? {
-														url: selectedLink,
-													}
-												}
-												isListItem={false}
-											/>
-										</TouchableOpacity>
-									)
 								)}
 
-								{isMention && !selectedUser ? (
+								{isMention && !selectedUser && (
 									<TextInput
 										ref={mentionInput}
 										textAlign={"center"}
@@ -658,35 +899,6 @@ const StoryEditModal = () => {
 											mentionInput.current?.focus()
 										}
 									/>
-								) : (
-									!isText &&
-									!isLink &&
-									!isCrop &&
-									selectedUser && (
-										<FansView
-											style={tw.style(
-												"absolute left-[20px] right-[20px] top-[600px]",
-											)}
-										>
-											<FansText
-												style={[
-													tw.style(
-														"font-inter-medium",
-														"text-[28px]",
-														"ml-auto mr-auto mt-auto mb-auto",
-														"pt-[4px] pb-[8px] pl-[23px] pr-[31px]",
-														"rounded-full",
-													),
-													{
-														color: "white",
-														backgroundColor: `#${selectedMentionColor}`,
-													},
-												]}
-											>
-												@{selectedUser.displayName}
-											</FansText>
-										</FansView>
-									)
 								)}
 
 								{isText && (
@@ -715,7 +927,7 @@ const StoryEditModal = () => {
 
 								<FansView
 									style={tw.style(
-										`absolute flex-row mt-[31px] w-full ${
+										`absolute flex-row items-center top-8 w-full gap-4 ${
 											isCrop ? "hidden" : ""
 										}`,
 									)}
@@ -736,9 +948,6 @@ const StoryEditModal = () => {
 											color={isCrop ? "black" : "white"}
 										/>
 									</TouchableOpacity>
-
-									<FansGap width={14} />
-
 									<TouchableOpacity
 										style={tw.style(
 											`rounded-full bg-${
@@ -754,9 +963,6 @@ const StoryEditModal = () => {
 											color={isText ? "black" : "white"}
 										/>
 									</TouchableOpacity>
-
-									<FansGap width={14} />
-
 									<TouchableOpacity
 										style={tw.style(
 											`rounded-full bg-${
@@ -772,9 +978,6 @@ const StoryEditModal = () => {
 											color={isLink ? "black" : "white"}
 										/>
 									</TouchableOpacity>
-
-									<FansGap width={14} />
-
 									<TouchableOpacity
 										style={tw.style(
 											`rounded-full bg-${
@@ -957,7 +1160,8 @@ const StoryEditModal = () => {
 																				style={{
 																					width: "100%",
 																					height: "100%",
-																					backgroundColor: `#${color}`,
+																					backgroundColor:
+																						color,
 																				}}
 																			/>
 																		</TouchableOpacity>
@@ -1055,7 +1259,7 @@ const StoryEditModal = () => {
 															"w-[68px] h-[96px] overflow-hidden ml-[12px] mr-[12px]",
 														)}
 														onPress={() =>
-															setSelectedUser(
+															handleSelectUser(
 																item.item,
 															)
 														}
@@ -1120,3 +1324,188 @@ const StoryEditModal = () => {
 };
 
 export default StoryEditModal;
+
+type StoryObjectProps = {
+	object: StoryPanelObject<StoryUrl | StoryTag | StoryText>;
+	linkPreview?: LinkPreviewRespBody;
+	isDeletable?: boolean;
+	isSelected?: boolean;
+	onMove: (id: string, dx: number, dy: number) => void;
+	onPress: (id: string) => void;
+	onDelete?: (id: string) => void;
+	onEdit?: (id: string, value: string) => void;
+};
+
+type Position = {
+	x: number;
+	y: number;
+};
+
+const StoryObject = (props: StoryObjectProps) => {
+	const {
+		object,
+		linkPreview,
+		isDeletable,
+		isSelected,
+		onMove,
+		onPress,
+		onDelete,
+		onEdit,
+	} = props;
+
+	const [openLink] = useBlankLink();
+	const [editing, setEditing] = useState(false);
+
+	const renderText = useCallback(
+		(object: StoryPanelObject<StoryText>) => {
+			return (
+				<TouchableOpacity
+					onLongPress={() => setEditing(true)}
+					onPress={() => onPress(object.id)}
+				>
+					<FansView>
+						{editing ? (
+							<TextInput
+								value={object.info.text}
+								multiline={true}
+								onChange={(event) => {
+									onEdit &&
+										onEdit(
+											object.id,
+											event.nativeEvent.text,
+										);
+								}}
+								style={[
+									tw.style(
+										"text-[28px] text-center",
+										"w-full mt-auto mb-auto",
+									),
+									{
+										fontFamily: object.info.font,
+										color: object.info.color,
+									},
+								]}
+								onBlur={() => setEditing(false)}
+							/>
+						) : (
+							<FansText
+								style={[
+									tw.style(
+										"text-[28px] text-center",
+										"w-full mt-auto mb-auto",
+									),
+									{
+										fontFamily: object.info.font,
+										color: object.info.color,
+									},
+								]}
+							>
+								{object.info.text}
+							</FansText>
+						)}
+					</FansView>
+				</TouchableOpacity>
+			);
+		},
+		[
+			object as StoryPanelObject<StoryText>,
+			(object as StoryPanelObject<StoryText>).info.font,
+			editing,
+			setEditing,
+		],
+	);
+
+	const renderUrl = useCallback(
+		(object: StoryPanelObject<StoryUrl>) => {
+			return (
+				<TouchableOpacity
+					style={tw.style("bg-black bg-opacity-75 rounded-[7px] ")}
+					onPress={() => {
+						onPress(object.id);
+						openLink(object.info.url);
+					}}
+				>
+					<LinkPreviewCard
+						preview={linkPreview ?? { url: object.info.url }}
+						isListItem={false}
+					/>
+				</TouchableOpacity>
+			);
+		},
+		[object],
+	);
+
+	const renderTag = useCallback((object: StoryPanelObject<StoryTag>) => {
+		return (
+			<FansView>
+				<FansText
+					style={[
+						tw.style(
+							"font-inter-medium",
+							"text-[28px]",
+							"ml-auto mr-auto mt-auto mb-auto",
+							"pt-[4px] pb-[8px] pl-[23px] pr-[31px]",
+							"rounded-full",
+						),
+						{
+							color: "white",
+							backgroundColor: object.info.color,
+						},
+					]}
+				>
+					{`@${
+						object.info.user.displayName &&
+						object.info.user.displayName.length > 0
+							? object.info.user.displayName
+							: object.info.user.username
+					}`}
+				</FansText>
+			</FansView>
+		);
+	}, []);
+
+	const renderObject = useCallback(
+		(object: StoryPanelObject<StoryText | StoryTag | StoryUrl>) => {
+			switch (object.type) {
+				case StoryPanelObjectType.text:
+					return renderText(object as StoryPanelObject<StoryText>);
+				case StoryPanelObjectType.url:
+					return renderUrl(object as StoryPanelObject<StoryUrl>);
+				case StoryPanelObjectType.tag:
+					return renderTag(object as StoryPanelObject<StoryTag>);
+			}
+		},
+		[object, object.type],
+	);
+
+	return (
+		<Draggable
+			x={object.initPosition.x}
+			y={object.initPosition.y}
+			onPressIn={() => onPress(object.id)}
+			onDragRelease={(event, gestureState, bound) => {
+				onMove(object.id, gestureState.dx, gestureState.dy);
+			}}
+		>
+			<View style={tw.style("relative")}>
+				{renderObject(object)}
+				{isDeletable && (
+					<TouchableOpacity
+						style={tw.style("absolute right-[-16px] top-[-16px]")}
+						onPress={() =>
+							onDelete ? onDelete(object.id) : undefined
+						}
+					>
+						<View
+							style={tw.style(
+								"rounded-full w-5 h-5 bg-black/50 flex justify-center items-center",
+							)}
+						>
+							<StoryEditCloseSvg width={20} height={20} />
+						</View>
+					</TouchableOpacity>
+				)}
+			</View>
+		</Draggable>
+	);
+};

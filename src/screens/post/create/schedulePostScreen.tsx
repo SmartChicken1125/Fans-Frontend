@@ -76,6 +76,7 @@ const SchedulePostScreen = (
 			...scheduleForm,
 			timezone: postForm.schedule.timezone,
 			startDate: postForm.schedule.startDate,
+			time: postForm.schedule.time,
 		});
 	}, []);
 

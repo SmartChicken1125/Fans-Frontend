@@ -111,7 +111,7 @@ const AttentionCard: FC<Props> = (props) => {
 					{subscription.error}
 				</FypText>
 			</View>
-			<View style={tw.style("flex-row gap-x-[14px]")}>
+			{/* <View style={tw.style("flex-row gap-x-[14px]")}>
 				<View style={tw.style("flex-1")}>
 					<RoundButton
 						variant={RoundButtonType.OUTLINE_PRIMARY}
@@ -125,7 +125,7 @@ const AttentionCard: FC<Props> = (props) => {
 						Resume
 					</RoundButton>
 				</View>
-			</View>
+			</View> */}
 			<PaymentMethodModal
 				visible={openUpdatePayment}
 				handleClose={() => setOpenUpdatePayment(false)}

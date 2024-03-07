@@ -132,7 +132,9 @@ const SubscriptionsContentView = (
 					(subscription) => subscription.error,
 				);
 
-				setSubscriptions(response.data);
+				setSubscriptions(
+					response.data.filter((subscription) => !subscription.error),
+				);
 				setActiveSubscriptions(activeSubscriptions);
 				setExpiredSubscriptions(expiredSubscriptions);
 				setNeedAttentionSubscriptions(needAttentionSubscriptions);

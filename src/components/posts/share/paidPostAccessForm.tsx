@@ -1,5 +1,4 @@
 import { CloseSvg, RoundedPlusSvg } from "@assets/svgs/common";
-import RoundTextInput from "@components/common/RoundTextInput";
 import { FypText, FypSvg } from "@components/common/base";
 import { FansView } from "@components/controls";
 import { roleIcons } from "@constants/common";
@@ -145,14 +144,14 @@ interface Props {
 const PaidPostAccessForm: FC<Props> = (props) => {
 	const { tiers, roles, handleSave, postForm } = props;
 
-	const [searchQuery, setSearchQuery] = useState("");
 	const [fanUsers, setFanUsers] = useState<IFansUser[]>([]);
 	const [acccessRoles, setAccessRoles] = useState<string[]>([]);
 	const [accessTiers, setAccessTiers] = useState<string[]>([]);
 	const [accessFans, setAccessFans] = useState<string[]>([]);
+	const [selectedNames, setSelectedNames] = useState("");
 
 	const fetchFanUsers = async () => {
-		const resp = await getFansUsers({ query: searchQuery });
+		const resp = await getFansUsers();
 		if (resp.ok) {
 			setFanUsers(resp.data.fans);
 		}
@@ -160,7 +159,7 @@ const PaidPostAccessForm: FC<Props> = (props) => {
 
 	const handleToggleTier = (tierId: string) => {
 		setAccessTiers(
-			acccessRoles.includes(tierId)
+			accessTiers.includes(tierId)
 				? accessTiers.filter((el) => el !== tierId)
 				: [...accessTiers, tierId],
 		);
@@ -192,13 +191,26 @@ const PaidPostAccessForm: FC<Props> = (props) => {
 
 	useEffect(() => {
 		fetchFanUsers();
-	}, [searchQuery]);
+	}, []);
 
 	useEffect(() => {
 		setAccessRoles(postForm.paidPostAccess.roleIds);
 		setAccessTiers(postForm.paidPostAccess.tierIds);
 		setAccessFans(postForm.paidPostAccess.fanUsers.map((user) => user.id));
 	}, [postForm.paidPostAccess]);
+
+	useEffect(() => {
+		const _roles = roles
+			.filter((role) => acccessRoles.includes(role.id))
+			.map((el) => el.name);
+		const _users = fanUsers
+			.filter((user) => accessFans.includes(user.id))
+			.map((el) => el.displayName);
+		const _tiers = tiers
+			.filter((tier) => accessTiers.includes(tier.id))
+			.map((el) => el.title);
+		setSelectedNames([..._roles, ..._users, ..._tiers].join(", "));
+	}, [acccessRoles, accessTiers, accessFans]);
 
 	return (
 		<FansView>
@@ -208,19 +220,21 @@ const PaidPostAccessForm: FC<Props> = (props) => {
 				gap={24}
 				margin={{ b: 32 }}
 			>
-				<FansView position="relative" flex="1">
-					<RoundTextInput
-						value={searchQuery}
-						onChangeText={(val) => setSearchQuery(val)}
-						customStyles="pl-[65px]"
-					/>
+				<FansView
+					position="relative"
+					flex="1"
+					padding={{ x: 20, y: 9 }}
+					height={42}
+					borderRadius={42}
+					style={tw.style("bg-fans-grey-f0 dark:bg-fans-grey-43")}
+				>
 					<FypText
 						fontSize={18}
 						fontWeight={600}
 						lineHeight={24}
-						style={tw.style("absolute left-5 top-2")}
+						numberOfLines={1}
 					>
-						Add:
+						{`Add: ${selectedNames}`}
 					</FypText>
 				</FansView>
 				<FypText
@@ -228,7 +242,7 @@ const PaidPostAccessForm: FC<Props> = (props) => {
 					lineHeight={22}
 					onPress={handlePressCancel}
 				>
-					Cancel
+					Done
 				</FypText>
 			</FansView>
 			<FansView margin={{ b: 13 }}>
@@ -241,18 +255,16 @@ const PaidPostAccessForm: FC<Props> = (props) => {
 					Tiers
 				</FypText>
 				<FansView>
-					{tiers
-						.filter((el) => el.title.includes(searchQuery))
-						.map((tier) => (
-							<AccessItem
-								key={tier.id}
-								selected={accessTiers.includes(tier.id)}
-								title={tier.title}
-								subTitle="0 fans"
-								image={tier.cover}
-								handleSelect={() => handleToggleTier(tier.id)}
-							/>
-						))}
+					{tiers.map((tier) => (
+						<AccessItem
+							key={tier.id}
+							selected={accessTiers.includes(tier.id)}
+							title={tier.title}
+							subTitle="0 fans"
+							image={tier.cover}
+							handleSelect={() => handleToggleTier(tier.id)}
+						/>
+					))}
 				</FansView>
 			</FansView>
 			<FansView margin={{ b: 13 }}>
@@ -265,19 +277,17 @@ const PaidPostAccessForm: FC<Props> = (props) => {
 					Roles
 				</FypText>
 				<FansView>
-					{roles
-						.filter((el) => el.name.includes(searchQuery))
-						.map((role) => (
-							<AccessItem
-								key={role.id}
-								selected={acccessRoles.includes(role.id)}
-								title={role.name}
-								subTitle={`${role.fans} fans`}
-								image={role.icon}
-								role={role}
-								handleSelect={() => handleToggleRole(role.id)}
-							/>
-						))}
+					{roles.map((role) => (
+						<AccessItem
+							key={role.id}
+							selected={acccessRoles.includes(role.id)}
+							title={role.name}
+							subTitle={`${role.fans} fans`}
+							image={role.icon}
+							role={role}
+							handleSelect={() => handleToggleRole(role.id)}
+						/>
+					))}
 				</FansView>
 			</FansView>
 			<FansView margin={{ b: 13 }}>

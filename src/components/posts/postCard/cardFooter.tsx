@@ -19,7 +19,7 @@ import {
 import { FansDivider, FansView } from "@components/controls";
 import { useAppContext } from "@context/useAppContext";
 import tw from "@lib/tailwind";
-import { PostType } from "@usertypes/commonEnums";
+import { MediaType, PostType } from "@usertypes/commonEnums";
 import { IPost } from "@usertypes/types";
 import { getAgoTime } from "@utils/common";
 import { convertTrackingTime } from "@utils/stringHelper";
@@ -67,51 +67,67 @@ const CardFooter: FC<Props> = (props) => {
 							alignItems="center"
 							gap={14}
 						>
-							<FansView
-								flexDirection="row"
-								alignItems="center"
-								gap={7}
+							<FypNullableView
+								visible={
+									data.medias.filter(
+										(el) => el.type === MediaType.Image,
+									).length > 0
+								}
 							>
-								<FypSvg
-									svg={ImageSvg}
-									width={14}
-									height={14}
-									color="fans-grey-48 dark:fans-grey-b1"
-								/>
-								<FypText
-									fontSize={17}
-									fontWeight={500}
-									lineHeight={22}
-									style={tw.style(
-										"text-fans-grey-48 dark:text-fans-grey-b1",
-									)}
+								<FansView
+									flexDirection="row"
+									alignItems="center"
+									gap={7}
 								>
-									{data.imageCount}
-								</FypText>
-							</FansView>
+									<FypSvg
+										svg={ImageSvg}
+										width={14}
+										height={14}
+										color="fans-grey-48 dark:fans-grey-b1"
+									/>
+									<FypText
+										fontSize={17}
+										fontWeight={500}
+										lineHeight={22}
+										style={tw.style(
+											"text-fans-grey-48 dark:text-fans-grey-b1",
+										)}
+									>
+										{data.imageCount}
+									</FypText>
+								</FansView>
+							</FypNullableView>
 
-							<FansView
-								flexDirection="row"
-								alignItems="center"
-								gap={7}
+							<FypNullableView
+								visible={
+									data.medias.filter(
+										(el) => el.type === MediaType.Video,
+									).length > 0
+								}
 							>
-								<FypSvg
-									svg={RecordSvg}
-									width={19}
-									height={12}
-									color="fans-grey-48 dark:fans-grey-b1"
-								/>
-								<FypText
-									fontSize={17}
-									fontWeight={500}
-									lineHeight={22}
-									style={tw.style(
-										"text-fans-grey-48 dark:text-fans-grey-b1",
-									)}
+								<FansView
+									flexDirection="row"
+									alignItems="center"
+									gap={7}
 								>
-									{convertTrackingTime(data.videoLength)}
-								</FypText>
-							</FansView>
+									<FypSvg
+										svg={RecordSvg}
+										width={19}
+										height={12}
+										color="fans-grey-48 dark:fans-grey-b1"
+									/>
+									<FypText
+										fontSize={17}
+										fontWeight={500}
+										lineHeight={22}
+										style={tw.style(
+											"text-fans-grey-48 dark:text-fans-grey-b1",
+										)}
+									>
+										{convertTrackingTime(data.videoLength)}
+									</FypText>
+								</FansView>
+							</FypNullableView>
 						</FansView>
 
 						<FansView
@@ -140,7 +156,7 @@ const CardFooter: FC<Props> = (props) => {
 						</FansView>
 					</FansView>
 
-					<FypNullableView visible={!data.isPaidOut}>
+					<FypNullableView visible={!data.isPaidOut && !data.isSelf}>
 						<FansView
 							height={42}
 							pressableProps={{

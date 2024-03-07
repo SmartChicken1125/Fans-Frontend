@@ -3982,6 +3982,7 @@ __metadata:
     libphonenumber-js: "npm:^1.10.44"
     luxon: "npm:^3.4.3"
     moment: "npm:^2.29.4"
+    moment-timezone: "npm:^0.5.45"
     path-to-regexp: "npm:^6.2.1"
     phone-number-with-country-code: "npm:^1.0.4"
     prettier: "npm:^3.0.3"
@@ -3996,6 +3997,7 @@ __metadata:
     react-native-collapsible: "npm:^1.6.1"
     react-native-confirmation-code-field: "patch:react-native-confirmation-code-field@npm%3A7.3.1#~/.yarn/patches/react-native-confirmation-code-field-npm-7.3.1-f064ff06c1.patch"
     react-native-dotenv: "npm:^3.4.9"
+    react-native-draggable: "npm:^3.3.0"
     react-native-dropdown-picker: "npm:^5.4.6"
     react-native-easy-swipe-list: "npm:^0.0.2"
     react-native-element-dropdown: "npm:^2.10.0"
@@ -15223,6 +15225,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"moment-timezone@npm:^0.5.45":
+  version: 0.5.45
+  resolution: "moment-timezone@npm:0.5.45"
+  dependencies:
+    moment: "npm:^2.29.4"
+  checksum: 45e3793d44bea8e826c934a335ebf0b92c6d6dae562fdb59d8c45a16d5c11de4d6692b5fa7eebca969881f06b81b55f8535883bfbc727b597d601709fa5a2bb2
+  languageName: node
+  linkType: hard
+
 "moment@npm:*, moment@npm:^2.19.3, moment@npm:^2.29.1, moment@npm:^2.29.4":
   version: 2.29.4
   resolution: "moment@npm:2.29.4"
@@ -17385,6 +17396,15 @@ __metadata:
   peerDependencies:
     "@babel/runtime": ^7.20.6
   checksum: 87675dda6b3142944413cd0570ce2208f9f25a3996d3b1b6ac43fca4ef0bb1543f19f931d8df492c28ce013f3354f28df365e29030fdd5ac8120f9e3b25f99e6
+  languageName: node
+  linkType: hard
+
+"react-native-draggable@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "react-native-draggable@npm:3.3.0"
+  dependencies:
+    prop-types: "npm:^15.7.2"
+  checksum: 22f945980b4fba391b81ab4266afed986b4e8612fb2445d853bf695915cb9f7c92fb49d8a9f9f76eefc8b492140528ac7292463353b184be16c1d61dd0e7be49
   languageName: node
   linkType: hard
 

@@ -95,7 +95,7 @@ const VaultScreen: FC<Props> = (props) => {
 		const filterObj: IMediaFilterQuery = {
 			page: medias.page,
 			size: 10,
-			sort: orderBy === "Newest" ? "newest" : "latest",
+			sort: orderBy === "Newest" ? "latest" : "oldest",
 		};
 		if (filter !== MediaType.All) {
 			filterObj.type = filter;

@@ -189,13 +189,11 @@ const ProfilePostActions: FC<Props> = (props) => {
 						"flex-row justify-center pb-5 gap-4 mx-auto",
 					)}
 				>
-					{featureGates.has("2024_02-edit-post") && (
-						<FunctionButton
-							title="Edit"
-							icon={<EditSvg color="#fff" size={22} />}
-							onPress={onEditPostCallback}
-						/>
-					)}
+					<FunctionButton
+						title="Edit"
+						icon={<EditSvg color="#fff" size={22} />}
+						onPress={onEditPostCallback}
+					/>
 					<FunctionButton
 						title={post?.isPinned ? "Unpin" : "Pin"}
 						icon={

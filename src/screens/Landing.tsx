@@ -42,6 +42,7 @@ import {
 	FypButton2,
 	FypSvg,
 	FypCollapsible,
+	HoverGesture,
 } from "@components/common/base";
 import {
 	FansDivider,
@@ -60,7 +61,7 @@ import { formatNumber } from "@utils/stringHelper";
 import { useBlankLink } from "@utils/useBlankLink";
 import { createURL } from "expo-linking";
 import { useRouter } from "expo-router";
-import React, { FC, useRef, useEffect, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import {
 	Image,
 	ImageSourcePropType,
@@ -72,7 +73,6 @@ import {
 	TextInput,
 	TouchableOpacity,
 	View,
-	NativeSyntheticEvent,
 } from "react-native";
 import OutsidePressHandler from "react-native-outside-press";
 import Animated, {
@@ -80,16 +80,11 @@ import Animated, {
 	useAnimatedStyle,
 	useSharedValue,
 	withTiming,
-	PinwheelIn,
-	PinwheelOut,
-	FadeIn,
-	FadeOut,
-	Layout,
 } from "react-native-reanimated";
 
 const MembershipSection = () => {
 	const router = useRouter();
-
+	const [btnHover, setBtnHover] = useState(false);
 	const handleStart = () => {
 		router.push("/auth/register");
 	};
@@ -159,19 +154,25 @@ const MembershipSection = () => {
 				width="full"
 				style={tw.style(tw.prefixMatch("sm") ? "" : "px-1")}
 			>
-				<FypButton2
-					style={tw.style(
-						"w-full md:w-[208px] bg-fans-black-1d h-[42px] md:h-[66px]",
-					)}
-					textStyle={tw.style(
-						"text-[17px] leading-[22px] text-fans-white font-semibold md:text-[21px] md:leading-[28px]",
-					)}
-					pressableProps={{
-						onPress: handleStart,
-					}}
-				>
-					Get started
-				</FypButton2>
+				<HoverGesture gestureCallback={setBtnHover}>
+					<FypButton2
+						style={tw.style(
+							"w-full md:w-[208px] h-[42px] md:h-[66px]",
+							btnHover
+								? "border border-fans-black-1d"
+								: "bg-fans-black-1d",
+						)}
+						textStyle={tw.style(
+							"text-[17px] leading-[22px] font-semibold md:text-[21px] md:leading-[28px]",
+							btnHover ? "text-fans-black-1d" : "text-fans-white",
+						)}
+						pressableProps={{
+							onPress: handleStart,
+						}}
+					>
+						Get started
+					</FypButton2>
+				</HoverGesture>
 			</FansView>
 		</FansView>
 	);
@@ -868,26 +869,19 @@ const BannerSection = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [username, setUsername] = useState("");
 	const [prefixWidth, setPrefixWidth] = useState(0);
+	const [findCreatorHover, setFindCreatorHover] = useState(false);
+	const [loginBtnHover, setLoginBtnHover] = useState(false);
+	const [signupBtnHover, setSignupBtnHover] = useState(false);
 
 	const searchFormOpacity = useSharedValue(0);
-	const findBtnOpacity = useSharedValue(1);
 
 	const searchFormStyle = useAnimatedStyle(() => {
 		return {
 			opacity: searchFormOpacity.value,
 		};
 	});
-	const findBtnStyle = useAnimatedStyle(() => {
-		return {
-			opacity: findBtnOpacity.value,
-		};
-	});
 
 	const onClickFindCreator = () => {
-		findBtnOpacity.value = withTiming(0, {
-			duration: 0,
-			easing: Easing.linear,
-		});
 		searchFormOpacity.value = withTiming(1, {
 			duration: 500,
 			easing: Easing.linear,
@@ -897,10 +891,6 @@ const BannerSection = () => {
 
 	const onCancelSearch = () => {
 		searchFormOpacity.value = withTiming(0, {
-			duration: 500,
-			easing: Easing.linear,
-		});
-		findBtnOpacity.value = withTiming(1, {
 			duration: 500,
 			easing: Easing.linear,
 		});
@@ -1017,11 +1007,14 @@ const BannerSection = () => {
 							"top-0 left-0 w-full md:w-[320px] lg:w-[37%] md:max-w-[602px]",
 						)}
 					>
-						<FypNullableView visible={!showSearchForm}>
-							<Animated.View style={findBtnStyle}>
+						<FypNullableView visible={!showSearchForm} animated>
+							<HoverGesture gestureCallback={setFindCreatorHover}>
 								<FypButton
 									style={tw.style(
 										"border border-white rounded-[100px] w-[234px] h-[66px] gap-[10px] hidden md:flex",
+										findCreatorHover
+											? "bg-fans-white/30 border-0"
+											: "",
 									)}
 									textStyle={tw.style(
 										"text-[21px] leading-[28px] text-white font-medium font-inter-v",
@@ -1031,7 +1024,7 @@ const BannerSection = () => {
 								>
 									Find a creator
 								</FypButton>
-							</Animated.View>
+							</HoverGesture>
 						</FypNullableView>
 						<FypNullableView visible={showSearchForm}>
 							<OutsidePressHandler
@@ -1149,32 +1142,45 @@ const BannerSection = () => {
 							showSearchForm ? "hidden md:flex" : "",
 						)}
 					>
-						<FypButton2
-							style={tw.style(
-								"w-22 md:w-[126px] h-[42px] md:h-[66px] border border-fans-white",
-							)}
-							textStyle={tw.style(
-								"text-fans-white font-semibold font-inter-v text-[17px] md:leading-[22px] md:text-[21px] md:leading-[28px]",
-							)}
-							pressableProps={{
-								onPress: handlePressLogIn,
-							}}
-						>
-							Log in
-						</FypButton2>
-						<FypButton2
-							style={tw.style(
-								"w-[132px] md:w-[174px] bg-fans-white h-[42px] md:h-[66px]",
-							)}
-							textStyle={tw.style(
-								"text-fans-black-2e font-semibold font-inter-v text-[17px] md:leading-[22px] md:text-[21px] md:leading-[28px]",
-							)}
-							pressableProps={{
-								onPress: handlePressSignUp,
-							}}
-						>
-							Get started
-						</FypButton2>
+						<HoverGesture gestureCallback={setLoginBtnHover}>
+							<FypButton2
+								style={tw.style(
+									"w-22 md:w-[126px] h-[42px] md:h-[66px] border border-fans-white",
+									loginBtnHover &&
+										"border-0 bg-fans-black-1d",
+								)}
+								textStyle={tw.style(
+									"text-fans-white font-semibold font-inter-v text-[17px] md:leading-[22px] md:text-[21px] md:leading-[28px]",
+								)}
+								pressableProps={{
+									onPress: handlePressLogIn,
+								}}
+							>
+								Log in
+							</FypButton2>
+						</HoverGesture>
+						<HoverGesture gestureCallback={setSignupBtnHover}>
+							<FypButton2
+								style={tw.style(
+									"w-[132px] md:w-[174px] h-[42px] md:h-[66px]",
+									signupBtnHover
+										? "bg-fans-black-1d"
+										: "bg-fans-white",
+								)}
+								textStyle={tw.style(
+									"font-semibold font-inter-v text-[17px] md:leading-[22px] md:text-[21px] md:leading-[28px]",
+									signupBtnHover
+										? "text-fans-white"
+										: "text-fans-black-2e",
+								)}
+								pressableProps={{
+									onPress: handlePressSignUp,
+								}}
+							>
+								Get started
+							</FypButton2>
+						</HoverGesture>
+
 						<FansIconButton
 							size={42}
 							backgroundColor="bg-fans-black-1d"
@@ -1327,6 +1333,7 @@ const BannerSection = () => {
 
 const SmarterSection = () => {
 	const router = useRouter();
+	const [btnHover, setBtnHover] = useState(false);
 	const handleStart = () => {
 		router.push("/auth/register");
 	};
@@ -1387,19 +1394,25 @@ const SmarterSection = () => {
 				</FansView>
 
 				<FansGap height={{ xs: 47, md: 50 }} />
-				<FypButton2
-					style={tw.style(
-						"w-full md:w-[214px] h-[42px] md:h-[66px] border border-fans-black-1d",
-					)}
-					textStyle={tw.style(
-						"text-[17px] leading-[22px] md:text-[21px] font-semibold md:leading-7 text-fans-black-1d",
-					)}
-					pressableProps={{
-						onPress: handleStart,
-					}}
-				>
-					Start creating
-				</FypButton2>
+				<HoverGesture gestureCallback={setBtnHover}>
+					<FypButton2
+						style={tw.style(
+							"w-full md:w-[214px] h-[42px] md:h-[66px]",
+							btnHover
+								? "bg-fans-black-1d"
+								: "border border-fans-black-1d",
+						)}
+						textStyle={tw.style(
+							"text-[17px] leading-[22px] md:text-[21px] font-semibold md:leading-7",
+							btnHover ? "text-fans-white" : "text-fans-black-1d",
+						)}
+						pressableProps={{
+							onPress: handleStart,
+						}}
+					>
+						Start creating
+					</FypButton2>
+				</HoverGesture>
 			</FansView>
 			<FansView
 				height={{ xs: 356, md: 550, lg: 708 }}
@@ -1421,6 +1434,7 @@ const SmarterSection = () => {
 
 const EarningsSection = () => {
 	const router = useRouter();
+	const [btnHover, setBtnHover] = useState(false);
 	const handleStart = () => {
 		router.push("/auth/register");
 	};
@@ -1476,19 +1490,25 @@ const EarningsSection = () => {
 					Retain more of your earnings with FYP.Fans
 				</FypText>
 				<FansGap height={{ xs: 48, md: 50 }} />
-				<FypButton2
-					style={tw.style(
-						"w-full md:w-[214px] h-[42px] md:h-[66px] border border-fans-white",
-					)}
-					textStyle={tw.style(
-						"text-[17px] leading-[22px] md:text-[21px] font-semibold md:leading-7 text-fans-white",
-					)}
-					pressableProps={{
-						onPress: handleStart,
-					}}
-				>
-					Get started
-				</FypButton2>
+				<HoverGesture gestureCallback={setBtnHover}>
+					<FypButton2
+						style={tw.style(
+							"w-full md:w-[214px] h-[42px] md:h-[66px]",
+							btnHover
+								? "bg-fans-white"
+								: "border border-fans-white",
+						)}
+						textStyle={tw.style(
+							"text-[17px] leading-[22px] md:text-[21px] font-semibold md:leading-7",
+							btnHover ? "text-fans-black-1d" : "text-fans-white",
+						)}
+						pressableProps={{
+							onPress: handleStart,
+						}}
+					>
+						Get started
+					</FypButton2>
+				</HoverGesture>
 			</FansView>
 		</FansView>
 	);
@@ -1498,6 +1518,7 @@ const SmartDataSection = () => {
 	const router = useRouter();
 	const [imgWidth, setImgWidth] = useState(670);
 	const [imgRate, setImgRate] = useState(1);
+	const [btnHover, setBtnHover] = useState(false);
 	const handleStart = () => {
 		router.push("/auth/register");
 	};
@@ -1587,19 +1608,25 @@ const SmartDataSection = () => {
 				</FansView>
 
 				<FansGap height={{ xs: 23, md: 58 }} />
-				<FypButton2
-					style={tw.style(
-						"w-full md:w-[214px] h-[42px] md:h-[66px] border border-fans-black-1d",
-					)}
-					textStyle={tw.style(
-						"text-[17px] leading-[22px] md:text-[21px] font-semibold md:leading-7 text-fans-black-1d",
-					)}
-					pressableProps={{
-						onPress: handleStart,
-					}}
-				>
-					Start creating
-				</FypButton2>
+				<HoverGesture gestureCallback={setBtnHover}>
+					<FypButton2
+						style={tw.style(
+							"w-full md:w-[214px] h-[42px] md:h-[66px]",
+							btnHover
+								? "bg-fans-black"
+								: "border border-fans-black-1d",
+						)}
+						textStyle={tw.style(
+							"text-[17px] leading-[22px] md:text-[21px] font-semibold md:leading-7",
+							btnHover ? "text-fans-white" : "text-fans-black-1d",
+						)}
+						pressableProps={{
+							onPress: handleStart,
+						}}
+					>
+						Start creating
+					</FypButton2>
+				</HoverGesture>
 			</FansView>
 			<FansView
 				style={tw.style(
@@ -1665,6 +1692,7 @@ const PlatformItem: FC<PlatformItemProps> = (props) => {
 
 const PlatformsSection = () => {
 	const router = useRouter();
+	const [btnHover, setBtnHover] = useState(false);
 	const handleStart = () => {
 		router.push("/auth/register");
 	};
@@ -1761,19 +1789,25 @@ const PlatformsSection = () => {
 			</FansView>
 			<FansGap height={{ xs: 48, lg: 82 }} />
 			<FansView alignItems="center" width="full">
-				<FypButton2
-					style={tw.style(
-						"w-full md:w-[208px] bg-fans-white h-[42px] md:h-[66px]",
-					)}
-					textStyle={tw.style(
-						"text-[17px] leading-[22px] text-fans-black-1d font-semibold md:text-[21px] md:leading-[28px]",
-					)}
-					pressableProps={{
-						onPress: handleStart,
-					}}
-				>
-					Get started
-				</FypButton2>
+				<HoverGesture gestureCallback={setBtnHover}>
+					<FypButton2
+						style={tw.style(
+							"w-full md:w-[208px] h-[42px] md:h-[66px]",
+							btnHover
+								? "border border-fans-white"
+								: "bg-fans-white",
+						)}
+						textStyle={tw.style(
+							"text-[17px] leading-[22px] font-semibold md:text-[21px] md:leading-[28px]",
+							btnHover ? "text-fans-white" : "text-fans-black-1d",
+						)}
+						pressableProps={{
+							onPress: handleStart,
+						}}
+					>
+						Get started
+					</FypButton2>
+				</HoverGesture>
 			</FansView>
 		</FansView>
 	);
@@ -2514,23 +2548,13 @@ const ThirdStepToSuccess = () => {
 };
 
 const LandingScreen = () => {
-	const scrollView = useRef<ScrollView>(null);
-	const [scrollEnabled, setScrollEnabled] = useState(true);
-	const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-		if (e.nativeEvent.contentOffset.y === 5479) {
-			// setScrollEnabled(false);
-		}
-	};
-
 	return (
 		<FansScreen1 contentStyle={tw.style("h-full", "p-0")}>
 			<ScrollView
-				ref={scrollView}
 				style={tw.style("grow")}
 				pagingEnabled={tw.prefixMatch("md")}
 				scrollEventThrottle={50}
 				decelerationRate="normal"
-				onScroll={(e) => handleScroll(e)}
 			>
 				<BannerSection />
 				<MembershipSection />

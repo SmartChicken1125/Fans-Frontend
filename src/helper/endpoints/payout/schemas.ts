@@ -2,18 +2,48 @@
 // frontend: helper/endpoints/payout/schemas.ts
 // backend: web/routes/payout/schemas.ts
 
-import { IPayoutLog, IStripeForm, PayPalPayoutMethod } from "@usertypes/types";
+import {
+	IPayoutLog,
+	IStripeForm,
+	PayoutMethod,
+	PayPalPayoutMethod,
+} from "@usertypes/types";
 
 export type PayPalPayoutMethodsResBody = PayPalPayoutMethod[];
 
 export type PayPalPayoutMethodResBody = PayPalPayoutMethod;
 
+export type PayoutMethodResBody = PayoutMethod;
+
 export interface PayoutMethodReqBody {
-	paypalEmail?: string;
-	bankInfo?: IStripeForm;
 	country: string;
+	state: string;
+	city: string;
+	street: string;
+	unit?: string;
+	zip: string;
+
 	entityType: string;
-	usCitizenOrResident: boolean;
+	usCitizenOrResident?: boolean;
+
+	firstName?: string;
+	lastName?: string;
+	company?: string;
+
+	payoutMethod: string;
+
+	revolut?: string;
+	payoneer?: string;
+
+	routingNumber?: string;
+	accountNumber?: string;
+
+	iban?: string;
+	swift?: string;
+
+	paypalEmail?: string;
+
+	bankInfo?: IStripeForm;
 }
 
 export interface GetPayoutMethodReqBody {

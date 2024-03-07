@@ -23,66 +23,36 @@ import {
 	FansView,
 } from "@components/controls";
 import { FilterButton } from "@components/posts/common";
+import { PayoutRequestSuccessModal } from "@components/profiles";
 import { useAppContext } from "@context/useAppContext";
+import { formatPrice } from "@helper/Utils";
 import {
+	fetchPayoutMethod,
 	deletePayoutMethod,
 	executePayout,
-	fetchPayoutPaymentMethods,
-	fetchPayoutSchedule,
-	updatePayoutSchedule,
+	getPayoutLogs,
 } from "@helper/endpoints/payout/apis";
 import tw from "@lib/tailwind";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useFeatureGates } from "@state/featureGates";
 import { IconTypes, PaymentMethodType } from "@usertypes/commonEnums";
 import { SettingsReferralProgramNativeStackParams } from "@usertypes/navigations";
-import { ICardAction, PayPalPayoutMethod, SortType } from "@usertypes/types";
+import {
+	ICardAction,
+	IPayoutLog,
+	PayoutMethod,
+	PayPalPayoutMethod,
+	SortType,
+	PayoutHistory,
+	PayoutStatusType,
+} from "@usertypes/types";
 import { useBlankLink } from "@utils/useBlankLink";
 import { useNavigation, useRouter } from "expo-router";
+import moment from "moment";
 import React, { useEffect, useState, FC } from "react";
 import { ScrollView } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import OldGetPaidScreen from "./oldGetPaidScreen";
-
-const payments = [
-	{
-		id: "1",
-		provider: "PayPal",
-		country: "USA",
-		entityType: "",
-		usCitizenOrResident: true,
-		paymentInformation: "paypal.com",
-	},
-	{
-		id: "2",
-		provider: "Bank",
-		country: "USA",
-		entityType: "",
-		usCitizenOrResident: true,
-		paymentInformation: "**** 1234 / 000123000",
-	},
-	{
-		id: "3",
-		provider: "Payoneer",
-		country: "USA",
-		entityType: "",
-		usCitizenOrResident: true,
-		paymentInformation: "mail@gmail.com",
-	},
-	{
-		id: "4",
-		provider: "Revolut",
-		country: "USA",
-		entityType: "",
-		usCitizenOrResident: true,
-		paymentInformation: "revolut.me/user",
-	},
-];
-
-interface ITestPayPalPayoutMethod extends PayPalPayoutMethod {
-	paymentInformation: string;
-}
 
 interface PayoutDetailProps {
 	title: string;
@@ -107,14 +77,33 @@ const PayoutDetail: FC<PayoutDetailProps> = (props) => {
 	);
 };
 
-interface PayoutCardProps {}
+interface PayoutCardProps {
+	amount: number;
+	date: string;
+	status: string;
+	paymentInformation?: string;
+}
 
-const PayoutCard: FC<PayoutCardProps> = () => {
+const PayoutCard: FC<PayoutCardProps> = (props) => {
+	const { amount, date, status, paymentInformation } = props;
+
 	const [openLink] = useBlankLink();
 	const [expanded, setExpanded] = useState(false);
 
 	const handlePressSupport = () => {
 		openLink("https://support.fyp.fans");
+	};
+
+	const titles = {
+		Successful: "Payout processed",
+		Cancelled: "Payout cancelled",
+		Pending: "Payout pending",
+	};
+
+	const priceColors = {
+		Successful: ["#24A2FF", "#23C9B1", "#89F276"],
+		Cancelled: ["#E92950", "#E53EC6"],
+		Pending: ["#FB6B63", "#F98632"],
 	};
 
 	return (
@@ -140,7 +129,7 @@ const PayoutCard: FC<PayoutCardProps> = () => {
 						alignItems="center"
 					>
 						<FypText fontSize={18} lineHeight={26} fontWeight={600}>
-							Payout processed
+							{titles[status as keyof typeof titles]}
 						</FypText>
 					</FansView>
 
@@ -151,12 +140,12 @@ const PayoutCard: FC<PayoutCardProps> = () => {
 							"text-fans-grey-48 dark:text-fans-grey-b1",
 						)}
 					>
-						Wells fargo Bank **** 1234
+						{paymentInformation}
 					</FypText>
 				</FansView>
 				<FansView gap={6} alignItems="end">
 					<FypLinearGradientView
-						colors={["#24A2FF", "#23C9B1", "#89F276"]}
+						colors={priceColors[status as keyof typeof priceColors]}
 						start={[0, 1]}
 						end={[1, 0]}
 						width={68}
@@ -171,7 +160,7 @@ const PayoutCard: FC<PayoutCardProps> = () => {
 							fontWeight={600}
 							color="white"
 						>
-							$100
+							{formatPrice(amount)}
 						</FypText>
 					</FypLinearGradientView>
 
@@ -183,7 +172,7 @@ const PayoutCard: FC<PayoutCardProps> = () => {
 								"text-fans-grey-48 dark:text-fans-grey-b1",
 							)}
 						>
-							01/02/24
+							{moment(date).format("DD/MM/YYYY")}
 						</FypText>
 						<FansView
 							width={4}
@@ -203,7 +192,7 @@ const PayoutCard: FC<PayoutCardProps> = () => {
 								"hidden md:flex",
 							)}
 						>
-							4:23 am
+							{moment(date).format("hh:mm a")}
 						</FypText>
 					</FansView>
 				</FansView>
@@ -234,12 +223,17 @@ const PayoutCard: FC<PayoutCardProps> = () => {
 					<FansView gap={14} style={tw.style("hidden md:flex")}>
 						<FansView flexDirection="row" alignItems="center">
 							<FansView flex="1">
-								<PayoutDetail title="Amount" value="$100" />
+								<PayoutDetail
+									title="Amount"
+									value={formatPrice(amount)}
+								/>
 							</FansView>
 							<FansView flex="1">
 								<PayoutDetail
 									title="Initiated"
-									value="Jan 3, 2024 4:23 am"
+									value={moment(date).format(
+										"MMM D, YYYY hh:mm a",
+									)}
 								/>
 							</FansView>
 						</FansView>
@@ -248,31 +242,31 @@ const PayoutCard: FC<PayoutCardProps> = () => {
 							<FansView flex="1">
 								<PayoutDetail
 									title="To"
-									value="Bank of New York Mellon"
+									value={paymentInformation ?? ""}
 								/>
 							</FansView>
 							<FansView flex="1">
-								<PayoutDetail
-									title="Status"
-									value="Completed"
-								/>
+								<PayoutDetail title="Status" value={status} />
 							</FansView>
 						</FansView>
 					</FansView>
 					<FansView gap={14} style={tw.style("md:hidden")}>
-						<PayoutDetail title="Amount" value="$100" />
+						<PayoutDetail
+							title="Amount"
+							value={formatPrice(amount)}
+						/>
 						<FansDivider />
 						<PayoutDetail
 							title="To"
-							value="Bank of New York Mellon"
+							value={paymentInformation ?? ""}
 						/>
 						<FansDivider />
 						<PayoutDetail
 							title="Initiated"
-							value="Jan 3, 2024 4:23 am"
+							value={moment(date).format("MMM D, YYYY hh:mm a")}
 						/>
 						<FansDivider />
-						<PayoutDetail title="Status" value="Completed" />
+						<PayoutDetail title="Status" value={status} />
 					</FansView>
 
 					<FansGap height={35} />
@@ -303,24 +297,24 @@ const NewGetPaidScreen = () => {
 
 	const router = useRouter();
 	const { state, dispatch } = useAppContext();
-	const { profile, user } = state;
+	const { user } = state;
 	const { userInfo } = user;
-	const insets = useSafeAreaInsets();
 
-	const [autoPayouts, setAutoPayouts] = useState(false);
-	const [price, setPrice] = useState<number | undefined>();
-	const [paymentMethods, setPaymentMethods] = useState<
-		ITestPayPalPayoutMethod[]
-	>([...payments]);
+	const [paymentMethod, setPaymentMethod] = useState<
+		PayoutMethod | undefined
+	>();
 	const [openPaymentMethodActions, setOpenPaymentMethodActions] =
 		useState(false);
-	const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
 	const [inProgress, setInProgress] = useState(false);
 	const [maxPayout, setMaxPayout] = useState(0);
 	const [totalPayoutAmount, setTotalPayoutAmount] = useState(0);
-	const [showPayouts, setShowPayouts] = useState(false);
+	const [showPayouts, setShowPayouts] = useState(true);
 	const [filter, setFilter] = useState("All");
 	const [orderBy, setOrderBy] = useState<SortType>("Newest");
+	const [page, setPage] = useState(1);
+	const [payoutLogs, setPayoutLogs] = useState<IPayoutLog[]>([]);
+	const [openRequestSuccessModal, setOpenRequestSuccessModal] =
+		useState(false);
 
 	// useEffect(() => {
 	// 	const getPayoutSchedule = async () => {
@@ -344,11 +338,26 @@ const NewGetPaidScreen = () => {
 	// }, [refresh]);
 
 	useEffect(() => {
-		updatePayoutSchedule({
-			mode: autoPayouts ? "Automatic" : "Manual",
-			threshold: autoPayouts ? price : undefined,
-		});
-	}, [autoPayouts, price]);
+		const getPayoutMethod = async () => {
+			const response = await fetchPayoutMethod();
+			if (response.ok) setPaymentMethod(response.data);
+		};
+		getPayoutMethod();
+	}, []);
+
+	useEffect(() => {
+		const fetchPayoutLogs = async () => {
+			const response = await getPayoutLogs({
+				page,
+				filter,
+				orderBy,
+			});
+			if (response.ok) {
+				setPayoutLogs(response.data.payoutLogs);
+			}
+		};
+		fetchPayoutLogs();
+	}, [page, filter, orderBy]);
 
 	const onExecutePayout = async () => {
 		setInProgress(true);
@@ -360,6 +369,7 @@ const NewGetPaidScreen = () => {
 					type: "success",
 					text1: "Your payout request has been sent",
 				});
+				setPage(1);
 			} else {
 				Toast.show({
 					type: "error",
@@ -375,41 +385,27 @@ const NewGetPaidScreen = () => {
 		setInProgress(false);
 	};
 
-	const handleOpenPostMethodActions = (id: string) => {
+	const handleOpenPostMethodActions = () => {
 		setOpenPaymentMethodActions(true);
-		setSelectedPaymentMethod(id);
 	};
 
 	const onEditPaymentMethod = () => {
 		setOpenPaymentMethodActions(false);
-		navigation.navigate("PayoutSetup", {
-			id: selectedPaymentMethod,
-		});
+		navigation.navigate("PayoutSetup");
 	};
 
 	const onDeletePaymentMethod = async () => {
 		setOpenPaymentMethodActions(false);
 		setInProgress(true);
 		try {
-			const response = await deletePayoutMethod(
-				{
-					id: selectedPaymentMethod,
-				},
-				{
-					id: selectedPaymentMethod,
-				},
-			);
+			const response = await deletePayoutMethod({});
 
 			if (response.ok) {
 				Toast.show({
 					type: "success",
 					text1: "Payment method deleted",
 				});
-				setPaymentMethods(
-					paymentMethods.filter(
-						(method) => method.id !== selectedPaymentMethod,
-					),
-				);
+				setPaymentMethod(undefined);
 			}
 		} catch (error) {
 			Toast.show({
@@ -462,10 +458,17 @@ const NewGetPaidScreen = () => {
 							position="absolute"
 							style={tw.style("rounded-b-[15px]")}
 						></FypLinearGradientView>
-						<CustomTopNavBar
-							title="Payments"
-							onClickLeft={() => navigation.goBack()}
-						/>
+						<FansView style={tw.style("md:px-[22px]")}>
+							<CustomTopNavBar
+								title="Payments"
+								onClickLeft={() => navigation.goBack()}
+								style="border-b-0"
+							/>
+						</FansView>
+
+						<FansView style={tw.style("md:px-10 xl:pr-[140px]")}>
+							<FansDivider style={tw.style("bg-fans-white/20")} />
+						</FansView>
 						<FansGap height={{ xs: 26, md: 28 }} />
 						<FansView
 							style={tw.style(
@@ -572,7 +575,9 @@ const NewGetPaidScreen = () => {
 									style={tw.style("bg-fans-black")}
 									textStyle={tw.style("text-fans-white")}
 									pressableProps={{
-										onPress: onExecutePayout,
+										// onPress: onExecutePayout,
+										onPress: () =>
+											setOpenRequestSuccessModal(true),
 									}}
 								>
 									Request payout
@@ -603,7 +608,7 @@ const NewGetPaidScreen = () => {
 									information
 								</FypText>
 
-								{paymentMethods.length === 0 && (
+								{!paymentMethod && (
 									<FansView gap={10}>
 										<FansView
 											style={tw.style(
@@ -668,30 +673,35 @@ const NewGetPaidScreen = () => {
 									</FansView>
 								)}
 
-								{paymentMethods.length > 0 ? (
+								{paymentMethod ? (
 									<FansView>
-										<FansView gap={14}>
-											{paymentMethods &&
-												paymentMethods.map((method) => (
-													<PaymentMethod
-														key={method.id}
-														title={method.provider}
-														paymentInformation={
-															method.paymentInformation
-														}
-														paymentMethodType={
-															PaymentMethodType[
-																method.provider as keyof typeof PaymentMethodType
-															]
-														}
-														onClickDots={() =>
-															handleOpenPostMethodActions(
-																method.id,
-															)
-														}
-													/>
-												))}
-										</FansView>
+										<PaymentMethod
+											key={paymentMethod.id}
+											title={paymentMethod.payoutMethod}
+											paymentInformation={
+												paymentMethod.payoutMethod ===
+												"IBAN"
+													? paymentMethod.iban!
+													: paymentMethod.payoutMethod ===
+													  "Payoneer"
+													? paymentMethod.payoneer!
+													: paymentMethod.payoutMethod ===
+													  "Revolut"
+													? paymentMethod.revolut!
+													: paymentMethod.payoutMethod ===
+													  "DirectDeposit"
+													? paymentMethod.accountNumber!
+													: ""
+											}
+											paymentMethodType={
+												PaymentMethodType[
+													paymentMethod.payoutMethod as keyof typeof PaymentMethodType
+												]
+											}
+											onClickDots={() =>
+												handleOpenPostMethodActions()
+											}
+										/>
 										<FansGap height={10} />
 										<FypButton2
 											style={tw.style(
@@ -708,101 +718,112 @@ const NewGetPaidScreen = () => {
 										</FypButton2>
 									</FansView>
 								) : null}
-							</FansView>
 
-							<FansGap height={{ xs: 34, md: 32 }} />
+								<FansGap height={{ xs: 34, md: 32 }} />
 
-							<FansView>
-								<FypText
-									fontSize={17}
-									fontWeight={600}
-									lineHeight={22}
-									margin={{ b: 12 }}
-								>
-									Rate per payout
-								</FypText>
-								<FypText
-									fontSize={16}
-									lineHeight={21}
-									style={tw.style(
-										"text-fans-grey-48 dark:text-fans-grey-b1",
-									)}
-								>
-									Enjoy fee-free payouts. Please note, a
-									minimal currency conversion fee may apply if
-									your bank operates in a currency other than
-									USD
-								</FypText>
-							</FansView>
-
-							<FansGap height={34} />
-							<FansDivider />
-							<FansGap height={30} />
-
-							<FansView>
-								<FansView
-									flexDirection="row"
-									alignItems="center"
-									gap={24}
-									pressableProps={{
-										onPress: () =>
-											setShowPayouts(!showPayouts),
-									}}
-								>
+								<FansView>
 									<FypText
 										fontSize={17}
 										fontWeight={600}
 										lineHeight={22}
+										margin={{ b: 12 }}
 									>
-										Pending & past payouts
+										Rate per payout
 									</FypText>
-									<FypRotateIcon
-										rotated={showPayouts}
-										style={tw.style("w-[14px] h-[14px]")}
+									<FypText
+										fontSize={16}
+										lineHeight={21}
+										style={tw.style(
+											"text-fans-grey-48 dark:text-fans-grey-b1",
+										)}
 									>
-										<FypSvg
-											svg={ChevronDownSvg}
-											width={14}
-											height={8}
-											color="fans-grey-48 dark:fans-grey-b1"
-										/>
-									</FypRotateIcon>
+										Enjoy fee-free payouts. Please note, a
+										minimal currency conversion fee may
+										apply if your bank operates in a
+										currency other than USD
+									</FypText>
 								</FansView>
 
-								<FansGap height={15} />
+								<FansGap height={34} />
+								<FansDivider />
+								<FansGap height={30} />
 
-								<FypCollapsible collapsed={!showPayouts}>
+								<FansView>
 									<FansView
 										flexDirection="row"
 										alignItems="center"
-										gap={7}
+										gap={24}
+										pressableProps={{
+											onPress: () =>
+												setShowPayouts(!showPayouts),
+										}}
 									>
-										{["All", "Pending", "Declined"].map(
-											(el) => (
-												<FilterButton
-													key={el}
-													title={el}
-													onClick={() =>
-														setFilter(el)
-													}
-													isSelected={filter === el}
-												/>
-											),
-										)}
+										<FypText
+											fontSize={17}
+											fontWeight={600}
+											lineHeight={22}
+										>
+											Pending & past payouts
+										</FypText>
+										<FypRotateIcon
+											rotated={showPayouts}
+											style={tw.style(
+												"w-[14px] h-[14px]",
+											)}
+										>
+											<FypSvg
+												svg={ChevronDownSvg}
+												width={14}
+												height={8}
+												color="fans-grey-48 dark:fans-grey-b1"
+											/>
+										</FypRotateIcon>
 									</FansView>
+
 									<FansGap height={15} />
-									<FypSortButton
-										value={orderBy}
-										handleToggle={setOrderBy}
-									/>
-									<FansGap height={27} />
-									<FansView gap={9}>
-										<PayoutCard />
-										<PayoutCard />
-										<PayoutCard />
-										<PayoutCard />
-									</FansView>
-								</FypCollapsible>
+
+									<FypCollapsible collapsed={!showPayouts}>
+										<FansView
+											flexDirection="row"
+											alignItems="center"
+											gap={7}
+										>
+											{["All", "Pending", "Declined"].map(
+												(el) => (
+													<FilterButton
+														key={el}
+														title={el}
+														onClick={() =>
+															setFilter(el)
+														}
+														isSelected={
+															filter === el
+														}
+													/>
+												),
+											)}
+										</FansView>
+										<FansGap height={15} />
+										<FypSortButton
+											value={orderBy}
+											handleToggle={setOrderBy}
+										/>
+										<FansGap height={27} />
+										<FansView gap={9}>
+											{payoutLogs.map((log) => (
+												<PayoutCard
+													key={log.id}
+													amount={log.amount}
+													date={log.createdAt}
+													status={log.status}
+													paymentInformation={
+														log.paymentInformation
+													}
+												/>
+											))}
+										</FansView>
+									</FypCollapsible>
+								</FansView>
 							</FansView>
 						</FansView>
 					</FansView>
@@ -812,6 +833,10 @@ const NewGetPaidScreen = () => {
 				open={openPaymentMethodActions}
 				onClose={() => setOpenPaymentMethodActions(false)}
 				actions={paymentActions}
+			/>
+			<PayoutRequestSuccessModal
+				visible={openRequestSuccessModal}
+				handleClose={() => setOpenRequestSuccessModal(false)}
 			/>
 		</AppLayout>
 	);

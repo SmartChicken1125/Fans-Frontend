@@ -18,15 +18,11 @@ import {
 	FypSvg,
 	FypDropdown,
 } from "@components/common/base";
-import CustomRadio from "@components/common/customRadio";
 import CustomTopNavBar from "@components/common/customTopNavBar";
 import AppLayout from "@components/common/layout";
 import { FansDivider, FansGap, FansView } from "@components/controls";
-import {
-	createPayPalPayoutMethod,
-	fetchPayoutMethod,
-	updatePayoutMethod,
-} from "@helper/endpoints/payout/apis";
+import { useAppContext } from "@context/useAppContext";
+import { createOrUpdatePayoutMethod } from "@helper/endpoints/payout/apis";
 import states from "@helper/geo/state.json";
 import tw from "@lib/tailwind";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -44,21 +40,27 @@ import Toast from "react-native-toast-message";
 const steps = ["Residential_Address", "Link_Bank_Account"];
 
 interface IFormData {
+	country: string;
+	state: string;
+	city: string;
+	street: string;
+	apt: string;
+	zip: string;
 	firstName: string;
 	lastName: string;
-	companyName: string;
-	setUpMethod: string;
-	payoutOption: "" | "Revolut" | "Payoneer" | "DirectDeposit" | "IBanSwift";
-	revolutInfo: string;
-	payoneerInfo: string;
-	bankRoutingNumber: string;
-	bankAccountNumber: string;
-	ibanNumber: string;
-	swiftCode: string;
+	company: string;
+	entityType: string;
+	payoutMethod: "" | "Revolut" | "Payoneer" | "DirectDeposit" | "IBAN";
+	revolut: string;
+	payoneer: string;
+	routingNumber: string;
+	accountNumber: string;
+	iban: string;
+	swift: string;
 }
 
 interface IBankForm {
-	setUpMethod: string;
+	entityType: string;
 	isUsCityzen?: boolean;
 	paidMethod: string;
 	paypalEmail: string;
@@ -69,11 +71,19 @@ interface IBankForm {
 interface LinkBankAccountTabProps {
 	formData: IFormData;
 	onChangeForm: (name: string, value: string) => void;
+	onSubmit: () => void;
 }
 
 const LinkBankAccountTab: FC<LinkBankAccountTabProps> = (props) => {
-	const { formData, onChangeForm } = props;
+	const { formData, onChangeForm, onSubmit } = props;
 	const { isGreen = false } = useLocalSearchParams();
+
+	const [isSubmitted, setIsSubmitted] = useState(false);
+
+	const handleConfirm = () => {
+		setIsSubmitted(true);
+		onSubmit();
+	};
 
 	return (
 		<FansView>
@@ -115,17 +125,13 @@ const LinkBankAccountTab: FC<LinkBankAccountTabProps> = (props) => {
 						alignItems="center"
 						padding={{ y: 14 }}
 					>
-						<CustomRadio
+						<FypRadio
 							label="I am an individual"
 							onPress={() =>
-								onChangeForm("setUpMethod", "Individual")
+								onChangeForm("entityType", "Individual")
 							}
-							checked={formData.setUpMethod === "Individual"}
-							bgColor={
-								isGreen
-									? "bg-fans-green dark:bg-fans-green-29"
-									: "bg-fans-purple"
-							}
+							checked={formData.entityType === "Individual"}
+							hasError={isSubmitted && !formData.entityType}
 						/>
 					</FansView>
 					<FansDivider style={tw.style("h-[1px] my-[6px]")} />
@@ -134,17 +140,13 @@ const LinkBankAccountTab: FC<LinkBankAccountTabProps> = (props) => {
 						alignItems="center"
 						padding={{ y: 14 }}
 					>
-						<CustomRadio
+						<FypRadio
 							label="I am or represent a corporation"
 							onPress={() =>
-								onChangeForm("setUpMethod", "Corporation")
+								onChangeForm("entityType", "Corporation")
 							}
-							checked={formData.setUpMethod === "Corporation"}
-							bgColor={
-								isGreen
-									? "bg-fans-green dark:bg-fans-green-29"
-									: "bg-fans-purple"
-							}
+							checked={formData.entityType === "Corporation"}
+							hasError={isSubmitted && !formData.entityType}
 						/>
 					</FansView>
 				</FansView>
@@ -159,47 +161,64 @@ const LinkBankAccountTab: FC<LinkBankAccountTabProps> = (props) => {
 					>
 						Payout method
 					</FypText>
-					<FansView>
-						<FypText
-							fontSize={17}
-							lineHeight={22}
-							fontWeight={600}
-							margin={{ b: 15 }}
-							fontFamily="inter-v"
-						>
-							Name
-						</FypText>
-						<FypNullableView
-							visible={formData.setUpMethod === "Individual"}
-						>
-							<RoundTextInput
-								placeholder="First name"
-								value={formData.firstName}
-								onChangeText={(val) =>
-									onChangeForm("firstName", val)
-								}
-							/>
-							<FansGap height={10} />
-							<RoundTextInput
-								placeholder="Last name"
-								value={formData.lastName}
-								onChangeText={(val) =>
-									onChangeForm("lastName", val)
-								}
-							/>
-						</FypNullableView>
-						<FypNullableView
-							visible={formData.setUpMethod === "Corporation"}
-						>
-							<RoundTextInput
-								placeholder="Company name"
-								value={formData.companyName}
-								onChangeText={(val) =>
-									onChangeForm("companyName", val)
-								}
-							/>
-						</FypNullableView>
-					</FansView>
+					<FypNullableView visible={formData.entityType !== ""}>
+						<FansView>
+							<FypText
+								fontSize={17}
+								lineHeight={22}
+								fontWeight={600}
+								margin={{ b: 15 }}
+								fontFamily="inter-v"
+							>
+								Name
+							</FypText>
+							<FypNullableView
+								visible={formData.entityType === "Individual"}
+							>
+								<RoundTextInput
+									placeholder="First name"
+									value={formData.firstName}
+									onChangeText={(val) =>
+										onChangeForm("firstName", val)
+									}
+									hasError={
+										isSubmitted &&
+										formData.entityType === "Individual" &&
+										!formData.firstName
+									}
+								/>
+								<FansGap height={10} />
+								<RoundTextInput
+									placeholder="Last name"
+									value={formData.lastName}
+									onChangeText={(val) =>
+										onChangeForm("lastName", val)
+									}
+									hasError={
+										isSubmitted &&
+										formData.entityType === "Individual" &&
+										!formData.lastName
+									}
+								/>
+							</FypNullableView>
+							<FypNullableView
+								visible={formData.entityType === "Corporation"}
+							>
+								<RoundTextInput
+									placeholder="Company name"
+									value={formData.company}
+									onChangeText={(val) =>
+										onChangeForm("company", val)
+									}
+									hasError={
+										isSubmitted &&
+										formData.entityType === "Corporation" &&
+										!formData.company
+									}
+								/>
+							</FypNullableView>
+						</FansView>
+					</FypNullableView>
 				</FansView>
 
 				<FansGap height={32} />
@@ -231,15 +250,16 @@ const LinkBankAccountTab: FC<LinkBankAccountTabProps> = (props) => {
 					<FansView>
 						<FansGap height={14} />
 						<FypRadio
-							checked={formData.payoutOption === "Revolut"}
+							checked={formData.payoutMethod === "Revolut"}
 							label="Revolut"
 							onPress={() =>
-								onChangeForm("payoutOption", "Revolut")
+								onChangeForm("payoutMethod", "Revolut")
 							}
+							hasError={isSubmitted && !formData.payoutMethod}
 						/>
 						<FansGap height={14} />
 						<FypCollapsible
-							collapsed={formData.payoutOption !== "Revolut"}
+							collapsed={formData.payoutMethod !== "Revolut"}
 						>
 							<FansGap height={10} />
 							<FypText
@@ -260,15 +280,16 @@ const LinkBankAccountTab: FC<LinkBankAccountTabProps> = (props) => {
 					<FansView>
 						<FansGap height={14} />
 						<FypRadio
-							checked={formData.payoutOption === "Payoneer"}
+							checked={formData.payoutMethod === "Payoneer"}
 							label="Payoneer"
 							onPress={() =>
-								onChangeForm("payoutOption", "Payoneer")
+								onChangeForm("payoutMethod", "Payoneer")
 							}
+							hasError={isSubmitted && !formData.payoutMethod}
 						/>
 						<FansGap height={14} />
 						<FypCollapsible
-							collapsed={formData.payoutOption !== "Payoneer"}
+							collapsed={formData.payoutMethod !== "Payoneer"}
 						>
 							<FansGap height={10} />
 							<FypText
@@ -289,16 +310,17 @@ const LinkBankAccountTab: FC<LinkBankAccountTabProps> = (props) => {
 					<FansView>
 						<FansGap height={14} />
 						<FypRadio
-							checked={formData.payoutOption === "DirectDeposit"}
+							checked={formData.payoutMethod === "DirectDeposit"}
 							label={`Direct deposit:\nAccount and routing number`}
 							onPress={() =>
-								onChangeForm("payoutOption", "DirectDeposit")
+								onChangeForm("payoutMethod", "DirectDeposit")
 							}
+							hasError={isSubmitted && !formData.payoutMethod}
 						/>
 						<FansGap height={14} />
 						<FypCollapsible
 							collapsed={
-								formData.payoutOption !== "DirectDeposit"
+								formData.payoutMethod !== "DirectDeposit"
 							}
 						>
 							<FansGap height={10} />
@@ -320,15 +342,14 @@ const LinkBankAccountTab: FC<LinkBankAccountTabProps> = (props) => {
 					<FansView>
 						<FansGap height={14} />
 						<FypRadio
-							checked={formData.payoutOption === "IBanSwift"}
+							checked={formData.payoutMethod === "IBAN"}
 							label="IBAN/SWIFT Codes"
-							onPress={() =>
-								onChangeForm("payoutOption", "IBanSwift")
-							}
+							onPress={() => onChangeForm("payoutMethod", "IBAN")}
+							hasError={isSubmitted && !formData.payoutMethod}
 						/>
 						<FansGap height={14} />
 						<FypCollapsible
-							collapsed={formData.payoutOption !== "IBanSwift"}
+							collapsed={formData.payoutMethod !== "IBAN"}
 						>
 							<FansGap height={10} />
 							<FypText
@@ -348,31 +369,33 @@ const LinkBankAccountTab: FC<LinkBankAccountTabProps> = (props) => {
 					<FansGap height={30} />
 
 					<FypCollapsible
-						collapsed={formData.payoutOption !== "Revolut"}
+						collapsed={formData.payoutMethod !== "Revolut"}
 					>
 						<FormControl
 							label="Revolut information"
 							placeholder="Revolut link or username"
-							value={formData.revolutInfo}
+							value={formData.revolut}
 							onChangeText={(val: string) =>
-								onChangeForm("revolutInfo", val)
+								onChangeForm("revolut", val)
 							}
+							hasError={isSubmitted && !formData.revolut}
 						/>
 					</FypCollapsible>
 					<FypCollapsible
-						collapsed={formData.payoutOption !== "Payoneer"}
+						collapsed={formData.payoutMethod !== "Payoneer"}
 					>
 						<FormControl
 							label="Payoneer information"
 							placeholder="Payoneer email"
-							value={formData.payoneerInfo}
+							value={formData.payoneer}
 							onChangeText={(val: string) =>
-								onChangeForm("payoneerInfo", val)
+								onChangeForm("payoneer", val)
 							}
+							hasError={isSubmitted && !formData.payoneer}
 						/>
 					</FypCollapsible>
 					<FypCollapsible
-						collapsed={formData.payoutOption !== "DirectDeposit"}
+						collapsed={formData.payoutMethod !== "DirectDeposit"}
 					>
 						<FypText fontSize={17} fontWeight={600} lineHeight={22}>
 							Bank information
@@ -380,39 +403,43 @@ const LinkBankAccountTab: FC<LinkBankAccountTabProps> = (props) => {
 						<FansGap height={15} />
 						<RoundTextInput
 							placeholder="Bank routing number"
-							value={formData.bankRoutingNumber}
+							value={formData.routingNumber}
 							onChangeText={(val: string) =>
-								onChangeForm("bankRoutingNumber", val)
+								onChangeForm("routingNumber", val)
 							}
+							hasError={isSubmitted && !formData.routingNumber}
 						/>
 						<FansGap height={10} />
 						<RoundTextInput
 							placeholder="Bank account number"
-							value={formData.bankAccountNumber}
+							value={formData.accountNumber}
 							onChangeText={(val: string) =>
-								onChangeForm("bankAccountNumber", val)
+								onChangeForm("accountNumber", val)
 							}
+							hasError={isSubmitted && !formData.accountNumber}
 						/>
 					</FypCollapsible>
 					<FypCollapsible
-						collapsed={formData.payoutOption !== "IBanSwift"}
+						collapsed={formData.payoutMethod !== "IBAN"}
 					>
 						<FormControl
 							label="IBAN information"
 							placeholder="IBAN number"
-							value={formData.ibanNumber}
+							value={formData.iban}
 							onChangeText={(val: string) =>
-								onChangeForm("ibanNumber", val)
+								onChangeForm("iban", val)
 							}
+							hasError={isSubmitted && !formData.iban}
 						/>
 						<FansGap height={30} />
 						<FormControl
 							label="SWIFT information"
 							placeholder="SWIFT code"
-							value={formData.swiftCode}
+							value={formData.swift}
 							onChangeText={(val: string) =>
-								onChangeForm("swiftCode", val)
+								onChangeForm("swift", val)
 							}
+							hasError={isSubmitted && !formData.swift}
 						/>
 					</FypCollapsible>
 					<FansGap height={40} />
@@ -420,6 +447,9 @@ const LinkBankAccountTab: FC<LinkBankAccountTabProps> = (props) => {
 						<FypButton2
 							style={tw.style("bg-fans-purple")}
 							textStyle={tw.style("text-fans-white")}
+							pressableProps={{
+								onPress: handleConfirm,
+							}}
 						>
 							Confirm
 						</FypButton2>
@@ -434,28 +464,24 @@ const LinkBankAccountTab: FC<LinkBankAccountTabProps> = (props) => {
 };
 
 interface ManualFormProps {
+	formData: IFormData;
+	onChangeForm: (name: string, value: string) => void;
 	onGoToNext: () => void;
 }
 
 const ManualForm: FC<ManualFormProps> = (props) => {
-	const { onGoToNext } = props;
-	const [country, setCountry] = useState<string>();
-	const [state, setState] = useState<string>();
-	const [city, setCity] = useState("");
-	const [street, setStreet] = useState("");
-	const [apt, setApt] = useState("");
-	const [zip, setZip] = useState("");
+	const { formData, onChangeForm, onGoToNext } = props;
 
 	const stateOptions = useMemo(
 		() =>
 			states
-				.filter((s) => s.countryCode === country)
+				.filter((s) => s.countryCode === formData.country)
 				.sort((a, b) => a.name.localeCompare(b.name))
 				.map((el) => ({
 					data: el.name,
 					label: el.name,
 				})),
-		[country],
+		[formData.country],
 	);
 
 	const handleSubmit = () => {
@@ -489,14 +515,14 @@ const ManualForm: FC<ManualFormProps> = (props) => {
 				</FypText>
 				<FypCountryDropdown
 					data={[]}
-					value={country}
-					onSelect={(val) => setCountry(val as string)}
+					value={formData.country}
+					onSelect={(val) => onChangeForm("country", val as string)}
 				/>
 			</FansView>
 
 			<FansGap height={34} />
 
-			<FypCollapsible collapsed={country === ""}>
+			<FypCollapsible collapsed={formData.country === ""}>
 				<FypText
 					fontSize={17}
 					fontWeight={600}
@@ -508,8 +534,8 @@ const ManualForm: FC<ManualFormProps> = (props) => {
 				</FypText>
 				<FypDropdown
 					data={stateOptions}
-					value={state}
-					onSelect={(val) => setState(val as string)}
+					value={formData.state}
+					onSelect={(val) => onChangeForm("state", val as string)}
 					placeholder="Select State"
 					search
 				/>
@@ -528,27 +554,29 @@ const ManualForm: FC<ManualFormProps> = (props) => {
 				</FypText>
 				<RoundTextInput3
 					label="City"
-					value={city}
-					onChangeText={setCity}
+					value={formData.city}
+					onChangeText={(val) => onChangeForm("city", val as string)}
 				/>
 				<FansGap height={10} />
 				<RoundTextInput3
 					label="Street address"
-					value={street}
-					onChangeText={setStreet}
+					value={formData.street}
+					onChangeText={(val) =>
+						onChangeForm("street", val as string)
+					}
 				/>
 				<FansGap height={10} />
 				<RoundTextInput3
 					label="Apt, Suite, Bldg #"
 					optionalLabel="(Optional. Enter if applicable)"
-					value={apt}
-					onChangeText={setApt}
+					value={formData.apt}
+					onChangeText={(val) => onChangeForm("apt", val as string)}
 				/>
 				<FansGap height={10} />
 				<RoundTextInput3
 					label="ZIP code"
-					value={zip}
-					onChangeText={setZip}
+					value={formData.zip}
+					onChangeText={(val) => onChangeForm("zip", val as string)}
 				/>
 			</FansView>
 			<FansGap height={34} />
@@ -676,20 +704,20 @@ const SearchAddressForm: FC<SearchAddressFormProps> = (props) => {
 };
 
 interface ResidentialAddressTabProps {
+	formData: IFormData;
+	onChangeForm: (name: string, value: string) => void;
 	onGoToNext: () => void;
 }
 
 const ResidentialAddressTab: FC<ResidentialAddressTabProps> = (props) => {
-	const { onGoToNext } = props;
-	const [tab, setTab] = useState<"main" | "manual" | "select">("main");
+	const { formData, onChangeForm, onGoToNext } = props;
+	const [tab, setTab] = useState<"main" | "manual" | "select">("manual");
 
 	const [address, setAddress] = useState("");
 	const [apt, setApt] = useState("");
 
 	const handleContinue = () => {
-		if (address !== "") {
-			onGoToNext();
-		}
+		onGoToNext();
 	};
 
 	const handleSelectAddress = (val: string) => {
@@ -699,7 +727,11 @@ const ResidentialAddressTab: FC<ResidentialAddressTabProps> = (props) => {
 
 	return (
 		<FansView flex="1">
-			<FypNullableView visible={tab === "main"}>
+			<FypNullableView
+				visible={tab === "main"}
+				animated
+				style={tw.style("flex-1")}
+			>
 				<FypStepper currentStep={0} steps={steps} />
 				<FansGap height={32} />
 				<FypText
@@ -815,9 +847,13 @@ const ResidentialAddressTab: FC<ResidentialAddressTabProps> = (props) => {
 				</FypButton2>
 			</FypNullableView>
 			<FypNullableView visible={tab === "manual"}>
-				<ManualForm onGoToNext={onGoToNext} />
+				<ManualForm
+					formData={formData}
+					onChangeForm={onChangeForm}
+					onGoToNext={handleContinue}
+				/>
 			</FypNullableView>
-			<FypNullableView visible={tab === "select"}>
+			<FypNullableView visible={tab === "select"} animated>
 				<SearchAddressForm
 					onSelect={handleSelectAddress}
 					handleBack={() => setTab("main")}
@@ -835,325 +871,54 @@ const PayoutSetupScreen = () => {
 				| SettingsReferralProgramNativeStackParams
 			>
 		>();
-	const { id, isGreen = false } = useLocalSearchParams();
+	const { isGreen = false } = useLocalSearchParams();
 	const insets = useSafeAreaInsets();
+	const { state, dispatch } = useAppContext();
 
 	const [step, setStep] = useState(steps[0]);
-	const [bankForm, setBankForm] = useState<IBankForm>({
-		setUpMethod: "",
-		isUsCityzen: undefined,
-		paidMethod: "Bank",
-		paypalEmail: "",
-		cPaypalEmail: "",
-		country: "US",
-	});
-	const [stripeForm, setStripeForm] = useState<IStripeForm>({
-		firstName: "",
-		lastName: "",
-		address1: "",
-		address2: "",
-		city: "",
-		state: "",
-		zip: "",
-		bankRoutingNumber: "",
-		bankAccountNumber: "",
-	});
 	const [formData, setFormData] = useState<IFormData>({
+		country: "",
+		state: "",
+		city: "",
+		street: "",
+		apt: "",
+		zip: "",
 		firstName: "",
 		lastName: "",
-		companyName: "",
-		setUpMethod: "",
-		payoutOption: "",
-		revolutInfo: "",
-		payoneerInfo: "",
-		bankRoutingNumber: "",
-		bankAccountNumber: "",
-		ibanNumber: "",
-		swiftCode: "",
+		company: "",
+		entityType: "",
+		payoutMethod: "",
+		revolut: "",
+		payoneer: "",
+		routingNumber: "",
+		accountNumber: "",
+		iban: "",
+		swift: "",
 	});
-
-	useEffect(() => {
-		const fetchPayoutMethodData = async () => {
-			try {
-				if (!id) return;
-
-				const response = await fetchPayoutMethod(
-					{ id: id as string },
-					{ id: id as string },
-				);
-
-				if (response.ok) {
-					setBankForm({
-						setUpMethod: response.data.entityType,
-						isUsCityzen: response.data.usCitizenOrResident,
-						country: response.data.country,
-						paidMethod: response.data.provider,
-						paypalEmail: response.data.paypalEmail || "",
-						cPaypalEmail: response.data.paypalEmail || "",
-					});
-					if (response.data.bankInfo) {
-						setStripeForm(response.data.bankInfo);
-					}
-				}
-			} catch (error) {
-				Toast.show({
-					type: "error",
-					text1: "Could not fetch payout method",
-				});
-			}
-		};
-
-		fetchPayoutMethodData();
-	}, []);
-
-	const onPaypalPayoutMethod = async () => {
-		if (!bankForm.paypalEmail) {
-			Toast.show({
-				type: "error",
-				text1: "PayPal email is required.",
-			});
-			return;
-		}
-
-		if (bankForm.paypalEmail !== bankForm.cPaypalEmail) {
-			Toast.show({
-				type: "error",
-				text1: "PayPal emails do not match.",
-			});
-			return;
-		}
-
-		if (id) {
-			try {
-				const response = await updatePayoutMethod(
-					{
-						paypalEmail: bankForm.paypalEmail,
-						country: bankForm.country,
-						entityType: bankForm.setUpMethod,
-						usCitizenOrResident: !!bankForm.isUsCityzen,
-					},
-					{ id: id as string },
-				);
-
-				if (response.ok) {
-					Toast.show({
-						type: "success",
-						text1: "PayPal payout method updated",
-					});
-					navigation.navigate("GetPaid", { refresh: true });
-				} else {
-					Toast.show({
-						type: "error",
-						text1: response.data.message,
-					});
-				}
-			} catch (error) {
-				Toast.show({
-					type: "error",
-					text1: "Could not update PayPal payout method",
-				});
-			}
-		} else {
-			try {
-				const response = await createPayPalPayoutMethod({
-					paypalEmail: bankForm.paypalEmail,
-					country: bankForm.country,
-					entityType: bankForm.setUpMethod,
-					usCitizenOrResident: !!bankForm.isUsCityzen,
-				});
-
-				if (response.ok) {
-					Toast.show({
-						type: "success",
-						text1: "PayPal payout method added",
-					});
-					navigation.navigate("GetPaid", { refresh: true });
-				} else {
-					Toast.show({
-						type: "error",
-						text1: response.data.message,
-					});
-				}
-			} catch (error) {
-				Toast.show({
-					type: "error",
-					text1: "Could not add PayPal payout method",
-				});
-			}
-		}
-	};
-
-	const onDepositPayoutMethod = async () => {
-		if (!stripeForm.firstName) {
-			Toast.show({
-				type: "error",
-				text1: "First name is required.",
-			});
-			return;
-		}
-
-		if (!stripeForm.lastName) {
-			Toast.show({
-				type: "error",
-				text1: "Last name is required.",
-			});
-			return;
-		}
-
-		if (!stripeForm.address1) {
-			Toast.show({
-				type: "error",
-				text1: "Address 1 is required.",
-			});
-			return;
-		}
-
-		if (!stripeForm.city) {
-			Toast.show({
-				type: "error",
-				text1: "City is required.",
-			});
-			return;
-		}
-
-		if (!stripeForm.state) {
-			Toast.show({
-				type: "error",
-				text1: "State is required.",
-			});
-			return;
-		}
-
-		if (!stripeForm.zip) {
-			Toast.show({
-				type: "error",
-				text1: "ZIP is required.",
-			});
-			return;
-		}
-
-		if (!stripeForm.bankRoutingNumber) {
-			Toast.show({
-				type: "error",
-				text1: "Bank routing number is required.",
-			});
-			return;
-		}
-
-		if (!stripeForm.bankAccountNumber) {
-			Toast.show({
-				type: "error",
-				text1: "Bank account number is required.",
-			});
-			return;
-		}
-
-		if (id) {
-			try {
-				const response = await updatePayoutMethod(
-					{
-						bankInfo: stripeForm,
-						country: bankForm.country,
-						entityType: bankForm.setUpMethod,
-						usCitizenOrResident: !!bankForm.isUsCityzen,
-					},
-					{ id: id as string },
-				);
-
-				if (response.ok) {
-					Toast.show({
-						type: "success",
-						text1: "Bank payout method updated",
-					});
-					navigation.navigate("GetPaid", { refresh: true });
-				} else {
-					Toast.show({
-						type: "error",
-						text1: response.data.message,
-					});
-				}
-			} catch (error) {
-				Toast.show({
-					type: "error",
-					text1: "Could not update PayPal payout method",
-				});
-			}
-		} else {
-			try {
-				const response = await createPayPalPayoutMethod({
-					bankInfo: stripeForm,
-					country: bankForm.country,
-					entityType: bankForm.setUpMethod,
-					usCitizenOrResident: !!bankForm.isUsCityzen,
-				});
-
-				if (response.ok) {
-					Toast.show({
-						type: "success",
-						text1: "Bank payout method added",
-					});
-					navigation.navigate("GetPaid", { refresh: true });
-				} else {
-					Toast.show({
-						type: "error",
-						text1: response.data.message,
-					});
-				}
-			} catch (error) {
-				Toast.show({
-					type: "error",
-					text1: "Could not add Bank payout method",
-				});
-			}
-		}
-	};
-
-	const onPayoutMethod = async () => {
-		if (bankForm.setUpMethod === "") {
-			Toast.show({
-				type: "error",
-				text1: "Set up must select.",
-			});
-			return;
-		}
-		if (bankForm.isUsCityzen === undefined) {
-			Toast.show({
-				type: "error",
-				text1: "Your citizenship must select.",
-			});
-			return;
-		}
-		if (bankForm.isUsCityzen && bankForm.country !== "US") {
-			Toast.show({
-				type: "error",
-				text1: "US citizens must select 'US' as their country.",
-			});
-			return;
-		}
-
-		if (!bankForm.isUsCityzen && bankForm.country === "US") {
-			Toast.show({
-				type: "error",
-				text1: "Only US citizens or residents can select 'US' as their country.",
-			});
-			return;
-		}
-
-		switch (bankForm.paidMethod) {
-			case "PayPal":
-				onPaypalPayoutMethod();
-				break;
-			case "Bank":
-				onDepositPayoutMethod();
-				break;
-		}
-	};
 
 	const onChangeForm = (name: string, value: string) => {
 		setFormData({
 			...formData,
 			[name]: value,
 		});
+	};
+
+	const onPayoutMethod = async () => {
+		try {
+			const res = await createOrUpdatePayoutMethod(formData);
+			if (res.status === 200) {
+				Toast.show({
+					type: "success",
+					text1: "Payout method updated successfully",
+				});
+				navigation.goBack();
+			}
+		} catch (error) {
+			Toast.show({
+				type: "error",
+				text1: "Failed to update payout method",
+			});
+		}
 	};
 
 	return (
@@ -1169,7 +934,7 @@ const PayoutSetupScreen = () => {
 					<CustomTopNavBar
 						title="Payout setup"
 						onClickLeft={() => navigation.goBack()}
-						onClickRight={onPayoutMethod}
+						onClickRight={() => {}}
 						rightLabel="Next"
 						rightLabelColor={isGreen ? "fans-green" : "fans-purple"}
 					/>
@@ -1191,6 +956,8 @@ const PayoutSetupScreen = () => {
 							visible={step === "Residential_Address"}
 						>
 							<ResidentialAddressTab
+								formData={formData}
+								onChangeForm={onChangeForm}
 								onGoToNext={() => setStep("Link_Bank_Account")}
 							/>
 						</FypNullableView>
@@ -1198,6 +965,7 @@ const PayoutSetupScreen = () => {
 							<LinkBankAccountTab
 								formData={formData}
 								onChangeForm={onChangeForm}
+								onSubmit={onPayoutMethod}
 							/>
 						</FypNullableView>
 						<FansGap height={insets.bottom + 35} />

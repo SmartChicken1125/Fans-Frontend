@@ -98,7 +98,7 @@ const VaultScreen = (
 		const filterObj: IMediaFilterQuery = {
 			page: medias.page,
 			size: 10,
-			sort: orderBy === "Newest" ? "newest" : "latest",
+			sort: orderBy === "Newest" ? "oldest" : "latest",
 		};
 		if (filter !== MediaType.All) {
 			filterObj.type = filter;

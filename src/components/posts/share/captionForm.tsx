@@ -137,15 +137,6 @@ const CaptionForm: FC<Props> = (props) => {
 							"bg-fans-purple-f6 dark:bg-fans-purple-47",
 						)}
 					>
-						{/* <FansText
-							fontSize={16}
-							lineHeight={21}
-							style={tw.style(
-								"text-fans-black dark:text-fans-white",
-							)}
-						>
-							{data.caption}
-						</FansText> */}
 						<RoundTextInput
 							value={caption}
 							onChangeText={(val) => onChangeCaption(val)}

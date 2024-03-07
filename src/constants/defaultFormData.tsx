@@ -6,7 +6,12 @@ import {
 	PromotionType,
 	MediaType,
 } from "@usertypes/commonEnums";
-import { IPaymentCard, IPollForm, IPostForm } from "@usertypes/types";
+import {
+	IPaymentCard,
+	IPollForm,
+	IPostForm,
+	IPaidPostForm,
+} from "@usertypes/types";
 
 export const defaultAudioDetail = {
 	title: "",
@@ -159,4 +164,10 @@ export const defaultTierFormData = {
 	cover: "",
 	id: "0",
 	price: 0,
+};
+
+export const defaultPaidPostFormData: IPaidPostForm = {
+	currency: "USD",
+	price: "",
+	thumbs: [],
 };

@@ -8,7 +8,9 @@ import {
 } from "@components/controls";
 import { PwaInstallCard } from "@components/pwa";
 import { useAppContext } from "@context/useAppContext";
+import { markAllNotificationsRead } from "@helper/endpoints/notifications/apis";
 import tw from "@lib/tailwind";
+import { useFocusEffect } from "@react-navigation/native";
 import { useFeatureGates } from "@state/featureGates";
 import {
 	notificationListAtom,
@@ -82,7 +84,7 @@ const items: Array<INotificationFilter> = [
 ];
 
 const NotificationsScreen = () => {
-	const { dispatch, state } = useAppContext();
+	const { state } = useAppContext();
 	const { showPWAInstallPrompt } = state.common;
 	const [selected, setSelected] = useState(0);
 	const filter = items[selected] ?? items[0];
@@ -92,9 +94,10 @@ const NotificationsScreen = () => {
 	const refreshNotifications = useRefreshNotifications();
 	const featureGates = useFeatureGates();
 
-	useEffect(() => {
+	useFocusEffect(() => {
 		refreshNotifications();
-	}, []);
+		markAllNotificationsRead({}).catch(console.error);
+	});
 
 	return (
 		<FansScreen3 style={tw.style("bg-fans-white dark:bg-fans-black-1d")}>

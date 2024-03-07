@@ -63,7 +63,10 @@ const LinkPreviewCard = (props: {
 					fontFamily="inter-bold"
 					fontSize={17}
 					color={"white"}
-					style={tw.style(props.isListItem ? "mt-[4px]" : "mt-[9px]")}
+					style={tw.style(
+						props.isListItem ? "mt-[4px]" : "mt-[9px]",
+						"max-w-48",
+					)}
 					numberOfLines={props.isListItem ? 1 : 2}
 				>
 					{props.preview.siteName ?? "" !== ""

@@ -88,7 +88,7 @@ const TagPeopleSearchForm: FC<Props> = (props) => {
 										: {
 												...tag,
 												user: user,
-												userId: user.profile?.userId,
+												userId: user.id,
 										  },
 								),
 						  }

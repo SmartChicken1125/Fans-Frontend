@@ -12,6 +12,7 @@ import {
 	FypVideo,
 	FypText,
 } from "@components/common/base";
+import FansCarousel from "@components/common/carousel";
 import { ImageEditor } from "@components/common/imageEditor/imageEditor";
 import {
 	FansGap,
@@ -21,6 +22,7 @@ import {
 	FansView,
 } from "@components/controls";
 import { AudioItem } from "@components/posts/common";
+import { defaultPaidPostFormData } from "@constants/defaultFormData";
 import { IAppDispatch } from "@context/appContext";
 import { PostsActionType } from "@context/reducer/postsReducer";
 import { cdnURL } from "@helper/Utils";
@@ -200,7 +202,7 @@ const PaidPostViewType: FC<PaidPostViewTypeProps> = (props) => {
 								: "text-fans-white",
 						)}
 					>
-						Creator
+						Purchased
 					</FypText>
 				</FansView>
 				<FansView
@@ -238,7 +240,7 @@ const PaidPostViewType: FC<PaidPostViewTypeProps> = (props) => {
 								: "text-fans-white",
 						)}
 					>
-						Fans
+						Preview
 					</FypText>
 				</FansView>
 			</FansView>
@@ -348,6 +350,10 @@ const ThumbnailScreen: FC<Props> = (props) => {
 		dispatch,
 	} = props;
 
+	const isPaidPost =
+		step === PostStepTypes.PaidPost ||
+		step === PostStepTypes.PaidPostAccess;
+	const paidPost = data.paidPost ?? defaultPaidPostFormData;
 	const { medias, type, carouselIndex } = data;
 	const [pickerMedias, setPickerMedias] = useState<IPickerMedia[]>([]);
 	const [openImageEditor, setOpenImageEditor] = useState(false);
@@ -356,8 +362,7 @@ const ThumbnailScreen: FC<Props> = (props) => {
 	);
 
 	const carouselSize =
-		(tw.prefixMatch("xl") ? 770 : 600) -
-		(step === PostStepTypes.PaidPost ? 150 : 0);
+		(tw.prefixMatch("xl") ? 770 : 600) - (isPaidPost ? 150 : 0);
 
 	const { useVideoPicker, useAudioPicker, useImagePicker, useMediaPicker } =
 		useDocumentPicker();
@@ -475,15 +480,6 @@ const ThumbnailScreen: FC<Props> = (props) => {
 				medias: updatedMedias,
 			},
 		});
-	};
-
-	const getPaidPostPreview = () => {
-		if (data.paidPost && data.paidPost.thumbs) {
-			if (data.paidPost.thumbs[0]?.uri) {
-				return data.paidPost.thumbs[0].uri;
-			}
-		}
-		return require("@assets/images/posts/paid-post-preview.webp");
 	};
 
 	useEffect(() => {
@@ -637,8 +633,7 @@ const ThumbnailScreen: FC<Props> = (props) => {
 									>
 										<FypNullableView
 											visible={
-												step !==
-													PostStepTypes.PaidPost ||
+												!isPaidPost ||
 												viewType ===
 													UserRoleTypes.Creator
 											}
@@ -652,25 +647,39 @@ const ThumbnailScreen: FC<Props> = (props) => {
 
 										<FypNullableView
 											visible={
-												step ===
-													PostStepTypes.PaidPost &&
+												isPaidPost &&
 												viewType === UserRoleTypes.Fan
 											}
 										>
-											<ExpoImage
-												source={getPaidPostPreview()}
-												style={tw.style(
-													"w-full h-full",
-												)}
-												pointerEvents="none"
-											/>
+											{paidPost.thumbs.length > 0 ? (
+												<FansCarousel
+													id={`post-preview-carousel`}
+													width={carouselSize}
+													height={carouselSize}
+													resizeMode={
+														ResizeMode.CONTAIN
+													}
+													medias={paidPost.thumbs.map(
+														(el) => ({
+															url: el.uri,
+															mediaType:
+																el.type as MediaType,
+														}),
+													)}
+													useButtons
+												/>
+											) : (
+												<ExpoImage
+													source={require("@assets/images/posts/paid-post-preview.webp")}
+													style={tw.style(
+														"w-full h-full",
+													)}
+													pointerEvents="none"
+												/>
+											)}
 										</FypNullableView>
 
-										<FypNullableView
-											visible={
-												step === PostStepTypes.PaidPost
-											}
-										>
+										<FypNullableView visible={isPaidPost}>
 											<PostLockIcon />
 										</FypNullableView>
 									</FansView>
@@ -688,7 +697,7 @@ const ThumbnailScreen: FC<Props> = (props) => {
 									data={data}
 									dispatch={dispatch}
 									style={tw.style(
-										step === PostStepTypes.PaidPost
+										isPaidPost
 											? "bottom-[186px]"
 											: "bottom-9",
 									)}
@@ -713,9 +722,7 @@ const ThumbnailScreen: FC<Props> = (props) => {
 									</FansIconButton>
 								</FypNullableView>
 
-								<FypNullableView
-									visible={step === PostStepTypes.PaidPost}
-								>
+								<FypNullableView visible={isPaidPost}>
 									<PaidPostViewType
 										post={data}
 										viewType={viewType}

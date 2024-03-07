@@ -5,7 +5,7 @@ import { getLinkPreview } from "@helper/endpoints/stories/apis";
 import { LinkPreviewRespBody } from "@helper/endpoints/stories/schemas";
 import tw from "@lib/tailwind";
 import { IStory } from "@usertypes/types";
-import { openURL } from "expo-linking";
+import { useBlankLink } from "@utils/useBlankLink";
 import { useRouter } from "expo-router";
 import React, { FC, useEffect, useRef, useState } from "react";
 import { Image, Platform, TouchableOpacity, View } from "react-native";
@@ -48,6 +48,8 @@ const StoryContents: FC<Props> = (props) => {
 	const offset = useSharedValue(0);
 	const positionX = useSharedValue(0);
 	const positionY = useSharedValue(0);
+
+	const [openLink] = useBlankLink();
 
 	const animationStyles = useAnimatedStyle(() => {
 		return {
@@ -178,9 +180,7 @@ const StoryContents: FC<Props> = (props) => {
 															"w-full mt-auto mb-auto",
 														),
 														{
-															color: `#${storyText.color.substring(
-																2,
-															)}`,
+															color: storyText.color,
 														},
 													]}
 												>
@@ -196,7 +196,7 @@ const StoryContents: FC<Props> = (props) => {
 													"absolute w-[245px] h-[85px] bg-black bg-opacity-75 rounded-[7px] left-[60px] top-[160px]",
 												)}
 												onPress={() => {
-													openURL(storyUrl.url);
+													openLink(storyUrl.url);
 												}}
 											>
 												<LinkPreviewCard
@@ -225,7 +225,7 @@ const StoryContents: FC<Props> = (props) => {
 													)}
 													onPress={() =>
 														router.push(
-															`/${storyTag.creator.profileLink}`,
+															`/${storyTag.user.username}`,
 														)
 													}
 												>
@@ -245,17 +245,22 @@ const StoryContents: FC<Props> = (props) => {
 															),
 															{
 																color: "white",
-																backgroundColor: `#${storyTag.color.substring(
-																	2,
-																)}`,
+																backgroundColor:
+																	storyTag.color,
 															},
 														]}
 													>
-														@
-														{
-															storyTag.creator
+														{`@${
+															storyTag.user
+																.displayName &&
+															storyTag.user
 																.displayName
-														}
+																.length > 0
+																? storyTag.user
+																		.displayName
+																: storyTag.user
+																		.username
+														}`}
 													</FansText>
 												</TouchableOpacity>
 											</FansView>

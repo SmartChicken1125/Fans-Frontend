@@ -606,9 +606,6 @@ const EditProfileScreen = (
 										}}
 									/>
 								</FypNullableView>
-								{tw.prefixMatch("md") && (
-									<FansButton3 height={42} title="Review" />
-								)}
 								<EditSubLink
 									title="Preview"
 									onPress={() => {
@@ -661,6 +658,13 @@ const EditProfileScreen = (
 									<EditSubLink title="Custom video orders" />
 									<EditSubLink title="Video calls" />
 									<EditSubLink title="Store" />
+									<EditSubLink
+										title="View Reviews"
+										onPress={() => {
+											navigation.goBack();
+											navigation.navigate("Reviews");
+										}}
+									/>
 								</FypNullableView>
 								<FypNullableView
 									visible={featureGates.has(

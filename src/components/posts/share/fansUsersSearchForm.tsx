@@ -90,12 +90,39 @@ const FansUsersSearchForm: FC<Props> = (props) => {
 				gap={34}
 				margin={{ b: 32 }}
 			>
-				<FansView flex="1">
-					<RoundTextInput
-						placeholder="Add:"
-						value={searchKey}
-						onChangeText={setSearchKey}
-					/>
+				<FansView flex="1" position="relative">
+					{selectedUserIds.length === 0 ? (
+						<RoundTextInput
+							placeholder="Add:"
+							value={searchKey}
+							onChangeText={setSearchKey}
+						/>
+					) : (
+						<FansView
+							height={42}
+							borderRadius={42}
+							justifyContent="center"
+							padding={{ x: 20 }}
+							style={tw.style(
+								"bg-fans-grey-f0 dark:bg-fans-grey-43",
+							)}
+						>
+							<FypText
+								fontSize={18}
+								lineHeight={24}
+								fontFamily="inter-v"
+								numberOfLines={1}
+							>
+								Add:{" "}
+								{fanUsers.fans
+									.filter((user) =>
+										selectedUserIds.includes(user.id),
+									)
+									.map((el) => el.displayName)
+									.join(", ")}
+							</FypText>
+						</FansView>
+					)}
 				</FansView>
 				<FypText
 					fontSize={17}

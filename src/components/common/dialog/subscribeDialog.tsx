@@ -640,8 +640,8 @@ const SubscribeDialog: FC = () => {
 							)}
 							textAlign="center"
 						>
-							${price} + ${platformFee} platform fee + ${vatFee}{" "}
-							VAT
+							${price} + ${platformFee} platform fee{" "}
+							{vatFee > 0 && `+ $${vatFee} VAT`}
 						</FypText>
 
 						{discount && discountDays && (

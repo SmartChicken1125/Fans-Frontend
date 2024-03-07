@@ -21,3 +21,4 @@ export { default as FypStepper } from "./stepper";
 export { default as FypCheckbox } from "./checkbox";
 export { default as FypSortButton } from "./sortButton";
 export { default as FypRotateIcon } from "./rotateIcon";
+export { default as HoverGesture } from "./hoverGesture";

@@ -14,6 +14,7 @@ import {
 } from "@usertypes/commonEnums";
 import {
 	IFundraiserForm,
+	IMediaFile,
 	IPickerMedia,
 	IPollForm,
 	IPostForm,
@@ -164,49 +165,69 @@ const PostModal = () => {
 				[
 					...postForm.medias
 						.filter((media) => media.isPicker)
-						.map((el) => el.uri),
-					postForm.thumb.isPicker ? postForm.thumb.uri : undefined,
+						.map((el) => ({ url: el.uri, type: el.type })),
+					postForm.thumb.isPicker
+						? { url: postForm.thumb.uri, type: postForm.thumb.type }
+						: undefined,
 					...(postForm.paidPost?.thumbs ?? [])
 						.filter((media) => media.isPicker)
-						.map((el) => el.uri),
-					...postForm.uploadFiles.map((el) => el.url),
+						.map((el) => ({ url: el.uri, type: el.type })),
+					...postForm.uploadFiles.map((el) => ({
+						url: el.url,
+						type: MediaType.Image,
+					})),
 					postForm.fundraiser?.cover
 						? postForm.fundraiser.cover.isPicker
-							? postForm.fundraiser.cover.uri
+							? {
+									url: postForm.fundraiser.cover.uri,
+									type: postForm.fundraiser.cover.type,
+							  }
 							: undefined
 						: undefined,
 					postForm.poll.cover
 						? postForm.poll.cover.isPicker
-							? postForm.poll.cover.uri
+							? {
+									url: postForm.poll.cover.uri,
+									type: postForm.poll.cover.type,
+							  }
 							: undefined
 						: undefined,
 					postForm.giveaway.cover.isPicker
-						? postForm.giveaway.cover.uri
+						? {
+								url: postForm.giveaway.cover.uri,
+								type: postForm.giveaway.cover.type,
+						  }
 						: undefined,
-				].filter((el) => !!el) as string[],
+				].filter((el) => !!el && el.url != "") as IMediaFile[],
 			),
 		];
 
-		const thumbIdx = medias.findIndex((el) => el === postForm.thumb.uri);
+		const thumbIdx = medias.findIndex(
+			(el) => el.url === postForm.thumb.uri,
+		);
 		const paidPostThumbsIds = postForm.paidPost
 			? postForm.paidPost.thumbs
-					.map((el) => medias.findIndex((media) => media === el.uri))
+					.map((el) =>
+						medias.findIndex((media) => media.url === el.uri),
+					)
 					.filter((idx) => idx >= 0)
 			: [];
 		const mediasIdx = postForm.medias
-			.map((el) => medias.findIndex((media) => media === el.uri))
+			.map((el) => medias.findIndex((media) => media.url === el.uri))
 			.filter((idx) => idx >= 0);
 		const uploadFilesIdx = postForm.uploadFiles
-			.map((el) => medias.findIndex((media) => media === el.url))
+			.map((el) => medias.findIndex((media) => media.url === el.url))
 			.filter((idx) => idx >= 0);
 		const fundraiserCoverIdx = postForm.fundraiser?.cover
-			? medias.findIndex((el) => el === postForm.fundraiser?.cover?.uri)
+			? medias.findIndex(
+					(el) => el.url === postForm.fundraiser?.cover?.uri,
+			  )
 			: -1;
 		const pollCoverIdx = postForm.poll.cover
-			? medias.findIndex((el) => el === postForm.poll.cover?.uri)
+			? medias.findIndex((el) => el.url === postForm.poll.cover?.uri)
 			: -1;
 		const giveawayCoverIdx = postForm.giveaway.cover
-			? medias.findIndex((el) => el === postForm.giveaway.cover.uri)
+			? medias.findIndex((el) => el.url === postForm.giveaway.cover.uri)
 			: -1;
 
 		// const mediaType =
@@ -219,13 +240,11 @@ const PostModal = () => {
 		let uploadMedias: IUploadedFile[];
 
 		if (action === ActionType.Create) {
-			const files: IUploadFileParam[] = medias.map((uri) => ({
-				uri,
-				type: MediaType.Image,
+			const files: IUploadFileParam[] = medias.map((media) => ({
+				uri: media.url,
+				type: media.type,
 			}));
-			for (const idx of mediasIdx) {
-				files[idx].type = postForm.medias[idx]?.type;
-			}
+
 			const uploadResp = await uploadFiles(files);
 			if (files.length > 0 && !uploadResp.ok) {
 				Toast.show({

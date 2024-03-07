@@ -353,7 +353,7 @@ const StoryEditScreen = (
 			storyTags: selectedUser
 				? [
 						{
-							creatorId: selectedUser.profile?.id ?? "",
+							userId: selectedUser.profile?.userId ?? "",
 							color: "0x" + selectedMentionColor,
 							pointX: 0,
 							pointY: 0,

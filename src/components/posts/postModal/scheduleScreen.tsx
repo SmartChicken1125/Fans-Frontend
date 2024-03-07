@@ -75,6 +75,7 @@ const ScheduleScreen: FC<Props> = (props) => {
 			...scheduleForm,
 			timezone: data.schedule.timezone,
 			startDate: data.schedule.startDate,
+			time: data.schedule.time,
 		});
 	}, []);
 

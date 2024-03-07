@@ -7,7 +7,7 @@ export interface StoryUrl {
 }
 
 export interface StoryTag {
-	creatorId: string;
+	userId: string;
 	color: string;
 	pointX: number;
 	pointY: number;
@@ -53,8 +53,8 @@ export interface LinkPreviewRespBody {
 	description?: string;
 	images?: string[];
 	favicons?: string[];
-	mediaType: string;
-	contentType: string;
+	mediaType?: string;
+	contentType?: string;
 
 	code?: number;
 	message?: string;

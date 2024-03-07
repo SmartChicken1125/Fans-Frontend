@@ -147,6 +147,7 @@ interface ShopContentsProps {
 	onToggleDisplayShop?: (val: boolean) => void;
 	onViewGraph?: (postId: string) => void;
 	onViewPurchased?: (postId: string) => void;
+	onClickUnlock?: (post: IPost) => void;
 }
 
 export const ShopContents: FC<ShopContentsProps> = (props) => {
@@ -161,6 +162,7 @@ export const ShopContents: FC<ShopContentsProps> = (props) => {
 		onToggleDisplayShop,
 		onViewGraph,
 		onViewPurchased,
+		onClickUnlock,
 	} = props;
 
 	const [orderBy, setOrderBy] = useState<SortType>("Newest");
@@ -230,7 +232,11 @@ export const ShopContents: FC<ShopContentsProps> = (props) => {
 						key={post.id}
 						data={post}
 						shopCard={!!onToggleDisplayShop}
-						onClickUnlock={() => {}}
+						onClickUnlock={() => {
+							if (onClickUnlock) {
+								onClickUnlock(post);
+							}
+						}}
 						onClickActionMenu={() => onPressPostMenu(post.id)}
 						onClickMessage={
 							onClickPostMessage
@@ -258,6 +264,7 @@ interface ShopTabContentsProps {
 	onToggleDisplayShop?: (val: boolean) => void;
 	onViewGraph?: (postId: string) => void;
 	onViewPurchased?: (postId: string) => void;
+	onClickUnlock?: (post: IPost) => void;
 }
 
 const ShopTabContents: FC<ShopTabContentsProps> = (props) => {
@@ -271,6 +278,7 @@ const ShopTabContents: FC<ShopTabContentsProps> = (props) => {
 		onToggleDisplayShop,
 		onViewGraph,
 		onViewPurchased,
+		onClickUnlock,
 	} = props;
 	const router = useRouter();
 	const { dispatch } = useAppContext();
@@ -342,6 +350,7 @@ const ShopTabContents: FC<ShopTabContentsProps> = (props) => {
 					onToggleDisplayShop={onToggleDisplayShop}
 					onViewGraph={onViewGraph}
 					onViewPurchased={onViewPurchased}
+					onClickUnlock={onClickUnlock}
 				/>
 			</FypNullableView>
 			<FypNullableView visible={!isCreatorPage}>
@@ -359,6 +368,7 @@ const ShopTabContents: FC<ShopTabContentsProps> = (props) => {
 						onToggleDisplayShop={onToggleDisplayShop}
 						onViewGraph={onViewGraph}
 						onViewPurchased={onViewPurchased}
+						onClickUnlock={onClickUnlock}
 					/>
 				)}
 			</FypNullableView>

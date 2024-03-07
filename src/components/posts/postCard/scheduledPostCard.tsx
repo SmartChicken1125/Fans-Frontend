@@ -100,9 +100,9 @@ const ScheduledPostCard: FC<Props> = (props) => {
 							fontSize={17}
 							textTransform="uppercase"
 						>
-							{DateTime.fromISO(
-								data.schedule?.startDate!,
-							).toFormat("MMM d")}{" "}
+							{DateTime.fromISO(data.schedule?.startDate!)
+								.setZone(data.schedule?.timezone)
+								.toFormat("MMM d")}{" "}
 						</FansText>
 					</FansView>
 					<FansView flexDirection="row" gap={6.4}>
@@ -113,9 +113,14 @@ const ScheduledPostCard: FC<Props> = (props) => {
 							color1="purple"
 						/>
 						<FansText fontFamily="inter-semibold" fontSize={17}>
-							{DateTime.fromISO(
-								data.schedule?.startDate!,
-							).toFormat("hh:mm a")}
+							{DateTime.fromISO(data.schedule?.startDate!)
+								.setZone(data.schedule?.timezone)
+								.toFormat("hh:mm a")}
+						</FansText>
+					</FansView>
+					<FansView flexDirection="row" gap={6.4}>
+						<FansText fontFamily="inter-semibold" fontSize={17}>
+							{data.schedule?.timezone}
 						</FansText>
 					</FansView>
 					{isPosted && (

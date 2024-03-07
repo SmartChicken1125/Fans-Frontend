@@ -337,7 +337,7 @@ const PostTypesDialog = () => {
 					color1="purple-a8"
 				/>
 			),
-			isVisible: featureGates.has("2024_02-post-story"),
+			isVisible: true,
 		},
 		{
 			title: "Products",

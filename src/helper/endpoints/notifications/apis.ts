@@ -21,6 +21,11 @@ export const markNotificationRead = createPOSTWithParams<
 	NotificationsMarkReadParams
 >("/notifications/mark-read/:id", true);
 
+export const markAllNotificationsRead = createPOST<unknown, unknown>(
+	"/notifications/mark-all-read",
+	true,
+);
+
 export const getNotificationSettings = createGET<NotificationSettingsRespBody>(
 	"/notifications/settings",
 	true,
