@@ -304,6 +304,9 @@ export interface IPost {
 	createdAt: string;
 	updatedAt: string;
 	schedule?: IPostSchedule;
+	roles: IRole[];
+	categories: ICategory[];
+	users: IFansUser[];
 
 	username?: string;
 	bookmarkCount: number;
@@ -721,6 +724,7 @@ export interface IPickerMedia {
 	isPicker: boolean;
 	name?: string;
 	type: MediaType;
+	tags: IPostMediaTag[];
 }
 
 export interface IStoryMedia {

@@ -191,9 +191,10 @@ export const getPostTitleIcon = (postType: PostType) => {
 };
 
 export const post2PostFormData = (data: IPost): IPostForm => {
-	const date = momentTimezone(new Date(data.schedule?.startDate || "")).tz(
+	let date = momentTimezone(new Date(data.schedule?.startDate || "")).tz(
 		data.schedule?.timezone || "",
 	);
+	date = data.schedule?.startDate ? date : moment();
 	return {
 		id: data.id,
 		title: data.title,
@@ -206,15 +207,17 @@ export const post2PostFormData = (data: IPost): IPostForm => {
 			type:
 				(data.thumb?.type as MediaType) ??
 				defaultPostFormData.thumb.type,
+			tags: [],
 		},
 		medias: data.medias.map((v) => ({
 			id: v.id,
 			uri: v.url ?? "",
 			type: v.type as MediaType,
 			isPicker: false,
+			tags: v.tags,
 		})),
-		roles: [],
-		categories: [],
+		roles: data.roles.map((r) => r.id),
+		categories: data.categories.map((r) => r.id),
 		// paidPost: {
 		// 	currency: "USD",
 		// 	price: "0",
@@ -294,7 +297,7 @@ export const post2PostFormData = (data: IPost): IPostForm => {
 		categoryForm: defaultPostFormData.categoryForm,
 		paidPostAccess: defaultPostFormData.paidPostAccess,
 		tiers: defaultPostFormData.tiers,
-		users: defaultPostFormData.users,
+		users: data.users,
 		viewType: defaultPostFormData.viewType,
 	};
 };

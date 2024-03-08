@@ -1,4 +1,9 @@
-import { Search1Svg, SortAscSvg, Star2Svg } from "@assets/svgs/common";
+import {
+	Search1Svg,
+	SortAscSvg,
+	SortDescSvg,
+	Star2Svg,
+} from "@assets/svgs/common";
 import {
 	RatingStar1Svg,
 	RatingStar2Svg,
@@ -28,6 +33,7 @@ import { NativeScrollEvent, ScrollView } from "react-native";
 
 const Rating = (props: { score: number }) => {
 	const { score } = props;
+
 	return (
 		<>
 			<FansSvg
@@ -80,12 +86,14 @@ const ReviewsScreen = (
 		total: 0,
 		reviews: [],
 	});
+	const [orderBy, setOrderBy] = useState<"asc" | "desc">("asc");
 
 	const fetchReviews = async (page: number) => {
 		const filterObject = {
 			page: page,
 			size: SCROLL_SIZE,
 			query: searchKey,
+			sort: orderBy,
 		};
 
 		const resp = await getReviews(filterObject);
@@ -117,9 +125,13 @@ const ReviewsScreen = (
 		}
 	};
 
+	const handlePressSort = () => {
+		setOrderBy(orderBy === "asc" ? "desc" : "asc");
+	};
+
 	useEffect(() => {
 		fetchReviews(1);
-	}, [searchKey]);
+	}, [searchKey, orderBy]);
 
 	return (
 		<FansScreen4 contentStyle1={{ background: "grey-f0", grow: true }}>
@@ -151,10 +163,22 @@ const ReviewsScreen = (
 				</>
 			)}
 			<FansGap height={23} />
-			<FansView flexDirection="row" gap={13}>
-				<FansSvg width={16.8} height={14} svg={SortAscSvg} />
-				<FansText fontFamily="inter-medium" fontSize={17}>
-					Oldest first
+			<FansView
+				flexDirection="row"
+				gap={13}
+				touchableOpacityProps={{ onPress: handlePressSort }}
+			>
+				<FansSvg
+					width={16.76}
+					height={14.05}
+					svg={orderBy === "asc" ? SortAscSvg : SortDescSvg}
+				/>
+				<FansText
+					color="grey-70"
+					fontFamily="inter-medium"
+					fontSize={17}
+				>
+					{orderBy === "asc" ? "Newest first" : "Oldest first"}
 				</FansText>
 			</FansView>
 			<FansGap height={23} />

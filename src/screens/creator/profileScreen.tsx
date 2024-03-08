@@ -5,6 +5,7 @@ import {
 	StarCheckSvg,
 	TipSvg,
 } from "@assets/svgs/common";
+import { RatingStar1Svg } from "@assets/svgs/common/Rating";
 import { AuthModal } from "@components/auth";
 import AvatarWithStatus from "@components/common/AvatarWithStatus";
 import RoundButton from "@components/common/RoundButton";
@@ -78,6 +79,7 @@ import {
 import { PostListRespBody } from "@helper/endpoints/post/schemas";
 import { getCreatorProfileByLink } from "@helper/endpoints/profile/apis";
 import { updateSetting } from "@helper/endpoints/settings/apis";
+import { getSubscribedProfiles } from "@helper/endpoints/userlist/apis";
 import { getProfileVideoCallSettings } from "@helper/endpoints/videoCalls/apis";
 import tw from "@lib/tailwind";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -92,7 +94,10 @@ import {
 	SubscriptionTypes,
 	UserRoleTypes,
 } from "@usertypes/commonEnums";
-import { CreatorProfileNavigationStacks } from "@usertypes/navigations";
+import {
+	CreatorProfileNavigationStacks,
+	ProfileNavigationStacks,
+} from "@usertypes/navigations";
 import { IMediaFilterQuery, IPostFilterQuery } from "@usertypes/params";
 import {
 	ICardAction,
@@ -130,7 +135,7 @@ const defaultMedias = {
 };
 
 const ProfileScreen = (
-	props: NativeStackScreenProps<CreatorProfileNavigationStacks, "Creator">,
+	props: NativeStackScreenProps<ProfileNavigationStacks, "Profile">,
 ) => {
 	const { navigation } = props;
 	const router = useRouter();
@@ -208,6 +213,7 @@ const ProfileScreen = (
 	};
 
 	const fetchPosts = async () => {
+		console.log(123123123);
 		if (profile.id === "0") return;
 
 		const filterObject: IPostFilterQuery = {
@@ -232,10 +238,20 @@ const ProfileScreen = (
 		if (resp.ok) {
 			setPosts({
 				...resp.data,
-				posts:
-					resp.data.page === 1
-						? resp.data.posts
-						: [...posts.posts, ...resp.data.posts],
+				posts: (resp.data.page === 1
+					? resp.data.posts
+					: [...posts.posts, ...resp.data.posts]
+				).map((post) => {
+					const _post = { ...post };
+
+					if (_post.advanced) {
+						_post.advanced.isHideLikeViewCount =
+							(_post.advanced.isHideLikeViewCount ||
+								profile.hideLikes) ??
+							true;
+					}
+					return _post;
+				}),
 			});
 		}
 	};
@@ -260,8 +276,10 @@ const ProfileScreen = (
 	const fetchProfileData = async () => {
 		const resp = await getCreatorProfileByLink({
 			profileLink: username as string,
+			userId: state.profile.userId,
 		});
 		console.log(resp);
+		console.log(state);
 		if (resp.ok) {
 			setProfile(resp.data);
 			setPlaylists(resp.data.playlists);
@@ -859,7 +877,7 @@ const ProfileScreen = (
 																"md",
 															) && (
 																<FansButton3
-																	height={42}
+																	height={34}
 																	title="Review"
 																	buttonStyle={{
 																		backgroundColor:
@@ -992,6 +1010,39 @@ const ProfileScreen = (
 													<CopyLink
 														url={`fyp.fans/${profile.profileLink}`}
 													/>
+													<FansView
+														alignItems="center"
+														flexDirection="row"
+													>
+														<FansSvg
+															width={11.9}
+															height={11.4}
+															svg={RatingStar1Svg}
+															color1="purple-a8"
+														/>
+														<FansGap width={4} />
+														<FansText
+															fontFamily="inter-semibold"
+															fontSize={15}
+														>
+															{
+																profile.review
+																	.score
+															}
+														</FansText>
+														<FansGap width={4} />
+														<FansText
+															color="grey-48"
+															fontSize={15}
+														>
+															(
+															{
+																profile.review
+																	.total
+															}
+															)
+														</FansText>
+													</FansView>
 													<FansView
 														margin={{ t: 16 }}
 													>

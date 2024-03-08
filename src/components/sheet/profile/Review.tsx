@@ -14,6 +14,7 @@ import { postReview } from "@helper/endpoints/review/apis";
 import { useFeatureGates } from "@state/featureGates";
 import { FansSheetProps, IFansSheet } from "@usertypes/components";
 import React, { useState } from "react";
+import Toast from "react-native-toast-message";
 
 const ReviewSheet: IFansSheet = (props) => {
 	const { onClose, onSubmit } = props;
@@ -21,6 +22,7 @@ const ReviewSheet: IFansSheet = (props) => {
 
 	const [indexTip, setTipIndex] = useState(0);
 	const [numRating, setRatingValue] = useState(0);
+	const [reviewText, setReviewText] = useState("");
 
 	const props_: FansSheetProps = {
 		height: { xs: featureGates.has("2024_02-review-payment") ? 563 : 460 },
@@ -32,11 +34,19 @@ const ReviewSheet: IFansSheet = (props) => {
 		await postReview({
 			creatorId: props.profile?.id ?? "",
 			score: numRating,
-			text: "review",
+			text: reviewText,
 			tip: [0, 1, 5, 0][indexTip],
+		});
+		Toast.show({
+			type: "success",
+			text1: "Review submitted",
 		});
 		onSubmit("");
 		onClose();
+	};
+
+	const handleChangeText = (text: string) => {
+		setReviewText(text);
 	};
 
 	return (
@@ -112,6 +122,7 @@ const ReviewSheet: IFansSheet = (props) => {
 					multiline: true,
 					placeholder: "Leave a review...",
 				}}
+				onChangeText={handleChangeText}
 			/>
 			<FansGap height={39.2} />
 			{featureGates.has("2024_02-review-payment") && (

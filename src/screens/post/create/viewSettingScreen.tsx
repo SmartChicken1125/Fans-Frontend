@@ -137,7 +137,12 @@ const ViewSettingScreen = (
 						users: [],
 					},
 				});
-				setLocalRoles(roles.map((el) => ({ ...el, isEnable: true })));
+				setLocalRoles(
+					roles.map((el) => ({
+						...el,
+						isEnable: postForm.roles.includes(el.id),
+					})),
+				);
 				break;
 			case "PaymentTiers":
 				dispatch.setPosts({

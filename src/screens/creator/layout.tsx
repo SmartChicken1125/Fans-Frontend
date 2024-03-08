@@ -1,6 +1,7 @@
 import { FansText } from "@components/controls";
 import { CommonActionType, useAppContext } from "@context/useAppContext";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import ReviewsScreen from "@screens/profile/Reviews";
 import ReferAndEarnScreen from "@screens/settings/referral/ReferAndEarn";
 import { CreatorProfileNavigationStacks } from "@usertypes/navigations";
 import { useLocalSearchParams } from "expo-router";
@@ -62,6 +63,7 @@ const CreatorProfileLayout = () => {
 					headerShown: false,
 				}}
 			/>
+			<Stack.Screen name="Reviews" component={ReviewsScreen} />
 		</Stack.Navigator>
 	);
 };

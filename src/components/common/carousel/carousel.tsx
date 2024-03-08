@@ -50,6 +50,8 @@ function MediaElement({
 	rightPadding: number;
 	bottomPadding: number;
 }) {
+	const [watermarkX, setWatermarkX] = useState(0);
+	const [watermarkY, setWatermarkY] = useState(0);
 	return (
 		<>
 			{item.mediaType === MediaType.Image && (
@@ -61,6 +63,25 @@ function MediaElement({
 					resizeMode={resizeMode}
 					onLoad={(event) => {
 						if (!event.nativeEvent.source) return;
+						// Image.getSize(
+						// 	urlOrBlurHash(cdnURL(item.url), item.blurhash) ??
+						// 		"",
+						// 	(width, height) => {
+						// 		console.log(width, height);
+						// 		if (width > height) {
+						// 			setWatermarkX((width - height) / 2);
+						// 		} else {
+						// 			setWatermarkY((height - width) / 2);
+						// 		}
+						// 	},
+						// 	(err) => {
+						// 		console.log(err);
+						// 	},
+						// );
+						console.log(
+							event.nativeEvent.source.width,
+							event.nativeEvent.source.height,
+						);
 						setImageWidth(event.nativeEvent.source.width);
 						setImageHeight(event.nativeEvent.source.height);
 					}}
@@ -84,6 +105,9 @@ function MediaElement({
 					style={tw.style(
 						`right-[${rightPadding}px] bottom-[${bottomPadding}px] absolute`,
 						{ pointerEvents: "none" },
+						{
+							transform: `translateY(${watermarkY}) translateX(${watermarkX})`,
+						},
 					)}
 				>
 					{watermark}

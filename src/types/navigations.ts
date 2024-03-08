@@ -239,6 +239,7 @@ export type CreatorProfileNavigationStacks = {
 	Preview: undefined;
 	Post: { id: string };
 	ReferAndEarn: { profile?: IProfile } | undefined;
+	Reviews: undefined;
 };
 
 export type PrivacyPolicyNavigationStacks = {

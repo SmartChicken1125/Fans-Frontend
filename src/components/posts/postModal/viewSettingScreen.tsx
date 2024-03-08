@@ -1,5 +1,5 @@
 import { IAppDispatch } from "@context/appContext";
-import { ProfileActionType } from "@context/useAppContext";
+import { ProfileActionType, useAppContext } from "@context/useAppContext";
 import { deleteRole } from "@helper/endpoints/role/apis";
 import { PostStepTypes, SubscriptionTypes } from "@usertypes/commonEnums";
 import {
@@ -48,13 +48,12 @@ const ViewSettingScreen: FC<Props> = (props) => {
 	const [localRoles, setLocalRoles] = useState<IRole[]>([]);
 	const [tierIds, setTierIds] = useState<string[]>([]);
 	const [fanUsers, setFanUsers] = useState<IFansUser[]>([]);
+	const { state } = useAppContext();
 
 	const handleSaveFormData = () => {
 		if (viewType === "All") {
 			handleUpdatePostForm({
-				roles: [],
 				tiers: [],
-				users: [],
 			});
 		} else if (viewType === "XPLevels") {
 			handleUpdatePostForm({
@@ -62,17 +61,13 @@ const ViewSettingScreen: FC<Props> = (props) => {
 					.filter((role) => role.isEnable)
 					.map((el) => el.id),
 				tiers: [],
-				users: [],
 			});
 		} else if (viewType === "PaymentTiers") {
 			handleUpdatePostForm({
-				roles: [],
 				tiers: tierIds,
-				users: [],
 			});
 		} else if (viewType === "SpecificFans") {
 			handleUpdatePostForm({
-				roles: [],
 				tiers: [],
 				users: fanUsers,
 			});
@@ -91,24 +86,25 @@ const ViewSettingScreen: FC<Props> = (props) => {
 					viewType: val,
 					roles: [],
 					tiers: [],
-					users: [],
 				});
 				break;
 			case "XPLevels":
 				handleUpdatePostForm({
 					viewType: val,
-					roles: roles.map((el) => el.id),
 					tiers: [],
-					users: [],
 				});
-				setLocalRoles(roles.map((el) => ({ ...el, isEnable: true })));
+				setLocalRoles(
+					roles.map((el) => ({
+						...el,
+						isEnable: data.roles.includes(el.id),
+					})),
+				);
 				break;
 			case "PaymentTiers":
 				handleUpdatePostForm({
 					viewType: val,
 					roles: [],
 					tiers: tiers.map((tier) => tier.id),
-					users: [],
 				});
 				setTierIds(tiers.map((tier) => tier.id));
 				break;
@@ -117,7 +113,6 @@ const ViewSettingScreen: FC<Props> = (props) => {
 					viewType: val,
 					roles: [],
 					tiers: [],
-					users: [],
 				});
 				break;
 			default:

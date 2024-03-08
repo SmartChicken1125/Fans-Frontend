@@ -434,6 +434,7 @@ export const FansTextInput6: IFansTextInput = (props) => {
 						tw.style(textInputStyles),
 						textInputStyle_.secureTextEntry &&
 							isSecure && { paddingLeft: 40 },
+						{ outlineStyle: "none" },
 					]}
 					multiline={textInputStyle_.multiline}
 					placeholder={textInputStyle_.placeholder}

@@ -4,6 +4,7 @@ import { FypNullableView } from "@components/common/base";
 import FileDropzone from "@components/common/fileDropzone";
 import { FansText, FansView } from "@components/controls";
 import UserLine from "@components/posts/dialogs/userListDialog/userLine";
+import { defaultPostFormData } from "@constants/defaultFormData";
 import { IAppDispatch } from "@context/appContext";
 import { PostsActionType } from "@context/useAppContext";
 import tw from "@lib/tailwind";
@@ -12,6 +13,7 @@ import {
 	PostType,
 	RoundButtonType,
 	ResizeMode,
+	ActionType,
 } from "@usertypes/commonEnums";
 import {
 	IPostForm,
@@ -53,7 +55,10 @@ const TagPeopleForm: FC<Props> = (props) => {
 	const [mediaSize, setMediaSize] = useState(0);
 	const [media, setMedia] = useState<IPickerMedia | null>();
 	const [userTags, setUserTags] = useState<IUserTag[]>([]);
-
+	const action =
+		postForm.id === defaultPostFormData.id
+			? ActionType.Create
+			: ActionType.Update;
 	const mediaTabGesture = Gesture.Tap().onEnd((e) => {
 		const uploadId = medias[carouselIndex].id ?? "";
 		const positionX =
@@ -159,18 +164,19 @@ const TagPeopleForm: FC<Props> = (props) => {
 	useEffect(() => {
 		if (medias.length > 0) {
 			setMedia(medias[carouselIndex]);
-			setUserTags(
-				taggedPeoples.find(
-					(usertags) =>
-						usertags.postMediaId === medias[carouselIndex].id,
-				)?.tags ?? [],
-			);
+			// setUserTags(
+			// 	taggedPeoples.find(
+			// 		(usertags) =>
+			// 			usertags.postMediaId === medias[carouselIndex].id,
+			// 	)?.tags ?? [],
+			// );
+			setUserTags(medias[carouselIndex].tags ?? []);
+			console.log(postForm);
 		} else {
 			setMedia(null);
 		}
 	}, [carouselIndex, taggedPeoples, medias]);
-	console.log(postForm);
-	console.log(`carousel index = ${carouselIndex}`);
+
 	return (
 		<FansView>
 			<FansView
@@ -189,7 +195,13 @@ const TagPeopleForm: FC<Props> = (props) => {
 								visible={media?.type === MediaType.Image}
 							>
 								<Image
-									source={{ uri: media?.uri }}
+									source={{
+										uri:
+											action === ActionType.Create
+												? media?.uri
+												: "https://fyp-fans-cdn-dev.harvestangels.co/" +
+												  media?.uri,
+									}}
 									style={tw.style("w-full h-full")}
 								/>
 							</FypNullableView>
@@ -198,7 +210,12 @@ const TagPeopleForm: FC<Props> = (props) => {
 							>
 								<Video
 									source={{
-										uri: media?.uri ?? "",
+										uri: media?.uri
+											? action === ActionType.Create
+												? media?.uri
+												: "https://fyp-fans-cdn-dev.harvestangels.co/" +
+												  media?.uri
+											: "",
 									}}
 									style={tw.style(
 										"w-full h-full rounded-[7px] bg-black",

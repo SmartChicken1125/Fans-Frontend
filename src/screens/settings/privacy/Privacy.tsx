@@ -494,7 +494,7 @@ const PrivacyScreen = (props: PrivacyNativeStackScreenProps<"Privacy">) => {
 					/>
 					<FansDivider />
 
-					{featureGates.has("2024_01-explicit-comment-filter") && (
+					{/* {featureGates.has("2024_01-explicit-comment-filter") && (
 						<FansSwitch1
 							height={52}
 							value={isExplicitCommentFiltering}
@@ -522,7 +522,7 @@ const PrivacyScreen = (props: PrivacyNativeStackScreenProps<"Privacy">) => {
 					)}
 					{featureGates.has("2024_01-allow-screenshot") && (
 						<FansDivider />
-					)}
+					)} */}
 
 					<FansSwitch1
 						height={52}

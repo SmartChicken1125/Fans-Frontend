@@ -188,7 +188,7 @@ export const getSuggestedProfiles = createGET<SuggestedProfilesRespBody>(
 export const getCreatorProfileByLink = createGETWithParams<
 	CreatorProfileRespBody,
 	ProfileLinkParams
->("/profiles/link/:profileLink", true);
+>("/profiles/link/:userId/:profileLink", true);
 
 // highlights
 export const getHighlightById = createGETWithParams<IHighlight, IdParams>(

@@ -109,6 +109,7 @@ export interface ProfilePreviewReqBody {
 }
 export interface ProfileLinkParams {
 	profileLink: string;
+	userId: string;
 }
 export interface HighlightReqBody {
 	title: string;

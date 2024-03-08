@@ -10,6 +10,7 @@ import {
 	StatisticsSvg,
 	EyeHideSvg,
 } from "@assets/svgs/common";
+import { RatingStar1Svg } from "@assets/svgs/common/Rating";
 import AvatarWithStatus from "@components/common/AvatarWithStatus";
 import RoundButton from "@components/common/RoundButton";
 import { FypNullableView, FypSvg } from "@components/common/base";
@@ -955,7 +956,7 @@ const CreatorProfileScreen = (
 								<FansSvg
 									width={11.9}
 									height={11.4}
-									svg={Star1Svg}
+									svg={RatingStar1Svg}
 									color1="purple-a8"
 								/>
 								<FansGap width={4} />
