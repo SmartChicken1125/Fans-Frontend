@@ -284,19 +284,9 @@ const PostModal = () => {
 				? uploadMedias[giveawayCoverIdx].id
 				: undefined;
 
+
 		const requestData = getCreatePostData({
-			postForm: {
-				...postForm,
-				taggedPeoples: postForm.taggedPeoples.map((tag) => ({
-					...tag,
-					postMediaId:
-						mediaIds[
-							postForm.medias.findIndex(
-								(media) => media.id === tag.postMediaId,
-							)
-						],
-				})),
-			},
+			postForm: postForm,
 			thumbId: thumb,
 			mediaIds,
 			formIds,
@@ -305,6 +295,7 @@ const PostModal = () => {
 			pollCover,
 			giveawayCover,
 		});
+		console.log(requestData, postForm);
 
 		const resp =
 			action === ActionType.Create

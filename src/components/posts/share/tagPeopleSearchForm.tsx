@@ -75,25 +75,28 @@ const TagPeopleSearchForm: FC<Props> = (props) => {
 
 	const handleToggleUser = (user: IUserInfo) => {
 		const uploadId = medias[carouselIndex].id;
+		const _medias = [...medias];
+		const tagIndex = _medias[carouselIndex].tags?.findIndex((tag) => {
+			return tag.userId == user.id;
+		});
+		if (tagIndex == -1 || tagIndex == undefined) {
+			_medias[carouselIndex].tags = _medias[carouselIndex].tags ?? [];
+			_medias[carouselIndex].tags.push({
+				id: user.id,
+				postMediaId: uploadId ?? "0",
+				userId: user.id,
+				user: user,
+				pointX: 0,
+				pointY: 0,
+				updatedAt: "",
+			});
+		} else {
+			_medias[carouselIndex].tags.slice(tagIndex, 1);
+		}
 		dispatch.setPosts({
 			type: PostsActionType.updatePostForm,
 			data: {
-				taggedPeoples: taggedPeoples.map((userTag) =>
-					userTag.postMediaId === uploadId
-						? {
-								...userTag,
-								tags: userTag.tags.map((tag) =>
-									tag.user
-										? tag
-										: {
-												...tag,
-												user: user,
-												userId: user.id,
-										  },
-								),
-						  }
-						: userTag,
-				),
+				medias: _medias,
 			},
 		});
 		onSaveCallback();

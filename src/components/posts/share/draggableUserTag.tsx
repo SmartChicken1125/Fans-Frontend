@@ -4,6 +4,7 @@ import { FansIconButton, FansView } from "@components/controls";
 import tw from "@lib/tailwind";
 import { IUserTag } from "@usertypes/types";
 import React, { FC } from "react";
+import { StyleSheet } from "react-native";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import { Popover } from "react-native-popable";
 import Animated, {
@@ -13,7 +14,7 @@ import Animated, {
 
 interface Props {
 	visible: boolean;
-	userTag: IUserTag;
+	userTag: IPostMediaTag;
 	mediaSize: number[];
 	onRemove: () => void;
 	onUpdate: (position: number[]) => void;
@@ -25,6 +26,7 @@ const DraggableUserTag: FC<Props> = (props) => {
 		mediaSize[0] * userTag.pointX,
 		mediaSize[1] * userTag.pointY,
 	];
+
 	const coordinate = useSharedValue(position);
 	const pan = Gesture.Pan()
 		.onUpdate((e) => {
@@ -59,22 +61,9 @@ const DraggableUserTag: FC<Props> = (props) => {
 	return (
 		<GestureDetector gesture={pan}>
 			<Animated.View
-				style={[
-					tw.style("w-[150px] h-10 absolute"),
-					{
-						transform: [{ translateX: -75 }],
-					},
-					animatedStyle,
-				]}
+				style={[tw.style("w-[150px] h-10 absolute"), animatedStyle]}
 			>
-				<Popover
-					visible={visible}
-					style={[
-						{
-							width: 150,
-						},
-					]}
-				>
+				<Popover visible={visible}>
 					<FansView
 						flexDirection="row"
 						alignItems="center"

@@ -38,17 +38,16 @@ export const getCreatePostData = (data: {
 		title: "",
 		type: postForm.type,
 		thumbId: thumbId,
-		postMedias: mediaIds.map((mediaId) => ({
-			postMediaId: mediaId,
-			tags:
-				postForm.taggedPeoples
-					.find((mediaTag) => mediaTag.postMediaId === mediaId)
-					?.tags.map((tag) => ({
-						userId: tag.userId ?? "",
-						pointX: tag.pointX,
-						pointY: tag.pointY,
-					})) ?? [],
-		})),
+		postMedias: postForm.medias.map((media, index) => {
+			return {
+				postMediaId: mediaIds[index],
+				tags: media.tags
+					? media.tags.map((tag) => {
+							return { ...tag, postMediaId: mediaIds[index] };
+					  })
+					: [],
+			};
+		}),
 		caption: postForm.caption,
 		categories: postForm.categories,
 		advanced: postForm.advanced,

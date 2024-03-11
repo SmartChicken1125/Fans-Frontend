@@ -86,7 +86,7 @@ export interface PostMediaTags {
 }
 
 export interface PostMedia {
-	postMediaId: string;
+	postMediaId: string | undefined;
 	tags: PostMediaTags[];
 }
 

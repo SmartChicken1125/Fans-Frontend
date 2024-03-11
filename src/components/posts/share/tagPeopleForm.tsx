@@ -20,6 +20,7 @@ import {
 	IUploadForm,
 	IPickerMedia,
 	IUserTag,
+	IPostMediaTag,
 } from "@usertypes/types";
 import { useBlankLink } from "@utils/useBlankLink";
 import { Video } from "expo-av";
@@ -54,7 +55,7 @@ const TagPeopleForm: FC<Props> = (props) => {
 	const { carouselIndex, medias, taggedPeoples } = postForm;
 	const [mediaSize, setMediaSize] = useState(0);
 	const [media, setMedia] = useState<IPickerMedia | null>();
-	const [userTags, setUserTags] = useState<IUserTag[]>([]);
+	const [userTags, setUserTags] = useState<IPostMediaTag[]>([]);
 	const action =
 		postForm.id === defaultPostFormData.id
 			? ActionType.Create
@@ -119,44 +120,35 @@ const TagPeopleForm: FC<Props> = (props) => {
 
 	const onRemoveTag = (userTagId: string) => {
 		setUserTags(userTags.filter((tag) => tag.id !== userTagId));
+		const updatedTags = userTags.filter((tag) => tag.id !== userTagId);
+		const _medias = [...medias];
+		_medias[carouselIndex].tags = updatedTags;
 		dispatch.setPosts({
 			type: PostsActionType.updatePostForm,
 			data: {
-				taggedPeoples: taggedPeoples.map((_usertags) =>
-					_usertags.postMediaId === medias[carouselIndex].id
-						? {
-								..._usertags,
-								tags: _usertags.tags.filter(
-									(_tag) => _tag.id !== userTagId,
-								),
-						  }
-						: _usertags,
-				),
+				medias: _medias,
 			},
 		});
 	};
 
 	const onUpdateTagPosition = (tagId: string, position: number[]) => {
-		const updatedUsertags = userTags.map((tag) =>
+		console.log(tagId, position, carouselIndex);
+		const updatedUsertags = medias[carouselIndex].tags.map((tag) =>
 			tag.id === tagId
 				? {
 						...tag,
-						position: position,
+						pointX: position[0],
+						pointY: position[1],
 				  }
 				: tag,
 		);
+		const _medias = [...medias];
+		_medias[carouselIndex].tags = updatedUsertags;
 		setUserTags(updatedUsertags);
 		dispatch.setPosts({
 			type: PostsActionType.updatePostForm,
 			data: {
-				taggedPeoples: taggedPeoples.map((_usertags) =>
-					_usertags.postMediaId === medias[carouselIndex].id
-						? {
-								..._usertags,
-								tags: updatedUsertags,
-						  }
-						: _usertags,
-				),
+				medias: _medias,
 			},
 		});
 	};
@@ -164,14 +156,7 @@ const TagPeopleForm: FC<Props> = (props) => {
 	useEffect(() => {
 		if (medias.length > 0) {
 			setMedia(medias[carouselIndex]);
-			// setUserTags(
-			// 	taggedPeoples.find(
-			// 		(usertags) =>
-			// 			usertags.postMediaId === medias[carouselIndex].id,
-			// 	)?.tags ?? [],
-			// );
 			setUserTags(medias[carouselIndex].tags ?? []);
-			console.log(postForm);
 		} else {
 			setMedia(null);
 		}
